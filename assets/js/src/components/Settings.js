@@ -9,7 +9,7 @@ const Settings = () => {
 
     useEffect(() => {
         // Fetch initial settings
-        apiFetch({ path: '/event-manager/v1/settings' }).then(response => {
+        apiFetch({ path: '/wp-json/event-manager/v1/settings' }).then(response => {
             setRootServer(response.bmlt_root_server || '');
         });
     }, []);
@@ -20,7 +20,7 @@ const Settings = () => {
 
         try {
             await apiFetch({
-                path: '/event-manager/v1/settings',
+                path: '/wp-json/event-manager/v1/settings',
                 method: 'POST',
                 data: { bmlt_root_server: rootServer }
             });
