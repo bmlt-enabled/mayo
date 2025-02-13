@@ -31,7 +31,7 @@ const EventCard = ({ event, timeFormat }) => {
                     <div className="mayo-event-brief">
                         <span className="mayo-event-type">{event.meta.event_type}</span>
                         <span className="mayo-event-datetime">
-                            {new Date(event.meta.event_date).toLocaleDateString()} | {' '}
+                            {new Date(event.meta.event_start_date).toLocaleDateString()} | {' '}
                             {formatTime(event.meta.event_start_time, timeFormat)} - {formatTime(event.meta.event_end_time, timeFormat)}
                         </span>
                     </div>
@@ -121,12 +121,12 @@ const EventList = () => {
             const now = new Date();
             const upcomingEvents = data
                 .filter(event => {
-                    const eventDate = new Date(`${event.meta.event_date} ${event.meta.event_start_time}`);
+                    const eventDate = new Date(`${event.meta.event_start_date} ${event.meta.event_start_time}`);
                     return eventDate > now;
                 })
                 .sort((a, b) => {
-                    const dateA = new Date(`${a.meta.event_date} ${a.meta.event_start_time}`);
-                    const dateB = new Date(`${b.meta.event_date} ${b.meta.event_start_time}`);
+                    const dateA = new Date(`${a.meta.event_start_date} ${a.meta.event_start_time}`);
+                    const dateB = new Date(`${b.meta.event_start_date} ${b.meta.event_start_time}`);
                     return dateA - dateB;
                 });
 

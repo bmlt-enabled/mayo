@@ -27,7 +27,7 @@ const EventCalendar = ({ events }) => {
     const getEventsForDate = (date) => {
         if (!date) return [];
         return events.filter(event => {
-            const eventDate = new Date(event.meta.event_date);
+            const eventDate = new Date(event.meta.event_start_date);
             return eventDate.toDateString() === date.toDateString();
         });
     };
