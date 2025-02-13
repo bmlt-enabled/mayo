@@ -10,6 +10,8 @@ import {
     __experimentalNumberControl as NumberControl,
     RadioControl
 } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 
 const EventDetails = () => {
     const postType = useSelect(select => 
@@ -21,6 +23,34 @@ const EventDetails = () => {
     );
 
     const { editPost } = useDispatch('core/editor');
+
+    const [serviceBodies, setServiceBodies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchServiceBodies = async () => {
+            try {
+                const settings = await apiFetch({ path: '/wp-json/event-manager/v1/settings' });
+                const bmltRootServer = settings.bmlt_root_server;
+                if (!bmltRootServer) {
+                    throw new Error('BMLT root server URL not set');
+                }
+
+                const response = await fetch(`${bmltRootServer}/client_interface/json/?switcher=GetServiceBodies`);
+                const data = await response.json();
+                const sortedServiceBodies = data.sort((a, b) => a.name.localeCompare(b.name));
+                setServiceBodies(sortedServiceBodies);
+            } catch (err) {
+                console.error('Error fetching service bodies:', err);
+                setError('Failed to load service bodies');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchServiceBodies();
+    }, []);
 
     if (postType !== 'mayo_event') return null;
 
@@ -93,6 +123,7 @@ const EventDetails = () => {
                     { label: 'Activity', value: 'Activity' }
                 ]}
                 onChange={value => updateMetaValue('event_type', value)}
+                __nextHasNoMarginBottom={true}
             />
 
             <PanelBody title="Event Date & Time" initialOpen={true}>
@@ -103,11 +134,13 @@ const EventDetails = () => {
                             type="date"
                             value={meta.event_start_date}
                             onChange={value => updateMetaValue('event_start_date', value)}
+                            __nextHasNoMarginBottom={true}
                         />
                         <TextControl
                             type="time"
                             value={meta.event_start_time}
                             onChange={value => updateMetaValue('event_start_time', value)}
+                            __nextHasNoMarginBottom={true}
                         />
                     </div>
 
@@ -117,11 +150,13 @@ const EventDetails = () => {
                             type="date"
                             value={meta.event_end_date}
                             onChange={value => updateMetaValue('event_end_date', value)}
+                            __nextHasNoMarginBottom={true}
                         />
                         <TextControl
                             type="time"
                             value={meta.event_end_time}
                             onChange={value => updateMetaValue('event_end_time', value)}
+                            __nextHasNoMarginBottom={true}
                         />
                     </div>
                 </div>
@@ -137,7 +172,30 @@ const EventDetails = () => {
                         { label: 'Hawaii Time', value: 'Pacific/Honolulu' }
                     ]}
                     onChange={value => updateMetaValue('timezone', value)}
+                    __nextHasNoMarginBottom={true}
                 />
+            </PanelBody>
+
+            <PanelBody title="Service Body" initialOpen={true}>
+                {loading ? (
+                    <p>Loading service bodies...</p>
+                ) : error ? (
+                    <p className="mayo-error">{error}</p>
+                ) : (
+                    <SelectControl
+                        label="Service Body"
+                        value={meta.serviceBody}
+                        options={[
+                            { label: 'Select a service body', value: '' },
+                            ...serviceBodies.map(body => ({
+                                label: `${body.name} (${body.id})`,
+                                value: body.id
+                            }))
+                        ]}
+                        onChange={value => updateMetaValue('serviceBody', value)}
+                        __nextHasNoMarginBottom={true}
+                    />
+                )}
             </PanelBody>
 
             <PanelBody title="Recurring Pattern" initialOpen={true}>
@@ -151,6 +209,7 @@ const EventDetails = () => {
                         { label: 'Monthly', value: 'monthly' }
                     ]}
                     onChange={value => updateRecurringPattern({ type: value })}
+                    __nextHasNoMarginBottom={true}
                 />
 
                 {recurringPattern.type !== 'none' && (
@@ -192,6 +251,7 @@ const EventDetails = () => {
                             type="date"
                             value={recurringPattern.endDate}
                             onChange={value => updateRecurringPattern({ endDate: value })}
+                            __nextHasNoMarginBottom={true}
                         />
                     </>
                 )}
@@ -234,6 +294,7 @@ const EventDetails = () => {
                                             monthlyWeekday: `${value},${currentDay}` 
                                         });
                                     }}
+                                    __nextHasNoMarginBottom={true}
                                 />
                                 <SelectControl
                                     label="Day"
@@ -245,6 +306,7 @@ const EventDetails = () => {
                                             monthlyWeekday: `${currentWeek},${value}` 
                                         });
                                     }}
+                                    __nextHasNoMarginBottom={true}
                                 />
                             </div>
                         )}
@@ -281,18 +343,21 @@ const EventDetails = () => {
                     value={meta.location_name}
                     onChange={(value) => updateMetaValue('location_name', value)}
                     placeholder="e.g., Community Center"
+                    __nextHasNoMarginBottom={true}
                 />
                 <TextControl
                     label="Address"
                     value={meta.location_address}
                     onChange={(value) => updateMetaValue('location_address', value)}
                     placeholder="Full address"
+                    __nextHasNoMarginBottom={true}
                 />
                 <TextControl
                     label="Location Details"
                     value={meta.location_details}
                     onChange={(value) => updateMetaValue('location_details', value)}
                     placeholder="Parking info, entrance details, etc."
+                    __nextHasNoMarginBottom={true}
                 />
             </PanelBody>
         </PluginDocumentSettingPanel>

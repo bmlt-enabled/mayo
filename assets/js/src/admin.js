@@ -13,12 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const shortcodesContainer = document.getElementById('mayo-shortcode-root');
     const settingsContainer = document.getElementById('mayo-settings-root');
 
-    console.log('Containers:', {
-        adminContainer,
-        shortcodesContainer,
-        settingsContainer
-    });
-
     if (adminContainer) {
         render(<App />, adminContainer);
     }
