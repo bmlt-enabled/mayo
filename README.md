@@ -2,13 +2,11 @@
 
 Pronounced "my-oh".  Referring to the Spanish word "mayo" which means "May" in English.
 
-# Mayo Event Manager
-
-## Description
+### Description
 
 Mayo Event Manager is a comprehensive WordPress plugin designed to facilitate the management of events with a focus on community engagement and administrative oversight. This plugin allows users to submit events for approval, supports recurring event schedules, and integrates seamlessly with WordPress's native features like featured images and custom post types.
 
-## Key Features
+### Key Features
 
 1. **Event Submission and Approval**:
    - Users can submit events through a public-facing form.
@@ -41,14 +39,14 @@ Mayo Event Manager is a comprehensive WordPress plugin designed to facilitate th
    - Intuitive form interface for event submission, including validation for required fields like email.
    - Admin interface for managing events, including viewing, editing, and approving submissions.
 
-## Technical Details
+### Technical Details
 
 - **Custom Post Type**: Utilizes a custom post type `mayo_event` to store and manage events.
 - **JavaScript Components**: Built with React and integrated into the WordPress admin and front-end using Gutenberg components.
 - **Email Handling**: Uses WordPress's `wp_mail` function to send notifications.
 - **Data Storage**: Stores event metadata using WordPress's post meta system, ensuring compatibility and scalability.
 
-## Installation and Usage
+### Installation and Usage
 
 1. **Installation**:
    - Upload the plugin files to the `/wp-content/plugins/mayo-event-manager` directory.
@@ -62,7 +60,7 @@ Mayo Event Manager is a comprehensive WordPress plugin designed to facilitate th
    - Use the provided shortcode or block to display the event submission form on any page.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
-## Future Enhancements
+### Future Enhancements
 
 - **Additional Notification Options**: Expand notification capabilities to include SMS or push notifications.
 - **Advanced Filtering**: Implement more advanced filtering and search options for events.
