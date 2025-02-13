@@ -266,10 +266,23 @@ class Rest {
             $query->the_post();
             $event = [
                 'id' => get_the_ID(),
-                'title' => get_the_title(),
-                'content' => apply_filters('the_content', get_the_content()),
-                'meta' => get_post_meta(get_the_ID()),
-                // Add other fields as needed
+                'title' => ['rendered' => get_the_title()],
+                'content' => ['rendered' => apply_filters('the_content', get_the_content())],
+                'meta' => [
+                    'event_type' => get_post_meta(get_the_ID(), 'event_type', true),
+                    'event_start_date' => get_post_meta(get_the_ID(), 'event_start_date', true),
+                    'event_end_date' => get_post_meta(get_the_ID(), 'event_end_date', true),
+                    'event_start_time' => get_post_meta(get_the_ID(), 'event_start_time', true),
+                    'event_end_time' => get_post_meta(get_the_ID(), 'event_end_time', true),
+                    'timezone' => get_post_meta(get_the_ID(), 'timezone', true),
+                    'location_name' => get_post_meta(get_the_ID(), 'location_name', true),
+                    'location_address' => get_post_meta(get_the_ID(), 'location_address', true),
+                    'location_details' => get_post_meta(get_the_ID(), 'location_details', true),
+                    'flyer_url' => get_post_meta(get_the_ID(), 'flyer_url', true),
+                    'recurring_pattern' => get_post_meta(get_the_ID(), 'recurring_pattern', true),
+                ],
+                'categories' => wp_get_post_categories(get_the_ID(), ['fields' => 'all']),
+                'tags' => wp_get_post_tags(get_the_ID(), ['fields' => 'all']),
             ];
             wp_reset_postdata();
             return rest_ensure_response($event);

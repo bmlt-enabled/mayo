@@ -6,21 +6,15 @@ const EventDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    console.log('EventDetails component mounted');
-
     useEffect(() => {
-        console.log('EventDetails useEffect running');
         const fetchEvent = async () => {
             try {
                 const pathParts = window.location.pathname.split('/');
                 const eventSlug = pathParts[pathParts.length - 2];
-                console.log('Fetching event with slug:', eventSlug);
 
                 const response = await apiFetch({
                     path: `/wp-json/event-manager/v1/event/${eventSlug}`
                 });
-                console.log('Event API response:', response);
-
                 if (response) {
                     setEvent(response);
                 } else {
@@ -99,6 +93,40 @@ const EventDetails = () => {
                         <h1 className="mayo-single-event-title">{title.rendered}</h1>
                     </header>
 
+                    {flyer_url && (
+                        <div className="mayo-single-event-image">
+                            <img src={flyer_url} alt={title.rendered} />
+                        </div>
+                    )}
+
+                    <div className="mayo-single-event-description">
+                        <h3>Description</h3>
+                        <div dangerouslySetInnerHTML={{ __html: content.rendered }} />
+                    </div>
+
+                    {(location_name || location_address || location_details) && (
+                            <div className="mayo-single-event-location">
+                                <h3>Location</h3>
+                                {location_name && (
+                                    <p className="mayo-location-name">{location_name}</p>
+                                )}
+                                {location_address && (
+                                    <p className="mayo-location-address">
+                                        <a 
+                                            href={`https://maps.google.com?q=${encodeURIComponent(location_address)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {location_address}
+                                        </a>
+                                    </p>
+                                )}
+                                {location_details && (
+                                    <p className="mayo-location-details">{location_details}</p>
+                                )}
+                            </div>
+                        )}
+
                     <div className="mayo-single-event-meta">
                         {event_type && (
                             <div className="mayo-single-event-type">
@@ -129,29 +157,6 @@ const EventDetails = () => {
                             </div>
                         )}
 
-                        {(location_name || location_address || location_details) && (
-                            <div className="mayo-single-event-location">
-                                <h3>Location</h3>
-                                {location_name && (
-                                    <p className="mayo-location-name">{location_name}</p>
-                                )}
-                                {location_address && (
-                                    <p className="mayo-location-address">
-                                        <a 
-                                            href={`https://maps.google.com?q=${encodeURIComponent(location_address)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {location_address}
-                                        </a>
-                                    </p>
-                                )}
-                                {location_details && (
-                                    <p className="mayo-location-details">{location_details}</p>
-                                )}
-                            </div>
-                        )}
-
                         <div className="mayo-single-event-taxonomies">
                             {event.categories?.length > 0 && (
                                 <div className="mayo-single-event-categories">
@@ -171,17 +176,6 @@ const EventDetails = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
-
-                    {flyer_url && (
-                        <div className="mayo-single-event-image">
-                            <img src={flyer_url} alt={title.rendered} />
-                        </div>
-                    )}
-
-                    <div className="mayo-single-event-description">
-                        <h3>Description</h3>
-                        <div dangerouslySetInnerHTML={{ __html: content.rendered }} />
                     </div>
                 </div>
             </article>

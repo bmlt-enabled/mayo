@@ -7,10 +7,8 @@ import EventList from './components/EventList';
 import EventArchive from './components/EventArchive';
 import EventDetails from './components/EventDetails';
 
-console.log('Script loaded');
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Public scripts loaded');
     const formContainer = document.getElementById('mayo-event-form');
     const listContainer = document.getElementById('mayo-event-list');
     const detailsContainer = document.getElementById('mayo-details-root');
@@ -25,10 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (detailsContainer) {
-        console.log('Rendering EventDetails component');
         render(<EventDetails />, detailsContainer);
     } else {
-        console.error('mayo-details-root not found');
     }
 
     if (archiveContainer) {
