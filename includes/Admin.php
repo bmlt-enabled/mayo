@@ -104,8 +104,7 @@ class Admin {
             'cb' => $columns['cb'],
             'title' => __('Event Name'),
             'event_type' => __('Type'),
-            'event_date' => __('Date'),
-            'event_time' => __('Time'),
+            'event_datetime' => __('Date & Time'),
             'status' => __('Status'),
             'date' => $columns['date']
         ];
@@ -116,13 +115,40 @@ class Admin {
             case 'event_type':
                 echo get_post_meta($post_id, 'event_type', true);
                 break;
-            case 'event_date':
-                echo get_post_meta($post_id, 'event_date', true);
-                break;
-            case 'event_time':
-                $start = get_post_meta($post_id, 'event_start_time', true);
-                $end = get_post_meta($post_id, 'event_end_time', true);
-                echo "$start - $end";
+            case 'event_datetime':
+                $start_date = get_post_meta($post_id, 'event_start_date', true);
+                $end_date = get_post_meta($post_id, 'event_end_date', true);
+                $start_time = get_post_meta($post_id, 'event_start_time', true);
+                $end_time = get_post_meta($post_id, 'event_end_time', true);
+                
+                // Format start date/time
+                if ($start_date) {
+                    $start_formatted = date('M j, Y', strtotime($start_date));
+                    if ($start_time) {
+                        $start_formatted .= ' ' . date('g:i A', strtotime($start_time));
+                    }
+                }
+                
+                // Format end date/time
+                if ($end_date || $end_time) {
+                    $end_formatted = '';
+                    if ($end_date) {
+                        $end_formatted = date('M j, Y', strtotime($end_date));
+                    } else {
+                        $end_formatted = $start_formatted ? date('M j, Y', strtotime($start_date)) : '';
+                    }
+                    if ($end_time) {
+                        $end_formatted .= ' ' . date('g:i A', strtotime($end_time));
+                    }
+                    
+                    if ($start_formatted && $end_formatted) {
+                        echo "$start_formatted - $end_formatted";
+                    } else {
+                        echo $start_formatted ?: $end_formatted;
+                    }
+                } else {
+                    echo $start_formatted ?? '';
+                }
                 break;
             case 'status':
                 echo get_post_status($post_id);
@@ -311,6 +337,34 @@ class Admin {
                 
                 <h3>Example with Parameters</h3>
                 <pre><code>[mayo_event_list time_format="24hour" per_page="5" show_pagination="true"]</code></pre>
+            </div>
+
+            <div class="card">
+                <h2>Event Submission Form Shortcode</h2>
+                <p>Use this shortcode to display a form that allows users to submit events:</p>
+                <pre><code>[mayo_event_form]</code></pre>
+                
+                <h3>Features</h3>
+                <ul class="ul-disc">
+                    <li>Event name and type selection</li>
+                    <li>Date and time selection</li>
+                    <li>Event description with rich text editor</li>
+                    <li>Event flyer upload</li>
+                    <li>Location details (name, address, additional info)</li>
+                    <li>Category and tag selection</li>
+                    <li>Recurring event patterns</li>
+                </ul>
+
+                <h3>Notes</h3>
+                <ul class="ul-disc">
+                    <li>Submitted events are saved as pending and require admin approval</li>
+                    <li>Required fields are marked with an asterisk (*)</li>
+                    <li>Images are automatically processed and stored in the media library</li>
+                    <li>Form includes built-in validation and error handling</li>
+                </ul>
+
+                <h3>Example Usage</h3>
+                <pre><code>[mayo_event_form]</code></pre>
             </div>
         </div>
         <?php
