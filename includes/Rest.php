@@ -73,6 +73,14 @@ class REST {
             add_post_meta($post_id, 'location_details', sanitize_text_field($params['location_details']));
         }
 
+        // Handle categories and tags
+        if (!empty($params['categories'])) {
+            wp_set_post_terms($post_id, $params['categories'], 'mayo_event_category');
+        }
+        if (!empty($params['tags'])) {
+            wp_set_post_terms($post_id, $params['tags'], 'mayo_event_tag');
+        }
+
         return new \WP_REST_Response([
             'success' => true,
             'post_id' => $post_id
@@ -80,18 +88,13 @@ class REST {
     }
 
     public static function get_events() {
-        $args = [
+        $posts = get_posts([
             'post_type' => 'mayo_event',
-            'post_status' => 'publish',
             'posts_per_page' => -1,
-            'orderby' => 'meta_value',
-            'meta_key' => 'event_date',
-            'order' => 'ASC',
-        ];
+            'post_status' => 'publish',
+        ]);
 
-        $posts = get_posts($args);
         $events = [];
-
         foreach ($posts as $post) {
             $event = [
                 'id' => $post->ID,
@@ -108,7 +111,9 @@ class REST {
                     'location_name' => get_post_meta($post->ID, 'location_name', true),
                     'location_address' => get_post_meta($post->ID, 'location_address', true),
                     'location_details' => get_post_meta($post->ID, 'location_details', true),
-                ]
+                ],
+                'categories' => wp_get_post_terms($post->ID, 'mayo_event_category', ['fields' => 'all']),
+                'tags' => wp_get_post_terms($post->ID, 'mayo_event_tag', ['fields' => 'all'])
             ];
             $events[] = $event;
         }

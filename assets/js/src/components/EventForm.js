@@ -1,4 +1,4 @@
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 const EventForm = () => {
     const [formData, setFormData] = useState({
@@ -11,10 +11,35 @@ const EventForm = () => {
         flyer: null,
         location_name: '',
         location_address: '',
-        location_details: ''
+        location_details: '',
+        categories: [],
+        tags: []
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [tags, setTags] = useState([]);
+
+    useEffect(() => {
+        // Fetch available categories and tags
+        const fetchTaxonomies = async () => {
+            try {
+                const [categoriesRes, tagsRes] = await Promise.all([
+                    fetch('/wp-json/wp/v2/mayo_event_category'),
+                    fetch('/wp-json/wp/v2/mayo_event_tag')
+                ]);
+                const categoriesData = await categoriesRes.json();
+                const tagsData = await tagsRes.json();
+                
+                setCategories(categoriesData);
+                setTags(tagsData);
+            } catch (error) {
+                console.error('Error fetching taxonomies:', error);
+            }
+        };
+        
+        fetchTaxonomies();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -45,7 +70,9 @@ const EventForm = () => {
                     flyer: null,
                     location_name: '',
                     location_address: '',
-                    location_details: ''
+                    location_details: '',
+                    categories: [],
+                    tags: []
                 });
             } else {
                 setMessage({ type: 'error', text: result.message });
@@ -87,14 +114,17 @@ const EventForm = () => {
 
                 <div className="mayo-form-field">
                     <label htmlFor="event_type">Event Type *</label>
-                    <input
-                        type="text"
+                    <select
                         id="event_type"
                         name="event_type"
                         value={formData.event_type}
                         onChange={handleChange}
                         required
-                    />
+                    >
+                        <option value="">Select Event Type</option>
+                        <option value="Service">Service</option>
+                        <option value="Activity">Activity</option>
+                    </select>
                 </div>
 
                 <div className="mayo-form-field">
@@ -185,6 +215,48 @@ const EventForm = () => {
                         onChange={handleChange}
                         placeholder="Additional details about the location (e.g., parking, entrance info)"
                     />
+                </div>
+
+                <div className="mayo-form-field">
+                    <label>Categories</label>
+                    <div className="mayo-taxonomy-list">
+                        {categories.map(category => (
+                            <label key={category.id} className="mayo-taxonomy-item">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.categories.includes(category.id)}
+                                    onChange={(e) => {
+                                        const newCategories = e.target.checked
+                                            ? [...formData.categories, category.id]
+                                            : formData.categories.filter(id => id !== category.id);
+                                        setFormData({...formData, categories: newCategories});
+                                    }}
+                                />
+                                {category.name}
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="mayo-form-field">
+                    <label>Tags</label>
+                    <div className="mayo-taxonomy-list">
+                        {tags.map(tag => (
+                            <label key={tag.id} className="mayo-taxonomy-item">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.tags.includes(tag.id)}
+                                    onChange={(e) => {
+                                        const newTags = e.target.checked
+                                            ? [...formData.tags, tag.id]
+                                            : formData.tags.filter(id => id !== tag.id);
+                                        setFormData({...formData, tags: newTags});
+                                    }}
+                                />
+                                {tag.name}
+                            </label>
+                        ))}
+                    </div>
                 </div>
 
                 <button 

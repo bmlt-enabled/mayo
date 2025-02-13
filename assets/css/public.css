@@ -411,4 +411,75 @@
         padding: 2px 4px;
         margin: 2px 0;
     }
+}
+
+.mayo-taxonomy-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.mayo-taxonomy-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.mayo-taxonomy-item:hover {
+    background: #e0e0e1;
+}
+
+.mayo-taxonomy-item input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.mayo-event-taxonomies {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mayo-event-category,
+.mayo-event-tag {
+    font-size: 0.8em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.mayo-event-category {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.mayo-event-tag {
+    background: #e7f5ff;
+    color: #1864ab;
+}
+
+.mayo-form-field select {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    height: 40px; /* Match input height */
+    cursor: pointer;
+}
+
+.mayo-form-field select:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.mayo-form-field select:hover {
+    border-color: #999;
 } 
