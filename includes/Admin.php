@@ -61,7 +61,7 @@ class Admin {
                 wp_enqueue_script(
                     'mayo-admin',
                     plugin_dir_url(__FILE__) . '../assets/js/dist/admin.bundle.js',
-                    ['wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n'],
+                    ['wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n', 'wp-block-editor'],
                     '1.0',
                     true
                 );
@@ -152,12 +152,21 @@ class Admin {
             }
         ]);
 
+        register_post_meta('mayo_event', 'flyer_id', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
         register_post_meta('mayo_event', 'flyer_url', [
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
             'default' => '',
-            'sanitize_callback' => 'esc_url_raw',
             'auth_callback' => function() { 
                 return current_user_can('edit_posts'); 
             }

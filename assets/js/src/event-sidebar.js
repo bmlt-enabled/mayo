@@ -1,8 +1,9 @@
 const { registerPlugin } = wp.plugins;
 const { useSelect, useDispatch } = wp.data;
 const { __ } = wp.i18n;
-const { TextControl, DatePicker, PanelBody } = wp.components;
+const { TextControl, Button, PanelBody } = wp.components;
 const { PluginDocumentSettingPanel } = wp.editPost;
+const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
 
 const EventDetailsSidebar = () => {
     const postType = useSelect(select => select('core/editor').getCurrentPostType());
@@ -16,6 +17,7 @@ const EventDetailsSidebar = () => {
             event_date: currentMeta.event_date || '',
             event_start_time: currentMeta.event_start_time || '',
             event_end_time: currentMeta.event_end_time || '',
+            flyer_id: currentMeta.flyer_id || '',
             flyer_url: currentMeta.flyer_url || '',
             recurring_schedule: currentMeta.recurring_schedule || ''
         };
@@ -30,6 +32,16 @@ const EventDetailsSidebar = () => {
                 [key]: value 
             } 
         });
+    };
+
+    const onSelectImage = (media) => {
+        updateMetaValue('flyer_id', media.id);
+        updateMetaValue('flyer_url', media.url);
+    };
+
+    const removeImage = () => {
+        updateMetaValue('flyer_id', '');
+        updateMetaValue('flyer_url', '');
     };
 
     return (
@@ -68,18 +80,56 @@ const EventDetailsSidebar = () => {
                     __nextHasNoMarginBottom
                 />
                 <TextControl
-                    label={__('Flyer URL')}
-                    type="url"
-                    value={meta.flyer_url}
-                    onChange={(value) => updateMetaValue('flyer_url', value)}
-                    __nextHasNoMarginBottom
-                />
-                <TextControl
                     label={__('Recurring Schedule')}
                     value={meta.recurring_schedule}
                     onChange={(value) => updateMetaValue('recurring_schedule', value)}
                     __nextHasNoMarginBottom
                 />
+                
+                <div className="editor-post-featured-image">
+                    <MediaUploadCheck>
+                        <MediaUpload
+                            onSelect={onSelectImage}
+                            allowedTypes={['image']}
+                            value={meta.flyer_id}
+                            render={({ open }) => (
+                                <div>
+                                    {meta.flyer_url ? (
+                                        <div>
+                                            <img 
+                                                src={meta.flyer_url} 
+                                                alt={__('Event Flyer')}
+                                                style={{ maxWidth: '100%', marginBottom: '8px' }}
+                                            />
+                                            <div>
+                                                <Button 
+                                                    onClick={open}
+                                                    isSecondary
+                                                    style={{ marginRight: '8px' }}
+                                                >
+                                                    {__('Replace Flyer')}
+                                                </Button>
+                                                <Button 
+                                                    onClick={removeImage}
+                                                    isDestructive
+                                                >
+                                                    {__('Remove Flyer')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            onClick={open}
+                                            isPrimary
+                                        >
+                                            {__('Upload Event Flyer')}
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        />
+                    </MediaUploadCheck>
+                </div>
             </div>
         </PluginDocumentSettingPanel>
     );

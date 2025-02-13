@@ -14,13 +14,13 @@ class REST {
     }
 
     public static function submit_event($request) {
-        $params = $request->get_json_params();
+        $params = $request->get_params();
         
         // Create the post
         $post_data = [
             'post_title'   => sanitize_text_field($params['event_name']),
             'post_content' => sanitize_textarea_field($params['description'] ?? ''),
-            'post_status'  => 'pending', // Requires admin approval
+            'post_status'  => 'pending',
             'post_type'    => 'mayo_event'
         ];
         
@@ -33,6 +33,20 @@ class REST {
             ], 400);
         }
 
+        // Handle file upload
+        if (!empty($_FILES['flyer'])) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
+            
+            $attachment_id = media_handle_upload('flyer', $post_id);
+            
+            if (!is_wp_error($attachment_id)) {
+                add_post_meta($post_id, 'flyer_id', $attachment_id);
+                add_post_meta($post_id, 'flyer_url', wp_get_attachment_url($attachment_id));
+            }
+        }
+
         // Add event metadata
         add_post_meta($post_id, 'event_type', sanitize_text_field($params['event_type']));
         add_post_meta($post_id, 'event_date', sanitize_text_field($params['event_date']));
@@ -40,9 +54,6 @@ class REST {
         add_post_meta($post_id, 'event_end_time', sanitize_text_field($params['event_end_time']));
         if (!empty($params['recurring_schedule'])) {
             add_post_meta($post_id, 'recurring_schedule', sanitize_text_field($params['recurring_schedule']));
-        }
-        if (!empty($params['flyer_url'])) {
-            add_post_meta($post_id, 'flyer_url', esc_url_raw($params['flyer_url']));
         }
 
         return new \WP_REST_Response([
