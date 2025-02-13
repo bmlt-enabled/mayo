@@ -105,12 +105,16 @@ const EventList = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [view, setView] = useState('list'); // 'list' or 'calendar'
+    const [view, setView] = useState('list');
+    const [currentPage, setCurrentPage] = useState(1);
     const containerRef = useRef(null);
     const [timeFormat, setTimeFormat] = useState('12hour');
+    
+    // Get settings from PHP
+    const perPage = window.mayoEventSettings?.perPage || 10;
+    const showPagination = window.mayoEventSettings?.showPagination !== false;
 
     useEffect(() => {
-        // Get the container element and read the time format
         const container = document.getElementById('mayo-event-list');
         if (container) {
             const format = container.dataset.timeFormat || '12hour';
@@ -145,6 +149,22 @@ const EventList = () => {
         }
     };
 
+    // Get paginated events
+    const getPaginatedEvents = () => {
+        const startIndex = (currentPage - 1) * perPage;
+        const endIndex = startIndex + perPage;
+        return events.slice(startIndex, endIndex);
+    };
+
+    // Total number of pages
+    const totalPages = Math.ceil(events.length / perPage);
+
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+        // Scroll to top of event list
+        containerRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     if (loading) return <div>Loading events...</div>;
     if (error) return <div className="mayo-error">{error}</div>;
     if (!events.length) return <div>No upcoming events</div>;
@@ -167,13 +187,39 @@ const EventList = () => {
             </div> */}
 
             {view === 'list' ? (
-                events.map(event => (
-                    <EventCard 
-                        key={event.id} 
-                        event={event}
-                        timeFormat={timeFormat}
-                    />
-                ))
+                <>
+                    {getPaginatedEvents().map(event => (
+                        <EventCard 
+                            key={event.id} 
+                            event={event}
+                            timeFormat={timeFormat}
+                        />
+                    ))}
+                    
+                    {showPagination && totalPages > 1 && (
+                        <div className="mayo-pagination">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="mayo-pagination-button"
+                            >
+                                Previous
+                            </button>
+                            
+                            <span className="mayo-pagination-info">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="mayo-pagination-button"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
+                </>
             ) : (
                 <EventCalendar events={events} />
             )}

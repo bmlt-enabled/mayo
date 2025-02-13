@@ -15,10 +15,22 @@ class PublicInterface {
 
     public static function render_event_list($atts = []) {
         $defaults = [
-            'time_format' => '12hour' // or '24hour'
+            'time_format' => '12hour', // or '24hour'
+            'per_page' => 10,
+            'show_pagination' => 'true'
         ];
         $atts = shortcode_atts($defaults, $atts);
         
+        wp_enqueue_script('mayo-public');
+        wp_enqueue_style('mayo-public');
+
+        // Pass attributes to JavaScript
+        wp_localize_script('mayo-public', 'mayoEventSettings', [
+            'timeFormat' => $atts['time_format'],
+            'perPage' => intval($atts['per_page']),
+            'showPagination' => $atts['show_pagination'] === 'true'
+        ]);
+
         return sprintf(
             '<div id="mayo-event-list" data-time-format="%s"></div>',
             esc_attr($atts['time_format'])

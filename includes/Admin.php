@@ -240,13 +240,29 @@ class Admin {
         ]);
 
         register_post_meta('mayo_event', 'recurring_pattern', [
-            'show_in_rest' => true,
+            'show_in_rest' => [
+                'schema' => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'type'         => ['type' => 'string'],
+                        'interval'     => ['type' => 'integer'],
+                        'weekdays'     => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'monthlyType'  => ['type' => 'string'],
+                        'monthlyDate'  => ['type' => 'string'],
+                        'monthlyWeekday' => ['type' => 'string'],
+                        'endDate'      => ['type' => 'string']
+                    ]
+                ]
+            ],
             'single' => true,
             'type' => 'object',
             'default' => [
                 'type' => 'none',
                 'interval' => 1,
                 'weekdays' => [],
+                'monthlyType' => 'date',
+                'monthlyDate' => '',
+                'monthlyWeekday' => '',
                 'endDate' => ''
             ],
             'auth_callback' => function() { 
@@ -256,6 +272,47 @@ class Admin {
     }
 
     public static function render_shortcode_docs() {
-        echo '<div id="mayo-admin"></div>';
+        ?>
+        <div class="wrap mayo-docs">
+            <h1>Mayo Events Shortcodes</h1>
+            
+            <div class="card">
+                <h2>Event List Shortcode</h2>
+                <p>Use this shortcode to display a list of upcoming events:</p>
+                <pre><code>[mayo_event_list]</code></pre>
+                
+                <h3>Optional Parameters</h3>
+                <table class="widefat">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Default</th>
+                        <th>Options</th>
+                    </tr>
+                    <tr>
+                        <td>time_format</td>
+                        <td>Format for displaying time</td>
+                        <td>12hour</td>
+                        <td>12hour, 24hour</td>
+                    </tr>
+                    <tr>
+                        <td>per_page</td>
+                        <td>Number of events to show per page</td>
+                        <td>10</td>
+                        <td>Any positive number</td>
+                    </tr>
+                    <tr>
+                        <td>show_pagination</td>
+                        <td>Whether to show pagination controls</td>
+                        <td>true</td>
+                        <td>true, false</td>
+                    </tr>
+                </table>
+                
+                <h3>Example with Parameters</h3>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" show_pagination="true"]</code></pre>
+            </div>
+        </div>
+        <?php
     }
 }

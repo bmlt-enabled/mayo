@@ -116,23 +116,57 @@ class REST {
         $start = new DateTime($start_date);
         $end = $pattern['endDate'] ? new DateTime($pattern['endDate']) : (new DateTime($start_date))->modify('+1 year');
         
-        $interval = new DateInterval('P' . $pattern['interval'] . 
-            ($pattern['type'] === 'daily' ? 'D' : 
-            ($pattern['type'] === 'weekly' ? 'W' : 'M')));
-        
-        $current = clone $start;
-        
-        while ($current <= $end) {
-            if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
-                // For weekly pattern, check if current day is in selected weekdays
-                if (in_array($current->format('w'), $pattern['weekdays'])) {
+        if ($pattern['type'] === 'monthly') {
+            $current = clone $start;
+            while ($current <= $end) {
+                if ($pattern['monthlyType'] === 'date') {
+                    // Specific date of month
+                    $day = (int)$pattern['monthlyDate'];
+                    $current->setDate($current->format('Y'), $current->format('m'), $day);
+                } else {
+                    // Specific weekday (e.g., 3rd Thursday)
+                    list($week, $weekday) = explode(',', $pattern['monthlyWeekday']);
+                    $week = (int)$week;
+                    $weekday = (int)$weekday;
+                    
+                    // Calculate the date
+                    $current->modify('first day of this month');
+                    if ($week > 0) {
+                        // First, second, third, fourth, fifth
+                        $current->modify('+' . ($week - 1) . ' weeks');
+                        $current->modify('next ' . $weekdays[$weekday]);
+                    } else {
+                        // Last occurrence
+                        $current->modify('last ' . $weekdays[$weekday] . ' of this month');
+                    }
+                }
+                
+                if ($current >= $start && $current <= $end) {
                     $events[] = self::format_recurring_event($post, $current);
                 }
-            } else {
-                $events[] = self::format_recurring_event($post, $current);
+                
+                // Move to next month
+                $current->modify('first day of next month');
             }
+        } else {
+            $interval = new DateInterval('P' . $pattern['interval'] . 
+                ($pattern['type'] === 'daily' ? 'D' : 
+                ($pattern['type'] === 'weekly' ? 'W' : 'M')));
             
-            $current->add($interval);
+            $current = clone $start;
+            
+            while ($current <= $end) {
+                if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
+                    // For weekly pattern, check if current day is in selected weekdays
+                    if (in_array($current->format('w'), $pattern['weekdays'])) {
+                        $events[] = self::format_recurring_event($post, $current);
+                    }
+                } else {
+                    $events[] = self::format_recurring_event($post, $current);
+                }
+                
+                $current->add($interval);
+            }
         }
         
         return $events;

@@ -169,4 +169,19 @@
 
 .components-panel__body .components-base-control + .components-base-control {
     margin-top: 8px;
+}
+
+.mayo-monthly-pattern {
+    margin: 16px 0;
+}
+
+.mayo-monthly-weekday {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.mayo-monthly-pattern .components-radio-control {
+    margin-bottom: 16px;
 } 

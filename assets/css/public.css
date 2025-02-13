@@ -615,4 +615,36 @@
 .mayo-weekday-option input[type="checkbox"] {
     width: auto;
     margin: 0;
+}
+
+.mayo-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+    margin-top: 2em;
+    padding: 1em 0;
+}
+
+.mayo-pagination-button {
+    padding: 0.5em 1em;
+    background: #0073aa;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.mayo-pagination-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.mayo-pagination-button:hover:not(:disabled) {
+    background: #005177;
+}
+
+.mayo-pagination-info {
+    color: #666;
+    font-size: 0.9em;
 } 

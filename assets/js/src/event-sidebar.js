@@ -6,7 +6,8 @@ import {
     Button, 
     PanelBody,
     CheckboxControl,
-    __experimentalNumberControl as NumberControl 
+    __experimentalNumberControl as NumberControl,
+    RadioControl
 } from '@wordpress/components';
 import { registerPlugin } from '@wordpress/plugins';
 
@@ -48,6 +49,34 @@ const EventDetails = () => {
         { value: 5, label: 'Friday' },
         { value: 6, label: 'Saturday' }
     ];
+
+    const weekNumbers = [
+        { value: '1', label: 'First' },
+        { value: '2', label: 'Second' },
+        { value: '3', label: 'Third' },
+        { value: '4', label: 'Fourth' },
+        { value: '5', label: 'Fifth' },
+        { value: '-1', label: 'Last' }
+    ];
+
+    // Helper function to get initial date from event start date
+    const getInitialMonthlyDate = () => {
+        if (meta.event_start_date) {
+            const date = new Date(meta.event_start_date);
+            return date.getDate().toString();
+        }
+        return '';
+    };
+
+    // Helper function to get initial weekday from event start date
+    const getInitialWeekdayPattern = () => {
+        if (meta.event_start_date) {
+            const date = new Date(meta.event_start_date);
+            const weekNumber = Math.ceil(date.getDate() / 7);
+            return `${weekNumber},${date.getDay()}`;
+        }
+        return '';
+    };
 
     return (
         <PluginDocumentSettingPanel
@@ -152,6 +181,61 @@ const EventDetails = () => {
                             onChange={value => updateRecurringPattern({ endDate: value })}
                         />
                     </>
+                )}
+
+                {recurringPattern.type === 'monthly' && (
+                    <div className="mayo-monthly-pattern">
+                        <RadioControl
+                            label="Monthly Pattern"
+                            selected={recurringPattern.monthlyType || 'date'}
+                            options={[
+                                { label: 'On a specific date', value: 'date' },
+                                { label: 'On a specific day', value: 'weekday' }
+                            ]}
+                            onChange={value => updateRecurringPattern({ 
+                                monthlyType: value,
+                                monthlyDate: value === 'date' ? getInitialMonthlyDate() : '',
+                                monthlyWeekday: value === 'weekday' ? getInitialWeekdayPattern() : ''
+                            })}
+                        />
+
+                        {recurringPattern.monthlyType === 'date' && (
+                            <NumberControl
+                                label="Day of month"
+                                value={recurringPattern.monthlyDate || getInitialMonthlyDate()}
+                                onChange={value => updateRecurringPattern({ monthlyDate: value })}
+                                min={1}
+                                max={31}
+                            />
+                        )}
+
+                        {recurringPattern.monthlyType === 'weekday' && (
+                            <div className="mayo-monthly-weekday">
+                                <SelectControl
+                                    label="Week"
+                                    value={recurringPattern.monthlyWeekday?.split(',')[0] || '1'}
+                                    options={weekNumbers}
+                                    onChange={value => {
+                                        const currentDay = recurringPattern.monthlyWeekday?.split(',')[1] || '0';
+                                        updateRecurringPattern({ 
+                                            monthlyWeekday: `${value},${currentDay}` 
+                                        });
+                                    }}
+                                />
+                                <SelectControl
+                                    label="Day"
+                                    value={recurringPattern.monthlyWeekday?.split(',')[1] || '0'}
+                                    options={weekdays}
+                                    onChange={value => {
+                                        const currentWeek = recurringPattern.monthlyWeekday?.split(',')[0] || '1';
+                                        updateRecurringPattern({ 
+                                            monthlyWeekday: `${currentWeek},${value}` 
+                                        });
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
                 )}
             </PanelBody>
 
