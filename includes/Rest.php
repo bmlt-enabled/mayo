@@ -189,6 +189,7 @@ class REST {
 
     private static function format_event($post) {
         try {
+            $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
             return [
                 'id' => $post->ID,
                 'title' => ['rendered' => $post->post_title],
@@ -202,10 +203,12 @@ class REST {
                     'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
                     'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
                     'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
+                    'timezone' => get_post_meta($post->ID, 'timezone', true),
                     'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
                     'location_name' => get_post_meta($post->ID, 'location_name', true),
                     'location_address' => get_post_meta($post->ID, 'location_address', true),
                     'location_details' => get_post_meta($post->ID, 'location_details', true),
+                    'recurring_pattern' => $recurring_pattern ?: ['type' => 'none']
                 ],
                 'recurring' => false
             ];

@@ -29,12 +29,58 @@ export const formatTimezone = (timezone) => {
 
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    // Create date object with timezone consideration
-    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
-        new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
+    // Create date object safely
+    const eventDate = new Date(event.meta.event_start_date);
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const formatRecurringPattern = (pattern) => {
+        console.log('Formatting pattern:', pattern);
+        if (!pattern || pattern.type === 'none') return '';
+        
+        const { type, interval, weekdays = [], endDate, monthlyType, monthlyWeekday, monthlyDate } = pattern;
+        console.log('Parsed values:', { type, interval, weekdays, endDate });
+        let text = "Repeats ";
+        
+        switch (type) {
+            case 'daily':
+                text += interval > 1 ? `every ${interval} days` : "daily";
+                break;
+            case 'weekly':
+                text += interval > 1 ? `every ${interval} weeks` : "weekly";
+                if (weekdays && weekdays.length) {
+                    console.log('Processing weekdays:', weekdays);
+                    const days = weekdays.map(day => {
+                        console.log('Processing day:', day, 'parseInt result:', parseInt(day));
+                        return dayNames[parseInt(day)];
+                    });
+                    text += ` on ${days.join(', ')}`;
+                }
+                break;
+            case 'monthly':
+                text += interval > 1 ? `every ${interval} months` : "monthly";
+                if (monthlyType === 'date' && monthlyDate) {
+                    text += ` on day ${monthlyDate}`;
+                } else if (monthlyType === 'weekday' && monthlyWeekday) {
+                    const [week, weekday] = monthlyWeekday.split(',').map(Number);
+                    const weekText = week > 0 
+                        ? ['first', 'second', 'third', 'fourth', 'fifth'][week - 1] 
+                        : 'last';
+                    text += ` on the ${weekText} ${dayNames[weekday]}`;
+                }
+                break;
+            default:
+                return '';
+        }
+        
+        if (endDate) {
+            text += ` until ${endDate}`;
+        }
+        
+        console.log('Final text:', text);
+        return text;
+    };
 
     return (
         <div className="mayo-event-card">
@@ -43,9 +89,15 @@ const EventCard = ({ event, timeFormat }) => {
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="mayo-event-date-badge">
-                    <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
-                    <span className="mayo-event-day-number">{eventDate.getDate()}</span>
-                    <span className="mayo-event-month">{monthNames[eventDate.getMonth()]}</span>
+                    {eventDate instanceof Date && !isNaN(eventDate) ? (
+                        <>
+                            <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
+                            <span className="mayo-event-day-number">{eventDate.getDate()}</span>
+                            <span className="mayo-event-month">{monthNames[eventDate.getMonth()]}</span>
+                        </>
+                    ) : (
+                        <span className="mayo-event-date-error">Invalid Date</span>
+                    )}
                 </div>
                 <div className="mayo-event-summary">
                     <h3>{event.title.rendered}</h3>
@@ -167,6 +219,12 @@ const EventCard = ({ event, timeFormat }) => {
                             </div>
                         )}
 
+                        {event.meta.recurring_pattern && event.meta.recurring_pattern.type !== 'none' && (
+                            <div className="mayo-event-recurring">
+                                {formatRecurringPattern(event.meta.recurring_pattern)}
+                            </div>
+                        )}
+
                         <div className="mayo-event-actions">
                             <a 
                                 href={event.link} 
@@ -250,12 +308,18 @@ const EventList = () => {
                     return true;
                 })
                 .sort((a, b) => {
-                    // Create date object with timezone consideration
-                    const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}${a.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: a.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
-                    // Create date object with timezone consideration
-                    const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}${b.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: b.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
+                    // Create date objects for comparison
+                    const timeA = a.meta.event_start_time || '00:00:00';
+                    const timeB = b.meta.event_start_time || '00:00:00';
+                    
+                    const dateA = new Date(`${a.meta.event_start_date}T${timeA}`);
+                    const dateB = new Date(`${b.meta.event_start_date}T${timeB}`);
+                    
+                    if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                        // If either date is invalid, fall back to comparing just the date strings
+                        return a.meta.event_start_date.localeCompare(b.meta.event_start_date);
+                    }
+                    
                     return dateA - dateB;
                 });
 
