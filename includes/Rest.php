@@ -19,6 +19,23 @@ class REST {
                 'callback' => [__CLASS__, 'get_events'],
                 'permission_callback' => '__return_true',
             ]);
+
+            register_rest_route('event-manager/v1', '/settings', [
+                [
+                    'methods' => 'GET',
+                    'callback' => [__CLASS__, 'get_settings'],
+                    'permission_callback' => function () {
+                        return current_user_can('manage_options');
+                    },
+                ],
+                [
+                    'methods' => 'POST',
+                    'callback' => [__CLASS__, 'update_settings'],
+                    'permission_callback' => function () {
+                        return current_user_can('manage_options');
+                    },
+                ],
+            ]);
         });
     }
 
@@ -216,5 +233,22 @@ class REST {
             error_log('Error formatting event: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    public static function get_settings() {
+        $settings = get_option('mayo_settings', []);
+        return new \WP_REST_Response($settings);
+    }
+
+    public static function update_settings($request) {
+        $params = $request->get_params();
+        $settings = [];
+
+        if (isset($params['bmlt_root_server'])) {
+            $settings['bmlt_root_server'] = esc_url_raw(trim($params['bmlt_root_server']));
+        }
+
+        update_option('mayo_settings', $settings);
+        return new \WP_REST_Response($settings);
     }
 }

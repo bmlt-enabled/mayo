@@ -1,5 +1,7 @@
+import { registerPlugin } from '@wordpress/plugins';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useEffect } from '@wordpress/element';
 import { 
     TextControl, 
     SelectControl, 
@@ -9,7 +11,6 @@ import {
     __experimentalNumberControl as NumberControl,
     RadioControl
 } from '@wordpress/components';
-import { registerPlugin } from '@wordpress/plugins';
 
 const EventDetails = () => {
     const postType = useSelect(select => 

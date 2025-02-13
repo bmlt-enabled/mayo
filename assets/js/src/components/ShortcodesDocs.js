@@ -1,59 +1,91 @@
+import { Panel, PanelBody } from '@wordpress/components';
+
 const ShortcodesDocs = () => {
     return (
         <div className="wrap mayo-docs">
-            <h1>Mayo Event Manager Shortcodes</h1>
+            <h1>Mayo Events Shortcodes</h1>
             
             <div className="card">
-                <h2>Event Submission Form</h2>
-                <p><code>[mayo_event_form]</code></p>
-                <p>Displays a form that allows users to submit events for approval.</p>
-                <h3>Usage:</h3>
-                <pre><code>[mayo_event_form]</code></pre>
-                <p>This shortcode has no additional parameters. Place it on any page where you want users to be able to submit events.</p>
-            </div>
-
-            <div className="card">
-                <h2>Event List Display</h2>
-                <p><code>[mayo_event_list]</code></p>
-                <p>Displays a list of upcoming events in an accordion-style layout.</p>
+                <h2>Event List Shortcode</h2>
+                <p>Use this shortcode to display a list of upcoming events:</p>
+                <pre><code>[mayo_event_list]</code></pre>
                 
-                <h3>Parameters:</h3>
+                <h3>Optional Parameters</h3>
                 <table className="widefat">
                     <thead>
                         <tr>
                             <th>Parameter</th>
-                            <th>Values</th>
-                            <th>Default</th>
                             <th>Description</th>
+                            <th>Default</th>
+                            <th>Options</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>time_format</code></td>
-                            <td><code>12hour</code> or <code>24hour</code></td>
-                            <td><code>12hour</code></td>
-                            <td>Controls how times are displayed (e.g., "2:30 PM" vs "14:30")</td>
+                            <td>categories</td>
+                            <td>Filter by category slugs (comma-separated)</td>
+                            <td>empty (all categories)</td>
+                            <td>e.g., "meetings,workshops"</td>
+                        </tr>
+                        <tr>
+                            <td>tags</td>
+                            <td>Filter by tag slugs (comma-separated)</td>
+                            <td>empty (all tags)</td>
+                            <td>e.g., "featured,special"</td>
+                        </tr>
+                        <tr>
+                            <td>event_type</td>
+                            <td>Filter by event type</td>
+                            <td>empty (all types)</td>
+                            <td>Service, Activity</td>
+                        </tr>
+                        <tr>
+                            <td>time_format</td>
+                            <td>Format for displaying time</td>
+                            <td>12hour</td>
+                            <td>12hour, 24hour</td>
+                        </tr>
+                        <tr>
+                            <td>per_page</td>
+                            <td>Number of events to show per page</td>
+                            <td>10</td>
+                            <td>Any positive number</td>
+                        </tr>
+                        <tr>
+                            <td>show_pagination</td>
+                            <td>Whether to show pagination controls</td>
+                            <td>true</td>
+                            <td>true, false</td>
                         </tr>
                     </tbody>
                 </table>
-
-                <h3>Examples:</h3>
-                <pre><code># Default 12-hour time format
-[mayo_event_list]
-
-# Use 24-hour time format
-[mayo_event_list time_format="24hour"]</code></pre>
+                
+                <h3>Example with Parameters</h3>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service"]</code></pre>
             </div>
 
             <div className="card">
-                <h2>Features</h2>
+                <h2>Event Submission Form Shortcode</h2>
+                <p>Use this shortcode to display a form that allows users to submit events:</p>
+                <pre><code>[mayo_event_form]</code></pre>
+                
+                <h3>Features</h3>
                 <ul className="ul-disc">
-                    <li>Events are automatically sorted by date</li>
-                    <li>Past events are automatically filtered out</li>
-                    <li>Expandable/collapsible event details</li>
-                    <li>Location details with Google Maps integration</li>
-                    <li>Event flyer image support</li>
-                    <li>Mobile-responsive design</li>
+                    <li>Event name and type selection</li>
+                    <li>Date and time selection</li>
+                    <li>Event description with rich text editor</li>
+                    <li>Event flyer upload</li>
+                    <li>Location details (name, address, additional info)</li>
+                    <li>Category and tag selection</li>
+                    <li>Recurring event patterns</li>
+                </ul>
+
+                <h3>Notes</h3>
+                <ul className="ul-disc">
+                    <li>Submitted events are saved as pending and require admin approval</li>
+                    <li>Required fields are marked with an asterisk (*)</li>
+                    <li>Images are automatically processed and stored in the media library</li>
+                    <li>Form includes built-in validation and error handling</li>
                 </ul>
             </div>
         </div>

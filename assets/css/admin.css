@@ -184,4 +184,14 @@
 
 .mayo-monthly-pattern .components-radio-control {
     margin-bottom: 16px;
+}
+
+.mayo-settings-wrapper {
+    max-width: 800px;
+    margin: 20px;
+    padding: 20px;
+}
+
+.mayo-settings-notice {
+    margin: 20px 0;
 } 

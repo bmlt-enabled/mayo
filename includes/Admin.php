@@ -55,7 +55,16 @@ class Admin {
             'Shortcodes',
             'manage_options',
             'mayo-shortcodes',
-            [__CLASS__, 'render_shortcode_docs']
+            [__CLASS__, 'render_shortcodes_page']
+        );
+
+        add_submenu_page(
+            'mayo-events',
+            'Mayo Settings',
+            'Settings',
+            'manage_options',
+            'mayo-settings',
+            [__CLASS__, 'render_settings_page']
         );
     }
 
@@ -64,39 +73,33 @@ class Admin {
     }
 
     public static function enqueue_scripts($hook) {
-        // Only load admin bundle for mayo_event post type editing or shortcodes page
-        if ($hook === 'post.php' || $hook === 'post-new.php' || $hook === 'mayo_page_mayo-shortcodes') {
-            $screen = get_current_screen();
-            if ($screen && ($screen->post_type === 'mayo_event' || $hook === 'mayo_page_mayo-shortcodes')) {
-                // Add wp-edit-post to dependencies
-                $deps = [
-                    'wp-plugins',
-                    'wp-edit-post',  // Make sure this is included
-                    'wp-editor',
-                    'wp-element',
-                    'wp-components',
-                    'wp-data',
-                    'wp-i18n',
-                    'wp-block-editor',
-                    'wp-edit-post'   // This is the key dependency we need
-                ];
-
-                wp_enqueue_script(
-                    'mayo-admin',
-                    plugin_dir_url(__FILE__) . '../assets/js/dist/admin.bundle.js',
-                    $deps,
-                    '1.0',
-                    true
-                );
-                
-                wp_enqueue_style(
-                    'mayo-admin',
-                    plugin_dir_url(__FILE__) . '../assets/css/admin.css',
-                    [],
-                    '1.0'
-                );
-            }
+        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings'])) {
+            return;
         }
+
+        wp_enqueue_script(
+            'mayo-admin',
+            plugin_dir_url(__DIR__) . 'assets/js/dist/admin.bundle.js',
+            [
+                'wp-element',
+                'wp-components',
+                'wp-api-fetch',
+                'wp-plugins',
+                'wp-edit-post',
+                'wp-i18n',
+                'wp-data'
+            ],
+            '1.0',
+            true
+        );
+
+        wp_enqueue_style('wp-components');
+        wp_enqueue_style(
+            'mayo-admin',
+            plugin_dir_url(__DIR__) . 'assets/css/admin.css',
+            [],
+            '1.0'
+        );
     }
 
     public static function set_custom_columns($columns) {
@@ -308,94 +311,11 @@ class Admin {
         ]);
     }
 
-    public static function render_shortcode_docs() {
-        ?>
-        <div class="wrap mayo-docs">
-            <h1>Mayo Events Shortcodes</h1>
-            
-            <div class="card">
-                <h2>Event List Shortcode</h2>
-                <p>Use this shortcode to display a list of upcoming events:</p>
-                <pre><code>[mayo_event_list]</code></pre>
-                
-                <h3>Optional Parameters</h3>
-                <table class="widefat">
-                    <tr>
-                        <th>Parameter</th>
-                        <th>Description</th>
-                        <th>Default</th>
-                        <th>Options</th>
-                    </tr>
-                    <tr>
-                        <td>categories</td>
-                        <td>Filter by category slugs (comma-separated)</td>
-                        <td>empty (all categories)</td>
-                        <td>e.g., "meetings,workshops"</td>
-                    </tr>
-                    <tr>
-                        <td>tags</td>
-                        <td>Filter by tag slugs (comma-separated)</td>
-                        <td>empty (all tags)</td>
-                        <td>e.g., "featured,special"</td>
-                    </tr>
-                    <tr>
-                        <td>event_type</td>
-                        <td>Filter by event type</td>
-                        <td>empty (all types)</td>
-                        <td>Service, Activity</td>
-                    </tr>
-                    <tr>
-                        <td>time_format</td>
-                        <td>Format for displaying time</td>
-                        <td>12hour</td>
-                        <td>12hour, 24hour</td>
-                    </tr>
-                    <tr>
-                        <td>per_page</td>
-                        <td>Number of events to show per page</td>
-                        <td>10</td>
-                        <td>Any positive number</td>
-                    </tr>
-                    <tr>
-                        <td>show_pagination</td>
-                        <td>Whether to show pagination controls</td>
-                        <td>true</td>
-                        <td>true, false</td>
-                    </tr>
-                </table>
-                
-                <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service"]</code></pre>
-            </div>
+    public static function render_shortcodes_page() {
+        echo '<div id="mayo-shortcode-root" class="wrap"></div>';
+    }
 
-            <div class="card">
-                <h2>Event Submission Form Shortcode</h2>
-                <p>Use this shortcode to display a form that allows users to submit events:</p>
-                <pre><code>[mayo_event_form]</code></pre>
-                
-                <h3>Features</h3>
-                <ul class="ul-disc">
-                    <li>Event name and type selection</li>
-                    <li>Date and time selection</li>
-                    <li>Event description with rich text editor</li>
-                    <li>Event flyer upload</li>
-                    <li>Location details (name, address, additional info)</li>
-                    <li>Category and tag selection</li>
-                    <li>Recurring event patterns</li>
-                </ul>
-
-                <h3>Notes</h3>
-                <ul class="ul-disc">
-                    <li>Submitted events are saved as pending and require admin approval</li>
-                    <li>Required fields are marked with an asterisk (*)</li>
-                    <li>Images are automatically processed and stored in the media library</li>
-                    <li>Form includes built-in validation and error handling</li>
-                </ul>
-
-                <h3>Example Usage</h3>
-                <pre><code>[mayo_event_form]</code></pre>
-            </div>
-        </div>
-        <?php
+    public static function render_settings_page() {
+        echo '<div id="mayo-settings-root"></div>';
     }
 }

@@ -5,15 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production", 
+    "build": "webpack --mode production",
     "dev": "webpack --mode development --watch"
-
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@babel/preset-react": "^7.26.3",
+    "@wordpress/api-fetch": "^7.18.0",
+    "@wordpress/plugins": "^7.18.0",
+    "@wordpress/edit-post": "^7.18.0",
+    "@wordpress/i18n": "^4.18.0",
+    "@wordpress/data": "^9.18.0",
     "@wordpress/scripts": "^30.11.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

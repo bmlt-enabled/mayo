@@ -1,32 +1,34 @@
 // Admin entry point
 import { render } from '@wordpress/element';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ShortcodesDocs from './components/ShortcodesDocs';
 import './event-sidebar';
+import Settings from './components/Settings';
 
 const App = () => {
-    // Get the current page from the URL
-    const isShortcodesPage = window.location.href.includes('mayo-shortcodes');
-
-    return (
-        <HashRouter>
-            <Routes>
-                {/* Redirect based on the current admin page */}
-                <Route path="/" element={
-                    isShortcodesPage ? 
-                        <Navigate to="/shortcodes" replace /> : 
-                        <div>Mayo Events Dashboard</div>
-                } />
-                <Route path="/shortcodes" element={<ShortcodesDocs />} />
-                {/* Add other routes as needed */}
-            </Routes>
-        </HashRouter>
-    );
+    return (<></>)
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    const adminContainer = document.getElementById('mayo-admin');
+    const adminContainer = document.getElementById('mayo-admin-root');
+    const shortcodesContainer = document.getElementById('mayo-shortcode-root');
+    const settingsContainer = document.getElementById('mayo-settings-root');
+
+    console.log('Containers:', {
+        adminContainer,
+        shortcodesContainer,
+        settingsContainer
+    });
+
     if (adminContainer) {
         render(<App />, adminContainer);
+    }
+
+    if (shortcodesContainer) {
+        console.log('Rendering ShortcodesDocs');
+        render(<ShortcodesDocs />, shortcodesContainer);
+    }
+
+    if (settingsContainer) {
+        render(<Settings />, settingsContainer);
     }
 }); 
