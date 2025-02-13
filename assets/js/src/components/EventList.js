@@ -39,6 +39,15 @@ const EventCard = ({ event }) => {
                                 Recurring: {event.meta.recurring_schedule}
                             </p>
                         )}
+                        <div className="mayo-event-actions">
+                            <a 
+                                href={event.link} 
+                                className="mayo-read-more"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Read More
+                            </a>
+                        </div>
                     </div>
                 </div>
             )}

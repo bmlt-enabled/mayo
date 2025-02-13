@@ -166,4 +166,31 @@
         align-items: flex-start;
         gap: 0.3em;
     }
+}
+
+.mayo-event-actions {
+    margin-top: 1.5em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+}
+
+.mayo-read-more {
+    display: inline-block;
+    padding: 0.5em 1.5em;
+    background: #0073aa;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+
+.mayo-read-more:hover {
+    background: #005177;
+    color: white;
+    text-decoration: none;
+}
+
+.mayo-read-more:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px #fff, 0 0 0 3px #0073aa;
 } 

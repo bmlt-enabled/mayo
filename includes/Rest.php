@@ -86,6 +86,7 @@ class REST {
                 'id' => $post->ID,
                 'title' => ['rendered' => $post->post_title],
                 'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
+                'link' => get_permalink($post->ID),
                 'meta' => [
                     'event_type' => get_post_meta($post->ID, 'event_type', true),
                     'event_date' => get_post_meta($post->ID, 'event_date', true),
