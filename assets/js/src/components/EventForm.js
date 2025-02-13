@@ -8,6 +8,7 @@ const EventForm = () => {
         event_end_date: '',
         event_start_time: '',
         event_end_time: '',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         description: '',
         flyer: null,
         location_name: '',
@@ -91,6 +92,7 @@ const EventForm = () => {
                     event_end_date: '',
                     event_start_time: '',
                     event_end_time: '',
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     description: '',
                     flyer: null,
                     location_name: '',
@@ -195,6 +197,24 @@ const EventForm = () => {
                             />
                         </div>
                     </div>
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="timezone">Timezone</label>
+                    <select
+                        id="timezone"
+                        name="timezone"
+                        value={formData.timezone}
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="America/New_York">Eastern Time</option>
+                        <option value="America/Chicago">Central Time</option>
+                        <option value="America/Denver">Mountain Time</option>
+                        <option value="America/Los_Angeles">Pacific Time</option>
+                        <option value="America/Anchorage">Alaska Time</option>
+                        <option value="Pacific/Honolulu">Hawaii Time</option>
+                    </select>
                 </div>
 
                 <div className="mayo-form-field">

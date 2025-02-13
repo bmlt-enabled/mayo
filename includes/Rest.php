@@ -62,6 +62,7 @@ class REST {
         add_post_meta($post_id, 'event_end_date', sanitize_text_field($params['event_end_date']));
         add_post_meta($post_id, 'event_start_time', sanitize_text_field($params['event_start_time']));
         add_post_meta($post_id, 'event_end_time', sanitize_text_field($params['event_end_time']));
+        add_post_meta($post_id, 'timezone', sanitize_text_field($params['timezone']));
 
         // Add location metadata
         if (!empty($params['location_name'])) {
@@ -89,29 +90,37 @@ class REST {
     }
 
     public static function get_events() {
-        $posts = get_posts([
-            'post_type' => 'mayo_event',
-            'posts_per_page' => -1,
-            'post_status' => 'publish',
-        ]);
+        try {
+            $posts = get_posts([
+                'post_type' => 'mayo_event',
+                'posts_per_page' => -1,
+                'post_status' => 'publish',
+            ]);
 
-        $events = [];
-        foreach ($posts as $post) {
-            $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
-            $start_date = get_post_meta($post->ID, 'event_start_date', true);
-            
-            if ($recurring_pattern && $recurring_pattern['type'] !== 'none') {
-                $recurring_events = self::generate_recurring_events($post, $recurring_pattern, $start_date);
-                $events = array_merge($events, $recurring_events);
-            } else {
-                $events[] = self::format_event($post);
+            $events = [];
+            foreach ($posts as $post) {
+                $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+                $start_date = get_post_meta($post->ID, 'event_start_date', true);
+                
+                if ($recurring_pattern && $recurring_pattern['type'] !== 'none') {
+                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern, $start_date);
+                    $events = array_merge($events, $recurring_events);
+                } else {
+                    $events[] = self::format_event($post);
+                }
             }
-        }
 
-        return new \WP_REST_Response($events);
+            return new \WP_REST_Response($events);
+        } catch (\Exception $e) {
+            return new \WP_REST_Response([
+                'error' => $e->getMessage(),
+                'details' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 
     private static function generate_recurring_events($post, $pattern, $start_date) {
+        $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
         $start = new DateTime($start_date);
         $end = $pattern['endDate'] ? new DateTime($pattern['endDate']) : (new DateTime($start_date))->modify('+1 year');
@@ -180,25 +189,30 @@ class REST {
     }
 
     private static function format_event($post) {
-        return [
-            'id' => $post->ID,
-            'title' => ['rendered' => $post->post_title],
-            'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
-            'link' => get_permalink($post->ID),
-            'categories' => wp_get_post_categories($post->ID, ['fields' => 'all']),
-            'tags' => wp_get_post_tags($post->ID, ['fields' => 'all']),
-            'meta' => [
-                'event_type' => get_post_meta($post->ID, 'event_type', true),
-                'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),
-                'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
-                'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
-                'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
-                'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
-                'location_name' => get_post_meta($post->ID, 'location_name', true),
-                'location_address' => get_post_meta($post->ID, 'location_address', true),
-                'location_details' => get_post_meta($post->ID, 'location_details', true),
-            ],
-            'recurring' => false
-        ];
+        try {
+            return [
+                'id' => $post->ID,
+                'title' => ['rendered' => $post->post_title],
+                'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
+                'link' => get_permalink($post->ID),
+                'categories' => wp_get_post_categories($post->ID, ['fields' => 'all']),
+                'tags' => wp_get_post_tags($post->ID, ['fields' => 'all']),
+                'meta' => [
+                    'event_type' => get_post_meta($post->ID, 'event_type', true),
+                    'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),
+                    'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
+                    'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
+                    'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
+                    'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
+                    'location_name' => get_post_meta($post->ID, 'location_name', true),
+                    'location_address' => get_post_meta($post->ID, 'location_address', true),
+                    'location_details' => get_post_meta($post->ID, 'location_details', true),
+                ],
+                'recurring' => false
+            ];
+        } catch (\Exception $e) {
+            error_log('Error formatting event: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

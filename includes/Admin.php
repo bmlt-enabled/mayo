@@ -212,6 +212,17 @@ class Admin {
             }
         ]);
 
+        register_post_meta('mayo_event', 'timezone', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
         register_post_meta('mayo_event', 'flyer_id', [
             'show_in_rest' => true,
             'single' => true,

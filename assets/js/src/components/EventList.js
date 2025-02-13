@@ -17,9 +17,22 @@ const formatTime = (time, format) => {
     return `${hour12}:${minutes} ${ampm}`;
 };
 
+const formatTimezone = (timezone) => {
+    try {
+        const date = new Date();
+        const timeString = date.toLocaleTimeString('en-US', { timeZone: timezone, timeZoneName: 'short' });
+        return timeString.split(' ')[2]; // Extract timezone abbreviation (e.g., EST, CST)
+    } catch (e) {
+        return timezone.split('/').pop().replace('_', ' '); // Fallback to city name
+    }
+};
+
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const eventDate = new Date(event.meta.event_start_date);
+    // Create date object with timezone consideration
+    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
+        new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
+
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -40,6 +53,11 @@ const EventCard = ({ event, timeFormat }) => {
                         <span className="mayo-event-type">{event.meta.event_type}</span>
                         <span className="mayo-event-time">
                             {formatTime(event.meta.event_start_time, timeFormat)} - {formatTime(event.meta.event_end_time, timeFormat)}
+                            {event.meta.timezone && (
+                                <span className="mayo-event-timezone">
+                                    {' '}({formatTimezone(event.meta.timezone)})
+                                </span>
+                            )}
                         </span>
                     </div>
                 </div>
@@ -127,24 +145,36 @@ const EventList = () => {
     const fetchEvents = async () => {
         try {
             const response = await fetch('/wp-json/event-manager/v1/events');
+            if (!response.ok) {
+                const error = await response.text();
+                console.error('Failed to fetch events:', error);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             
             const now = new Date();
             const upcomingEvents = data
                 .filter(event => {
-                    const eventDate = new Date(`${event.meta.event_start_date} ${event.meta.event_start_time}`);
+                    // Create date object with timezone consideration
+                    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
+                        new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
                     return eventDate > now;
                 })
                 .sort((a, b) => {
-                    const dateA = new Date(`${a.meta.event_start_date} ${a.meta.event_start_time}`);
-                    const dateB = new Date(`${b.meta.event_start_date} ${b.meta.event_start_time}`);
+                    // Create date object with timezone consideration
+                    const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}${a.meta.timezone ? 
+                        new Date().toLocaleString('en-US', { timeZone: a.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
+                    // Create date object with timezone consideration
+                    const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}${b.meta.timezone ? 
+                        new Date().toLocaleString('en-US', { timeZone: b.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
                     return dateA - dateB;
                 });
 
             setEvents(upcomingEvents);
             setLoading(false);
         } catch (err) {
-            setError('Failed to load events');
+            console.error('Error in fetchEvents:', err);
+            setError(`Failed to load events: ${err.message}`);
             setLoading(false);
         }
     };

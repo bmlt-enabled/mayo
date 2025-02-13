@@ -125,6 +125,19 @@ const EventDetails = () => {
                         />
                     </div>
                 </div>
+                <SelectControl
+                    label="Timezone"
+                    value={meta.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    options={[
+                        { label: 'Eastern Time', value: 'America/New_York' },
+                        { label: 'Central Time', value: 'America/Chicago' },
+                        { label: 'Mountain Time', value: 'America/Denver' },
+                        { label: 'Pacific Time', value: 'America/Los_Angeles' },
+                        { label: 'Alaska Time', value: 'America/Anchorage' },
+                        { label: 'Hawaii Time', value: 'Pacific/Honolulu' }
+                    ]}
+                    onChange={value => updateMetaValue('timezone', value)}
+                />
             </PanelBody>
 
             <PanelBody title="Recurring Pattern" initialOpen={true}>
