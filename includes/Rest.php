@@ -76,10 +76,10 @@ class REST {
 
         // Handle categories and tags
         if (!empty($params['categories'])) {
-            wp_set_post_terms($post_id, $params['categories'], 'mayo_event_category');
+            wp_set_post_categories($post_id, $params['categories']);
         }
         if (!empty($params['tags'])) {
-            wp_set_post_terms($post_id, $params['tags'], 'mayo_event_tag');
+            wp_set_post_tags($post_id, $params['tags']);
         }
 
         return new \WP_REST_Response([
@@ -151,6 +151,8 @@ class REST {
             'title' => ['rendered' => $post->post_title],
             'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
             'link' => get_permalink($post->ID),
+            'categories' => wp_get_post_categories($post->ID, ['fields' => 'all']),
+            'tags' => wp_get_post_tags($post->ID, ['fields' => 'all']),
             'meta' => [
                 'event_type' => get_post_meta($post->ID, 'event_type', true),
                 'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),

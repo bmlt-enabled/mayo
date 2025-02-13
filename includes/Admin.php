@@ -5,7 +5,6 @@ namespace BmltEnabled\Mayo;
 class Admin {
     public static function init() {
         add_action('init', [__CLASS__, 'register_post_type']);
-        add_action('init', [__CLASS__, 'register_taxonomies']);
         add_action('init', [__CLASS__, 'register_meta_fields']);
         add_action('admin_menu', [__CLASS__, 'add_menu']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
@@ -27,7 +26,8 @@ class Admin {
             ],
             'public' => true,
             'show_in_menu' => 'mayo-events',
-            'supports' => ['title', 'editor', 'thumbnail', 'custom-fields'],
+            'supports' => ['title', 'editor', 'thumbnail', 'custom-fields', 'categories', 'tags'],
+            'taxonomies' => ['category', 'post_tag'],
             'has_archive' => true,
             'publicly_queryable' => true,
             'rewrite' => [
@@ -257,49 +257,5 @@ class Admin {
 
     public static function render_shortcode_docs() {
         echo '<div id="mayo-admin"></div>';
-    }
-
-    public static function register_taxonomies() {
-        // Register Event Categories
-        register_taxonomy('mayo_event_category', 'mayo_event', [
-            'labels' => [
-                'name' => 'Event Categories',
-                'singular_name' => 'Event Category',
-                'search_items' => 'Search Categories',
-                'all_items' => 'All Categories',
-                'edit_item' => 'Edit Category',
-                'update_item' => 'Update Category',
-                'add_new_item' => 'Add New Category',
-                'new_item_name' => 'New Category Name',
-                'menu_name' => 'Categories',
-            ],
-            'hierarchical' => true, // Like WordPress categories
-            'show_ui' => true,
-            'show_admin_column' => true,
-            'query_var' => true,
-            'rewrite' => ['slug' => 'event-category'],
-            'show_in_rest' => true, // Enable in Gutenberg
-        ]);
-
-        // Register Event Tags
-        register_taxonomy('mayo_event_tag', 'mayo_event', [
-            'labels' => [
-                'name' => 'Event Tags',
-                'singular_name' => 'Event Tag',
-                'search_items' => 'Search Tags',
-                'all_items' => 'All Tags',
-                'edit_item' => 'Edit Tag',
-                'update_item' => 'Update Tag',
-                'add_new_item' => 'Add New Tag',
-                'new_item_name' => 'New Tag Name',
-                'menu_name' => 'Tags',
-            ],
-            'hierarchical' => false, // Like WordPress tags
-            'show_ui' => true,
-            'show_admin_column' => true,
-            'query_var' => true,
-            'rewrite' => ['slug' => 'event-tag'],
-            'show_in_rest' => true, // Enable in Gutenberg
-        ]);
     }
 }

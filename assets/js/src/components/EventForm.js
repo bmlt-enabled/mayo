@@ -49,8 +49,8 @@ const EventForm = () => {
         const fetchTaxonomies = async () => {
             try {
                 const [categoriesRes, tagsRes] = await Promise.all([
-                    fetch('/wp-json/wp/v2/mayo_event_category'),
-                    fetch('/wp-json/wp/v2/mayo_event_tag')
+                    fetch('/wp-json/wp/v2/categories'),
+                    fetch('/wp-json/wp/v2/tags')
                 ]);
                 const categoriesData = await categoriesRes.json();
                 const tagsData = await tagsRes.json();
