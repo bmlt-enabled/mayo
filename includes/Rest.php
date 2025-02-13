@@ -82,6 +82,7 @@ class Rest {
         add_post_meta($post_id, 'event_end_time', sanitize_text_field($params['event_end_time']));
         add_post_meta($post_id, 'timezone', sanitize_text_field($params['timezone']));
         add_post_meta($post_id, 'service_body', sanitize_text_field($params['service_body']));
+        add_post_meta($post_id, 'email', sanitize_email($params['email']));
 
         // Add location metadata
         if (!empty($params['location_name'])) {
@@ -102,10 +103,28 @@ class Rest {
             wp_set_post_tags($post_id, $params['tags']);
         }
 
+        // Send email notification
+        self::send_event_submission_email($post_id, $params);
+
         return new \WP_REST_Response([
             'success' => true,
             'post_id' => $post_id
         ], 200);
+    }
+
+    private static function send_event_submission_email($post_id, $params) {
+        $to = get_option('admin_email'); // Send to the site admin email
+        $subject = 'New Event Submission: ' . sanitize_text_field($params['event_name']);
+        $message = sprintf(
+            "A new event has been submitted:\n\nEvent Name: %s\nEvent Type: %s\nStart Date: %s\nEnd Date: %s\n\nView the event: %s",
+            sanitize_text_field($params['event_name']),
+            sanitize_text_field($params['event_type']),
+            sanitize_text_field($params['event_start_date']),
+            sanitize_text_field($params['event_end_date']),
+            get_edit_post_link($post_id)
+        );
+
+        wp_mail($to, $subject, $message);
     }
 
     public static function get_events() {

@@ -17,7 +17,8 @@ const EventForm = () => {
         location_details: '',
         categories: [],
         tags: [],
-        service_body: ''
+        service_body: '',
+        email: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
@@ -79,6 +80,13 @@ const EventForm = () => {
         setIsSubmitting(true);
         setMessage(null);
 
+        // Validate email
+        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+            setMessage({ type: 'error', text: 'Please enter a valid email address.' });
+            setIsSubmitting(false);
+            return;
+        }
+
         const data = new FormData();
         Object.keys(formData).forEach(key => {
             data.append(key, formData[key]);
@@ -108,7 +116,8 @@ const EventForm = () => {
                     location_details: '',
                     categories: [],
                     tags: [],
-                    service_body: ''
+                    service_body: '',
+                    email: ''
                 });
             } else {
                 setMessage({ type: 'error', text: result.message });
@@ -184,6 +193,18 @@ const EventForm = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="email">Email *</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                    />
                 </div>
 
                 <div className="mayo-datetime-group">
