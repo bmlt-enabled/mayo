@@ -62,6 +62,17 @@ class REST {
             add_post_meta($post_id, 'recurring_schedule', sanitize_text_field($params['recurring_schedule']));
         }
 
+        // Add location metadata
+        if (!empty($params['location_name'])) {
+            add_post_meta($post_id, 'location_name', sanitize_text_field($params['location_name']));
+        }
+        if (!empty($params['location_address'])) {
+            add_post_meta($post_id, 'location_address', sanitize_text_field($params['location_address']));
+        }
+        if (!empty($params['location_details'])) {
+            add_post_meta($post_id, 'location_details', sanitize_text_field($params['location_details']));
+        }
+
         return new \WP_REST_Response([
             'success' => true,
             'post_id' => $post_id
@@ -94,6 +105,9 @@ class REST {
                     'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
                     'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
                     'recurring_schedule' => get_post_meta($post->ID, 'recurring_schedule', true),
+                    'location_name' => get_post_meta($post->ID, 'location_name', true),
+                    'location_address' => get_post_meta($post->ID, 'location_address', true),
+                    'location_details' => get_post_meta($post->ID, 'location_details', true),
                 ]
             ];
             $events[] = $event;

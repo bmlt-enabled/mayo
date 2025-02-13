@@ -13,8 +13,16 @@ class PublicInterface {
         return '<div id="mayo-event-form"></div>';
     }
 
-    public static function render_event_list() {
-        return '<div id="mayo-event-list"></div>';
+    public static function render_event_list($atts = []) {
+        $defaults = [
+            'time_format' => '12hour' // or '24hour'
+        ];
+        $atts = shortcode_atts($defaults, $atts);
+        
+        return sprintf(
+            '<div id="mayo-event-list" data-time-format="%s"></div>',
+            esc_attr($atts['time_format'])
+        );
     }
 
     public static function enqueue_scripts() {

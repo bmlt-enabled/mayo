@@ -8,7 +8,10 @@ const EventForm = () => {
         event_start_time: '',
         event_end_time: '',
         description: '',
-        flyer: null
+        flyer: null,
+        location_name: '',
+        location_address: '',
+        location_details: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
@@ -39,7 +42,10 @@ const EventForm = () => {
                     event_start_time: '',
                     event_end_time: '',
                     description: '',
-                    flyer: null
+                    flyer: null,
+                    location_name: '',
+                    location_address: '',
+                    location_details: ''
                 });
             } else {
                 setMessage({ type: 'error', text: result.message });
@@ -145,6 +151,39 @@ const EventForm = () => {
                         name="flyer"
                         accept="image/*"
                         onChange={handleChange}
+                    />
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="location_name">Location Name</label>
+                    <input
+                        type="text"
+                        id="location_name"
+                        name="location_name"
+                        value={formData.location_name}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="location_address">Address</label>
+                    <input
+                        type="text"
+                        id="location_address"
+                        name="location_address"
+                        value={formData.location_address}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="location_details">Location Details</label>
+                    <textarea
+                        id="location_details"
+                        name="location_details"
+                        value={formData.location_details}
+                        onChange={handleChange}
+                        placeholder="Additional details about the location (e.g., parking, entrance info)"
                     />
                 </div>
 

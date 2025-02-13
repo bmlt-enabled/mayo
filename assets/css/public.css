@@ -193,4 +193,36 @@
 .mayo-read-more:focus {
     outline: none;
     box-shadow: 0 0 0 1px #fff, 0 0 0 3px #0073aa;
+}
+
+.mayo-event-location {
+    margin-top: 1.5em;
+    padding: 1em;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.mayo-event-location h4 {
+    margin: 0 0 0.5em;
+    color: #333;
+}
+
+.mayo-location-name {
+    font-weight: bold;
+    margin: 0 0 0.3em;
+}
+
+.mayo-location-address a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.mayo-location-address a:hover {
+    text-decoration: underline;
+}
+
+.mayo-location-details {
+    margin-top: 0.5em;
+    font-style: italic;
+    color: #666;
 } 

@@ -19,7 +19,10 @@ const EventDetailsSidebar = () => {
             event_end_time: currentMeta.event_end_time || '',
             flyer_id: currentMeta.flyer_id || '',
             flyer_url: currentMeta.flyer_url || '',
-            recurring_schedule: currentMeta.recurring_schedule || ''
+            recurring_schedule: currentMeta.recurring_schedule || '',
+            location_name: currentMeta.location_name || '',
+            location_address: currentMeta.location_address || '',
+            location_details: currentMeta.location_details || ''
         };
     });
 
@@ -130,6 +133,33 @@ const EventDetailsSidebar = () => {
                         />
                     </MediaUploadCheck>
                 </div>
+
+                <PanelBody
+                    title={__('Location Details')}
+                    initialOpen={true}
+                >
+                    <TextControl
+                        label={__('Location Name')}
+                        value={meta.location_name}
+                        onChange={(value) => updateMetaValue('location_name', value)}
+                        placeholder={__('e.g., Community Center')}
+                        __nextHasNoMarginBottom
+                    />
+                    <TextControl
+                        label={__('Address')}
+                        value={meta.location_address}
+                        onChange={(value) => updateMetaValue('location_address', value)}
+                        placeholder={__('Full address')}
+                        __nextHasNoMarginBottom
+                    />
+                    <TextControl
+                        label={__('Location Details')}
+                        value={meta.location_details}
+                        onChange={(value) => updateMetaValue('location_details', value)}
+                        placeholder={__('Parking info, entrance details, etc.')}
+                        __nextHasNoMarginBottom
+                    />
+                </PanelBody>
             </div>
         </PluginDocumentSettingPanel>
     );

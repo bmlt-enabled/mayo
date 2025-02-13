@@ -47,6 +47,15 @@ class Admin {
             [__CLASS__, 'render_admin_page'],
             'dashicons-calendar'
         );
+
+        add_submenu_page(
+            'mayo-events',
+            'Shortcodes',
+            'Shortcodes',
+            'manage_options',
+            'mayo-shortcodes',
+            [__CLASS__, 'render_shortcode_docs']
+        );
     }
 
     public static function render_admin_page() {
@@ -182,5 +191,138 @@ class Admin {
                 return current_user_can('edit_posts'); 
             }
         ]);
+
+        register_post_meta('mayo_event', 'location_name', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'location_address', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'location_details', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+    }
+
+    public static function render_shortcode_docs() {
+        ?>
+        <div class="wrap">
+            <h1>Mayo Event Manager Shortcodes</h1>
+            
+            <div class="card">
+                <h2>Event Submission Form</h2>
+                <p><code>[mayo_event_form]</code></p>
+                <p>Displays a form that allows users to submit events for approval.</p>
+                <h3>Usage:</h3>
+                <pre><code>[mayo_event_form]</code></pre>
+                <p>This shortcode has no additional parameters. Place it on any page where you want users to be able to submit events.</p>
+            </div>
+
+            <div class="card">
+                <h2>Event List Display</h2>
+                <p><code>[mayo_event_list]</code></p>
+                <p>Displays a list of upcoming events in an accordion-style layout.</p>
+                
+                <h3>Parameters:</h3>
+                <table class="widefat">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Values</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>time_format</code></td>
+                            <td><code>12hour</code> or <code>24hour</code></td>
+                            <td><code>12hour</code></td>
+                            <td>Controls how times are displayed (e.g., "2:30 PM" vs "14:30")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples:</h3>
+                <pre><code># Default 12-hour time format
+[mayo_event_list]
+
+# Use 24-hour time format
+[mayo_event_list time_format="24hour"]</code></pre>
+            </div>
+
+            <div class="card">
+                <h2>Features</h2>
+                <ul class="ul-disc">
+                    <li>Events are automatically sorted by date</li>
+                    <li>Past events are automatically filtered out</li>
+                    <li>Expandable/collapsible event details</li>
+                    <li>Location details with Google Maps integration</li>
+                    <li>Event flyer image support</li>
+                    <li>Mobile-responsive design</li>
+                </ul>
+            </div>
+        </div>
+
+        <style>
+            .wrap .card {
+                max-width: 800px;
+                padding: 20px;
+                margin-top: 20px;
+            }
+            .wrap code {
+                background: #f0f0f1;
+                padding: 2px 6px;
+                border-radius: 3px;
+            }
+            .wrap pre {
+                background: #f6f7f7;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                overflow-x: auto;
+            }
+            .wrap pre code {
+                background: none;
+                padding: 0;
+            }
+            .wrap .widefat {
+                margin: 15px 0;
+            }
+            .wrap .widefat td,
+            .wrap .widefat th {
+                padding: 12px;
+            }
+            .wrap h2 {
+                margin-top: 0;
+            }
+            .wrap .ul-disc {
+                list-style: disc;
+                margin-left: 20px;
+            }
+        </style>
+        <?php
     }
 }

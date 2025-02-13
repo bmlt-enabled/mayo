@@ -1,7 +1,22 @@
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 
-const EventCard = ({ event }) => {
+const formatTime = (time, format) => {
+    if (!time) return '';
+    
+    if (format === '24hour') {
+        return time;
+    }
+    
+    // Convert to 12-hour format
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+};
+
+const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -16,7 +31,7 @@ const EventCard = ({ event }) => {
                         <span className="mayo-event-type">{event.meta.event_type}</span>
                         <span className="mayo-event-datetime">
                             {new Date(event.meta.event_date).toLocaleDateString()} | {' '}
-                            {event.meta.event_start_time} - {event.meta.event_end_time}
+                            {formatTime(event.meta.event_start_time, timeFormat)} - {formatTime(event.meta.event_end_time, timeFormat)}
                         </span>
                     </div>
                 </div>
@@ -39,6 +54,29 @@ const EventCard = ({ event }) => {
                                 Recurring: {event.meta.recurring_schedule}
                             </p>
                         )}
+                        {(event.meta.location_name || event.meta.location_address) && (
+                            <div className="mayo-event-location">
+                                <h4>Location</h4>
+                                {event.meta.location_name && (
+                                    <p className="mayo-location-name">{event.meta.location_name}</p>
+                                )}
+                                {event.meta.location_address && (
+                                    <p className="mayo-location-address">
+                                        <a 
+                                            href={`https://maps.google.com?q=${encodeURIComponent(event.meta.location_address)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {event.meta.location_address}
+                                        </a>
+                                    </p>
+                                )}
+                                {event.meta.location_details && (
+                                    <p className="mayo-location-details">{event.meta.location_details}</p>
+                                )}
+                            </div>
+                        )}
                         <div className="mayo-event-actions">
                             <a 
                                 href={event.link} 
@@ -59,8 +97,17 @@ const EventList = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const containerRef = useRef(null);
+    const [timeFormat, setTimeFormat] = useState('12hour');
 
     useEffect(() => {
+        // Get the container element and read the time format
+        const container = document.getElementById('mayo-event-list');
+        if (container) {
+            const format = container.dataset.timeFormat || '12hour';
+            setTimeFormat(format);
+        }
+        
         fetchEvents();
     }, []);
 
@@ -94,9 +141,13 @@ const EventList = () => {
     if (!events.length) return <div>No upcoming events</div>;
 
     return (
-        <div className="mayo-event-list">
+        <div className="mayo-event-list" ref={containerRef}>
             {events.map(event => (
-                <EventCard key={event.id} event={event} />
+                <EventCard 
+                    key={event.id} 
+                    event={event}
+                    timeFormat={timeFormat}
+                />
             ))}
         </div>
     );
