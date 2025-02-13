@@ -6,21 +6,17 @@ const EventArchive = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    console.log('EventArchive component mounted');
-
     useEffect(() => {
         fetchEvents();
     }, []);
 
     const fetchEvents = async () => {
         try {
-            console.log('Fetching events...');
             const response = await fetch('/wp-json/event-manager/v1/events?archive=true');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log('Events fetched:', data);
             setEvents(data);
             setLoading(false);
         } catch (err) {

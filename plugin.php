@@ -47,7 +47,7 @@ function mayo_check_version() {
 
 function load_archive_template($template) {
     if (is_post_type_archive('mayo_event')) {
-        $custom_template = plugin_dir_path(__FILE__) . 'templates/archive-mayo_event.php';
+        $custom_template = plugin_dir_path(__FILE__) . 'templates/archive-mayo-event.php';
         if (file_exists($custom_template)) {
             return $custom_template;
         }
@@ -57,7 +57,7 @@ function load_archive_template($template) {
 
 function load_single_template($template) {
     if (is_singular('mayo_event')) {
-        $custom_template = plugin_dir_path(__FILE__) . 'templates/single-mayo_event.php';
+        $custom_template = plugin_dir_path(__FILE__) . 'templates/details-mayo-event.php';
         if (file_exists($custom_template)) {
             return $custom_template;
         }

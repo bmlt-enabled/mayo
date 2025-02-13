@@ -36,11 +36,9 @@ const EventCard = ({ event, timeFormat }) => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     const formatRecurringPattern = (pattern) => {
-        console.log('Formatting pattern:', pattern);
         if (!pattern || pattern.type === 'none') return '';
         
         const { type, interval, weekdays = [], endDate, monthlyType, monthlyWeekday, monthlyDate } = pattern;
-        console.log('Parsed values:', { type, interval, weekdays, endDate });
         let text = "Repeats ";
         
         switch (type) {
@@ -50,9 +48,7 @@ const EventCard = ({ event, timeFormat }) => {
             case 'weekly':
                 text += interval > 1 ? `every ${interval} weeks` : "weekly";
                 if (weekdays && weekdays.length) {
-                    console.log('Processing weekdays:', weekdays);
                     const days = weekdays.map(day => {
-                        console.log('Processing day:', day, 'parseInt result:', parseInt(day));
                         return dayNames[parseInt(day)];
                     });
                     text += ` on ${days.join(', ')}`;
@@ -78,7 +74,6 @@ const EventCard = ({ event, timeFormat }) => {
             text += ` until ${endDate}`;
         }
         
-        console.log('Final text:', text);
         return text;
     };
 
