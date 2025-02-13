@@ -186,6 +186,13 @@ const EventCard = ({ event, timeFormat }) => {
                             </div>
                         )}
 
+                        {event.meta.service_body && (
+                            <div className="mayo-event-service-body">
+                                <h4>Service Body</h4>
+                                <p>{event.meta.service_body}</p>
+                            </div>
+                        )}
+
                         {(event.categories.length > 0 || event.tags.length > 0) && (
                             <div className="mayo-event-taxonomies">
                                 {event.categories.length > 0 && (
@@ -218,13 +225,6 @@ const EventCard = ({ event, timeFormat }) => {
                         {event.meta.recurring_pattern && event.meta.recurring_pattern.type !== 'none' && (
                             <div className="mayo-event-recurring">
                                 {formatRecurringPattern(event.meta.recurring_pattern)}
-                            </div>
-                        )}
-
-                        {event.meta.service_body && (
-                            <div className="mayo-event-service-body">
-                                <h4>Service Body</h4>
-                                <p>{event.meta.service_body}</p>
                             </div>
                         )}
 
