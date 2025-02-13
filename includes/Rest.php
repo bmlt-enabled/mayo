@@ -70,8 +70,7 @@ class Rest {
             $attachment_id = media_handle_upload('flyer', $post_id);
             
             if (!is_wp_error($attachment_id)) {
-                add_post_meta($post_id, 'flyer_id', $attachment_id);
-                add_post_meta($post_id, 'flyer_url', wp_get_attachment_url($attachment_id));
+                set_post_thumbnail($post_id, $attachment_id);
             }
         }
 
