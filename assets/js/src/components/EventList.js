@@ -19,6 +19,9 @@ const formatTime = (time, format) => {
 
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const eventDate = new Date(event.meta.event_start_date);
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     return (
         <div className="mayo-event-card">
@@ -26,12 +29,16 @@ const EventCard = ({ event, timeFormat }) => {
                 className="mayo-event-header"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
+                <div className="mayo-event-date-badge">
+                    <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
+                    <span className="mayo-event-day-number">{eventDate.getDate()}</span>
+                    <span className="mayo-event-month">{monthNames[eventDate.getMonth()]}</span>
+                </div>
                 <div className="mayo-event-summary">
                     <h3>{event.title.rendered}</h3>
                     <div className="mayo-event-brief">
                         <span className="mayo-event-type">{event.meta.event_type}</span>
-                        <span className="mayo-event-datetime">
-                            {new Date(event.meta.event_start_date).toLocaleDateString()} | {' '}
+                        <span className="mayo-event-time">
                             {formatTime(event.meta.event_start_time, timeFormat)} - {formatTime(event.meta.event_end_time, timeFormat)}
                         </span>
                     </div>
@@ -144,7 +151,7 @@ const EventList = () => {
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
-            <div className="mayo-view-switcher">
+            {/* <div className="mayo-view-switcher">
                 <button 
                     className={`mayo-view-button ${view === 'list' ? 'active' : ''}`}
                     onClick={() => setView('list')}
@@ -157,7 +164,7 @@ const EventList = () => {
                 >
                     Calendar View
                 </button>
-            </div>
+            </div> */}
 
             {view === 'list' ? (
                 events.map(event => (

@@ -67,8 +67,9 @@
 }
 
 .mayo-event-header {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
     align-items: center;
     padding: 1em;
     cursor: pointer;
@@ -79,6 +80,46 @@
 
 .mayo-event-header:hover {
     background: #e9ecef;
+}
+
+.mayo-event-date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    padding: 8px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.mayo-event-day-name {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.mayo-event-day-number {
+    font-size: 1.8em;
+    font-weight: 700;
+    line-height: 1;
+    color: #0073aa;
+    margin: 2px 0;
+}
+
+.mayo-event-month {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #444;
+}
+
+.mayo-event-time {
+    color: #666;
+    font-weight: 500;
 }
 
 .mayo-event-summary {
@@ -507,5 +548,26 @@
     .mayo-datetime-group {
         flex-direction: column;
         gap: 10px;
+    }
+
+    .mayo-event-header {
+        gap: 12px;
+    }
+
+    .mayo-event-date-badge {
+        min-width: 60px;
+        padding: 6px;
+    }
+
+    .mayo-event-day-name {
+        font-size: 0.7em;
+    }
+
+    .mayo-event-day-number {
+        font-size: 1.4em;
+    }
+
+    .mayo-event-month {
+        font-size: 0.8em;
     }
 } 
