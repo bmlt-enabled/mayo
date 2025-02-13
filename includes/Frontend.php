@@ -48,7 +48,7 @@ class Frontend {
         if ($post && (
             has_shortcode($post->post_content, 'mayo_event_form') || 
             has_shortcode($post->post_content, 'mayo_event_list')
-        ) || is_post_type_archive('mayo_event')) {
+        ) || (is_post_type_archive($post->post_type) || is_singular('mayo_event'))) {
             wp_enqueue_script(
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',

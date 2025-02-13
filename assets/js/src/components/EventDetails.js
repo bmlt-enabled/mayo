@@ -9,18 +9,20 @@ const EventDetails = () => {
     console.log('EventDetails component mounted');
 
     useEffect(() => {
+        console.log('EventDetails useEffect running');
         const fetchEvent = async () => {
             try {
-                // Get the event ID from the URL
                 const pathParts = window.location.pathname.split('/');
-                const eventSlug = pathParts[pathParts.length - 2]; // Assuming URL pattern: /mayo/event-slug/
+                const eventSlug = pathParts[pathParts.length - 2];
+                console.log('Fetching event with slug:', eventSlug);
 
                 const response = await apiFetch({
-                    path: `/wp/v2/mayo_event?slug=${eventSlug}`
+                    path: `/wp-json/event-manager/v1/event/${eventSlug}`
                 });
+                console.log('Event API response:', response);
 
-                if (response && response.length > 0) {
-                    setEvent(response[0]);
+                if (response) {
+                    setEvent(response);
                 } else {
                     throw new Error('Event not found');
                 }

@@ -32,6 +32,12 @@ class Rest {
                     'permission_callback' => '__return_true',
                 ],
             ]);
+
+            register_rest_route('event-manager/v1', '/event/(?P<slug>[a-zA-Z0-9-]+)', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_event_details'],
+                'permission_callback' => '__return_true', // Adjust permissions as needed
+            ]);
         });
     }
 
@@ -247,4 +253,30 @@ class Rest {
         update_option('mayo_settings', $settings);
         return new \WP_REST_Response($settings);
     }
+
+    public static function get_event_details($request) {
+        $slug = $request['slug'];
+        $query = new \WP_Query([
+            'post_type' => 'mayo_event',
+            'name' => $slug,
+            'posts_per_page' => 1,
+        ]);
+
+        if ($query->have_posts()) {
+            $query->the_post();
+            $event = [
+                'id' => get_the_ID(),
+                'title' => get_the_title(),
+                'content' => apply_filters('the_content', get_the_content()),
+                'meta' => get_post_meta(get_the_ID()),
+                // Add other fields as needed
+            ];
+            wp_reset_postdata();
+            return rest_ensure_response($event);
+        }
+
+        return new \WP_Error('no_event', 'Event not found', ['status' => 404]);
+    }
 }
+
+Rest::init();

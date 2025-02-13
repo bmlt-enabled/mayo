@@ -3,9 +3,9 @@
  * Template for displaying mayo event details
  */
 
-get_header(); ?>
+ get_header(); ?>
 
-<div id="mayo-details-root"></div>
+<div id="mayo-details-root">details placeholder</div>
 
 <?php 
 wp_enqueue_script('mayo-public');

@@ -30,7 +30,7 @@ add_action('plugins_loaded', function () {
 register_activation_hook(__FILE__, 'mayo_activate');
 add_action('plugins_loaded', 'mayo_check_version');
 add_filter('archive_template', 'load_archive_template');
-add_filter('single_template', 'load_single_template');
+add_filter('single_template', 'load_details_template');
 
 function mayo_activate() {    
     // Flush rewrite rules
@@ -55,7 +55,7 @@ function load_archive_template($template) {
     return $template;
 }
 
-function load_single_template($template) {
+function load_details_template($template) {
     if (is_singular('mayo_event')) {
         $custom_template = plugin_dir_path(__FILE__) . 'templates/details-mayo-event.php';
         if (file_exists($custom_template)) {
@@ -64,3 +64,4 @@ function load_single_template($template) {
     }
     return $template;
 }
+
