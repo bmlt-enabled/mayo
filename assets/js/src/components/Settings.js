@@ -35,7 +35,7 @@ const Settings = () => {
 
     return (
         <div className="mayo-settings-wrapper">
-            <h1>Mayo Settings</h1>
+            <h1>Settings</h1>
             
             {saveStatus && (
                 <Notice 

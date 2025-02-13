@@ -5,7 +5,7 @@ namespace BmltEnabled\Mayo;
 use DateTime;
 use DateInterval;
 
-class REST {
+class Rest {
     public static function init() {
         add_action('rest_api_init', function () {
             register_rest_route('event-manager/v1', '/submit-event', [
@@ -24,16 +24,12 @@ class REST {
                 [
                     'methods' => 'GET',
                     'callback' => [__CLASS__, 'get_settings'],
-                    'permission_callback' => function () {
-                        return current_user_can('manage_options');
-                    },
+                    'permission_callback' => '__return_true',
                 ],
                 [
                     'methods' => 'POST',
                     'callback' => [__CLASS__, 'update_settings'],
-                    'permission_callback' => function () {
-                        return current_user_can('manage_options');
-                    },
+                    'permission_callback' => '__return_true',
                 ],
             ]);
         });

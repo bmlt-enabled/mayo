@@ -2,7 +2,7 @@
 
 namespace BmltEnabled\Mayo;
 
-class PublicInterface {
+class Frontend {
     public static function init() {
         add_shortcode('mayo_event_form', [__CLASS__, 'render_event_form']);
         add_shortcode('mayo_event_list', [__CLASS__, 'render_event_list']);

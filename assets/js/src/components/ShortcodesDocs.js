@@ -1,9 +1,7 @@
-import { Panel, PanelBody } from '@wordpress/components';
-
 const ShortcodesDocs = () => {
     return (
         <div className="wrap mayo-docs">
-            <h1>Mayo Events Shortcodes</h1>
+            <h1>Shortcodes</h1>
             
             <div className="card">
                 <h2>Event List Shortcode</h2>

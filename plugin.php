@@ -13,18 +13,18 @@ define('MAYO_VERSION', '1.0');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
-require_once __DIR__ . '/includes/Public.php';
-require_once __DIR__ . '/includes/REST.php';
+require_once __DIR__ . '/includes/Frontend.php';
+require_once __DIR__ . '/includes/Rest.php';
 
 use BmltEnabled\Mayo\Admin;
-use BmltEnabled\Mayo\PublicInterface;
-use BmltEnabled\Mayo\REST;
+use BmltEnabled\Mayo\Frontend;
+use BmltEnabled\Mayo\Rest;
 
 // Initialize components
 add_action('plugins_loaded', function () {
     Admin::init();
-    PublicInterface::init();
-    REST::init();
+    Frontend::init();
+    Rest::init();
 });
 
 register_activation_hook(__FILE__, 'mayo_activate');
