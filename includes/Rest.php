@@ -10,6 +10,12 @@ class REST {
                 'callback' => [__CLASS__, 'submit_event'],
                 'permission_callback' => '__return_true',
             ]);
+
+            register_rest_route('event-manager/v1', '/events', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_events'],
+                'permission_callback' => '__return_true',
+            ]);
         });
     }
 
@@ -60,5 +66,38 @@ class REST {
             'success' => true,
             'post_id' => $post_id
         ], 200);
+    }
+
+    public static function get_events() {
+        $args = [
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => 'meta_value',
+            'meta_key' => 'event_date',
+            'order' => 'ASC',
+        ];
+
+        $posts = get_posts($args);
+        $events = [];
+
+        foreach ($posts as $post) {
+            $event = [
+                'id' => $post->ID,
+                'title' => ['rendered' => $post->post_title],
+                'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
+                'meta' => [
+                    'event_type' => get_post_meta($post->ID, 'event_type', true),
+                    'event_date' => get_post_meta($post->ID, 'event_date', true),
+                    'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
+                    'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
+                    'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
+                    'recurring_schedule' => get_post_meta($post->ID, 'recurring_schedule', true),
+                ]
+            ];
+            $events[] = $event;
+        }
+
+        return new \WP_REST_Response($events);
     }
 }

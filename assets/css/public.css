@@ -50,4 +50,71 @@
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}
+
+.mayo-event-list {
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 1em;
+}
+
+.mayo-event-card {
+    display: flex;
+    gap: 2em;
+    margin-bottom: 2em;
+    padding: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.mayo-event-image {
+    flex: 0 0 200px;
+}
+
+.mayo-event-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.mayo-event-content {
+    flex: 1;
+}
+
+.mayo-event-content h3 {
+    margin: 0 0 0.5em;
+    color: #333;
+}
+
+.mayo-event-details {
+    margin-bottom: 1em;
+}
+
+.mayo-event-type {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.mayo-event-datetime {
+    color: #0073aa;
+    font-weight: bold;
+    margin: 0.5em 0;
+}
+
+.mayo-event-description {
+    color: #444;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .mayo-event-card {
+        flex-direction: column;
+        gap: 1em;
+    }
+
+    .mayo-event-image {
+        flex: 0 0 auto;
+    }
 } 
