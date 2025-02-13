@@ -3,7 +3,8 @@
  * Plugin Name: Mayo
  * Description: A plugin for managing events with admin approval, public submission, and recurring schedules.
  * Version: 1.0
- * Author: @dgershman
+ * Author: bmlt-enabled
+ * Author URI: https://bmlt.app
  */
 
 defined('ABSPATH') || exit;
@@ -26,19 +27,21 @@ add_action('plugins_loaded', function () {
     Admin::init();
     PublicInterface::init();
     REST::init();
+    MigrationManager::getInstance()->runMigrations();
 });
 
 register_activation_hook(__FILE__, 'mayo_activate');
 add_action('plugins_loaded', 'mayo_check_version');
 
 function mayo_activate() {    
-    // Run migrations
-    MigrationManager::getInstance()->runMigrations();   
+    // Flush rewrite rules
+    flush_rewrite_rules();
 }
 
 function mayo_check_version() {
     $current_version = get_option('mayo_version');
     if (version_compare($current_version, MAYO_VERSION, '<')) {
         mayo_activate();
+        update_option('mayo_version', MAYO_VERSION);
     }
 }
