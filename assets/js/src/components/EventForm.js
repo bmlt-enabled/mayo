@@ -4,7 +4,8 @@ const EventForm = () => {
     const [formData, setFormData] = useState({
         event_name: '',
         event_type: '',
-        event_date: '',
+        event_start_date: '',
+        event_end_date: '',
         event_start_time: '',
         event_end_time: '',
         description: '',
@@ -63,7 +64,8 @@ const EventForm = () => {
                 setFormData({
                     event_name: '',
                     event_type: '',
-                    event_date: '',
+                    event_start_date: '',
+                    event_end_date: '',
                     event_start_time: '',
                     event_end_time: '',
                     description: '',
@@ -127,40 +129,49 @@ const EventForm = () => {
                     </select>
                 </div>
 
-                <div className="mayo-form-field">
-                    <label htmlFor="event_date">Date *</label>
-                    <input
-                        type="date"
-                        id="event_date"
-                        name="event_date"
-                        value={formData.event_date}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                <div className="mayo-datetime-group">
+                    <div className="mayo-form-field">
+                        <label>Start Date/Time *</label>
+                        <div className="mayo-datetime-inputs">
+                            <input
+                                type="date"
+                                id="event_start_date"
+                                name="event_start_date"
+                                value={formData.event_start_date}
+                                onChange={handleChange}
+                                required
+                            />
+                            <input
+                                type="time"
+                                id="event_start_time"
+                                name="event_start_time"
+                                value={formData.event_start_time}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
 
-                <div className="mayo-form-field">
-                    <label htmlFor="event_start_time">Start Time *</label>
-                    <input
-                        type="time"
-                        id="event_start_time"
-                        name="event_start_time"
-                        value={formData.event_start_time}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <div className="mayo-form-field">
-                    <label htmlFor="event_end_time">End Time *</label>
-                    <input
-                        type="time"
-                        id="event_end_time"
-                        name="event_end_time"
-                        value={formData.event_end_time}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="mayo-form-field">
+                        <label>End Date/Time *</label>
+                        <div className="mayo-datetime-inputs">
+                            <input
+                                type="date"
+                                id="event_end_date"
+                                name="event_end_date"
+                                value={formData.event_end_date}
+                                onChange={handleChange}
+                            />
+                            <input
+                                type="time"
+                                id="event_end_time"
+                                name="event_end_time"
+                                value={formData.event_end_time}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="mayo-form-field">

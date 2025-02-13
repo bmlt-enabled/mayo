@@ -111,4 +111,32 @@
     .mayo-docs .card {
         padding: 15px;
     }
+}
+
+.mayo-sidebar-datetime {
+    margin-bottom: 16px;
+}
+
+.mayo-sidebar-label {
+    margin: 0 0 8px;
+    font-weight: 600;
+}
+
+.mayo-sidebar-datetime-inputs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.mayo-sidebar-datetime-inputs .components-base-control {
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+.mayo-sidebar-datetime-inputs .components-base-control__field {
+    margin-bottom: 0 !important;
+}
+
+.mayo-sidebar-datetime-inputs input {
+    height: 30px;
 } 

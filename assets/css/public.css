@@ -482,4 +482,30 @@
 
 .mayo-form-field select:hover {
     border-color: #999;
+}
+
+.mayo-datetime-group {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 1em;
+}
+
+.mayo-datetime-group .mayo-form-field {
+    flex: 1;
+}
+
+.mayo-datetime-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.mayo-datetime-inputs input {
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+    .mayo-datetime-group {
+        flex-direction: column;
+        gap: 10px;
+    }
 } 

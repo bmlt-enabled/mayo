@@ -37,26 +37,37 @@ const EventDetails = () => {
                 onChange={value => updateMetaValue('event_type', value)}
             />
 
-            <TextControl
-                label="Date"
-                type="date"
-                value={meta.event_date}
-                onChange={value => updateMetaValue('event_date', value)}
-            />
+            <PanelBody title="Event Date & Time" initialOpen={true}>
+                <div className="mayo-sidebar-datetime">
+                    <p className="mayo-sidebar-label">Start Date/Time</p>
+                    <div className="mayo-sidebar-datetime-inputs">
+                        <TextControl
+                            type="date"
+                            value={meta.event_start_date}
+                            onChange={value => updateMetaValue('event_start_date', value)}
+                        />
+                        <TextControl
+                            type="time"
+                            value={meta.event_start_time}
+                            onChange={value => updateMetaValue('event_start_time', value)}
+                        />
+                    </div>
 
-            <TextControl
-                label="Start Time"
-                type="time"
-                value={meta.event_start_time}
-                onChange={value => updateMetaValue('event_start_time', value)}
-            />
-
-            <TextControl
-                label="End Time"
-                type="time"
-                value={meta.event_end_time}
-                onChange={value => updateMetaValue('event_end_time', value)}
-            />
+                    <p className="mayo-sidebar-label">End Date/Time</p>
+                    <div className="mayo-sidebar-datetime-inputs">
+                        <TextControl
+                            type="date"
+                            value={meta.event_end_date}
+                            onChange={value => updateMetaValue('event_end_date', value)}
+                        />
+                        <TextControl
+                            type="time"
+                            value={meta.event_end_time}
+                            onChange={value => updateMetaValue('event_end_time', value)}
+                        />
+                    </div>
+                </div>
+            </PanelBody>
 
             <TextControl
                 label="Recurring Schedule"

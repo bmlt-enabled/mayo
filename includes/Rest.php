@@ -55,7 +55,8 @@ class REST {
 
         // Add event metadata
         add_post_meta($post_id, 'event_type', sanitize_text_field($params['event_type']));
-        add_post_meta($post_id, 'event_date', sanitize_text_field($params['event_date']));
+        add_post_meta($post_id, 'event_start_date', sanitize_text_field($params['event_start_date']));
+        add_post_meta($post_id, 'event_end_date', sanitize_text_field($params['event_end_date']));
         add_post_meta($post_id, 'event_start_time', sanitize_text_field($params['event_start_time']));
         add_post_meta($post_id, 'event_end_time', sanitize_text_field($params['event_end_time']));
         if (!empty($params['recurring_schedule'])) {
@@ -103,7 +104,8 @@ class REST {
                 'link' => get_permalink($post->ID),
                 'meta' => [
                     'event_type' => get_post_meta($post->ID, 'event_type', true),
-                    'event_date' => get_post_meta($post->ID, 'event_date', true),
+                    'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),
+                    'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
                     'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
                     'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
                     'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),

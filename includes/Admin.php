@@ -142,7 +142,18 @@ class Admin {
             }
         ]);
 
-        register_post_meta('mayo_event', 'event_date', [
+        register_post_meta('mayo_event', 'event_start_date', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'event_end_date', [
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',
