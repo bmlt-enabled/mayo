@@ -91,6 +91,7 @@ class REST {
 
     public static function get_events() {
         $is_archive = isset($_GET['archive']) && $_GET['archive'] === 'true';
+        
         $posts = get_posts([
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
@@ -101,6 +102,7 @@ class REST {
         foreach ($posts as $post) {
             try {
                 $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+                
                 if (!$is_archive && $recurring_pattern && $recurring_pattern['type'] !== 'none') {
                     $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
                     $events = array_merge($events, $recurring_events);
@@ -120,7 +122,7 @@ class REST {
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
         $start = new DateTime(get_post_meta($post->ID, 'event_start_date', true));
-        $end = get_post_meta($post->ID, 'event_end_date', true) ? new DateTime(get_post_meta($post->ID, 'event_end_date', true)) : (new DateTime($start_date))->modify('+1 year');
+        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : (clone $start)->modify('+1 year');
         
         if ($pattern['type'] === 'monthly') {
             $current = clone $start;
