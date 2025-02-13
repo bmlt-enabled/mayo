@@ -63,14 +63,27 @@ class Admin {
     }
 
     public static function enqueue_scripts($hook) {
-        // Only load admin bundle for mayo_event post type editing
-        if ($hook === 'post.php' || $hook === 'post-new.php') {
+        // Only load admin bundle for mayo_event post type editing or shortcodes page
+        if ($hook === 'post.php' || $hook === 'post-new.php' || $hook === 'mayo_page_mayo-shortcodes') {
             $screen = get_current_screen();
-            if ($screen && $screen->post_type === 'mayo_event') {
+            if ($screen && ($screen->post_type === 'mayo_event' || $hook === 'mayo_page_mayo-shortcodes')) {
+                // Add wp-edit-post to dependencies
+                $deps = [
+                    'wp-plugins',
+                    'wp-edit-post',  // Make sure this is included
+                    'wp-editor',
+                    'wp-element',
+                    'wp-components',
+                    'wp-data',
+                    'wp-i18n',
+                    'wp-block-editor',
+                    'wp-edit-post'   // This is the key dependency we need
+                ];
+
                 wp_enqueue_script(
                     'mayo-admin',
                     plugin_dir_url(__FILE__) . '../assets/js/dist/admin.bundle.js',
-                    ['wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n', 'wp-block-editor'],
+                    $deps,
                     '1.0',
                     true
                 );
@@ -227,102 +240,6 @@ class Admin {
     }
 
     public static function render_shortcode_docs() {
-        ?>
-        <div class="wrap">
-            <h1>Mayo Event Manager Shortcodes</h1>
-            
-            <div class="card">
-                <h2>Event Submission Form</h2>
-                <p><code>[mayo_event_form]</code></p>
-                <p>Displays a form that allows users to submit events for approval.</p>
-                <h3>Usage:</h3>
-                <pre><code>[mayo_event_form]</code></pre>
-                <p>This shortcode has no additional parameters. Place it on any page where you want users to be able to submit events.</p>
-            </div>
-
-            <div class="card">
-                <h2>Event List Display</h2>
-                <p><code>[mayo_event_list]</code></p>
-                <p>Displays a list of upcoming events in an accordion-style layout.</p>
-                
-                <h3>Parameters:</h3>
-                <table class="widefat">
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            <th>Values</th>
-                            <th>Default</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>time_format</code></td>
-                            <td><code>12hour</code> or <code>24hour</code></td>
-                            <td><code>12hour</code></td>
-                            <td>Controls how times are displayed (e.g., "2:30 PM" vs "14:30")</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Examples:</h3>
-                <pre><code># Default 12-hour time format
-[mayo_event_list]
-
-# Use 24-hour time format
-[mayo_event_list time_format="24hour"]</code></pre>
-            </div>
-
-            <div class="card">
-                <h2>Features</h2>
-                <ul class="ul-disc">
-                    <li>Events are automatically sorted by date</li>
-                    <li>Past events are automatically filtered out</li>
-                    <li>Expandable/collapsible event details</li>
-                    <li>Location details with Google Maps integration</li>
-                    <li>Event flyer image support</li>
-                    <li>Mobile-responsive design</li>
-                </ul>
-            </div>
-        </div>
-
-        <style>
-            .wrap .card {
-                max-width: 800px;
-                padding: 20px;
-                margin-top: 20px;
-            }
-            .wrap code {
-                background: #f0f0f1;
-                padding: 2px 6px;
-                border-radius: 3px;
-            }
-            .wrap pre {
-                background: #f6f7f7;
-                padding: 15px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                overflow-x: auto;
-            }
-            .wrap pre code {
-                background: none;
-                padding: 0;
-            }
-            .wrap .widefat {
-                margin: 15px 0;
-            }
-            .wrap .widefat td,
-            .wrap .widefat th {
-                padding: 12px;
-            }
-            .wrap h2 {
-                margin-top: 0;
-            }
-            .wrap .ul-disc {
-                list-style: disc;
-                margin-left: 20px;
-            }
-        </style>
-        <?php
+        echo '<div id="mayo-admin"></div>';
     }
 }

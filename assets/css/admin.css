@@ -12,4 +12,103 @@
 
 .mayo-event-details {
     margin-top: 16px;
+}
+
+/* Shortcodes Documentation Styles */
+.wrap {
+    margin: 10px 20px 0 2px;
+}
+
+.mayo-docs .card {
+    max-width: none;  /* Remove max-width restriction */
+    padding: 20px;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+/* Add WordPress admin page title styling */
+.wrap h1 {
+    color: #1d2327;
+    font-size: 23px;
+    font-weight: 400;
+    margin: 0;
+    padding: 9px 0 4px 0;
+    line-height: 1.3;
+}
+
+.mayo-docs code {
+    background: #f0f0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.mayo-docs pre {
+    background: #f6f7f7;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.mayo-docs pre code {
+    background: none;
+    padding: 0;
+}
+
+.mayo-docs .widefat {
+    margin: 15px 0;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #c3c4c7;
+}
+
+.mayo-docs .widefat td,
+.mayo-docs .widefat th {
+    padding: 12px;
+    border: 1px solid #c3c4c7;
+}
+
+.mayo-docs .widefat th {
+    background: #f0f0f1;
+    font-weight: 600;
+}
+
+.mayo-docs h2 {
+    margin: 0 0 1em;
+    padding: 0;
+    color: #1d2327;
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+.mayo-docs h3 {
+    margin: 1.5em 0 0.5em;
+    color: #1d2327;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.mayo-docs .ul-disc {
+    list-style: disc;
+    margin-left: 20px;
+    margin-bottom: 1em;
+}
+
+.mayo-docs .ul-disc li {
+    margin-bottom: 0.5em;
+    line-height: 1.5;
+}
+
+/* Add responsive padding */
+@media screen and (max-width: 782px) {
+    .wrap {
+        margin: 10px 12px 0 0;
+    }
+    
+    .mayo-docs .card {
+        padding: 15px;
+    }
 } 
