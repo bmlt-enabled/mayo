@@ -41,9 +41,9 @@ const EventArchive = () => {
                     {events.map(event => (
                         <article key={event.id} className="mayo-archive-event">
                             <div className="mayo-archive-event-content">
-                                {event.meta.flyer_url && (
+                                {event.featured_image && (
                                     <div className="mayo-archive-event-image">
-                                        <img src={event.meta.flyer_url} alt={event.title.rendered} />
+                                        <img src={event.featured_image} alt={event.title.rendered} />
                                     </div>
                                 )}
 

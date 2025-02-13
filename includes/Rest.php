@@ -213,6 +213,7 @@ class Rest {
             return [
                 'id' => $post->ID,
                 'title' => ['rendered' => $post->post_title],
+                'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
                 'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
                 'link' => get_permalink($post->ID),
                 'categories' => wp_get_post_categories($post->ID, ['fields' => 'all']),
@@ -224,7 +225,6 @@ class Rest {
                     'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
                     'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
                     'timezone' => get_post_meta($post->ID, 'timezone', true),
-                    'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
                     'location_name' => get_post_meta($post->ID, 'location_name', true),
                     'location_address' => get_post_meta($post->ID, 'location_address', true),
                     'location_details' => get_post_meta($post->ID, 'location_details', true),
@@ -270,6 +270,7 @@ class Rest {
                 'id' => get_the_ID(),
                 'title' => ['rendered' => get_the_title()],
                 'content' => ['rendered' => apply_filters('the_content', get_the_content())],
+                'featured_image' => get_the_post_thumbnail_url(get_the_ID(), 'full'),
                 'meta' => [
                     'event_type' => get_post_meta(get_the_ID(), 'event_type', true),
                     'event_start_date' => get_post_meta(get_the_ID(), 'event_start_date', true),
@@ -280,7 +281,6 @@ class Rest {
                     'location_name' => get_post_meta(get_the_ID(), 'location_name', true),
                     'location_address' => get_post_meta(get_the_ID(), 'location_address', true),
                     'location_details' => get_post_meta(get_the_ID(), 'location_details', true),
-                    'flyer_url' => get_post_meta(get_the_ID(), 'flyer_url', true),
                     'recurring_pattern' => get_post_meta(get_the_ID(), 'recurring_pattern', true),
                     'service_body' => get_post_meta(get_the_ID(), 'service_body', true),
                 ],

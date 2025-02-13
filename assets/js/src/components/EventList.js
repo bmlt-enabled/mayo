@@ -155,10 +155,10 @@ const EventCard = ({ event, timeFormat }) => {
                             <div dangerouslySetInnerHTML={{ __html: event.content.rendered }} />
                         </div>
 
-                        {event.meta.flyer_url && (
+                        {event.featured_image && (
                             <div className="mayo-event-image">
                                 <h4>Event Flyer</h4>
-                                <img src={event.meta.flyer_url} alt={event.title.rendered} />
+                                <img src={event.featured_image} alt={event.title.rendered} />
                             </div>
                         )}
 

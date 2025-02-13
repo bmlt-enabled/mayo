@@ -314,26 +314,6 @@ const EventDetails = () => {
                 )}
             </PanelBody>
 
-            <div className="editor-post-featured-image">
-                {meta.flyer_url && (
-                    <div>
-                        <img 
-                            src={meta.flyer_url} 
-                            alt="Event Flyer"
-                            style={{ maxWidth: '100%', marginBottom: '8px' }}
-                        />
-                        <div>
-                            <Button 
-                                onClick={() => updateMetaValue('flyer_id', '')}
-                                isDestructive
-                            >
-                                Remove Flyer
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
-
             <PanelBody
                 title="Location Details"
                 initialOpen={true}

@@ -251,16 +251,6 @@ class Admin {
             }
         ]);
 
-        register_post_meta('mayo_event', 'flyer_url', [
-            'show_in_rest' => true,
-            'single' => true,
-            'type' => 'string',
-            'default' => '',
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
-            }
-        ]);
-
         register_post_meta('mayo_event', 'location_name', [
             'show_in_rest' => true,
             'single' => true,

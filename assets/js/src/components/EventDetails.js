@@ -48,7 +48,6 @@ const EventDetails = () => {
             location_name,
             location_address,
             location_details,
-            flyer_url,
             recurring_pattern,
             service_body
         }
@@ -94,9 +93,9 @@ const EventDetails = () => {
                         <h1 className="mayo-single-event-title">{title.rendered}</h1>
                     </header>
 
-                    {flyer_url && (
+                    {event.featured_image && (
                         <div className="mayo-single-event-image">
-                            <img src={flyer_url} alt={title.rendered} />
+                            <img src={event.featured_image} alt={title.rendered} />
                         </div>
                     )}
 
