@@ -17,7 +17,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-react']
+                        presets: ['@babel/preset-env', '@babel/preset-react']
                     }
                 }
             }
@@ -32,5 +32,8 @@ module.exports = {
         '@wordpress/plugins': 'wp.plugins',
         '@wordpress/edit-post': 'wp.editPost',
         '@wordpress/i18n': 'wp.i18n'
-    }
+    },
+    resolve: {
+        extensions: ['.js', '.jsx'],
+    },
 };

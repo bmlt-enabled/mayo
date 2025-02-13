@@ -65,3 +65,14 @@ function load_details_template($template) {
     return $template;
 }
 
+function enqueue_admin_scripts() {
+    wp_enqueue_script(
+        'admin-bundle',
+        plugin_dir_url(__FILE__) . 'assets/js/dist/admin.bundle.js',
+        ['wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data'],
+        '1.0',
+        true
+    );
+}
+add_action('enqueue_block_editor_assets', 'enqueue_admin_scripts');
+
