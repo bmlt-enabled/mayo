@@ -1,6 +1,13 @@
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { TextControl, SelectControl, Button, PanelBody } from '@wordpress/components';
+import { 
+    TextControl, 
+    SelectControl, 
+    Button, 
+    PanelBody,
+    CheckboxControl,
+    __experimentalNumberControl as NumberControl 
+} from '@wordpress/components';
 import { registerPlugin } from '@wordpress/plugins';
 
 const EventDetails = () => {
@@ -19,6 +26,28 @@ const EventDetails = () => {
     const updateMetaValue = (key, value) => {
         editPost({ meta: { ...meta, [key]: value } });
     };
+
+    const recurringPattern = meta.recurring_pattern || {
+        type: 'none',
+        interval: 1,
+        weekdays: [],
+        endDate: ''
+    };
+
+    const updateRecurringPattern = (updates) => {
+        const newPattern = { ...recurringPattern, ...updates };
+        updateMetaValue('recurring_pattern', newPattern);
+    };
+
+    const weekdays = [
+        { value: 0, label: 'Sunday' },
+        { value: 1, label: 'Monday' },
+        { value: 2, label: 'Tuesday' },
+        { value: 3, label: 'Wednesday' },
+        { value: 4, label: 'Thursday' },
+        { value: 5, label: 'Friday' },
+        { value: 6, label: 'Saturday' }
+    ];
 
     return (
         <PluginDocumentSettingPanel
@@ -69,12 +98,63 @@ const EventDetails = () => {
                 </div>
             </PanelBody>
 
-            <TextControl
-                label="Recurring Schedule"
-                value={meta.recurring_schedule}
-                onChange={(value) => updateMetaValue('recurring_schedule', value)}
-            />
-            
+            <PanelBody title="Recurring Pattern" initialOpen={true}>
+                <SelectControl
+                    label="Repeat"
+                    value={recurringPattern.type}
+                    options={[
+                        { label: 'No Recurrence', value: 'none' },
+                        { label: 'Daily', value: 'daily' },
+                        { label: 'Weekly', value: 'weekly' },
+                        { label: 'Monthly', value: 'monthly' }
+                    ]}
+                    onChange={value => updateRecurringPattern({ type: value })}
+                />
+
+                {recurringPattern.type !== 'none' && (
+                    <>
+                        <div className="mayo-recurring-interval">
+                            <NumberControl
+                                label="Repeat every"
+                                min={1}
+                                value={recurringPattern.interval}
+                                onChange={value => updateRecurringPattern({ interval: value })}
+                            />
+                            <span>
+                                {recurringPattern.type === 'daily' ? 'days' : 
+                                 recurringPattern.type === 'weekly' ? 'weeks' : 'months'}
+                            </span>
+                        </div>
+
+                        {recurringPattern.type === 'weekly' && (
+                            <div className="mayo-weekday-controls">
+                                <p className="components-base-control__label">On these days</p>
+                                {weekdays.map(day => (
+                                    <CheckboxControl
+                                        key={day.value}
+                                        label={day.label}
+                                        checked={recurringPattern.weekdays.includes(day.value)}
+                                        onChange={(checked) => {
+                                            const newWeekdays = checked
+                                                ? [...recurringPattern.weekdays, day.value]
+                                                : recurringPattern.weekdays.filter(d => d !== day.value);
+                                            updateRecurringPattern({ weekdays: newWeekdays });
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        <TextControl
+                            label="End Date (optional)"
+                            type="date"
+                            value={recurringPattern.endDate}
+                            onChange={value => updateRecurringPattern({ endDate: value })}
+                        />
+                    </>
+                )}
+            </PanelBody>
+
             <div className="editor-post-featured-image">
                 {meta.flyer_url && (
                     <div>

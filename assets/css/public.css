@@ -570,4 +570,49 @@
     .mayo-event-month {
         font-size: 0.8em;
     }
+}
+
+.mayo-recurring-options {
+    margin-top: 1em;
+    padding: 1em;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.mayo-recurring-interval {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mayo-recurring-interval input {
+    width: 80px;
+}
+
+.mayo-weekday-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 0.5em;
+}
+
+.mayo-weekday-option {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.mayo-weekday-option:hover {
+    background: #f0f0f1;
+}
+
+.mayo-weekday-option input[type="checkbox"] {
+    width: auto;
+    margin: 0;
 } 

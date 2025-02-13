@@ -206,17 +206,6 @@ class Admin {
             }
         ]);
 
-        register_post_meta('mayo_event', 'recurring_schedule', [
-            'show_in_rest' => true,
-            'single' => true,
-            'type' => 'string',
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
-            }
-        ]);
-
         register_post_meta('mayo_event', 'location_name', [
             'show_in_rest' => true,
             'single' => true,
@@ -245,6 +234,21 @@ class Admin {
             'type' => 'string',
             'default' => '',
             'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'recurring_pattern', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'object',
+            'default' => [
+                'type' => 'none',
+                'interval' => 1,
+                'weekdays' => [],
+                'endDate' => ''
+            ],
             'auth_callback' => function() { 
                 return current_user_can('edit_posts'); 
             }

@@ -2,6 +2,9 @@
 
 namespace BmltEnabled\Mayo;
 
+use DateTime;
+use DateInterval;
+
 class REST {
     public static function init() {
         add_action('rest_api_init', function () {
@@ -59,9 +62,6 @@ class REST {
         add_post_meta($post_id, 'event_end_date', sanitize_text_field($params['event_end_date']));
         add_post_meta($post_id, 'event_start_time', sanitize_text_field($params['event_start_time']));
         add_post_meta($post_id, 'event_end_time', sanitize_text_field($params['event_end_time']));
-        if (!empty($params['recurring_schedule'])) {
-            add_post_meta($post_id, 'recurring_schedule', sanitize_text_field($params['recurring_schedule']));
-        }
 
         // Add location metadata
         if (!empty($params['location_name'])) {
@@ -97,29 +97,72 @@ class REST {
 
         $events = [];
         foreach ($posts as $post) {
-            $event = [
-                'id' => $post->ID,
-                'title' => ['rendered' => $post->post_title],
-                'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
-                'link' => get_permalink($post->ID),
-                'meta' => [
-                    'event_type' => get_post_meta($post->ID, 'event_type', true),
-                    'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),
-                    'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
-                    'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
-                    'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
-                    'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
-                    'recurring_schedule' => get_post_meta($post->ID, 'recurring_schedule', true),
-                    'location_name' => get_post_meta($post->ID, 'location_name', true),
-                    'location_address' => get_post_meta($post->ID, 'location_address', true),
-                    'location_details' => get_post_meta($post->ID, 'location_details', true),
-                ],
-                'categories' => wp_get_post_terms($post->ID, 'mayo_event_category', ['fields' => 'all']),
-                'tags' => wp_get_post_terms($post->ID, 'mayo_event_tag', ['fields' => 'all'])
-            ];
-            $events[] = $event;
+            $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+            $start_date = get_post_meta($post->ID, 'event_start_date', true);
+            
+            if ($recurring_pattern && $recurring_pattern['type'] !== 'none') {
+                $recurring_events = self::generate_recurring_events($post, $recurring_pattern, $start_date);
+                $events = array_merge($events, $recurring_events);
+            } else {
+                $events[] = self::format_event($post);
+            }
         }
 
         return new \WP_REST_Response($events);
+    }
+
+    private static function generate_recurring_events($post, $pattern, $start_date) {
+        $events = [];
+        $start = new DateTime($start_date);
+        $end = $pattern['endDate'] ? new DateTime($pattern['endDate']) : (new DateTime($start_date))->modify('+1 year');
+        
+        $interval = new DateInterval('P' . $pattern['interval'] . 
+            ($pattern['type'] === 'daily' ? 'D' : 
+            ($pattern['type'] === 'weekly' ? 'W' : 'M')));
+        
+        $current = clone $start;
+        
+        while ($current <= $end) {
+            if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
+                // For weekly pattern, check if current day is in selected weekdays
+                if (in_array($current->format('w'), $pattern['weekdays'])) {
+                    $events[] = self::format_recurring_event($post, $current);
+                }
+            } else {
+                $events[] = self::format_recurring_event($post, $current);
+            }
+            
+            $current->add($interval);
+        }
+        
+        return $events;
+    }
+
+    private static function format_recurring_event($post, $date) {
+        $event = self::format_event($post);
+        $event['meta']['event_start_date'] = $date->format('Y-m-d');
+        $event['recurring'] = true;
+        return $event;
+    }
+
+    private static function format_event($post) {
+        return [
+            'id' => $post->ID,
+            'title' => ['rendered' => $post->post_title],
+            'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
+            'link' => get_permalink($post->ID),
+            'meta' => [
+                'event_type' => get_post_meta($post->ID, 'event_type', true),
+                'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),
+                'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
+                'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
+                'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
+                'flyer_url' => get_post_meta($post->ID, 'flyer_url', true),
+                'location_name' => get_post_meta($post->ID, 'location_name', true),
+                'location_address' => get_post_meta($post->ID, 'location_address', true),
+                'location_details' => get_post_meta($post->ID, 'location_details', true),
+            ],
+            'recurring' => false
+        ];
     }
 }

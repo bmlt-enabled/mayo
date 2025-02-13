@@ -139,4 +139,34 @@
 
 .mayo-sidebar-datetime-inputs input {
     height: 30px;
+}
+
+.mayo-recurring-interval {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.mayo-recurring-interval .components-base-control {
+    flex: 1;
+    max-width: 100px;
+}
+
+.mayo-weekday-controls {
+    margin: 16px 0;
+}
+
+.mayo-weekday-controls .components-base-control {
+    margin-bottom: 8px;
+}
+
+.mayo-weekday-controls .components-base-control__label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.components-panel__body .components-base-control + .components-base-control {
+    margin-top: 8px;
 } 
