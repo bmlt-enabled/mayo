@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import EventCalendar from './EventCalendar';
+import apiFetch from '@wordpress/api-fetch';
 
 const formatTime = (time, format) => {
     if (!time) return '';
@@ -220,6 +221,13 @@ const EventCard = ({ event, timeFormat }) => {
                             </div>
                         )}
 
+                        {event.meta.service_body && (
+                            <div className="mayo-event-service-body">
+                                <h4>Service Body</h4>
+                                <p>{event.meta.service_body}</p>
+                            </div>
+                        )}
+
                         <div className="mayo-event-actions">
                             <a 
                                 href={event.link} 
@@ -292,7 +300,7 @@ const EventList = () => {
                         if (!filterTags.some(slug => eventTagSlugs.includes(slug))) {
                             return false;
                         }
-                    }
+            }
 
                     // Event type filter
                     if (filterEventType && event.meta.event_type !== filterEventType) {

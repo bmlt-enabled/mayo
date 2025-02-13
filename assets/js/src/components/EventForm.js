@@ -17,7 +17,7 @@ const EventForm = () => {
         location_details: '',
         categories: [],
         tags: [],
-        serviceBody: ''
+        service_body: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
@@ -108,7 +108,7 @@ const EventForm = () => {
                     location_details: '',
                     categories: [],
                     tags: [],
-                    serviceBody: ''
+                    service_body: ''
                 });
             } else {
                 setMessage({ type: 'error', text: result.message });
@@ -128,10 +128,10 @@ const EventForm = () => {
         }));
     };
 
-    const handleServiceBodyChange = (event) => {
+    const handleservice_bodyChange = (event) => {
         setFormData(prev => ({
             ...prev,
-            serviceBody: event.target.value
+            service_body: event.target.value
         }));
     };
 
@@ -174,12 +174,12 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="serviceBody">Service Body *</label>
+                    <label htmlFor="service_body">Service Body *</label>
                     <select
-                        id="serviceBody"
-                        name="serviceBody"
-                        value={formData.serviceBody}
-                        onChange={handleServiceBodyChange}
+                        id="service_body"
+                        name="service_body"
+                        value={formData.service_body}
+                        onChange={handleservice_bodyChange}
                         required
                     >
                         <option value="" disabled>Select a service body</option>

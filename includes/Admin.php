@@ -109,6 +109,7 @@ class Admin {
             'event_type' => __('Type'),
             'event_datetime' => __('Date & Time'),
             'status' => __('Status'),
+            'service_body' => __('Service Body'),
             'date' => $columns['date']
         ];
     }
@@ -161,6 +162,17 @@ class Admin {
 
     public static function register_meta_fields() {
         register_post_meta('mayo_event', 'event_type', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'service_body', [
             'show_in_rest' => true,
             'single' => true,
             'type' => 'string',

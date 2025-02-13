@@ -184,7 +184,7 @@ const EventDetails = () => {
                 ) : (
                     <SelectControl
                         label="Service Body"
-                        value={meta.serviceBody}
+                        value={meta.service_body}
                         options={[
                             { label: 'Select a service body', value: '' },
                             ...serviceBodies.map(body => ({
@@ -192,7 +192,7 @@ const EventDetails = () => {
                                 value: body.id
                             }))
                         ]}
-                        onChange={value => updateMetaValue('serviceBody', value)}
+                        onChange={value => updateMetaValue('service_body', value)}
                         __nextHasNoMarginBottom={true}
                     />
                 )}

@@ -82,6 +82,7 @@ class Rest {
         add_post_meta($post_id, 'event_start_time', sanitize_text_field($params['event_start_time']));
         add_post_meta($post_id, 'event_end_time', sanitize_text_field($params['event_end_time']));
         add_post_meta($post_id, 'timezone', sanitize_text_field($params['timezone']));
+        add_post_meta($post_id, 'service_body', sanitize_text_field($params['service_body']));
 
         // Add location metadata
         if (!empty($params['location_name'])) {
@@ -227,7 +228,8 @@ class Rest {
                     'location_name' => get_post_meta($post->ID, 'location_name', true),
                     'location_address' => get_post_meta($post->ID, 'location_address', true),
                     'location_details' => get_post_meta($post->ID, 'location_details', true),
-                    'recurring_pattern' => $recurring_pattern ?: ['type' => 'none']
+                    'recurring_pattern' => $recurring_pattern ?: ['type' => 'none'],
+                    'service_body' => get_post_meta($post->ID, 'service_body', true),
                 ],
                 'recurring' => false
             ];
@@ -280,6 +282,7 @@ class Rest {
                     'location_details' => get_post_meta(get_the_ID(), 'location_details', true),
                     'flyer_url' => get_post_meta(get_the_ID(), 'flyer_url', true),
                     'recurring_pattern' => get_post_meta(get_the_ID(), 'recurring_pattern', true),
+                    'service_body' => get_post_meta(get_the_ID(), 'service_body', true),
                 ],
                 'categories' => wp_get_post_categories(get_the_ID(), ['fields' => 'all']),
                 'tags' => wp_get_post_tags(get_the_ID(), ['fields' => 'all']),

@@ -49,7 +49,8 @@ const EventDetails = () => {
             location_address,
             location_details,
             flyer_url,
-            recurring_pattern
+            recurring_pattern,
+            service_body
         }
     } = event;
 
@@ -132,6 +133,13 @@ const EventDetails = () => {
                             <div className="mayo-single-event-type">
                                 <h3>Event Type</h3>
                                 <p>{event_type}</p>
+                            </div>
+                        )}
+
+                        {service_body && (
+                            <div className="mayo-single-event-service-body">
+                                <h3>Service Body</h3>
+                                <p>{service_body}</p>
                             </div>
                         )}
 

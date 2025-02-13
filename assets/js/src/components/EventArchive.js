@@ -1,5 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { formatTimezone } from './EventList'; // Import the helper function
+import apiFetch from '@wordpress/api-fetch';
 
 const EventArchive = () => {
     const [events, setEvents] = useState([]);
@@ -7,27 +8,27 @@ const EventArchive = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await apiFetch({ path: '/wp-json/event-manager/v1/events?archive=true' });
+                if (response) {
+                    setEvents(response);
+                } else {
+                    throw new Error('No events found');
+                }
+            } catch (err) {
+                console.error('Error fetching events:', err);
+                setError('Failed to load events');
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchEvents();
     }, []);
 
-    const fetchEvents = async () => {
-        try {
-            const response = await fetch('/wp-json/event-manager/v1/events?archive=true');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            setEvents(data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Error fetching events:', err);
-            setError('Failed to load events');
-            setLoading(false);
-        }
-    };
-
     if (loading) return <div>Loading events...</div>;
-    if (error) return <div>{error}</div>;
+    if (error) return <div className="mayo-error">{error}</div>;
 
     return (
         <div className="mayo-archive-container">
@@ -102,6 +103,10 @@ const EventArchive = () => {
                                         className="mayo-archive-event-excerpt"
                                         dangerouslySetInnerHTML={{ __html: event.content.rendered }}
                                     />
+
+                                    {event.meta.service_body && (
+                                        <p><strong>Service Body:</strong> {event.meta.service_body}</p>
+                                    )}
 
                                     <a href={event.link} className="mayo-archive-event-link">
                                         View Event Details
