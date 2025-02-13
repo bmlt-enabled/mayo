@@ -29,8 +29,8 @@ export const formatTimezone = (timezone) => {
 
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    // Create date object safely
-    const eventDate = new Date(event.meta.event_start_date);
+    // Create date object for display (using only the date part)
+    const eventDate = new Date(event.meta.event_start_date + 'T00:00:00');
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -89,7 +89,7 @@ const EventCard = ({ event, timeFormat }) => {
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="mayo-event-date-badge">
-                    {eventDate instanceof Date && !isNaN(eventDate) ? (
+                    {eventDate && !isNaN(eventDate.getTime()) ? (
                         <>
                             <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
                             <span className="mayo-event-day-number">{eventDate.getDate()}</span>
@@ -271,8 +271,6 @@ const EventList = () => {
         try {
             const response = await fetch('/wp-json/event-manager/v1/events');
             if (!response.ok) {
-                const error = await response.text();
-                console.error('Failed to fetch events:', error);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
@@ -280,8 +278,9 @@ const EventList = () => {
             const now = new Date();
             const upcomingEvents = data
                 .filter(event => {
-                    // Date filter
-                    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone}`);
+                    // Date filter with timezone
+                    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
+                        new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
                     if (eventDate <= now) return false;
 
                     // Category filter
@@ -308,12 +307,11 @@ const EventList = () => {
                     return true;
                 })
                 .sort((a, b) => {
-                    // Create date objects for comparison
-                    const timeA = a.meta.event_start_time || '00:00:00';
-                    const timeB = b.meta.event_start_time || '00:00:00';
-                    
-                    const dateA = new Date(`${a.meta.event_start_date}T${timeA}`);
-                    const dateB = new Date(`${b.meta.event_start_date}T${timeB}`);
+                    // Create date objects with timezone consideration
+                    const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}${a.meta.timezone ? 
+                        new Date().toLocaleString('en-US', { timeZone: a.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
+                    const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}${b.meta.timezone ? 
+                        new Date().toLocaleString('en-US', { timeZone: b.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
                     
                     if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
                         // If either date is invalid, fall back to comparing just the date strings
