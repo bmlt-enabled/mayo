@@ -119,6 +119,9 @@ class Admin {
             case 'event_type':
                 echo get_post_meta($post_id, 'event_type', true);
                 break;
+            case 'service_body':
+                echo get_post_meta($post_id, 'service_body', true);
+                break;
             case 'event_datetime':
                 $start_date = get_post_meta($post_id, 'event_start_date', true);
                 $end_date = get_post_meta($post_id, 'event_end_date', true);
