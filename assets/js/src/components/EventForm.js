@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 
 const EventForm = () => {
     const [formData, setFormData] = useState({
@@ -15,12 +16,16 @@ const EventForm = () => {
         location_address: '',
         location_details: '',
         categories: [],
-        tags: []
+        tags: [],
+        serviceBody: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
+    const [serviceBodies, setServiceBodies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         // Fetch available categories and tags
@@ -41,6 +46,32 @@ const EventForm = () => {
         };
         
         fetchTaxonomies();
+    }, []);
+
+    useEffect(() => {
+        const fetchServiceBodies = async () => {
+            try {
+                // Fetch the BMLT root server URL from your plugin settings
+                const settings = await apiFetch({ path: '/wp-json/event-manager/v1/settings' });
+                const bmltRootServer = settings.bmlt_root_server;
+                if (!bmltRootServer) {
+                    throw new Error('BMLT root server URL not set');
+                }
+
+                const response = await fetch(`${bmltRootServer}/client_interface/json/?switcher=GetServiceBodies`);
+                const data = await response.json();
+                // Sort service bodies by name
+                const sortedServiceBodies = data.sort((a, b) => a.name.localeCompare(b.name));
+                setServiceBodies(sortedServiceBodies);
+            } catch (err) {
+                console.error('Error fetching service bodies:', err);
+                setError('Failed to load service bodies');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchServiceBodies();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -76,7 +107,8 @@ const EventForm = () => {
                     location_address: '',
                     location_details: '',
                     categories: [],
-                    tags: []
+                    tags: [],
+                    serviceBody: ''
                 });
             } else {
                 setMessage({ type: 'error', text: result.message });
@@ -95,6 +127,16 @@ const EventForm = () => {
             [name]: files ? files[0] : value
         }));
     };
+
+    const handleServiceBodyChange = (event) => {
+        setFormData(prev => ({
+            ...prev,
+            serviceBody: event.target.value
+        }));
+    };
+
+    if (loading) return <div>Loading service bodies...</div>;
+    if (error) return <div className="mayo-error">{error}</div>;
 
     return (
         <div className="mayo-event-form">
@@ -128,6 +170,24 @@ const EventForm = () => {
                         <option value="">Select Event Type</option>
                         <option value="Service">Service</option>
                         <option value="Activity">Activity</option>
+                    </select>
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="serviceBody">Service Body *</label>
+                    <select
+                        id="serviceBody"
+                        name="serviceBody"
+                        value={formData.serviceBody}
+                        onChange={handleServiceBodyChange}
+                        required
+                    >
+                        <option value="" disabled>Select a service body</option>
+                        {serviceBodies.map((body) => (
+                            <option key={body.id} value={body.id}>
+                                {body.name} ({body.id})
+                            </option>
+                        ))}
                     </select>
                 </div>
 
