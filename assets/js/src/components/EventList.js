@@ -218,13 +218,15 @@ const EventList = () => {
 
             {view === 'list' ? (
                 <>
-                    {getPaginatedEvents().map(event => (
-                        <EventCard 
-                            key={event.id} 
-                            event={event}
-                            timeFormat={timeFormat}
-                        />
-                    ))}
+                    <div className="mayo-event-cards">
+                        {getPaginatedEvents().map(event => (
+                            <EventCard 
+                                key={`${event.id}-${event.meta.event_start_date}`}
+                                event={event}
+                                timeFormat={timeFormat}
+                            />
+                        ))}
+                    </div>
                     
                     {showPagination && totalPages > 1 && (
                         <div className="mayo-pagination">
