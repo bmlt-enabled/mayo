@@ -1,6 +1,6 @@
 # Define the name of the zip file
 PLUGIN_NAME = mayo
-VERSION = 1.0.0
+VERSION = 1.0.1
 ZIP_FILE = $(PLUGIN_NAME)-$(VERSION).zip
 
 # Define the directories and files to include in the zip

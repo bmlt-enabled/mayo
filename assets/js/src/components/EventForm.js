@@ -140,11 +140,6 @@ const EventForm = () => {
 
     return (
         <div className="mayo-event-form">
-            {message && (
-                <div className={`mayo-message mayo-message-${message.type}`}>
-                    {message.text}
-                </div>
-            )}
             <form onSubmit={handleSubmit}>
                 <div className="mayo-form-field">
                     <label htmlFor="event_name">Event Name *</label>
@@ -357,6 +352,12 @@ const EventForm = () => {
                 >
                     {isSubmitting ? 'Submitting...' : 'Submit Event'}
                 </button>
+
+                {message && (
+                    <div className={`mayo-message mayo-message-${message.type}`}>
+                        {message.text}
+                    </div>
+                )}
             </form>
         </div>
     );
