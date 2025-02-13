@@ -1,0 +1,15 @@
+.edit-post-layout.is-sidebar-opened .interface-interface-skeleton__sidebar {
+    width: 280px;
+}
+
+.edit-post-sidebar {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+}
+
+.mayo-event-details {
+    margin-top: 16px;
+} 

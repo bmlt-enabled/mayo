@@ -2,28 +2,35 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        admin: './assets/js/admin.js',
-        public: './assets/js/public.js',
+        admin: './assets/js/src/admin.js',
+        public: './assets/js/src/public.js'
     },
     output: {
-        path: path.resolve(__dirname, 'assets/js/dist'),
         filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'assets/js/dist')
     },
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
+                test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-react'],
-                    },
-                },
-            },
-        ],
+                        presets: ['@babel/preset-react']
+                    }
+                }
+            }
+        ]
     },
-    resolve: {
-        extensions: ['.js', '.jsx'],
-    },
+    externals: {
+        'react': 'React',
+        'react-dom': 'ReactDOM',
+        '@wordpress/element': 'wp.element',
+        '@wordpress/components': 'wp.components',
+        '@wordpress/data': 'wp.data',
+        '@wordpress/plugins': 'wp.plugins',
+        '@wordpress/edit-post': 'wp.editPost',
+        '@wordpress/i18n': 'wp.i18n'
+    }
 };

@@ -5,6 +5,7 @@ namespace BmltEnabled\Mayo;
 class Admin {
     public static function init() {
         add_action('init', [__CLASS__, 'register_post_type']);
+        add_action('init', [__CLASS__, 'register_meta_fields']);
         add_action('admin_menu', [__CLASS__, 'add_menu']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
         
@@ -25,7 +26,7 @@ class Admin {
             ],
             'public' => true,
             'show_in_menu' => 'mayo-events',
-            'supports' => ['title', 'editor', 'thumbnail'],
+            'supports' => ['title', 'editor', 'thumbnail', 'custom-fields'],
             'has_archive' => true,
             'publicly_queryable' => true,
             'rewrite' => [
@@ -52,14 +53,27 @@ class Admin {
         echo '<div id="mayo-admin"></div>';
     }
 
-    public static function enqueue_scripts() {
-        wp_enqueue_script(
-            'mayo-admin',
-            plugin_dir_url(__FILE__) . '../assets/js/dist/admin.bundle.js',
-            ['wp-element'],
-            '1.0',
-            true
-        );
+    public static function enqueue_scripts($hook) {
+        // Only load admin bundle for mayo_event post type editing
+        if ($hook === 'post.php' || $hook === 'post-new.php') {
+            $screen = get_current_screen();
+            if ($screen && $screen->post_type === 'mayo_event') {
+                wp_enqueue_script(
+                    'mayo-admin',
+                    plugin_dir_url(__FILE__) . '../assets/js/dist/admin.bundle.js',
+                    ['wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n'],
+                    '1.0',
+                    true
+                );
+                
+                wp_enqueue_style(
+                    'mayo-admin',
+                    plugin_dir_url(__FILE__) . '../assets/css/admin.css',
+                    [],
+                    '1.0'
+                );
+            }
+        }
     }
 
     public static function set_custom_columns($columns) {
@@ -91,5 +105,73 @@ class Admin {
                 echo get_post_status($post_id);
                 break;
         }
+    }
+
+    public static function register_meta_fields() {
+        register_post_meta('mayo_event', 'event_type', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'event_date', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'event_start_time', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'event_end_time', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'flyer_url', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'esc_url_raw',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'recurring_schedule', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
     }
 }
