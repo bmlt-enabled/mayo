@@ -1,4 +1,50 @@
 import { useState, useEffect } from '@wordpress/element';
+import { Button } from '@wordpress/components';
+
+const EventCard = ({ event }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="mayo-event-card">
+            <div 
+                className="mayo-event-header"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <div className="mayo-event-summary">
+                    <h3>{event.title.rendered}</h3>
+                    <div className="mayo-event-brief">
+                        <span className="mayo-event-type">{event.meta.event_type}</span>
+                        <span className="mayo-event-datetime">
+                            {new Date(event.meta.event_date).toLocaleDateString()} | {' '}
+                            {event.meta.event_start_time} - {event.meta.event_end_time}
+                        </span>
+                    </div>
+                </div>
+                <span className={`mayo-caret dashicons ${isExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`} />
+            </div>
+            {isExpanded && (
+                <div className="mayo-event-details">
+                    {event.meta.flyer_url && (
+                        <div className="mayo-event-image">
+                            <img src={event.meta.flyer_url} alt={event.title.rendered} />
+                        </div>
+                    )}
+                    <div className="mayo-event-content">
+                        <div 
+                            className="mayo-event-description"
+                            dangerouslySetInnerHTML={{ __html: event.content.rendered }}
+                        />
+                        {event.meta.recurring_schedule && (
+                            <p className="mayo-event-recurring">
+                                Recurring: {event.meta.recurring_schedule}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const EventList = () => {
     const [events, setEvents] = useState([]);
@@ -14,7 +60,6 @@ const EventList = () => {
             const response = await fetch('/wp-json/event-manager/v1/events');
             const data = await response.json();
             
-            // Filter and sort events
             const now = new Date();
             const upcomingEvents = data
                 .filter(event => {
@@ -42,27 +87,7 @@ const EventList = () => {
     return (
         <div className="mayo-event-list">
             {events.map(event => (
-                <div key={event.id} className="mayo-event-card">
-                    {event.meta.flyer_url && (
-                        <div className="mayo-event-image">
-                            <img src={event.meta.flyer_url} alt={event.title.rendered} />
-                        </div>
-                    )}
-                    <div className="mayo-event-content">
-                        <h3>{event.title.rendered}</h3>
-                        <div className="mayo-event-details">
-                            <p className="mayo-event-type">{event.meta.event_type}</p>
-                            <p className="mayo-event-datetime">
-                                {new Date(event.meta.event_date).toLocaleDateString()} | {' '}
-                                {event.meta.event_start_time} - {event.meta.event_end_time}
-                            </p>
-                        </div>
-                        <div 
-                            className="mayo-event-description"
-                            dangerouslySetInnerHTML={{ __html: event.content.rendered }}
-                        />
-                    </div>
-                </div>
+                <EventCard key={event.id} event={event} />
             ))}
         </div>
     );

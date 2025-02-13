@@ -26,15 +26,24 @@ class PublicInterface {
             wp_enqueue_script(
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',
-                ['wp-element'],
+                [
+                    'wp-element',
+                    'wp-components',
+                    'wp-i18n'
+                ],
                 '1.0',
                 true
+            );
+
+            // Enqueue WordPress components styles
+            wp_enqueue_style(
+                'wp-components'
             );
 
             wp_enqueue_style(
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/css/public.css',
-                [],
+                ['wp-components'],
                 '1.0'
             );
         }

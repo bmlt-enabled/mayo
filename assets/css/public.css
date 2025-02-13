@@ -53,23 +53,73 @@
 }
 
 .mayo-event-list {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 2em auto;
     padding: 1em;
 }
 
 .mayo-event-card {
-    display: flex;
-    gap: 2em;
-    margin-bottom: 2em;
-    padding: 1em;
+    margin-bottom: 1em;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
+    overflow: hidden;
 }
 
-.mayo-event-image {
-    flex: 0 0 200px;
+.mayo-event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em;
+    cursor: pointer;
+    background: #f8f9fa;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.mayo-event-header:hover {
+    background: #e9ecef;
+}
+
+.mayo-event-summary {
+    flex: 1;
+}
+
+.mayo-event-summary h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.mayo-event-brief {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    margin-top: 0.5em;
+    font-size: 0.9em;
+}
+
+.mayo-event-type {
+    color: #666;
+    font-weight: 500;
+}
+
+.mayo-event-datetime {
+    color: #0073aa;
+}
+
+.mayo-expand-button {
+    padding: 8px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+}
+
+.mayo-event-details {
+    padding: 1em;
+    border-top: 1px solid #ddd;
+    display: grid;
+    gap: 2em;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
 }
 
 .mayo-event-image img {
@@ -78,43 +128,42 @@
     border-radius: 4px;
 }
 
-.mayo-event-content {
-    flex: 1;
-}
-
-.mayo-event-content h3 {
-    margin: 0 0 0.5em;
-    color: #333;
-}
-
-.mayo-event-details {
-    margin-bottom: 1em;
-}
-
-.mayo-event-type {
-    color: #666;
-    font-size: 0.9em;
-    margin: 0;
-}
-
-.mayo-event-datetime {
-    color: #0073aa;
-    font-weight: bold;
-    margin: 0.5em 0;
-}
-
 .mayo-event-description {
     color: #444;
     line-height: 1.6;
 }
 
+.mayo-event-recurring {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+    color: #666;
+    font-style: italic;
+}
+
+.mayo-caret {
+    color: #666;
+    font-size: 20px;
+    transition: transform 0.2s ease;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mayo-event-header:hover .mayo-caret {
+    color: #333;
+}
+
 @media (max-width: 768px) {
-    .mayo-event-card {
-        flex-direction: column;
-        gap: 1em;
+    .mayo-event-details {
+        grid-template-columns: 1fr;
     }
 
-    .mayo-event-image {
-        flex: 0 0 auto;
+    .mayo-event-brief {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3em;
     }
 } 
