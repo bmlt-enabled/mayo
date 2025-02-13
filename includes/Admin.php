@@ -10,21 +10,21 @@ class Admin {
 
     public static function add_menu() {
         add_menu_page(
-            'Event Manager',
-            'Event Manager',
+            'Mayo',
+            'Mayo',
             'manage_options',
-            'event-manager',
+            'mayo',
             [__CLASS__, 'render_admin_page']
         );
     }
 
     public static function render_admin_page() {
-        echo '<div id="event-manager-admin"></div>';
+        echo '<div id="mayo-admin"></div>';
     }
 
     public static function enqueue_scripts() {
         wp_enqueue_script(
-            'event-manager-admin',
+            'mayo-admin',
             plugin_dir_url(__FILE__) . '../assets/js/dist/admin.bundle.js',
             ['wp-element'],
             '1.0',
