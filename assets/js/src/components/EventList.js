@@ -59,28 +59,62 @@ const EventCard = ({ event, timeFormat }) => {
                                 </span>
                             )}
                         </span>
+                        {(event.categories.length > 0 || event.tags.length > 0) && (
+                            <div className="mayo-event-brief-taxonomies">
+                                {event.categories.map(cat => (
+                                    <span key={cat.id} className="mayo-event-category mayo-event-category-small">
+                                        {cat.name}
+                                    </span>
+                                ))}
+                                {event.tags.map(tag => (
+                                    <span key={tag.id} className="mayo-event-tag mayo-event-tag-small">
+                                        {tag.name}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
                 <span className={`mayo-caret dashicons ${isExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`} />
             </div>
             {isExpanded && (
                 <div className="mayo-event-details">
-                    {event.meta.flyer_url && (
-                        <div className="mayo-event-image">
-                            <img src={event.meta.flyer_url} alt={event.title.rendered} />
-                        </div>
-                    )}
                     <div className="mayo-event-content">
-                        <div 
-                            className="mayo-event-description"
-                            dangerouslySetInnerHTML={{ __html: event.content.rendered }}
-                        />
-                        {event.meta.recurring_schedule && (
-                            <p className="mayo-event-recurring">
-                                Recurring: {event.meta.recurring_schedule}
-                            </p>
+                        <div className="mayo-event-metadata">
+                            <div className="mayo-event-datetime-details">
+                                <h4>Date & Time</h4>
+                                <p>
+                                    <strong>Start:</strong> {event.meta.event_start_date} at {formatTime(event.meta.event_start_time, timeFormat)}
+                                    {event.meta.timezone && ` (${formatTimezone(event.meta.timezone)})`}
+                                </p>
+                                {(event.meta.event_end_date || event.meta.event_end_time) && (
+                                    <p>
+                                        <strong>End:</strong> {event.meta.event_end_date || event.meta.event_start_date} at {formatTime(event.meta.event_end_time, timeFormat)}
+                                    </p>
+                                )}
+                            </div>
+
+                            {event.meta.event_type && (
+                                <div className="mayo-event-type-details">
+                                    <h4>Event Type</h4>
+                                    <p>{event.meta.event_type}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mayo-event-description">
+                            <h4>Description</h4>
+                            <div dangerouslySetInnerHTML={{ __html: event.content.rendered }} />
+                        </div>
+
+                        {event.meta.flyer_url && (
+                            <div className="mayo-event-image">
+                                <h4>Event Flyer</h4>
+                                <img src={event.meta.flyer_url} alt={event.title.rendered} />
+                            </div>
                         )}
-                        {(event.meta.location_name || event.meta.location_address) && (
+
+                        {(event.meta.location_name || event.meta.location_address || event.meta.location_details) && (
                             <div className="mayo-event-location">
                                 <h4>Location</h4>
                                 {event.meta.location_name && (
@@ -103,6 +137,36 @@ const EventCard = ({ event, timeFormat }) => {
                                 )}
                             </div>
                         )}
+
+                        {(event.categories.length > 0 || event.tags.length > 0) && (
+                            <div className="mayo-event-taxonomies">
+                                {event.categories.length > 0 && (
+                                    <div className="mayo-event-categories">
+                                        <h4>Categories</h4>
+                                        <div className="mayo-taxonomy-list">
+                                            {event.categories.map(cat => (
+                                                <span key={cat.id} className="mayo-event-category">
+                                                    {cat.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {event.tags.length > 0 && (
+                                    <div className="mayo-event-tags">
+                                        <h4>Tags</h4>
+                                        <div className="mayo-taxonomy-list">
+                                            {event.tags.map(tag => (
+                                                <span key={tag.id} className="mayo-event-tag">
+                                                    {tag.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="mayo-event-actions">
                             <a 
                                 href={event.link} 

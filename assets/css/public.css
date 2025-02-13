@@ -141,10 +141,24 @@
 
 .mayo-event-brief {
     display: flex;
-    gap: 1em;
+    gap: 0.75em;
     align-items: center;
     margin-top: 0.25em;
     font-size: 0.9em;
+    flex-wrap: wrap;
+}
+
+.mayo-event-brief-taxonomies {
+    display: flex;
+    gap: 0.4em;
+    flex-wrap: wrap;
+}
+
+.mayo-event-category-small,
+.mayo-event-tag-small {
+    font-size: 0.75em;
+    padding: 1px 6px;
+    border-radius: 3px;
 }
 
 .mayo-event-type {
@@ -165,15 +179,40 @@
 .mayo-event-details {
     padding: 1em;
     border-top: 1px solid #ddd;
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.mayo-event-details h4 {
+    color: #333;
+    margin: 0 0 0.5em 0;
+    font-size: 1.1em;
+}
+
+.mayo-event-metadata {
+    display: flex;
     gap: 2em;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    flex-wrap: wrap;
+}
+
+.mayo-event-datetime-details,
+.mayo-event-type-details {
+    flex: 1;
+    min-width: 250px;
+}
+
+.mayo-event-datetime-details p,
+.mayo-event-type-details p {
+    margin: 0.25em 0;
+    color: #666;
 }
 
 .mayo-event-image img {
     width: 100%;
     height: auto;
     border-radius: 4px;
+    max-width: 500px;
 }
 
 .mayo-event-description {
@@ -210,9 +249,13 @@
     }
 
     .mayo-event-brief {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.3em;
+        gap: 0.4em;
+        margin-top: 0.4em;
+    }
+
+    .mayo-event-brief-taxonomies {
+        width: 100%;
+        margin-top: 0.3em;
     }
 }
 
@@ -490,8 +533,20 @@
 
 .mayo-event-taxonomies {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 2em;
+}
+
+.mayo-event-categories,
+.mayo-event-tags {
+    flex: 1;
+    min-width: 200px;
+}
+
+.mayo-taxonomy-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
 }
 
 .mayo-event-category,
