@@ -714,4 +714,162 @@
 .mayo-event-timezone {
     color: #666;
     font-size: 0.9em;
+}
+
+/* Archive Page Styles */
+.mayo-archive-container {
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 0 1em;
+}
+
+.mayo-archive-header {
+    margin-bottom: 2em;
+    text-align: center;
+}
+
+.mayo-archive-event {
+    margin-bottom: 2em;
+    padding: 1.5em;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mayo-archive-event-content {
+    display: grid;
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    gap: 2em;
+}
+
+.mayo-archive-event-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.mayo-archive-event-title {
+    margin: 0 0 1em;
+    font-size: 1.5em;
+}
+
+.mayo-archive-event-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.mayo-archive-event-title a:hover {
+    color: #0073aa;
+}
+
+.mayo-archive-event-meta {
+    margin-bottom: 1em;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.mayo-archive-event-meta > div {
+    margin-bottom: 0.5em;
+}
+
+.mayo-archive-event-excerpt {
+    margin-bottom: 1em;
+    color: #444;
+    line-height: 1.6;
+}
+
+.mayo-archive-event-link {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background: #0073aa;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+
+.mayo-archive-event-link:hover {
+    background: #005177;
+    color: white;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .mayo-archive-event-content {
+        grid-template-columns: 1fr;
+    }
+
+    .mayo-archive-event-image {
+        margin-bottom: 1em;
+    }
+}
+
+/* Single Event Page Styles */
+.mayo-single-container {
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 0 1em;
+}
+
+.mayo-single-event {
+    background: white;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mayo-single-event-header {
+    margin-bottom: 2em;
+    text-align: center;
+}
+
+.mayo-single-event-title {
+    font-size: 2em;
+    color: #333;
+    margin: 0;
+}
+
+.mayo-single-event-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2em;
+    margin-bottom: 2em;
+}
+
+.mayo-single-event-meta h3 {
+    color: #333;
+    margin: 0 0 0.5em 0;
+    font-size: 1.2em;
+}
+
+.mayo-single-event-meta p {
+    margin: 0.5em 0;
+    color: #666;
+}
+
+.mayo-single-event-image {
+    margin: 2em 0;
+    text-align: center;
+}
+
+.mayo-single-event-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.mayo-single-event-description {
+    margin-top: 2em;
+    color: #444;
+    line-height: 1.6;
+}
+
+.mayo-location-address a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.mayo-location-address a:hover {
+    text-decoration: underline;
 } 

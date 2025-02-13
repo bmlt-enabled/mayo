@@ -90,40 +90,37 @@ class REST {
     }
 
     public static function get_events() {
-        try {
-            $posts = get_posts([
-                'post_type' => 'mayo_event',
-                'posts_per_page' => -1,
-                'post_status' => 'publish',
-            ]);
+        $is_archive = isset($_GET['archive']) && $_GET['archive'] === 'true';
+        $posts = get_posts([
+            'post_type' => 'mayo_event',
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        ]);
 
-            $events = [];
-            foreach ($posts as $post) {
+        $events = [];
+        foreach ($posts as $post) {
+            try {
                 $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
-                $start_date = get_post_meta($post->ID, 'event_start_date', true);
-                
-                if ($recurring_pattern && $recurring_pattern['type'] !== 'none') {
-                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern, $start_date);
+                if (!$is_archive && $recurring_pattern && $recurring_pattern['type'] !== 'none') {
+                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
                     $events = array_merge($events, $recurring_events);
                 } else {
                     $events[] = self::format_event($post);
                 }
+            } catch (\Exception $e) {
+                error_log('Error formatting event: ' . $e->getMessage());
+                throw $e;
             }
-
-            return new \WP_REST_Response($events);
-        } catch (\Exception $e) {
-            return new \WP_REST_Response([
-                'error' => $e->getMessage(),
-                'details' => $e->getTraceAsString()
-            ], 500);
         }
+
+        return new \WP_REST_Response($events);
     }
 
-    private static function generate_recurring_events($post, $pattern, $start_date) {
+    private static function generate_recurring_events($post, $pattern) {
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
-        $start = new DateTime($start_date);
-        $end = $pattern['endDate'] ? new DateTime($pattern['endDate']) : (new DateTime($start_date))->modify('+1 year');
+        $start = new DateTime(get_post_meta($post->ID, 'event_start_date', true));
+        $end = get_post_meta($post->ID, 'event_end_date', true) ? new DateTime(get_post_meta($post->ID, 'event_end_date', true)) : (new DateTime($start_date))->modify('+1 year');
         
         if ($pattern['type'] === 'monthly') {
             $current = clone $start;

@@ -31,7 +31,7 @@ class Admin {
             'has_archive' => true,
             'publicly_queryable' => true,
             'rewrite' => [
-                'slug' => 'events',
+                'slug' => 'mayo',
                 'with_front' => true,
             ],
             'menu_icon' => 'dashicons-calendar',

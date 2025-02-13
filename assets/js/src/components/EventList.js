@@ -17,7 +17,7 @@ const formatTime = (time, format) => {
     return `${hour12}:${minutes} ${ampm}`;
 };
 
-const formatTimezone = (timezone) => {
+export const formatTimezone = (timezone) => {
     try {
         const date = new Date();
         const timeString = date.toLocaleTimeString('en-US', { timeZone: timezone, timeZoneName: 'short' });
