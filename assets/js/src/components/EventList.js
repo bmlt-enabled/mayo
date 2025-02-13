@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import EventCalendar from './EventCalendar';
 
 const formatTime = (time, format) => {
     if (!time) return '';
@@ -97,6 +98,7 @@ const EventList = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [view, setView] = useState('list'); // 'list' or 'calendar'
     const containerRef = useRef(null);
     const [timeFormat, setTimeFormat] = useState('12hour');
 
@@ -142,13 +144,32 @@ const EventList = () => {
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
-            {events.map(event => (
-                <EventCard 
-                    key={event.id} 
-                    event={event}
-                    timeFormat={timeFormat}
-                />
-            ))}
+            <div className="mayo-view-switcher">
+                <button 
+                    className={`mayo-view-button ${view === 'list' ? 'active' : ''}`}
+                    onClick={() => setView('list')}
+                >
+                    List View
+                </button>
+                <button 
+                    className={`mayo-view-button ${view === 'calendar' ? 'active' : ''}`}
+                    onClick={() => setView('calendar')}
+                >
+                    Calendar View
+                </button>
+            </div>
+
+            {view === 'list' ? (
+                events.map(event => (
+                    <EventCard 
+                        key={event.id} 
+                        event={event}
+                        timeFormat={timeFormat}
+                    />
+                ))
+            ) : (
+                <EventCalendar events={events} />
+            )}
         </div>
     );
 };

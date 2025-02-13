@@ -225,4 +225,190 @@
     margin-top: 0.5em;
     font-style: italic;
     color: #666;
+}
+
+/* View Switcher */
+.mayo-view-switcher {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.mayo-view-button {
+    padding: 8px 16px;
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.mayo-view-button.active {
+    background: #0073aa;
+    color: white;
+    border-color: #006291;
+}
+
+/* Update Calendar Styles */
+.mayo-calendar {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.mayo-calendar-grid {
+    width: 100%;
+}
+
+.mayo-calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.mayo-calendar-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.mayo-calendar-header button {
+    padding: 8px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.mayo-calendar-header button:hover {
+    background: #f0f0f1;
+    border-color: #c3c4c7;
+}
+
+.mayo-calendar-header .dashicons {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mayo-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.mayo-calendar-weekday {
+    padding: 10px;
+    text-align: center;
+    font-weight: 600;
+    aspect-ratio: 1; /* Make weekday headers square */
+}
+
+.mayo-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.mayo-calendar-day {
+    aspect-ratio: 1; /* Make days square */
+    padding: 8px;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    overflow-y: auto;
+}
+
+.mayo-calendar-day.empty {
+    background: #f8f9fa;
+}
+
+.mayo-calendar-date {
+    position: sticky;
+    top: 0;
+    background: inherit;
+    display: block;
+    padding: 4px;
+    margin: -8px -8px 8px -8px;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    z-index: 1;
+}
+
+.mayo-calendar-events {
+    font-size: 0.9em;
+    position: relative;
+    height: calc(100% - 30px); /* Account for date header */
+    overflow-y: auto;
+}
+
+.mayo-calendar-event {
+    margin: 4px 0;
+    padding: 4px 8px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.mayo-calendar-event:hover {
+    background: #dee2e6;
+    border-color: #c3c4c7;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.event-time {
+    color: #666;
+    margin-right: 8px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.event-title {
+    color: #0073aa;
+}
+
+.mayo-calendar-event:hover .event-title {
+    text-decoration: underline;
+}
+
+/* Make calendar more compact on mobile */
+@media (max-width: 768px) {
+    .mayo-calendar-weekday {
+        padding: 5px;
+        font-size: 0.9em;
+    }
+
+    .mayo-calendar-day {
+        padding: 4px;
+    }
+
+    .mayo-calendar-date {
+        margin: -4px -4px 4px -4px;
+        padding: 2px 4px;
+        font-size: 0.9em;
+    }
+
+    .mayo-calendar-event {
+        font-size: 0.8em;
+        padding: 2px 4px;
+        margin: 2px 0;
+    }
 } 
