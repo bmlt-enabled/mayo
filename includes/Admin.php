@@ -327,6 +327,24 @@ class Admin {
                         <th>Options</th>
                     </tr>
                     <tr>
+                        <td>categories</td>
+                        <td>Filter by category slugs (comma-separated)</td>
+                        <td>empty (all categories)</td>
+                        <td>e.g., "meetings,workshops"</td>
+                    </tr>
+                    <tr>
+                        <td>tags</td>
+                        <td>Filter by tag slugs (comma-separated)</td>
+                        <td>empty (all tags)</td>
+                        <td>e.g., "featured,special"</td>
+                    </tr>
+                    <tr>
+                        <td>event_type</td>
+                        <td>Filter by event type</td>
+                        <td>empty (all types)</td>
+                        <td>Service, Activity</td>
+                    </tr>
+                    <tr>
                         <td>time_format</td>
                         <td>Format for displaying time</td>
                         <td>12hour</td>
@@ -347,7 +365,7 @@ class Admin {
                 </table>
                 
                 <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" show_pagination="true"]</code></pre>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service"]</code></pre>
             </div>
 
             <div class="card">

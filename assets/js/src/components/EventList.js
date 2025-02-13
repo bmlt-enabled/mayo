@@ -131,6 +131,9 @@ const EventList = () => {
     // Get settings from PHP
     const perPage = window.mayoEventSettings?.perPage || 10;
     const showPagination = window.mayoEventSettings?.showPagination !== false;
+    const filterCategories = window.mayoEventSettings?.categories || [];
+    const filterTags = window.mayoEventSettings?.tags || [];
+    const filterEventType = window.mayoEventSettings?.eventType || '';
 
     useEffect(() => {
         const container = document.getElementById('mayo-event-list');
@@ -155,10 +158,32 @@ const EventList = () => {
             const now = new Date();
             const upcomingEvents = data
                 .filter(event => {
-                    // Create date object with timezone consideration
-                    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
-                    return eventDate > now;
+                    // Date filter
+                    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone}`);
+                    if (eventDate <= now) return false;
+
+                    // Category filter
+                    if (filterCategories.length > 0) {
+                        const eventCategorySlugs = event.categories.map(cat => cat.slug);
+                        if (!filterCategories.some(slug => eventCategorySlugs.includes(slug))) {
+                            return false;
+                        }
+                    }
+
+                    // Tag filter
+                    if (filterTags.length > 0) {
+                        const eventTagSlugs = event.tags.map(tag => tag.slug);
+                        if (!filterTags.some(slug => eventTagSlugs.includes(slug))) {
+                            return false;
+                        }
+                    }
+
+                    // Event type filter
+                    if (filterEventType && event.meta.event_type !== filterEventType) {
+                        return false;
+                    }
+
+                    return true;
                 })
                 .sort((a, b) => {
                     // Create date object with timezone consideration

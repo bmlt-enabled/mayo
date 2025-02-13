@@ -17,7 +17,10 @@ class PublicInterface {
         $defaults = [
             'time_format' => '12hour', // or '24hour'
             'per_page' => 10,
-            'show_pagination' => 'true'
+            'show_pagination' => 'true',
+            'categories' => '',  // Comma-separated category slugs
+            'tags' => '',       // Comma-separated tag slugs
+            'event_type' => ''  // Single event type (Service, Activity)
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -28,7 +31,10 @@ class PublicInterface {
         wp_localize_script('mayo-public', 'mayoEventSettings', [
             'timeFormat' => $atts['time_format'],
             'perPage' => intval($atts['per_page']),
-            'showPagination' => $atts['show_pagination'] === 'true'
+            'showPagination' => $atts['show_pagination'] === 'true',
+            'categories' => array_filter(explode(',', $atts['categories'])),
+            'tags' => array_filter(explode(',', $atts['tags'])),
+            'eventType' => $atts['event_type']
         ]);
 
         return sprintf(

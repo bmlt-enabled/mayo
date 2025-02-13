@@ -21,29 +21,6 @@ const EventForm = () => {
     const [message, setMessage] = useState(null);
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
-    const [recurringPattern, setRecurringPattern] = useState({
-        type: 'none', // none, daily, weekly, monthly
-        interval: 1,
-        weekdays: [], // for weekly pattern
-        endDate: '', // optional end date
-    });
-
-    const recurringOptions = [
-        { value: 'none', label: 'No Recurrence' },
-        { value: 'daily', label: 'Daily' },
-        { value: 'weekly', label: 'Weekly' },
-        { value: 'monthly', label: 'Monthly' }
-    ];
-
-    const weekdays = [
-        { value: 0, label: 'Sun' },
-        { value: 1, label: 'Mon' },
-        { value: 2, label: 'Tue' },
-        { value: 3, label: 'Wed' },
-        { value: 4, label: 'Thu' },
-        { value: 5, label: 'Fri' },
-        { value: 6, label: 'Sat' }
-    ];
 
     useEffect(() => {
         // Fetch available categories and tags
@@ -312,82 +289,6 @@ const EventForm = () => {
                         ))}
                     </div>
                 </div>
-
-                <div className="mayo-form-field">
-                    <label>Recurring Pattern</label>
-                    <select
-                        value={recurringPattern.type}
-                        onChange={(e) => setRecurringPattern({
-                            ...recurringPattern,
-                            type: e.target.value
-                        })}
-                    >
-                        {recurringOptions.map(option => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {recurringPattern.type !== 'none' && (
-                    <div className="mayo-recurring-options">
-                        <div className="mayo-form-field">
-                            <label>Repeat every</label>
-                            <div className="mayo-recurring-interval">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={recurringPattern.interval}
-                                    onChange={(e) => setRecurringPattern({
-                                        ...recurringPattern,
-                                        interval: parseInt(e.target.value)
-                                    })}
-                                />
-                                <span>{recurringPattern.type === 'daily' ? 'days' : 
-                                      recurringPattern.type === 'weekly' ? 'weeks' : 'months'}</span>
-                            </div>
-                        </div>
-
-                        {recurringPattern.type === 'weekly' && (
-                            <div className="mayo-form-field">
-                                <label>On these days</label>
-                                <div className="mayo-weekday-selector">
-                                    {weekdays.map(day => (
-                                        <label key={day.value} className="mayo-weekday-option">
-                                            <input
-                                                type="checkbox"
-                                                checked={recurringPattern.weekdays.includes(day.value)}
-                                                onChange={(e) => {
-                                                    const newWeekdays = e.target.checked
-                                                        ? [...recurringPattern.weekdays, day.value]
-                                                        : recurringPattern.weekdays.filter(d => d !== day.value);
-                                                    setRecurringPattern({
-                                                        ...recurringPattern,
-                                                        weekdays: newWeekdays
-                                                    });
-                                                }}
-                                            />
-                                            {day.label}
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="mayo-form-field">
-                            <label>End Date (optional)</label>
-                            <input
-                                type="date"
-                                value={recurringPattern.endDate}
-                                onChange={(e) => setRecurringPattern({
-                                    ...recurringPattern,
-                                    endDate: e.target.value
-                                })}
-                            />
-                        </div>
-                    </div>
-                )}
 
                 <button 
                     type="submit" 
