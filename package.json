@@ -1,0 +1,21 @@
+{
+  "name": "mayo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode production", 
+    "dev": "webpack --mode development --watch"
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/preset-react": "^7.26.3",
+    "@wordpress/scripts": "^30.11.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
