@@ -105,11 +105,11 @@ class Admin {
     public static function set_custom_columns($columns) {
         return [
             'cb' => $columns['cb'],
-            'title' => __('Event Name'),
-            'event_type' => __('Type'),
-            'event_datetime' => __('Date & Time'),
-            'status' => __('Status'),
-            'service_body' => __('Service Body'),
+            'title' => __('Event Name', 'mayo-event-manager'),
+            'event_type' => __('Type', 'mayo-event-manager'),
+            'event_datetime' => __('Date & Time', 'mayo-event-manager'),
+            'status' => __('Status', 'mayo-event-manager'),
+            'service_body' => __('Service Body', 'mayo-event-manager'),
             'date' => $columns['date']
         ];
     }
@@ -117,10 +117,10 @@ class Admin {
     public static function render_custom_columns($column, $post_id) {
         switch ($column) {
             case 'event_type':
-                echo get_post_meta($post_id, 'event_type', true);
+                echo esc_html(get_post_meta($post_id, 'event_type', true));
                 break;
             case 'service_body':
-                echo get_post_meta($post_id, 'service_body', true);
+                echo esc_html(get_post_meta($post_id, 'service_body', true));
                 break;
             case 'event_datetime':
                 $start_date = get_post_meta($post_id, 'event_start_date', true);
@@ -130,9 +130,9 @@ class Admin {
                 
                 // Format start date/time
                 if ($start_date) {
-                    $start_formatted = date('M j, Y', strtotime($start_date));
+                    $start_formatted = wp_date('M j, Y', strtotime($start_date));
                     if ($start_time) {
-                        $start_formatted .= ' ' . date('g:i A', strtotime($start_time));
+                        $start_formatted .= ' ' . wp_date('g:i A', strtotime($start_time));
                     }
                 }
                 
@@ -140,25 +140,25 @@ class Admin {
                 if ($end_date || $end_time) {
                     $end_formatted = '';
                     if ($end_date) {
-                        $end_formatted = date('M j, Y', strtotime($end_date));
+                        $end_formatted = wp_date('M j, Y', strtotime($end_date));
                     } else {
-                        $end_formatted = $start_formatted ? date('M j, Y', strtotime($start_date)) : '';
+                        $end_formatted = $start_formatted ? wp_date('M j, Y', strtotime($start_date)) : '';
                     }
                     if ($end_time) {
-                        $end_formatted .= ' ' . date('g:i A', strtotime($end_time));
+                        $end_formatted .= ' ' . wp_date('g:i A', strtotime($end_time));
                     }
                     
                     if ($start_formatted && $end_formatted) {
-                        echo "$start_formatted - $end_formatted";
+                        echo esc_html("$start_formatted - $end_formatted");
                     } else {
-                        echo $start_formatted ?: $end_formatted;
+                        echo esc_html($start_formatted ?: $end_formatted);
                     }
                 } else {
-                    echo $start_formatted ?? '';
+                    echo esc_html($start_formatted ?? '');
                 }
                 break;
             case 'status':
-                echo get_post_status($post_id);
+                echo esc_html(get_post_status($post_id));
                 break;
         }
     }

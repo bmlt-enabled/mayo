@@ -62,7 +62,7 @@ class Rest {
         }
 
         // Handle file upload
-        if (!empty($_FILES['flyer'])) {
+        if (!empty($_FILES['flyer']) && check_admin_referer('submit_event_nonce')) {
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -128,7 +128,16 @@ class Rest {
     }
 
     public static function get_events() {
-        $is_archive = isset($_GET['archive']) && $_GET['archive'] === 'true';
+        $is_archive = false;
+        if (isset($_GET['archive'])) {
+            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+            if (wp_verify_nonce($nonce, 'wp_rest')) {
+                $archive = sanitize_text_field(wp_unslash($_GET['archive']));
+                if ($archive === 'true') {
+                    $is_archive = true;
+                }
+            }
+        }
         
         $posts = get_posts([
             'post_type' => 'mayo_event',
@@ -148,7 +157,6 @@ class Rest {
                     $events[] = self::format_event($post);
                 }
             } catch (\Exception $e) {
-                error_log('Error formatting event: ' . $e->getMessage());
                 throw $e;
             }
         }
@@ -252,7 +260,6 @@ class Rest {
                 'recurring' => false
             ];
         } catch (\Exception $e) {
-            error_log('Error formatting event: ' . $e->getMessage());
             throw $e;
         }
     }

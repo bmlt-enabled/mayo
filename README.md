@@ -1,8 +1,18 @@
-#  mayo
+== Mayo Events Manager ==
 
-Pronounced "my-oh".  Referring to the Spanish word "mayo" which means "May" in English.
+Contributors: radius314
+Tags: events, bmlt, narcotics anonymous, na
+Requires PHP: 8.1
+Requires at least: 8.1
+Tested up to: 6.7.2
+Stable tag: 1.0.6
+
+License: MIT
+License URI: https://opensource.org/licenses/MIT
 
 ### Description
+
+Pronounced "my-oh".  Referring to the Spanish word "mayo" which means "May" in English.
 
 Mayo Event Manager is a comprehensive WordPress plugin designed to facilitate the management of events with a focus on community engagement and administrative oversight. This plugin allows users to submit events for approval, supports recurring event schedules, and integrates seamlessly with WordPress's native features like featured images and custom post types.
 
