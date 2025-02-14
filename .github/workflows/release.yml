@@ -1,8 +1,8 @@
-name: 'latest'
+name: 'release'
 
 on:
   push:
-    branches: [ 'main' ]
+    tags: [ '*' ]
 
 jobs:
   lint:
@@ -22,47 +22,58 @@ jobs:
         id: php-codesniffer
         run: make lint
 
-  deploy:
+  package:
     runs-on: ubuntu-22.04
-    permissions:
-      id-token: write
-      contents: write
     env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      S3_BUCKET: archives.bmlt.app
-      S3_KEY: mayo-events-manager
-      BUILD_DIR: build
-      DIST_DIR_S3: dist/s3
-      PLUGIN: "mayo-events-manager"
+      BUILD_DIR: "build"
+      DIST_DIR_GITHUB: "dist/github"
+      GITHUB_RELEASE_FILENAME: "fetch-meditation.zip"
+      PLUGIN: "fetch-meditation"
+      MAINFILE: "fetch-meditation.php"
     needs: [ lint ]
+    permissions:
+      contents: write
     steps:
       - name: Check out code 🛒
         uses: actions/checkout@v4
-        id: code-checkout
 
-      - name: Prepare to deploy 🔧
+      - name: Build package 🔧
+        id: build-package
         run: |
-          export FILENAME=${PLUGIN}-build-${GITHUB_RUN_NUMBER}-${GITHUB_SHA}
-          export ZIP_FILENAME=$FILENAME.zip
-          echo "ZIP_FILENAME=${ZIP_FILENAME}" >> $GITHUB_ENV
+          export ZIP_FILENAME=${PLUGIN}-${GITHUB_REF##*/}.zip
+          find ./ -type d | xargs chmod 755
+          find ./ -name '*.php' | xargs chmod 644
+          echo ${GITHUB_SHA} > build.txt
           PROD=1 make build
-          mkdir -p ${DIST_DIR_S3} && cp ${BUILD_DIR}/${ZIP_FILENAME} ${DIST_DIR_S3}/${ZIP_FILENAME}
+          zip $BUILD_DIR/$ZIP_FILENAME build.txt
+          mkdir -p $DIST_DIR_GITHUB && cp $BUILD_DIR/$ZIP_FILENAME $DIST_DIR_GITHUB/$GITHUB_RELEASE_FILENAME
+          echo "ARTIFACT_PATH=$DIST_DIR_GITHUB/$GITHUB_RELEASE_FILENAME" >> $GITHUB_ENV
+          echo "ARTIFACT_NAME=${ZIP_FILENAME}" >> $GITHUB_ENV
 
-      - name: configure aws credentials 🪪
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions/gh-ci-s3-artifact
-          role-session-name: gh-actions-${{ env.PLUGIN }}
-          aws-region: us-east-1
-
-      - name: copy artifact to s3 🪣
+      - name: Generate Release Notes 📝
+        if: github.ref_type == 'tag'
         run: |
-          aws s3 cp $DIST_DIR_S3/$ZIP_FILENAME s3://$S3_BUCKET/$S3_KEY/$ZIP_FILENAME
+          curl -LO https://raw.githubusercontent.com/bmlt-enabled/release-notes-tool/master/gh-release-notes.sh
+          chmod +x gh-release-notes.sh
+          ./gh-release-notes.sh readme.txt "wp"
+          RELEASE_TYPE=$(if [[ "$GITHUB_REF_NAME" =~ "beta" ]]; then echo "true"; else echo "false"; fi)
+          echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
 
-      # - name: Publish Release to Latest WP 🎉
-      #   id: publish_latest
-      #   uses: bmlt-enabled/wordpress-releases-github-action@v1.3
-      #   with:
-      #     file: ${{ env.DIST_DIR_S3 }}/${{ env.ZIP_FILENAME }}
-      #     s3_key: ${{ env.S3_KEY }}
-      #     aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+      - name: Create Release 🎉
+        uses: ncipollo/release-action@v1.14.0
+        if: github.ref_type == 'tag'
+        with:
+          artifacts: ${{ env.ARTIFACT_PATH }}
+          bodyFile: "changelog.txt"
+          prerelease: ${{ env.RELEASE_TYPE }}
+
+      - name: Wordpress Release ⛴
+        if: "!contains(github.ref, 'beta')"
+        id: wordpress-stable-release
+        env:
+          WORDPRESS_USERNAME : ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_PASSWORD : ${{ secrets.WORDPRESS_PASSWORD }}
+        run: |
+          curl -LO https://raw.githubusercontent.com/bmlt-enabled/bmlt-wordpress-deploy/master/deploy-wordpress.sh
+          chmod +x deploy-wordpress.sh
+          ./deploy-wordpress.sh

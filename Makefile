@@ -16,6 +16,8 @@ help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 $(ZIP_FILE): $(VENDOR_AUTOLOAD)
+	npm install
+	npm run build
 	git archive --format=zip --output=${ZIP_FILENAME} $(COMMIT)
 	zip -r ${ZIP_FILENAME} vendor/
 	mkdir ${BUILD_DIR} && mv ${ZIP_FILENAME} ${BUILD_DIR}/
