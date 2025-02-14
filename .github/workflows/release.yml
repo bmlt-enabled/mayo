@@ -27,9 +27,9 @@ jobs:
     env:
       BUILD_DIR: "build"
       DIST_DIR_GITHUB: "dist/github"
-      GITHUB_RELEASE_FILENAME: "fetch-meditation.zip"
-      PLUGIN: "fetch-meditation"
-      MAINFILE: "fetch-meditation.php"
+      GITHUB_RELEASE_FILENAME: "mayo-events-manager.zip"
+      PLUGIN: "mayo-events-manager"
+      MAINFILE: "mayo-events-manager.php"
     needs: [ lint ]
     permissions:
       contents: write
