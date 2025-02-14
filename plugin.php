@@ -22,23 +22,27 @@ use BmltEnabled\Mayo\Frontend;
 use BmltEnabled\Mayo\Rest;
 
 // Initialize components
-add_action('plugins_loaded', function () {
-    Admin::init();
-    Frontend::init();
-    Rest::init();
-});
+add_action(
+    'plugins_loaded', function () {
+        Admin::init();
+        Frontend::init();
+        Rest::init();
+    }
+);
 
 register_activation_hook(__FILE__, 'mayo_activate');
 add_action('plugins_loaded', 'mayo_check_version');
 add_filter('archive_template', 'load_archive_template');
 add_filter('single_template', 'load_details_template');
 
-function mayo_activate() {    
+function mayo_activate()
+{    
     // Flush rewrite rules
     flush_rewrite_rules();
 }
 
-function mayo_check_version() {
+function mayo_check_version()
+{
     $current_version = get_option('mayo_version');
     if (version_compare($current_version, MAYO_VERSION, '<')) {
         mayo_activate();
@@ -46,7 +50,8 @@ function mayo_check_version() {
     }
 } 
 
-function load_archive_template($template) {
+function load_archive_template($template)
+{
     if (is_post_type_archive('mayo_event')) {
         $custom_template = plugin_dir_path(__FILE__) . 'templates/archive-mayo-event.php';
         if (file_exists($custom_template)) {
@@ -56,7 +61,8 @@ function load_archive_template($template) {
     return $template;
 }
 
-function load_details_template($template) {
+function load_details_template($template)
+{
     if (is_singular('mayo_event')) {
         $custom_template = plugin_dir_path(__FILE__) . 'templates/details-mayo-event.php';
         if (file_exists($custom_template)) {
@@ -66,7 +72,8 @@ function load_details_template($template) {
     return $template;
 }
 
-function enqueue_admin_scripts() {
+function enqueue_admin_scripts()
+{
     wp_enqueue_script(
         'admin-bundle',
         plugin_dir_url(__FILE__) . 'assets/js/dist/admin.bundle.js',

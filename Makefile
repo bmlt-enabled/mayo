@@ -1,24 +1,42 @@
-# Define the name of the zip file
-PLUGIN_NAME = mayo-events-manager
-VERSION = 1.0.6
-ZIP_FILE = $(PLUGIN_NAME)-$(VERSION).zip
+COMMIT := $(shell git rev-parse --short=8 HEAD)
+ZIP_FILENAME := $(or $(ZIP_FILENAME), $(shell echo "$${PWD\#\#*/}.zip"))
+BUILD_DIR := $(or $(BUILD_DIR),"build")
+VENDOR_AUTOLOAD := vendor/autoload.php
+BASENAME := $(shell basename $(PWD))
+ZIP_FILE := build/$(BASENAME).zip
 
-FILES = assets includes plugin.php README.md templates vendor composer.json composer.lock
+ifeq ($(PROD)x, x)
+	COMPOSER_ARGS := --prefer-dist --no-progress
+else
+	COMPOSER_ARGS := --no-dev
+endif
 
-# Default target
-all: $(ZIP_FILE)
+.PHONY: help
+help:  ## Print the help documentation
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-# Create the zip file
-$(ZIP_FILE): $(FILES)
-	@echo "Creating zip file: $(ZIP_FILE)"
-	find . -name ".DS_Store" -type f -delete
-	find . -name ".DS_Store" -type f
-	@zip --exclude .DS_Store --quiet --recurse-paths $(ZIP_FILE) $(FILES) 
+$(ZIP_FILE): $(VENDOR_AUTOLOAD)
+	git archive --format=zip --output=${ZIP_FILENAME} $(COMMIT)
+	zip -r ${ZIP_FILENAME} vendor/
+	mkdir ${BUILD_DIR} && mv ${ZIP_FILENAME} ${BUILD_DIR}/
 
-# Clean up the zip file
-clean:
-	@echo "Cleaning up..."
-	@rm -f $(ZIP_FILE)
+.PHONY: build
+build: $(ZIP_FILE)  ## Build
 
-# Phony targets
-.PHONY: all clean
+.PHONY: clean
+clean:  ## clean
+	rm -rf build dist
+
+$(VENDOR_AUTOLOAD):
+	composer install $(COMPOSER_ARGS)
+
+.PHONY: composer
+composer: $(VENDOR_AUTOLOAD) ## Runs composer install
+
+.PHONY: lint
+lint: composer ## PHP Lint
+	vendor/squizlabs/php_codesniffer/bin/phpcs *.php
+
+.PHONY: fmt
+fmt: composer ## PHP Fmt
+	vendor/squizlabs/php_codesniffer/bin/phpcbf *.php
