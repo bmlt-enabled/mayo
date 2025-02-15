@@ -108,11 +108,11 @@ class Admin {
     public static function set_custom_columns($columns) {
         return [
             'cb' => $columns['cb'],
-            'title' => __('Event Name', 'mayo-event-manager'),
-            'event_type' => __('Type', 'mayo-event-manager'),
-            'event_datetime' => __('Date & Time', 'mayo-event-manager'),
-            'status' => __('Status', 'mayo-event-manager'),
-            'service_body' => __('Service Body', 'mayo-event-manager'),
+            'title' => __('Event Name', 'mayo-events-manager'),
+            'event_type' => __('Type', 'mayo-events-manager'),
+            'event_datetime' => __('Date & Time', 'mayo-events-manager'),
+            'status' => __('Status', 'mayo-events-manager'),
+            'service_body' => __('Service Body', 'mayo-events-manager'),
             'date' => $columns['date']
         ];
     }
