@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Plugin Name: Mayo Events Manager
- * Description: A plugin for managing events with admin approval, 
+ * Description: A plugin for managing events with admin approval,
  * public submission, and recurring schedules.
  * Version: 1.0.9
  * Author: bmlt-enabled
@@ -76,7 +77,9 @@ function mayoDeactivate()
 function mayoCheckUpgrade()
 {
     $current_version = get_option('mayo_version');
-    if (empty($current_version) || version_compare($current_version, MAYO_VERSION, '<')) {
+    if (empty($current_version) 
+        || version_compare($current_version, MAYO_VERSION, '<')
+    ) {
         mayoActivate();
         update_option('mayo_version', MAYO_VERSION);
     }
@@ -87,13 +90,13 @@ function mayoCheckUpgrade()
  *
  * @param string $template The path to the template.
  *
- * @return string The path to the custom template if it exists, 
+ * @return string The path to the custom template if it exists,
  * otherwise the original template.
  */
 function loadArchiveTemplate($template)
 {
     if (is_post_type_archive('mayo_event')) {
-        $custom_template = plugin_dir_path(__FILE__) . 
+        $custom_template = plugin_dir_path(__FILE__) .
         'templates/archive-mayo-event.php';
         if (file_exists($custom_template)) {
             return $custom_template;
@@ -107,13 +110,13 @@ function loadArchiveTemplate($template)
  *
  * @param string $template The path to the template.
  *
- * @return string The path to the custom template if it exists, 
+ * @return string The path to the custom template if it exists,
  * otherwise the original template.
  */
 function loadDetailsTemplate($template)
 {
     if (is_singular('mayo_event')) {
-        $custom_template = plugin_dir_path(__FILE__) . 
+        $custom_template = plugin_dir_path(__FILE__) .
         'templates/details-mayo-event.php';
         if (file_exists($custom_template)) {
             return $custom_template;
@@ -138,4 +141,3 @@ function enqueueAdminScripts()
     );
 }
 add_action('enqueue_block_editor_assets', 'enqueueAdminScripts');
-
