@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.1
 Requires at least: 8.1
 Tested up to: 6.7.2
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -15,6 +15,8 @@ License URI: https://opensource.org/licenses/MIT
 Pronounced "my-oh".  Referring to the Spanish word "mayo" which means "May" in English.
 
 Mayo Event Manager is a comprehensive WordPress plugin designed to facilitate the management of events with a focus on community engagement and administrative oversight. This plugin allows users to submit events for approval, supports recurring event schedules, and integrates seamlessly with WordPress's native features like featured images and custom post types.
+
+Mayo is meant to be simple, and does not provide all the functionality of a typical event management system.  It is designed to be used in conjunction with a BMLT server to provide a simple way to submit events for a specific service body.  Also we will not be implementing a calendar view, but rather a list view.  There are plenty of other plugins that provide calendar views, and you can make use of the calendar RSS to import the feeds you want.
 
 ### Key Features
 

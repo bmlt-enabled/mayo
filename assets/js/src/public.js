@@ -2,10 +2,10 @@
 // Add any public-facing JavaScript here 
 
 import { render } from '@wordpress/element';
-import EventForm from './components/EventForm';
-import EventList from './components/EventList';
-import EventArchive from './components/EventArchive';
-import EventDetails from './components/EventDetails';
+import EventForm from './components/public/EventForm';
+import EventList from './components/public/EventList';
+import EventArchive from './components/public/EventArchive';
+import EventDetails from './components/public/EventDetails';
 
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -1,8 +1,8 @@
 // Admin entry point
 import { render } from '@wordpress/element';
-import ShortcodesDocs from './components/ShortcodesDocs';
-import './event-sidebar';
-import Settings from './components/Settings';
+import ShortcodesDocs from './components/admin/ShortcodesDocs';
+import './components/admin/EventBlockEditorSidebar';
+import Settings from './components/admin/Settings';
 
 const App = () => {
     return (<></>)
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (shortcodesContainer) {
-        console.log('Rendering ShortcodesDocs');
         render(<ShortcodesDocs />, shortcodesContainer);
     }
 
