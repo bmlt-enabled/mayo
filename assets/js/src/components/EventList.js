@@ -158,7 +158,9 @@ const EventCard = ({ event, timeFormat }) => {
                         {event.featured_image && (
                             <div className="mayo-event-image">
                                 <h4>Event Flyer</h4>
-                                <img src={event.featured_image} alt={event.title.rendered} />
+                                <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
+                                    <img src={event.featured_image} alt={event.title.rendered} />
+                                </a>
                             </div>
                         )}
 
@@ -355,21 +357,6 @@ const EventList = () => {
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
-            {/* <div className="mayo-view-switcher">
-                <button 
-                    className={`mayo-view-button ${view === 'list' ? 'active' : ''}`}
-                    onClick={() => setView('list')}
-                >
-                    List View
-                </button>
-                <button 
-                    className={`mayo-view-button ${view === 'calendar' ? 'active' : ''}`}
-                    onClick={() => setView('calendar')}
-                >
-                    Calendar View
-                </button>
-            </div> */}
-
             {view === 'list' ? (
                 <>
                     <div className="mayo-event-cards">

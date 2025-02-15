@@ -3,7 +3,7 @@
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing events with admin approval, 
  * public submission, and recurring schedules.
- * Version: 1.0.6
+ * Version: 1.0.7
  * Author: bmlt-enabled
  * License: MIT
  * Author URI: https://bmlt.app
@@ -18,7 +18,7 @@
 
 defined('ABSPATH') || exit;
 
-define('MAYO_VERSION', '1.0.6');
+define('MAYO_VERSION', '1.0.7');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';

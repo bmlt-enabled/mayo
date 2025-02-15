@@ -95,7 +95,9 @@ const EventDetails = () => {
 
                     {event.featured_image && (
                         <div className="mayo-single-event-image">
-                            <img src={event.featured_image} alt={title.rendered} />
+                            <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
+                                <img src={event.featured_image} alt={title.rendered} />
+                            </a>
                         </div>
                     )}
 
