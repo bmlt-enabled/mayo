@@ -51,7 +51,7 @@ add_filter('single_template', 'loadDetailsTemplate');
  */
 function mayoActivate()
 {
-    Admin::register_post_type();
+    Admin::init();
 
     // Flush rewrite rules
     flush_rewrite_rules();
