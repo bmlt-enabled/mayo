@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.1
 Requires at least: 8.1
 Tested up to: 6.7.2
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 
 License: MIT
 License URI: https://opensource.org/licenses/MIT
