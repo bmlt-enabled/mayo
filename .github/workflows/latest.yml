@@ -59,10 +59,10 @@ jobs:
         run: |
           aws s3 cp $DIST_DIR_S3/$ZIP_FILENAME s3://$S3_BUCKET/$S3_KEY/$ZIP_FILENAME
 
-      # - name: Publish Release to Latest WP 🎉
-      #   id: publish_latest
-      #   uses: bmlt-enabled/wordpress-releases-github-action@v1.3
-      #   with:
-      #     file: ${{ env.DIST_DIR_S3 }}/${{ env.ZIP_FILENAME }}
-      #     s3_key: ${{ env.S3_KEY }}
-      #     aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+      - name: Publish Release to Latest WP 🎉
+        id: publish_latest
+        uses: bmlt-enabled/wordpress-releases-github-action@v1.3
+        with:
+          file: ${{ env.DIST_DIR_S3 }}/${{ env.ZIP_FILENAME }}
+          s3_key: ${{ env.S3_KEY }}
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
