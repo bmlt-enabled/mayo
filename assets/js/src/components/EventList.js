@@ -1,7 +1,4 @@
 import { useState, useEffect, useRef } from '@wordpress/element';
-import { Button } from '@wordpress/components';
-import EventCalendar from './EventCalendar';
-import apiFetch from '@wordpress/api-fetch';
 
 const formatTime = (time, format) => {
     if (!time) return '';
@@ -357,45 +354,41 @@ const EventList = () => {
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
-            {view === 'list' ? (
-                <>
-                    <div className="mayo-event-cards">
-                        {getPaginatedEvents().map(event => (
-                            <EventCard 
-                                key={`${event.id}-${event.meta.event_start_date}`}
-                                event={event}
-                                timeFormat={timeFormat}
-                            />
-                        ))}
+            <>
+                <div className="mayo-event-cards">
+                    {getPaginatedEvents().map(event => (
+                        <EventCard 
+                            key={`${event.id}-${event.meta.event_start_date}`}
+                            event={event}
+                            timeFormat={timeFormat}
+                        />
+                    ))}
+                </div>
+                
+                {showPagination && totalPages > 1 && (
+                    <div className="mayo-pagination">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="mayo-pagination-button"
+                        >
+                            Previous
+                        </button>
+                        
+                        <span className="mayo-pagination-info">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="mayo-pagination-button"
+                        >
+                            Next
+                        </button>
                     </div>
-                    
-                    {showPagination && totalPages > 1 && (
-                        <div className="mayo-pagination">
-                            <button
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                                className="mayo-pagination-button"
-                            >
-                                Previous
-                            </button>
-                            
-                            <span className="mayo-pagination-info">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            
-                            <button
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                                className="mayo-pagination-button"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    )}
-                </>
-            ) : (
-                <EventCalendar events={events} />
-            )}
+                )}
+            </>
         </div>
     );
 };
