@@ -176,28 +176,6 @@ const EventDetails = () => {
                 />
             </PanelBody>
 
-            <PanelBody title="Service Body" initialOpen={true}>
-                {loading ? (
-                    <p>Loading service bodies...</p>
-                ) : error ? (
-                    <p className="mayo-error">{error}</p>
-                ) : (
-                    <SelectControl
-                        label="Service Body"
-                        value={meta.service_body}
-                        options={[
-                            { label: 'Select a service body', value: '' },
-                            ...serviceBodies.map(body => ({
-                                label: `${body.name} (${body.id})`,
-                                value: body.id
-                            }))
-                        ]}
-                        onChange={value => updateMetaValue('service_body', value)}
-                        __nextHasNoMarginBottom={true}
-                    />
-                )}
-            </PanelBody>
-
             <PanelBody title="Recurring Pattern" initialOpen={true}>
                 <SelectControl
                     label="Repeat"
@@ -311,6 +289,28 @@ const EventDetails = () => {
                             </div>
                         )}
                     </div>
+                )}
+            </PanelBody>
+
+            <PanelBody title="Service Body" initialOpen={true}>
+                {loading ? (
+                    <p>Loading service bodies...</p>
+                ) : error ? (
+                    <p className="mayo-error">{error}</p>
+                ) : (
+                    <SelectControl
+                        label="Service Body"
+                        value={meta.service_body}
+                        options={[
+                            { label: 'Select a service body', value: '' },
+                            ...serviceBodies.map(body => ({
+                                label: `${body.name} (${body.id})`,
+                                value: body.id
+                            }))
+                        ]}
+                        onChange={value => updateMetaValue('service_body', value)}
+                        __nextHasNoMarginBottom={true}
+                    />
                 )}
             </PanelBody>
 
