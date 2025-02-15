@@ -24,6 +24,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
 require_once __DIR__ . '/includes/Frontend.php';
 require_once __DIR__ . '/includes/Rest.php';
+require_once __DIR__ . '/includes/CalendarRSS.php';
 
 use BmltEnabled\Mayo\Admin;
 use BmltEnabled\Mayo\Frontend;
@@ -40,7 +41,8 @@ add_action(
 );
 
 register_activation_hook(__FILE__, 'mayoActivate');
-add_action('plugins_loaded', 'mayoCheckVersion');
+register_deactivation_hook(__FILE__, 'mayoDeactivate');
+add_action('plugins_loaded', 'mayoCheckUpgrade');
 add_filter('archive_template', 'loadArchiveTemplate');
 add_filter('single_template', 'loadDetailsTemplate');
 
@@ -53,7 +55,16 @@ function mayoActivate()
 {
     Admin::init();
 
-    // Flush rewrite rules
+    flush_rewrite_rules();
+}
+
+/**
+ * Deactivate the plugin.
+ *
+ * @return void
+ */
+function mayoDeactivate()
+{
     flush_rewrite_rules();
 }
 
@@ -62,10 +73,10 @@ function mayoActivate()
  *
  * @return void
  */
-function mayoCheckVersion()
+function mayoCheckUpgrade()
 {
     $current_version = get_option('mayo_version');
-    if (version_compare($current_version, MAYO_VERSION, '<')) {
+    if (empty($current_version) || version_compare($current_version, MAYO_VERSION, '<')) {
         mayoActivate();
         update_option('mayo_version', MAYO_VERSION);
     }
