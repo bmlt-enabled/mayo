@@ -54,8 +54,15 @@ add_filter('single_template', 'loadDetailsTemplate');
  */
 function mayoActivate()
 {
-    Admin::init();
+    // If init hasn't fired, add an action to register post type
+    if (!did_action('init')) {
+        add_action('init', ['BmltEnabled\Mayo\Admin', 'register_post_type']);
+    } else {
+        // If init has fired, register post type immediately
+        Admin::register_post_type();
+    }
 
+    // Flush rewrite rules after post type is registered
     flush_rewrite_rules();
 }
 
@@ -66,6 +73,10 @@ function mayoActivate()
  */
 function mayoDeactivate()
 {
+    // Unregister the post type
+    unregister_post_type('mayo_event');
+    
+    // Flush rewrite rules
     flush_rewrite_rules();
 }
 
