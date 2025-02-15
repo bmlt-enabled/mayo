@@ -20,6 +20,7 @@ $(ZIP_FILE): $(VENDOR_AUTOLOAD)
 	npm run build
 	git archive --format=zip --output=${ZIP_FILENAME} $(COMMIT)
 	zip -r ${ZIP_FILENAME} vendor/
+	zip -r ${ZIP_FILENAME} assets/js/dist
 	mkdir ${BUILD_DIR} && mv ${ZIP_FILENAME} ${BUILD_DIR}/
 
 .PHONY: build
