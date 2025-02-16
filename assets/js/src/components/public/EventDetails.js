@@ -1,10 +1,12 @@
 import { useState, useEffect } from '@wordpress/element';
+import { useEventProvider } from '../providers/EventProvider';
 import apiFetch from '@wordpress/api-fetch';
 
 const EventDetails = () => {
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { getServiceBodyName } = useEventProvider();
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -140,7 +142,7 @@ const EventDetails = () => {
                         {service_body && (
                             <div className="mayo-single-event-service-body">
                                 <h3>Service Body</h3>
-                                <p>{service_body}</p>
+                                <p>{getServiceBodyName(service_body)}</p>
                             </div>
                         )}
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from '@wordpress/element';
+import { useEventProvider } from '../providers/EventProvider';
 
 const formatTime = (time, format) => {
     if (!time) return '';
@@ -29,6 +30,7 @@ const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     // Create date object for display (using only the date part)
     const eventDate = new Date(event.meta.event_start_date + 'T00:00:00');
+    const { getServiceBodyName } = useEventProvider();
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -188,7 +190,7 @@ const EventCard = ({ event, timeFormat }) => {
                         {event.meta.service_body && (
                             <div className="mayo-event-service-body">
                                 <h4>Service Body</h4>
-                                <p>{event.meta.service_body}</p>
+                                <p>{getServiceBodyName(event.meta.service_body)}</p>
                             </div>
                         )}
 

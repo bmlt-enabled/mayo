@@ -31,11 +31,13 @@ export const EventProvider = ({ children }) => {
         fetchServiceBodies();
     }, [])
 
+    const getServiceBodyName = (id) => {
+        return serviceBodies.find(body => body.id === id)?.name || 'Unknown';
+    }
     
     return (
-        <EventContext.Provider value={{ serviceBodies }}>
+        <EventContext.Provider value={{ serviceBodies, getServiceBodyName }}>
             {loading ? <div>Loading...</div> : children}
         </EventContext.Provider>
     )
-
 }
