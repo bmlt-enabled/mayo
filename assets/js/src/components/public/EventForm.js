@@ -1,5 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { useEventProvider } from '../providers/EventProvider';
 
 const EventForm = () => {
     const [formData, setFormData] = useState({
@@ -24,9 +24,8 @@ const EventForm = () => {
     const [message, setMessage] = useState(null);
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
-    const [serviceBodies, setServiceBodies] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { serviceBodies } = useEventProvider();
 
     useEffect(() => {
         // Fetch available categories and tags
@@ -47,32 +46,6 @@ const EventForm = () => {
         };
         
         fetchTaxonomies();
-    }, []);
-
-    useEffect(() => {
-        const fetchServiceBodies = async () => {
-            try {
-                // Fetch the BMLT root server URL from your plugin settings
-                const settings = await apiFetch({ path: '/wp-json/event-manager/v1/settings' });
-                const bmltRootServer = settings.bmlt_root_server;
-                if (!bmltRootServer) {
-                    throw new Error('BMLT root server URL not set');
-                }
-
-                const response = await fetch(`${bmltRootServer}/client_interface/json/?switcher=GetServiceBodies`);
-                const data = await response.json();
-                // Sort service bodies by name
-                const sortedServiceBodies = data.sort((a, b) => a.name.localeCompare(b.name));
-                setServiceBodies(sortedServiceBodies);
-            } catch (err) {
-                console.error('Error fetching service bodies:', err);
-                setError('Failed to load service bodies');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchServiceBodies();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -144,7 +117,6 @@ const EventForm = () => {
         }));
     };
 
-    if (loading) return <div>Loading service bodies...</div>;
     if (error) return <div className="mayo-error">{error}</div>;
 
     return (

@@ -6,7 +6,7 @@ import EventForm from './components/public/EventForm';
 import EventList from './components/public/EventList';
 import EventArchive from './components/public/EventArchive';
 import EventDetails from './components/public/EventDetails';
-
+import { EventProvider } from './components/providers/EventProvider';
 
 document.addEventListener('DOMContentLoaded', () => {
     const formContainer = document.getElementById('mayo-event-form');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const archiveContainer = document.getElementById('mayo-archive-root');
 
     if (formContainer) {
-        render(<EventForm />, formContainer);
+        render(<EventProvider><EventForm /></EventProvider>, formContainer);
     }
 
     if (listContainer) {

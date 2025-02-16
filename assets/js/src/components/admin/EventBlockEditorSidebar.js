@@ -1,19 +1,18 @@
-import { registerPlugin } from '@wordpress/plugins';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { 
     TextControl, 
     SelectControl, 
-    Button, 
     PanelBody,
     CheckboxControl,
     __experimentalNumberControl as NumberControl,
     RadioControl
 } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import { useEventProvider } from '../providers/EventProvider';
 
-const EventDetails = () => {
+const EventBlockEditorSidebar = () => {
+    const { serviceBodies } = useEventProvider();
+
     const postType = useSelect(select => 
         select('core/editor').getCurrentPostType()
     );
@@ -23,34 +22,6 @@ const EventDetails = () => {
     );
 
     const { editPost } = useDispatch('core/editor');
-
-    const [serviceBodies, setServiceBodies] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const fetchServiceBodies = async () => {
-            try {
-                const settings = await apiFetch({ path: '/wp-json/event-manager/v1/settings' });
-                const bmltRootServer = settings.bmlt_root_server;
-                if (!bmltRootServer) {
-                    throw new Error('BMLT root server URL not set');
-                }
-
-                const response = await fetch(`${bmltRootServer}/client_interface/json/?switcher=GetServiceBodies`);
-                const data = await response.json();
-                const sortedServiceBodies = data.sort((a, b) => a.name.localeCompare(b.name));
-                setServiceBodies(sortedServiceBodies);
-            } catch (err) {
-                console.error('Error fetching service bodies:', err);
-                setError('Failed to load service bodies');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchServiceBodies();
-    }, []);
 
     if (postType !== 'mayo_event') return null;
 
@@ -293,25 +264,19 @@ const EventDetails = () => {
             </PanelBody>
 
             <PanelBody title="Service Body" initialOpen={true}>
-                {loading ? (
-                    <p>Loading service bodies...</p>
-                ) : error ? (
-                    <p className="mayo-error">{error}</p>
-                ) : (
-                    <SelectControl
-                        label="Service Body"
-                        value={meta.service_body}
-                        options={[
-                            { label: 'Select a service body', value: '' },
-                            ...serviceBodies.map(body => ({
-                                label: `${body.name} (${body.id})`,
-                                value: body.id
-                            }))
-                        ]}
-                        onChange={value => updateMetaValue('service_body', value)}
-                        __nextHasNoMarginBottom={true}
-                    />
-                )}
+                <SelectControl
+                    label="Service Body"
+                    value={meta.service_body}
+                    options={[
+                        { label: 'Select a service body', value: '' },
+                        ...serviceBodies.map(body => ({
+                            label: `${body.name} (${body.id})`,
+                            value: body.id
+                        }))
+                    ]}
+                    onChange={value => updateMetaValue('service_body', value)}
+                    __nextHasNoMarginBottom={true}
+                />
             </PanelBody>
 
             <PanelBody
@@ -344,7 +309,4 @@ const EventDetails = () => {
     );
 };
 
-registerPlugin('mayo-event-details', {
-    render: EventDetails,
-    icon: 'calendar'
-}); 
+export default EventBlockEditorSidebar;
