@@ -1,11 +1,13 @@
 import { useState, useEffect } from '@wordpress/element';
 import { formatTimezone } from './EventList'; // Import the helper function
+import { useEventProvider } from '../providers/EventProvider';
 import apiFetch from '@wordpress/api-fetch';
 
 const EventArchive = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { getServiceBodyName } = useEventProvider();
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -107,7 +109,7 @@ const EventArchive = () => {
                                     />
 
                                     {event.meta.service_body && (
-                                        <p><strong>Service Body:</strong> {event.meta.service_body}</p>
+                                        <p><strong>Service Body:</strong> {getServiceBodyName(event.meta.service_body)}</p>
                                     )}
 
                                     <a href={event.link} className="mayo-archive-event-link">
