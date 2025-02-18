@@ -62,7 +62,7 @@ class Rest {
         }
 
         // Handle file upload
-        $nonce = $request->get_header('X-WP-Nonce', '');
+        $nonce = wp_create_nonce('wp_rest');
         if (!empty($_FILES['flyer']) && wp_verify_nonce($nonce, 'wp_rest')) {
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
