@@ -68,8 +68,14 @@ const EventForm = () => {
         try {
             const response = await fetch('/wp-json/event-manager/v1/submit-event', {
                 method: 'POST',
-                body: data
+                body: data,
+                credentials: 'same-origin'
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const result = await response.json();
             
             if (result.success) {

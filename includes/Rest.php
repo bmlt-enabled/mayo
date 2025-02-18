@@ -62,7 +62,8 @@ class Rest {
         }
 
         // Handle file upload
-        if (!empty($_FILES['flyer']) && check_admin_referer('submit_event_nonce')) {
+        $nonce = wp_create_nonce('wp_rest');
+        if (!empty($_FILES['flyer']) && wp_verify_nonce($nonce, 'wp_rest')) {
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -127,10 +128,11 @@ class Rest {
         wp_mail($to, $subject, $message);
     }
 
-    public static function get_events() {
+    public static function get_events($request) {
         $is_archive = false;
+    
         if (isset($_GET['archive'])) {
-            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+            $nonce = wp_create_nonce('wp_rest');
             if (wp_verify_nonce($nonce, 'wp_rest')) {
                 $archive = sanitize_text_field(wp_unslash($_GET['archive']));
                 if ($archive === 'true') {
@@ -235,7 +237,6 @@ class Rest {
 
     private static function format_event($post) {
         try {
-            $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
             return [
                 'id' => $post->ID,
                 'title' => ['rendered' => $post->post_title],
@@ -254,7 +255,7 @@ class Rest {
                     'location_name' => get_post_meta($post->ID, 'location_name', true),
                     'location_address' => get_post_meta($post->ID, 'location_address', true),
                     'location_details' => get_post_meta($post->ID, 'location_details', true),
-                    'recurring_pattern' => $recurring_pattern ?: ['type' => 'none'],
+                    'recurring_pattern' => get_post_meta($post->ID, 'recurring_pattern', true),
                     'service_body' => get_post_meta($post->ID, 'service_body', true),
                 ],
                 'recurring' => false
@@ -291,27 +292,7 @@ class Rest {
 
         if ($query->have_posts()) {
             $query->the_post();
-            $event = [
-                'id' => get_the_ID(),
-                'title' => ['rendered' => get_the_title()],
-                'content' => ['rendered' => apply_filters('the_content', get_the_content())],
-                'featured_image' => get_the_post_thumbnail_url(get_the_ID(), 'full'),
-                'meta' => [
-                    'event_type' => get_post_meta(get_the_ID(), 'event_type', true),
-                    'event_start_date' => get_post_meta(get_the_ID(), 'event_start_date', true),
-                    'event_end_date' => get_post_meta(get_the_ID(), 'event_end_date', true),
-                    'event_start_time' => get_post_meta(get_the_ID(), 'event_start_time', true),
-                    'event_end_time' => get_post_meta(get_the_ID(), 'event_end_time', true),
-                    'timezone' => get_post_meta(get_the_ID(), 'timezone', true),
-                    'location_name' => get_post_meta(get_the_ID(), 'location_name', true),
-                    'location_address' => get_post_meta(get_the_ID(), 'location_address', true),
-                    'location_details' => get_post_meta(get_the_ID(), 'location_details', true),
-                    'recurring_pattern' => get_post_meta(get_the_ID(), 'recurring_pattern', true),
-                    'service_body' => get_post_meta(get_the_ID(), 'service_body', true),
-                ],
-                'categories' => wp_get_post_categories(get_the_ID(), ['fields' => 'all']),
-                'tags' => wp_get_post_tags(get_the_ID(), ['fields' => 'all']),
-            ];
+            $event = self::format_event(get_post());
             wp_reset_postdata();
             return rest_ensure_response($event);
         }
