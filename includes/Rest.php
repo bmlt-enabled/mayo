@@ -62,7 +62,8 @@ class Rest {
         }
 
         // Handle file upload
-        if (!empty($_FILES['flyer']) && check_admin_referer('submit_event_nonce')) {
+        $nonce = $request->get_header('X-WP-Nonce', '');
+        if (!empty($_FILES['flyer']) && wp_verify_nonce($nonce, 'wp_rest')) {
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
             require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -127,10 +128,11 @@ class Rest {
         wp_mail($to, $subject, $message);
     }
 
-    public static function get_events() {
+    public static function get_events($request) {
         $is_archive = false;
+    
         if (isset($_GET['archive'])) {
-            $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+            $nonce = sanitize_text_field(wp_unslash($request->get_header('X-WP-Nonce', '')));
             if (wp_verify_nonce($nonce, 'wp_rest')) {
                 $archive = sanitize_text_field(wp_unslash($_GET['archive']));
                 if ($archive === 'true') {
