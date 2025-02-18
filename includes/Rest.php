@@ -132,7 +132,7 @@ class Rest {
         $is_archive = false;
     
         if (isset($_GET['archive'])) {
-            $nonce = sanitize_text_field(wp_unslash($request->get_header('X-WP-Nonce', '')));
+            $nonce = wp_create_nonce('wp_rest');
             if (wp_verify_nonce($nonce, 'wp_rest')) {
                 $archive = sanitize_text_field(wp_unslash($_GET['archive']));
                 if ($archive === 'true') {
