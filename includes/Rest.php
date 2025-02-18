@@ -122,7 +122,7 @@ class Rest {
             sanitize_text_field($params['event_type']),
             sanitize_text_field($params['event_start_date']),
             sanitize_text_field($params['event_end_date']),
-            get_edit_post_link($post_id)
+            admin_url('post.php?post=' . $post_id . '&action=edit')
         );
 
         wp_mail($to, $subject, $message);
