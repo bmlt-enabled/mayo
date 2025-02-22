@@ -260,7 +260,7 @@ const EventList = () => {
     const filterCategories = window.mayoEventSettings?.categories || [];
     const filterTags = window.mayoEventSettings?.tags || [];
     const filterEventType = window.mayoEventSettings?.eventType || '';
-
+    
     useEffect(() => {
         const container = document.getElementById('mayo-event-list');
         if (container) {
@@ -271,9 +271,18 @@ const EventList = () => {
         fetchEvents();
     }, []);
 
+
+    const getQueryStringValue = (key, defaultValue = null) => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.has(key) ? urlParams.get(key) : defaultValue;
+    };
+
     const fetchEvents = async () => {
         try {
-            const response = await fetch('/wp-json/event-manager/v1/events');
+            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (window.mayoEventSettings?.status || 'publish');
+            // Build the endpoint URL with query parameters
+            const endpoint = `/wp-json/event-manager/v1/events?status=${status}`;
+            const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

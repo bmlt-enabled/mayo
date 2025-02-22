@@ -55,11 +55,20 @@ const ShortcodesDocs = () => {
                             <td>true</td>
                             <td>true, false</td>
                         </tr>
+                        <tr>
+                            <td>status</td>
+                            <td>Shows events with a given status</td>
+                            <td>publish</td>
+                            <td>publish, pending</td>
+                        </tr>
                     </tbody>
                 </table>
                 
                 <h3>Example with Parameters</h3>
                 <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service"]</code></pre>
+
+                <h3>Example with Querystring Overrides</h3>
+                <pre><code>https://example.com/events?status=pending</code></pre>
             </div>
 
             <div className="card">

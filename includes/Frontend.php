@@ -20,7 +20,8 @@ class Frontend {
             'show_pagination' => 'true',
             'categories' => '',  // Comma-separated category slugs
             'tags' => '',       // Comma-separated tag slugs
-            'event_type' => ''  // Single event type (Service, Activity)
+            'event_type' => '',  // Single event type (Service, Activity)
+            'status' => 'publish'  // Single event status (publish, pending)
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -34,7 +35,8 @@ class Frontend {
             'showPagination' => $atts['show_pagination'] === 'true',
             'categories' => array_filter(explode(',', $atts['categories'])),
             'tags' => array_filter(explode(',', $atts['tags'])),
-            'eventType' => $atts['event_type']
+            'eventType' => $atts['event_type'],
+            'status' => $atts['status']
         ]);
 
         return sprintf(
