@@ -140,11 +140,13 @@ class Rest {
                 }
             }
         }
+
+        isset($_GET['status']) ? $status = sanitize_text_field(wp_unslash($_GET['status'])) : $status = 'publish';
         
         $posts = get_posts([
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
-            'post_status' => 'publish'
+            'post_status' => $status
         ]);
 
         $events = [];
