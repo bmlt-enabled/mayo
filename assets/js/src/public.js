@@ -7,18 +7,23 @@ import { EventProvider } from './components/providers/EventProvider';
 
 document.addEventListener('DOMContentLoaded', () => {
     const formContainer = document.getElementById('mayo-event-form');
-    const listContainer = document.getElementById('mayo-event-list');
+    const listContainers = document.querySelectorAll('#mayo-event-list');
     const detailsContainer = document.getElementById('mayo-details-root');
     const archiveContainer = document.getElementById('mayo-archive-root');
 
     const renderWithProvider = (Component, container) => {
-        if (container) {
+        if (container && container.classList.contains('mayo-widget-list')) {
+            render(<EventProvider><Component widget={true} /></EventProvider>, container);
+        } else if (container) {
             render(<EventProvider><Component /></EventProvider>, container);
         }
-    };
+    }
+
+    listContainers.forEach(container => {
+        renderWithProvider(EventList, container);
+    });
 
     renderWithProvider(EventForm, formContainer);
-    renderWithProvider(EventList, listContainer);
     renderWithProvider(EventDetails, detailsContainer);
     renderWithProvider(EventArchive, archiveContainer);
 });

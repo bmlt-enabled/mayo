@@ -5,7 +5,7 @@
 
 get_header(); ?>
 
-<div id="mayo-archive-root"></div>
+<div id="mayo-archive-root">Sup fool</div>
 
 <?php 
 wp_enqueue_script('mayo-public');

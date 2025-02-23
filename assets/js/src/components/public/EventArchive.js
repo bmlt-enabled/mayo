@@ -1,5 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
-import { formatTimezone } from './EventList'; // Import the helper function
+import { formatTimezone } from '../../util'; // Import the helper function
 import { useEventProvider } from '../providers/EventProvider';
 import apiFetch from '@wordpress/api-fetch';
 

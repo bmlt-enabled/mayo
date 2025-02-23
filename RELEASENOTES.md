@@ -1,5 +1,9 @@
 # Release Notes
 
+### 1.0.10-beta6 (February 23, 2025)
+* Added widget support [#10].
+* Added text on the submission for to indicate what file types are allowed.
+
 ### 1.0.10-beta5 (February 22, 2025)
 * Added the ability to show events with a given status [#31].
 * Override some of the shortcode parameters via querystring [#32].
