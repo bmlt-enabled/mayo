@@ -74,7 +74,7 @@ const ShortcodesDocs = () => {
                             <td>Shows events for a given service body</td>
                             <td>empty (all service bodies)</td>
                             <td>e.g., "1,2,3"</td>
-                            <td>No</td>
+                            <td>Yes</td>
                         </tr>
                     </tbody>
                 </table>
@@ -83,7 +83,7 @@ const ShortcodesDocs = () => {
                 <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service</code></pre>
             </div>
 
             <div className="card">
