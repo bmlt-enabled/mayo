@@ -70,17 +70,14 @@ class Frontend {
                 [
                     'wp-element',
                     'wp-components',
-                    'wp-i18n'
+                    'wp-i18n',
+                    'wp-api-fetch'
                 ],
                 '1.0',
                 true
             );
 
-            // Enqueue WordPress components styles
-            wp_enqueue_style(
-                'wp-components'
-            );
-
+            wp_enqueue_style('wp-components');
             wp_enqueue_style(
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/css/public.css',

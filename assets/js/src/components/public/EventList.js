@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from '@wordpress/element';
 import EventCard from './cards/EventCard';
-import { formatTime } from '../../util';
+import EventWidgetCard from './cards/EventWidgetCard';
 
 const EventList = ({ widget = false }) => {
     const containerRef = useRef(null);
@@ -116,26 +116,11 @@ const EventList = ({ widget = false }) => {
             {isWidget ? (
                 <div className="mayo-widget-events">
                     {getPaginatedEvents().map(event => (
-                        <div key={`${event.id}-${event.meta.event_start_date}`} className="mayo-widget-event">
-                            <div className="mayo-widget-event-date">
-                                {new Date(event.meta.event_start_date).toLocaleDateString()}
-                            </div>
-                            <h4 className="mayo-widget-event-title">{event.title.rendered}</h4>
-                            <div className="mayo-widget-event-time">
-                                {formatTime(event.meta.event_start_time, timeFormat)} - 
-                                {formatTime(event.meta.event_end_time, timeFormat)}
-                            </div>
-                            {event.featured_image && (
-                                <img 
-                                    src={event.featured_image} 
-                                    alt={event.title.rendered}
-                                    className="mayo-widget-event-image"
-                                />
-                            )}
-                            <a href={event.link} className="mayo-widget-event-link">
-                                View Details
-                            </a>
-                        </div>
+                        <EventWidgetCard 
+                            key={`${event.id}-${event.meta.event_start_date}`}
+                            event={event}
+                            timeFormat={timeFormat}
+                        />
                     ))}
                 </div>
             ) : (

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderWithProvider = (Component, container) => {
         if (container && container.classList.contains('mayo-widget-list')) {
             render(<EventProvider><Component widget={true} /></EventProvider>, container);
-        } else {
+        } else if (container) {
             render(<EventProvider><Component /></EventProvider>, container);
         }
     }
