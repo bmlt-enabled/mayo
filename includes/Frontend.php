@@ -34,8 +34,8 @@ class Frontend {
             'timeFormat' => $atts['time_format'],
             'perPage' => intval($atts['per_page']),
             'showPagination' => $atts['show_pagination'] === 'true',
-            'categories' => array_filter(explode(',', $atts['categories'])),
-            'tags' => array_filter(explode(',', $atts['tags'])),
+            'categories' => $atts['categories'],
+            'tags' => $atts['tags'],
             'eventType' => $atts['event_type'],
             'status' => $atts['status'],
             'serviceBody' => $atts['service_body']

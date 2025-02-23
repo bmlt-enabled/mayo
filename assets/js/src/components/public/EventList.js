@@ -279,8 +279,8 @@ const EventList = () => {
             let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (window.mayoEventSettings?.eventType || '');
             let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (window.mayoEventSettings?.serviceBody || '');
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (window.mayoEventSettings?.relation || 'AND');
-            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (window.mayoEventSettings?.filterCategories || '');
-            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (window.mayoEventSettings?.filterTags || '');
+            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (window.mayoEventSettings?.categories || '');
+            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (window.mayoEventSettings?.tags || '');
             // Build the endpoint URL with query parameters
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
                 + `&event_type=${eventType}`
