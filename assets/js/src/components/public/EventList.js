@@ -256,8 +256,6 @@ const EventList = () => {
     // Get settings from PHP
     const perPage = window.mayoEventSettings?.perPage || 10;
     const showPagination = window.mayoEventSettings?.showPagination !== false;
-    const filterCategories = window.mayoEventSettings?.categories || [];
-    const filterTags = window.mayoEventSettings?.tags || [];
     
     useEffect(() => {
         const container = document.getElementById('mayo-event-list');
@@ -282,9 +280,15 @@ const EventList = () => {
             let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (window.mayoEventSettings?.serviceBody || '');
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (window.mayoEventSettings?.relation || 'AND');
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (window.mayoEventSettings?.filterCategories || '');
-
+            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (window.mayoEventSettings?.filterTags || '');
             // Build the endpoint URL with query parameters
-            const endpoint = `/wp-json/event-manager/v1/events?status=${status}&event_type=${eventType}&service_body=${serviceBody}&relation=${relation}&categories=${categories}`;
+            const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
+                + `&event_type=${eventType}`
+                + `&service_body=${serviceBody}`
+                + `&relation=${relation}`
+                + `&categories=${categories}`
+                + `&tags=${tags}`;
+            
             const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -298,14 +302,6 @@ const EventList = () => {
                     const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
                         new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
                     if (eventDate <= now) return false;
-
-                    // Tag filter
-                    if (filterTags.length > 0) {
-                        const eventTagSlugs = event.tags.map(tag => tag.slug);
-                        if (!filterTags.some(slug => eventTagSlugs.includes(slug))) {
-                            return false;
-                        }
-                    }
 
                     return true;
                 })

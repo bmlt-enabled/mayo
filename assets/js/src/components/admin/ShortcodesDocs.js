@@ -31,8 +31,8 @@ const ShortcodesDocs = () => {
                             <td>tags</td>
                             <td>Filter by tag slugs (comma-separated)</td>
                             <td>empty (all tags)</td>
-                            <td>e.g., "featured,special"</td>
-                            <td>No</td>
+                            <td>e.g., <pre>featured,ticketed</pre> (is an or condition) or <pre>featured+ticketed</pre> (is an and condition).  For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#tag-parameters">Tag Parameters</a>.</td>
+                            <td>Yes</td>
                         </tr>
                         <tr>
                             <td>event_type</td>

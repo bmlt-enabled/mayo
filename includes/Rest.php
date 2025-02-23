@@ -146,6 +146,7 @@ class Rest {
         $serviceBody = isset($_GET['service_body']) ? sanitize_text_field(wp_unslash($_GET['service_body'])) : '';
         $relation = isset($_GET['relation']) ? sanitize_text_field(wp_unslash($_GET['relation'])) : 'AND';
         $categories = isset($_GET['categories']) ? sanitize_text_field(wp_unslash($_GET['categories'])) : '';
+        $tags = isset($_GET['tags']) ? sanitize_text_field(wp_unslash($_GET['tags'])) : '';
 
         $meta_keys = [
             'event_type' => $eventType,
@@ -173,7 +174,8 @@ class Rest {
             'posts_per_page' => -1,
             'post_status' => $status,
             'meta_query' => $meta_query,
-            'category_name' => $categories
+            'category_name' => $categories,
+            'tag' => $tags
         ]);
 
         $events = [];
