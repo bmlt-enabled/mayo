@@ -22,7 +22,8 @@ class Frontend {
             'tags' => '',       // Comma-separated tag slugs
             'event_type' => '',  // Single event type (Service, Activity)
             'status' => 'publish',  // Single event status (publish, pending)
-            'service_body' => ''  // Comma-separated service body IDs
+            'service_body' => '',  // Comma-separated service body IDs
+            'is_widget' => is_active_widget() // Check if we're in a widget
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -38,13 +39,11 @@ class Frontend {
             'tags' => $atts['tags'],
             'eventType' => $atts['event_type'],
             'status' => $atts['status'],
-            'serviceBody' => $atts['service_body']
+            'serviceBody' => $atts['service_body'],
+            'isWidget' => $atts['is_widget']
         ]);
 
-        return sprintf(
-            '<div id="mayo-event-list" data-time-format="%s"></div>',
-            esc_attr($atts['time_format'])
-        );
+        return '<div id="mayo-event-list"></div>';
     }
 
     public static function enqueue_scripts() {

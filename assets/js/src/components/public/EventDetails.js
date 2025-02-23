@@ -1,6 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
 import apiFetch from '@wordpress/api-fetch';
+import { formatRecurringPattern } from '../../util';
 
 const EventDetails = () => {
     const [event, setEvent] = useState(null);
@@ -54,38 +55,6 @@ const EventDetails = () => {
             service_body
         }
     } = event;
-
-    const formatRecurringPattern = (pattern) => {
-        if (!pattern || pattern.type === 'none') return null;
-        
-        const { type, interval, weekdays = [], endDate } = pattern;
-        let text = 'This event repeats ';
-        
-        switch (type) {
-            case 'daily':
-                text += interval > 1 ? `every ${interval} days` : 'daily';
-                break;
-            case 'weekly':
-                text += interval > 1 ? `every ${interval} weeks` : 'weekly';
-                if (weekdays.length) {
-                    const days = weekdays.map(day => {
-                        const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                        return weekdayNames[day];
-                    });
-                    text += ` on ${days.join(', ')}`;
-                }
-                break;
-            case 'monthly':
-                text += interval > 1 ? `every ${interval} months` : 'monthly';
-                break;
-        }
-        
-        if (endDate) {
-            text += ` until ${endDate}`;
-        }
-        
-        return text;
-    };
 
     return (
         <div className="mayo-single-container">
