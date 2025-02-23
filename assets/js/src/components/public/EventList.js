@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 
-const EventList = ({ widget = false }) => {
+const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -11,24 +11,19 @@ const EventList = ({ widget = false }) => {
     const [timeFormat, setTimeFormat] = useState('12hour');
     const [isWidget, setIsWidget] = useState(false);
     
-    // Get settings from wp_localize_script
+    // Get settings from props instead of global
     const {
         perPage = 10,
         showPagination = true,
-    } = window.mayoEventSettings || {};
+        timeFormat: settingsTimeFormat = '12hour',
+        // ... other settings
+    } = settings;
 
     useEffect(() => {
         setIsWidget(widget);
-
-        const container = document.getElementById('mayo-event-list');
-        if (container) {
-            const format = container.dataset.timeFormat || '12hour';
-            setTimeFormat(format);
-        }
-        
+        setTimeFormat(settingsTimeFormat);
         fetchEvents();
-    }, []);
-
+    }, [settings]);
 
     const getQueryStringValue = (key, defaultValue = null) => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -37,12 +32,12 @@ const EventList = ({ widget = false }) => {
 
     const fetchEvents = async () => {
         try {
-            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (window.mayoEventSettings?.status || 'publish');
-            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (window.mayoEventSettings?.eventType || '');
-            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (window.mayoEventSettings?.serviceBody || '');
-            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (window.mayoEventSettings?.relation || 'AND');
-            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (window.mayoEventSettings?.categories || '');
-            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (window.mayoEventSettings?.tags || '');
+            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
+            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
+            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
+            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
+            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
             // Build the endpoint URL with query parameters
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
                 + `&event_type=${eventType}`

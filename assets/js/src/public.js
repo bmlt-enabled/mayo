@@ -7,17 +7,22 @@ import { EventProvider } from './components/providers/EventProvider';
 
 document.addEventListener('DOMContentLoaded', () => {
     const formContainer = document.getElementById('mayo-event-form');
-    const listContainers = document.querySelectorAll('#mayo-event-list');
+    const listContainers = document.querySelectorAll('[id^="mayo-event-list-"]');
     const detailsContainer = document.getElementById('mayo-details-root');
     const archiveContainer = document.getElementById('mayo-archive-root');
 
     const renderWithProvider = (Component, container) => {
-        if (container && container.classList.contains('mayo-widget-list')) {
-            render(<EventProvider><Component widget={true} /></EventProvider>, container);
-        } else if (container) {
-            render(<EventProvider><Component /></EventProvider>, container);
+        if (!container) return;
+        
+        const instance = container.dataset.instance;
+        const settings = window[`mayoEventSettings_${instance}`] || {};
+        
+        if (container.classList.contains('mayo-widget-list')) {
+            render(<EventProvider><Component widget={true} settings={settings} /></EventProvider>, container);
+        } else {
+            render(<EventProvider><Component settings={settings} /></EventProvider>, container);
         }
-    }
+    };
 
     listContainers.forEach(container => {
         renderWithProvider(EventList, container);
