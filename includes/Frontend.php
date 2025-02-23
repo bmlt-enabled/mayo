@@ -14,6 +14,9 @@ class Frontend {
     }
 
     public static function render_event_list($atts = [], $content = null, $tag = '') {
+        static $instance = 0;
+        $instance++;
+        
         // Get the current filter being applied
         $current_filter = current_filter();
         
@@ -41,8 +44,9 @@ class Frontend {
         wp_enqueue_script('mayo-public');
         wp_enqueue_style('mayo-public');
 
-        // Pass attributes to JavaScript
-        wp_localize_script('mayo-public', 'mayoEventSettings', [
+        // Create unique settings for this instance
+        $settings_key = "mayoEventSettings_$instance";
+        wp_localize_script('mayo-public', $settings_key, [
             'timeFormat' => $atts['time_format'],
             'perPage' => intval($atts['per_page']),
             'showPagination' => $atts['show_pagination'] === 'true',
@@ -53,7 +57,12 @@ class Frontend {
             'serviceBody' => $atts['service_body'],
         ]);
 
-        return '<div id="mayo-event-list"' . ($is_widget ? ' class="mayo-widget-list"' : '') . '></div>';  
+        return sprintf(
+            '<div id="mayo-event-list-%d" data-instance="%d"%s></div>',
+            $instance,
+            $instance,
+            $is_widget ? ' class="mayo-widget-list"' : ''
+        );
     }
 
     public static function enqueue_scripts() {
