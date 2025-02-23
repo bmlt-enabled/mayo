@@ -48,11 +48,13 @@ class Frontend {
     }
 
     public static function enqueue_scripts() {
+        $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list');
+
         $post = get_post();
         if ($post && (
             has_shortcode($post->post_content, 'mayo_event_form') || 
             has_shortcode($post->post_content, 'mayo_event_list')
-        ) || (is_post_type_archive($post->post_type) || is_singular('mayo_event'))) {
+        ) || (is_post_type_archive($post->post_type) || is_singular('mayo_event')) || $shortcode_on_widgets) {
             wp_enqueue_script(
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',
@@ -77,5 +79,34 @@ class Frontend {
                 '1.0'
             );
         }
+    }
+
+    private static function is_shortcode_present_in_widgets($shortcode) {
+        global $wp_registered_sidebars, $wp_registered_widgets;
+
+        // Loop through each sidebar
+        foreach ($wp_registered_sidebars as $sidebar_id => $sidebar) {
+            // Check if the sidebar is active
+            if (is_active_sidebar($sidebar_id)) {
+                // Get the widgets in this sidebar
+                $sidebars_widgets = wp_get_sidebars_widgets();
+                if (isset($sidebars_widgets[$sidebar_id])) {
+                    foreach ($sidebars_widgets[$sidebar_id] as $widget_id) {
+                        if (isset($wp_registered_widgets[$widget_id])) {
+                            // Attempt to get the widget's content
+                            $widget_instance = get_option('widget_' . $wp_registered_widgets[$widget_id]['callback'][0]->id_base);
+                                
+                            foreach ($widget_instance as $instance) {
+                                if (is_array($instance) && isset($instance['content']) && has_shortcode($instance['content'], $shortcode)) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
