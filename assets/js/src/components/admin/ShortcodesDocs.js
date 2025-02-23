@@ -69,6 +69,13 @@ const ShortcodesDocs = () => {
                             <td>publish, pending</td>
                             <td>Yes (only one status at a time)</td>
                         </tr>
+                        <tr>
+                            <td>service_body</td>
+                            <td>Shows events for a given service body</td>
+                            <td>empty (all service bodies)</td>
+                            <td>e.g., "1,2,3"</td>
+                            <td>No</td>
+                        </tr>
                     </tbody>
                 </table>
                 

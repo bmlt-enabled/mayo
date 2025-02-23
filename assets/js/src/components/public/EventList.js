@@ -279,8 +279,10 @@ const EventList = () => {
         try {
             let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (window.mayoEventSettings?.status || 'publish');
             let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (window.mayoEventSettings?.eventType || '');
+            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (window.mayoEventSettings?.serviceBody || '');
+            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (window.mayoEventSettings?.relation || 'AND');
             // Build the endpoint URL with query parameters
-            const endpoint = `/wp-json/event-manager/v1/events?status=${status}&event_type=${eventType}`;
+            const endpoint = `/wp-json/event-manager/v1/events?status=${status}&event_type=${eventType}&service_body=${serviceBody}&relation=${relation}`;
             const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

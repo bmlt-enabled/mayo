@@ -21,7 +21,8 @@ class Frontend {
             'categories' => '',  // Comma-separated category slugs
             'tags' => '',       // Comma-separated tag slugs
             'event_type' => '',  // Single event type (Service, Activity)
-            'status' => 'publish'  // Single event status (publish, pending)
+            'status' => 'publish',  // Single event status (publish, pending)
+            'service_body' => ''  // Comma-separated service body IDs
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -36,7 +37,8 @@ class Frontend {
             'categories' => array_filter(explode(',', $atts['categories'])),
             'tags' => array_filter(explode(',', $atts['tags'])),
             'eventType' => $atts['event_type'],
-            'status' => $atts['status']
+            'status' => $atts['status'],
+            'serviceBody' => $atts['service_body']
         ]);
 
         return sprintf(

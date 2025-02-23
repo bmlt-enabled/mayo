@@ -143,17 +143,27 @@ class Rest {
 
         $status = isset($_GET['status']) ? sanitize_text_field(wp_unslash($_GET['status'])) : 'publish';
         $eventType = isset($_GET['event_type']) ? sanitize_text_field(wp_unslash($_GET['event_type'])) : '';
+        $serviceBody = isset($_GET['service_body']) ? sanitize_text_field(wp_unslash($_GET['service_body'])) : '';
+        $relation = isset($_GET['relation']) ? sanitize_text_field(wp_unslash($_GET['relation'])) : 'AND';
+
+        $meta_query = ['relation' => $relation];
 
         if ($eventType != '') {
-            $meta_query = [
+            $meta_query[] = [
                 [
                     'key' => 'event_type',
                     'value' => $eventType,
                     'compare' => '='
                 ]
             ];
-        } else {
-            $meta_query = [];
+        }
+
+        if ($serviceBody != '') {
+            $meta_query[] = [
+                'key' => 'service_body',
+                'value' => $serviceBody,
+                'compare' => '='
+            ];
         }
 
         $posts = get_posts([
