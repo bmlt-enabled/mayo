@@ -141,12 +141,41 @@ class Rest {
             }
         }
 
-        isset($_GET['status']) ? $status = sanitize_text_field(wp_unslash($_GET['status'])) : $status = 'publish';
-        
+        $status = isset($_GET['status']) ? sanitize_text_field(wp_unslash($_GET['status'])) : 'publish';
+        $eventType = isset($_GET['event_type']) ? sanitize_text_field(wp_unslash($_GET['event_type'])) : '';
+        $serviceBody = isset($_GET['service_body']) ? sanitize_text_field(wp_unslash($_GET['service_body'])) : '';
+        $relation = isset($_GET['relation']) ? sanitize_text_field(wp_unslash($_GET['relation'])) : 'AND';
+        $categories = isset($_GET['categories']) ? sanitize_text_field(wp_unslash($_GET['categories'])) : '';
+        $tags = isset($_GET['tags']) ? sanitize_text_field(wp_unslash($_GET['tags'])) : '';
+
+        $meta_keys = [
+            'event_type' => $eventType,
+            'service_body' => $serviceBody
+        ];
+
+        $meta_query = [];
+
+        foreach ($meta_keys as $key => $value) {
+            if ($value != '') {
+                $meta_query[] = [
+                    'key' => $key,
+                    'value' => $value,
+                    'compare' => '='
+                ];
+            }
+        }
+
+        if (count($meta_query) > 0) {
+            $meta_query['relation'] = $relation;
+        }
+
         $posts = get_posts([
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
-            'post_status' => $status
+            'post_status' => $status,
+            'meta_query' => $meta_query,
+            'category_name' => $categories,
+            'tag' => $tags
         ]);
 
         $events = [];

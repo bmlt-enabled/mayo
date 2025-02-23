@@ -1,9 +1,11 @@
 # Release Notes
 
-### 1.0.11-beta5 (February 22, 2025)
+### 1.0.10-beta5 (February 22, 2025)
 * Added the ability to show events with a given status [#31].
+* Override some of the shortcode parameters via querystring [#32].
+* Moved filtering to the REST API [#32].
 
-### 1.0.11-beta4 (February 17, 2025)
+### 1.0.10-beta4 (February 17, 2025)
 * Fixed nonce issue [#10].
 
 ### 1.0.10-beta1 (February 15, 2025)
