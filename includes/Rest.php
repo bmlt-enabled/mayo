@@ -141,12 +141,15 @@ class Rest {
             }
         }
 
-        isset($_GET['status']) ? $status = sanitize_text_field(wp_unslash($_GET['status'])) : $status = 'publish';
+        $status = isset($_GET['status']) ? sanitize_text_field(wp_unslash($_GET['status'])) : 'publish';
+        $eventType = isset($_GET['event_type']) ? sanitize_text_field(wp_unslash($_GET['event_type'])) : '';
         
         $posts = get_posts([
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
-            'post_status' => $status
+            'post_status' => $status,
+            'meta_key' => 'event_type',
+            'meta_value' => $eventType
         ]);
 
         $events = [];

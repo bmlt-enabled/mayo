@@ -16,6 +16,7 @@ const ShortcodesDocs = () => {
                             <th>Description</th>
                             <th>Default</th>
                             <th>Options</th>
+                            <th>Overridable via Querystring?</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -24,42 +25,49 @@ const ShortcodesDocs = () => {
                             <td>Filter by category slugs (comma-separated)</td>
                             <td>empty (all categories)</td>
                             <td>e.g., "meetings,workshops"</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>tags</td>
                             <td>Filter by tag slugs (comma-separated)</td>
                             <td>empty (all tags)</td>
                             <td>e.g., "featured,special"</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>event_type</td>
                             <td>Filter by event type</td>
                             <td>empty (all types)</td>
                             <td>Service, Activity</td>
+                            <td>Yes (only one event type at a time)</td>
                         </tr>
                         <tr>
                             <td>time_format</td>
                             <td>Format for displaying time</td>
                             <td>12hour</td>
                             <td>12hour, 24hour</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>per_page</td>
                             <td>Number of events to show per page</td>
                             <td>10</td>
                             <td>Any positive number</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>show_pagination</td>
                             <td>Whether to show pagination controls</td>
                             <td>true</td>
                             <td>true, false</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>status</td>
                             <td>Shows events with a given status</td>
                             <td>publish</td>
                             <td>publish, pending</td>
+                            <td>Yes (only one status at a time)</td>
                         </tr>
                     </tbody>
                 </table>

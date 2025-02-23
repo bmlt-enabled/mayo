@@ -249,7 +249,6 @@ const EventList = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [view, setView] = useState('list');
     const [currentPage, setCurrentPage] = useState(1);
     const containerRef = useRef(null);
     const [timeFormat, setTimeFormat] = useState('12hour');
@@ -259,7 +258,6 @@ const EventList = () => {
     const showPagination = window.mayoEventSettings?.showPagination !== false;
     const filterCategories = window.mayoEventSettings?.categories || [];
     const filterTags = window.mayoEventSettings?.tags || [];
-    const filterEventType = window.mayoEventSettings?.eventType || '';
     
     useEffect(() => {
         const container = document.getElementById('mayo-event-list');
@@ -280,8 +278,9 @@ const EventList = () => {
     const fetchEvents = async () => {
         try {
             let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (window.mayoEventSettings?.status || 'publish');
+            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (window.mayoEventSettings?.eventType || '');
             // Build the endpoint URL with query parameters
-            const endpoint = `/wp-json/event-manager/v1/events?status=${status}`;
+            const endpoint = `/wp-json/event-manager/v1/events?status=${status}&event_type=${eventType}`;
             const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -310,11 +309,6 @@ const EventList = () => {
                         if (!filterTags.some(slug => eventTagSlugs.includes(slug))) {
                             return false;
                         }
-            }
-
-                    // Event type filter
-                    if (filterEventType && event.meta.event_type !== filterEventType) {
-                        return false;
                     }
 
                     return true;
