@@ -259,7 +259,7 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="flyer">Event Flyer</label>
+                    <label htmlFor="flyer">Event Flyer (Allowed file types: .jpg, .jpeg, .png, .gif)</label>
                     <input
                         type="file"
                         id="flyer"
