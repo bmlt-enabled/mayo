@@ -148,22 +148,19 @@ class Rest {
 
         $meta_query = ['relation' => $relation];
 
-        if ($eventType != '') {
-            $meta_query[] = [
-                [
-                    'key' => 'event_type',
-                    'value' => $eventType,
-                    'compare' => '='
-                ]
-            ];
-        }
+        $meta_keys = [
+            'event_type' => $eventType,
+            'service_body' => $serviceBody
+        ];
 
-        if ($serviceBody != '') {
-            $meta_query[] = [
-                'key' => 'service_body',
-                'value' => $serviceBody,
-                'compare' => '='
-            ];
+        foreach ($meta_keys as $key => $value) {
+            if ($value != '') {
+                $meta_query[] = [
+                    'key' => $key,
+                    'value' => $value,
+                    'compare' => '='
+                ];
+            }
         }
 
         $posts = get_posts([
