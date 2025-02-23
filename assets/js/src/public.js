@@ -12,10 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const archiveContainer = document.getElementById('mayo-archive-root');
 
     const renderWithProvider = (Component, container) => {
-        if (container) {
+        if (container && container.classList.contains('mayo-widget-list')) {
+            render(<EventProvider><Component widget={true} /></EventProvider>, container);
+        } else {
             render(<EventProvider><Component /></EventProvider>, container);
         }
-    };
+    }
 
     listContainers.forEach(container => {
         renderWithProvider(EventList, container);

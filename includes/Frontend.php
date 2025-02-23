@@ -13,7 +13,19 @@ class Frontend {
         return '<div id="mayo-event-form"></div>';
     }
 
-    public static function render_event_list($atts = []) {
+    public static function render_event_list($atts = [], $content = null, $tag = '') {
+        // Get the current filter being applied
+        $current_filter = current_filter();
+        
+        // Check if we're in a widget context
+        $is_widget = (
+            $current_filter === 'widget_text' || 
+            $current_filter === 'widget_text_content' ||
+            $current_filter === 'widget_block_content' ||
+            $current_filter === 'widget_custom_html_content' ||
+            doing_filter('dynamic_sidebar')
+        );
+
         $defaults = [
             'time_format' => '12hour', // or '24hour'
             'per_page' => 10,
@@ -23,7 +35,6 @@ class Frontend {
             'event_type' => '',  // Single event type (Service, Activity)
             'status' => 'publish',  // Single event status (publish, pending)
             'service_body' => '',  // Comma-separated service body IDs
-            'is_widget' => is_active_widget() // Check if we're in a widget
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -40,10 +51,9 @@ class Frontend {
             'eventType' => $atts['event_type'],
             'status' => $atts['status'],
             'serviceBody' => $atts['service_body'],
-            'isWidget' => $atts['is_widget']
         ]);
 
-        return '<div id="mayo-event-list"></div>';
+        return '<div id="mayo-event-list"' . ($is_widget ? ' class="mayo-widget-list"' : '') . '></div>';  
     }
 
     public static function enqueue_scripts() {

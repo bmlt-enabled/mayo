@@ -2,22 +2,24 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import { formatTime } from '../../util';
 
-const EventList = () => {
+const EventList = ({ widget = false }) => {
     const containerRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [events, setEvents] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [timeFormat, setTimeFormat] = useState('12hour');
+    const [isWidget, setIsWidget] = useState(false);
     
     // Get settings from wp_localize_script
     const {
         perPage = 10,
         showPagination = true,
-        isWidget = false // New prop for widget detection
     } = window.mayoEventSettings || {};
 
     useEffect(() => {
+        setIsWidget(widget);
+
         const container = document.getElementById('mayo-event-list');
         if (container) {
             const format = container.dataset.timeFormat || '12hour';
@@ -110,7 +112,7 @@ const EventList = () => {
     if (!events.length) return <div>No upcoming events</div>;
 
     return (
-        <div className={`mayo-event-list ${isWidget ? 'mayo-widget-list' : ''}`} ref={containerRef}>
+        <div className="mayo-event-list" ref={containerRef}>
             {isWidget ? (
                 <div className="mayo-widget-events">
                     {getPaginatedEvents().map(event => (
