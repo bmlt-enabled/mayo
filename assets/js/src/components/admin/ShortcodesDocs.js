@@ -24,8 +24,8 @@ const ShortcodesDocs = () => {
                             <td>categories</td>
                             <td>Filter by category slugs (comma-separated)</td>
                             <td>empty (all categories)</td>
-                            <td>e.g., "meetings,workshops"</td>
-                            <td>No</td>
+                            <td>e.g., <pre>meetings,workshops</pre> (is an or condition) or <pre>meetings+workshops</pre> (is an and condition).  For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#category-parameters">Category Parameters</a>.</td>
+                            <td>Yes</td>
                         </tr>
                         <tr>
                             <td>tags</td>

@@ -281,8 +281,10 @@ const EventList = () => {
             let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (window.mayoEventSettings?.eventType || '');
             let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (window.mayoEventSettings?.serviceBody || '');
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (window.mayoEventSettings?.relation || 'AND');
+            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (window.mayoEventSettings?.filterCategories || '');
+
             // Build the endpoint URL with query parameters
-            const endpoint = `/wp-json/event-manager/v1/events?status=${status}&event_type=${eventType}&service_body=${serviceBody}&relation=${relation}`;
+            const endpoint = `/wp-json/event-manager/v1/events?status=${status}&event_type=${eventType}&service_body=${serviceBody}&relation=${relation}&categories=${categories}`;
             const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -296,14 +298,6 @@ const EventList = () => {
                     const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
                         new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
                     if (eventDate <= now) return false;
-
-                    // Category filter
-                    if (filterCategories.length > 0) {
-                        const eventCategorySlugs = event.categories.map(cat => cat.slug);
-                        if (!filterCategories.some(slug => eventCategorySlugs.includes(slug))) {
-                            return false;
-                        }
-                    }
 
                     // Tag filter
                     if (filterTags.length > 0) {
