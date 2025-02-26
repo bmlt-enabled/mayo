@@ -26,7 +26,7 @@ const EventCard = ({ event, timeFormat }) => {
                     )}
                 </div>
                 <div className="mayo-event-summary">
-                    <h3>{event.title.rendered}</h3>
+                    <h3 dangerouslySetInnerHTML={{ __html: event.title.rendered }} />
                     <div className="mayo-event-brief">
                         <span className="mayo-event-type">{event.meta.event_type}</span>
                         <span className="mayo-event-time">
