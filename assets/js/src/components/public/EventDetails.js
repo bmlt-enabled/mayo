@@ -61,7 +61,7 @@ const EventDetails = () => {
             <article className="mayo-single-event">
                 <div className="mayo-single-event-content">
                     <header className="mayo-single-event-header">
-                        <h1 className="mayo-single-event-title">{title.rendered}</h1>
+                        <h1 className="mayo-single-event-title" dangerouslySetInnerHTML={{ __html: title.rendered }} />
                     </header>
 
                     {event.featured_image && (
