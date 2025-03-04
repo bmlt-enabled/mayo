@@ -3,9 +3,11 @@
  * Template for displaying mayo event details
  */
 
- get_header(); ?>
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-<div id="mayo-details-root">details placeholder</div>
+get_header(); ?>
+
+<div id="mayo-details-root"></div>
 
 <?php 
 wp_enqueue_script('mayo-public');

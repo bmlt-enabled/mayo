@@ -1,6 +1,7 @@
 <?php
-
 namespace BmltEnabled\Mayo;
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use DateTime;
 use DateInterval;
@@ -10,38 +11,40 @@ class Rest {
         add_action('rest_api_init', function () {
             register_rest_route('event-manager/v1', '/submit-event', [
                 'methods' => 'POST',
-                'callback' => [__CLASS__, 'submit_event'],
+                'callback' => [__CLASS__, 'bmltenabled_mayo_submit_event'],
                 'permission_callback' => '__return_true',
             ]);
 
             register_rest_route('event-manager/v1', '/events', [
                 'methods' => 'GET',
-                'callback' => [__CLASS__, 'get_events'],
+                'callback' => [__CLASS__, 'bmltenabled_mayo_get_events'],
                 'permission_callback' => '__return_true',
             ]);
 
             register_rest_route('event-manager/v1', '/settings', [
                 [
                     'methods' => 'GET',
-                    'callback' => [__CLASS__, 'get_settings'],
+                    'callback' => [__CLASS__, 'bmltenabled_mayo_get_settings'],
                     'permission_callback' => '__return_true',
                 ],
                 [
                     'methods' => 'POST',
-                    'callback' => [__CLASS__, 'update_settings'],
-                    'permission_callback' => '__return_true',
+                    'callback' => [__CLASS__, 'bmltenabled_mayo_update_settings'],
+                    'permission_callback' => function() {
+                        return current_user_can( 'manage_options' );
+                    }
                 ],
             ]);
 
             register_rest_route('event-manager/v1', '/event/(?P<slug>[a-zA-Z0-9-]+)', [
                 'methods' => 'GET',
-                'callback' => [__CLASS__, 'get_event_details'],
+                'callback' => [__CLASS__, 'bmltenabled_mayo_get_event_details'],
                 'permission_callback' => '__return_true', // Adjust permissions as needed
             ]);
         });
     }
 
-    public static function submit_event($request) {
+    public static function bmltenabled_mayo_submit_event($request) {
         $params = $request->get_params();
         
         // Create the post
@@ -128,7 +131,7 @@ class Rest {
         wp_mail($to, $subject, $message);
     }
 
-    public static function get_events($request) {
+    public static function bmltenabled_mayo_get_events($request) {
         $is_archive = false;
     
         if (isset($_GET['archive'])) {
@@ -296,12 +299,12 @@ class Rest {
         }
     }
 
-    public static function get_settings() {
+    public static function bmltenabled_mayo_get_settings() {
         $settings = get_option('mayo_settings', []);
         return new \WP_REST_Response($settings);
     }
 
-    public static function update_settings($request) {
+    public static function bmltenabled_mayo_update_settings($request) {
         $params = $request->get_params();
         $settings = [];
 
@@ -313,7 +316,7 @@ class Rest {
         return new \WP_REST_Response($settings);
     }
 
-    public static function get_event_details($request) {
+    public static function bmltenabled_mayo_get_event_details($request) {
         $slug = $request['slug'];
         $query = new \WP_Query([
             'post_type' => 'mayo_event',

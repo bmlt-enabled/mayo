@@ -10,3 +10,6 @@ Dockerfile export-ignore
 Makefile export-ignore
 /.github export-ignore
 assets/js/src export-ignore
+**/*.stub export-ignore
+**/*.bat export-ignore
+**/*.toml export-ignore

@@ -2,6 +2,8 @@
 
 namespace BmltEnabled\Mayo;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 class RssFeed {
     public static function init() {
         add_action('init', [__CLASS__, 'register_feed']);

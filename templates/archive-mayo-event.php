@@ -3,6 +3,8 @@
  * Template for displaying mayo event archives
  */
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 get_header(); ?>
 
 <div id="mayo-archive-root">Sup fool</div>
