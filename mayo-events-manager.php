@@ -17,6 +17,7 @@
  * @link     https://bmlt.app
  */
 
+
 if (! defined('ABSPATH') ) { exit; // Exit if accessed directly
 }
 
