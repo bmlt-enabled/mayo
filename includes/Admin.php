@@ -2,6 +2,8 @@
 
 namespace BmltEnabled\Mayo;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 class Admin {
     public static function init() {
         // Register post type on init

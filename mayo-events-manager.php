@@ -17,7 +17,9 @@
  * @link     https://bmlt.app
  */
 
-defined('ABSPATH') || exit;
+if (! defined('ABSPATH') ) { 
+    exit; // Exit if accessed directly
+}
 
 define('MAYO_VERSION', '1.0.10');
 
