@@ -55,9 +55,10 @@ const EventList = ({ widget = false, settings = {} }) => {
             const now = new Date();
             const upcomingEvents = data
                 .filter(event => {
-                    // Date filter with timezone
-                    const eventDate = new Date(`${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}${event.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: event.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
+                    const timezone = event.meta.timezone || 'America/New_York';
+                    const eventDateString = `${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}`;
+                    const eventDate = new Date(new Date(eventDateString).toLocaleString('en-US', { timeZone: timezone }));
+
                     if (eventDate <= now) return false;
 
                     return true;
