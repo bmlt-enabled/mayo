@@ -8,7 +8,7 @@
  * Author: bmlt-enabled
  * License: MIT
  * Author URI: https://bmlt.app
- * php version 8.1
+ * php version 8.2
  *
  * @category WordPress_Plugin
  * @package  MayoEventsManager

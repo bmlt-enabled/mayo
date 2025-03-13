@@ -2,7 +2,7 @@
 
 Contributors: bmltenabled, radius314
 Tags: events, bmlt, narcotics anonymous, na
-Requires PHP: 8.1
+Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.7
 Stable tag: 1.0.10
