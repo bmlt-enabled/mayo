@@ -101,7 +101,8 @@ class Rest {
 
         // Handle categories and tags
         if (!empty($params['categories'])) {
-            wp_set_post_categories($post_id, $params['categories']);
+            $categories_array = explode(',', $params['categories']);
+            wp_set_post_categories($post_id, $categories_array);
         }
         if (!empty($params['tags'])) {
             wp_set_post_tags($post_id, $params['tags']);
