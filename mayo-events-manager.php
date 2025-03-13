@@ -43,18 +43,18 @@ add_action(
     }
 );
 
-register_activation_hook(__FILE__, 'mayoActivate');
-register_deactivation_hook(__FILE__, 'mayoDeactivate');
-add_action('plugins_loaded', 'mayoCheckUpgrade');
-add_filter('archive_template', 'loadArchiveTemplate');
-add_filter('single_template', 'loadDetailsTemplate');
+register_activation_hook(__FILE__, 'bmltenabled_mayo_activate');
+register_deactivation_hook(__FILE__, 'bmltenabled_mayo_deactivate');
+add_action('plugins_loaded', 'bmltenabled_mayo_checkUpgrade');
+add_filter('archive_template', 'bmltenabled_mayo_loadArchiveTemplate');
+add_filter('single_template', 'bmltenabled_mayo_loadDetailsTemplate');
 
 /**
  * Activate the plugin and flush rewrite rules.
  *
  * @return void
  */
-function mayoActivate()
+function bmltenabled_mayo_activate()
 {
     // If init hasn't fired, add an action to register post type
     if (!did_action('init')) {
@@ -73,7 +73,7 @@ function mayoActivate()
  *
  * @return void
  */
-function mayoDeactivate()
+function bmltenabled_mayo_deactivate()
 {
     // Unregister the post type
     unregister_post_type('mayo_event');
@@ -87,13 +87,13 @@ function mayoDeactivate()
  *
  * @return void
  */
-function mayoCheckUpgrade()
+function bmltenabled_mayo_checkUpgrade()
 {
     $current_version = get_option('mayo_version');
     if (empty($current_version) 
         || version_compare($current_version, MAYO_VERSION, '<')
     ) {
-        mayoActivate();
+        bmltenabled_mayo_activate();
         update_option('mayo_version', MAYO_VERSION);
     }
 }
@@ -106,7 +106,7 @@ function mayoCheckUpgrade()
  * @return string The path to the custom template if it exists,
  * otherwise the original template.
  */
-function loadArchiveTemplate($template)
+function bmltenabled_mayo_loadArchiveTemplate($template)
 {
     if (is_post_type_archive('mayo_event')) {
         $custom_template = plugin_dir_path(__FILE__) .
@@ -126,7 +126,7 @@ function loadArchiveTemplate($template)
  * @return string The path to the custom template if it exists,
  * otherwise the original template.
  */
-function loadDetailsTemplate($template)
+function bmltenabled_mayo_loadDetailsTemplate($template)
 {
     if (is_singular('mayo_event')) {
         $custom_template = plugin_dir_path(__FILE__) .
@@ -143,7 +143,7 @@ function loadDetailsTemplate($template)
  *
  * @return void
  */
-function enqueueAdminScripts()
+function bmltenabled_mayo_enqueueAdminScripts()
 {
     wp_enqueue_script(
         'admin-bundle',
@@ -153,4 +153,4 @@ function enqueueAdminScripts()
         true
     );
 }
-add_action('enqueue_block_editor_assets', 'enqueueAdminScripts');
+add_action('enqueue_block_editor_assets', 'bmltenabled_mayo_enqueueAdminScripts');
