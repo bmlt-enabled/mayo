@@ -330,11 +330,11 @@ const EventForm = () => {
                             <label key={tag.id} className="mayo-taxonomy-item">
                                 <input
                                     type="checkbox"
-                                    checked={formData.tags.includes(tag.id)}
+                                    checked={formData.tags.includes(tag.name)}
                                     onChange={(e) => {
                                         const newTags = e.target.checked
-                                            ? [...formData.tags, tag.id]
-                                            : formData.tags.filter(id => id !== tag.id);
+                                            ? [...formData.tags, tag.name]
+                                            : formData.tags.filter(name => name !== tag.name);
                                         setFormData({...formData, tags: newTags});
                                     }}
                                 />
