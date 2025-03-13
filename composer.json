@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "illuminate/database": "^10.48"
+        "illuminate/database": "^12.2"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.11"
