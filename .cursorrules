@@ -1,0 +1,93 @@
+# Mayo Events Manager CursorRules
+# Rules to help Cursor understand the project structure
+
+# Project Structure
+project_structure:
+  - "PHP Backend":
+    - mayo-events-manager.php: "Main plugin file that initializes everything"
+    - /includes: "Core PHP classes that power the plugin"
+    - /templates: "WordPress templates for event views"
+  - "Frontend":
+    - /assets/js/src: "React components and frontend code"
+    - /assets/css: "CSS styles for the plugin"
+  - "Build System":
+    - /assets/js/dist: "Compiled JavaScript"
+
+# File Relationships
+# These help Cursor understand which files work together
+file_relationships:
+  - mayo-events-manager.php -> includes/Admin.php: "Admin initialization"
+  - mayo-events-manager.php -> includes/Frontend.php: "Frontend initialization"
+  - mayo-events-manager.php -> includes/Rest.php: "REST API initialization"
+  - includes/Rest.php -> assets/js/src/util.js: "The JS utility functions communicate with the REST API"
+  - assets/js/src/admin.js -> assets/js/src/components/admin/*: "Admin components are used in admin.js"
+  - assets/js/src/public.js -> assets/js/src/components/public/*: "Public components are used in public.js"
+
+# Function Relationships
+# These help Cursor understand important function relationships across files
+function_relationships:
+  - includes/Rest.php::bmltenabled_mayo_update_settings -> assets/js/src/util.js::apiFetch: "JS utilizes this API endpoint to update settings"
+  - includes/Rest.php::bmltenabled_mayo_get_settings -> assets/js/src/util.js::apiFetch: "JS utilizes this API endpoint to get settings"
+  - includes/Admin.php::render_settings_page -> assets/js/src/admin.js: "The admin.js renders React components in this container"
+
+# Code Patterns
+# Common patterns in the codebase that help Cursor understand code style
+code_patterns:
+  - pattern: "REST API endpoints follow a specific structure in Rest.php"
+    example: |
+      register_rest_route(
+          self::ROUTE_BASE, 
+          '/endpoint-path', 
+          [
+              'methods' => \WP_REST_Server::READABLE or EDITABLE,
+              'callback' => [__CLASS__, 'callback_method'],
+              'permission_callback' => function() { ... }
+          ]
+      );
+  
+  - pattern: "React components follow a specific folder structure"
+    example: |
+      // Admin components in assets/js/src/components/admin/
+      // Public components in assets/js/src/components/public/
+      // Shared providers in assets/js/src/components/providers/
+
+# WordPress Integration
+# Help Cursor understand how the plugin integrates with WordPress
+wordpress_integration:
+  - post_types: ["mayo_event"]
+  - api_namespace: "event-manager/v1"
+  - admin_pages:
+    - "mayo-events": "Main admin page"
+    - "mayo-shortcodes": "Documentation for shortcodes"
+    - "mayo-settings": "Plugin settings"
+
+# Common Issues
+# Help Cursor understand common issues in the codebase
+common_issues:
+  - issue: "401 Unauthorized error when saving settings"
+    solution: "Make sure the API nonce is correctly passed in the X-WP-Nonce header and that the user has the 'manage_options' capability."
+    files:
+      - includes/Rest.php
+      - assets/js/src/util.js
+  
+  - issue: "React components not rendering"
+    solution: "Check if the container element exists in the DOM and that the component is correctly imported."
+    files:
+      - assets/js/src/admin.js
+      - assets/js/src/public.js
+
+# Development Workflows
+# Common workflows to help Cursor understand how to assist
+development_workflows:
+  - name: "Adding a new REST API endpoint"
+    steps:
+      - "Add a new register_rest_route in includes/Rest.php"
+      - "Implement the callback method in the same file"
+      - "Add any necessary client-side code in assets/js/src components"
+  
+  - name: "Adding a new admin page"
+    steps:
+      - "Add a new submenu in Admin::add_menu()"
+      - "Create a new render method in Admin.php"
+      - "Create a new React component in assets/js/src/components/admin/"
+      - "Import and render the component in admin.js" 

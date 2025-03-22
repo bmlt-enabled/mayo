@@ -1,72 +1,113 @@
 import { useState, useEffect } from '@wordpress/element';
-import { TextControl, Button, Panel, PanelBody, Notice } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
+import { TextControl, Button, Panel, PanelBody, PanelRow, Spinner, Notice } from '@wordpress/components';
+import { apiFetch } from '../../util';
 
 const Settings = () => {
-    const [rootServer, setRootServer] = useState('');
+    const [settings, setSettings] = useState({
+        bmlt_root_server: ''
+    });
+    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [saveStatus, setSaveStatus] = useState(null);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
+    // Load settings when component mounts
     useEffect(() => {
-        // Fetch initial settings
-        apiFetch({ path: '/wp-json/event-manager/v1/settings' }).then(response => {
-            setRootServer(response.bmlt_root_server || '');
-        });
+        const loadSettings = async () => {
+            try {
+                setIsLoading(true);
+                setError(null);
+                const response = await apiFetch('/settings');
+                setSettings({
+                    bmlt_root_server: response.bmlt_root_server || ''
+                });
+            } catch (err) {
+                setError('Failed to load settings. Please refresh the page and try again.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        loadSettings();
     }, []);
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        setSaveStatus(null);
+    // Handle settings changes
+    const handleChange = (field, value) => {
+        setSettings(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
 
+    // Save settings
+    const handleSave = async () => {
         try {
-            await apiFetch({
-                path: '/wp-json/event-manager/v1/settings',
+            setIsSaving(true);
+            setError(null);
+            setSuccessMessage(null);
+            
+            const response = await apiFetch('/settings', {
                 method: 'POST',
-                data: { bmlt_root_server: rootServer }
+                body: JSON.stringify({
+                    bmlt_root_server: settings.bmlt_root_server
+                })
             });
-            setSaveStatus({ type: 'success', message: 'Settings saved successfully!' });
-        } catch (error) {
-            console.error('Settings save error:', error);
-            setSaveStatus({ type: 'error', message: 'Failed to save settings.' });
+            
+            setSuccessMessage('Settings saved successfully!');
+            // Auto-dismiss success message after 3 seconds
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            setError(`Failed to save settings. Please check your permissions and try again.`);
         } finally {
             setIsSaving(false);
         }
     };
 
+    if (isLoading) {
+        return (
+            <div className="mayo-settings-loading">
+                <Spinner /> Loading settings...
+            </div>
+        );
+    }
+
     return (
-        <div className="wrap mayo-docs">
-            <h1>Settings</h1>
+        <div className="mayo-settings-page">
+            <h1>Mayo Events Manager Settings</h1>
             
-            {saveStatus && (
-                <Notice 
-                    status={saveStatus.type}
-                    isDismissible={false}
-                    className="mayo-settings-notice"
-                >
-                    {saveStatus.message}
+            {error && (
+                <Notice status="error" isDismissible={true} onRemove={() => setError(null)}>
+                    {error}
                 </Notice>
             )}
-
+            
+            {successMessage && (
+                <Notice status="success" isDismissible={true} onRemove={() => setSuccessMessage(null)}>
+                    {successMessage}
+                </Notice>
+            )}
+            
             <Panel>
-                <PanelBody
-                    title="BMLT Settings"
-                    initialOpen={true}
-                >
-                    <TextControl
-                        label="BMLT Root Server URL"
-                        value={rootServer}
-                        onChange={setRootServer}
-                        help="Enter the full URL to your BMLT root server (e.g., https://bmlt.example.org/main_server)"
-                        type="url"
-                    />
-                    <Button
-                        isPrimary
-                        onClick={handleSave}
-                        isBusy={isSaving}
-                        disabled={isSaving}
-                    >
-                        Save Settings
-                    </Button>
+                <PanelBody title="BMLT Settings" initialOpen={true}>
+                    <PanelRow>
+                        <TextControl
+                            label="BMLT Root Server URL"
+                            value={settings.bmlt_root_server}
+                            onChange={(value) => handleChange('bmlt_root_server', value)}
+                            help="Enter the URL of your BMLT root server (e.g., https://bmlt.example.org/main_server)"
+                        />
+                    </PanelRow>
+                    
+                    <PanelRow>
+                        <Button 
+                            isPrimary 
+                            onClick={handleSave}
+                            isBusy={isSaving}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'Saving...' : 'Save Settings'}
+                        </Button>
+                    </PanelRow>
                 </PanelBody>
             </Panel>
         </div>
