@@ -82,7 +82,8 @@ class Admin {
             return;
         }
 
-        wp_enqueue_script(
+        // Register and enqueue the script
+        wp_register_script(
             'mayo-admin',
             plugin_dir_url(__DIR__) . 'assets/js/dist/admin.bundle.js',
             [
@@ -94,17 +95,32 @@ class Admin {
                 'wp-i18n',
                 'wp-data'
             ],
-            '1.0',
+            defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
             true
         );
 
+        // Enqueue styles
         wp_enqueue_style('wp-components');
         wp_enqueue_style(
             'mayo-admin',
             plugin_dir_url(__DIR__) . 'assets/css/admin.css',
             [],
-            '1.0'
+            defined('MAYO_VERSION') ? MAYO_VERSION : '1.0'
         );
+        
+        // Add the REST API nonce for our plugin
+        wp_localize_script(
+            'mayo-admin',
+            'mayoApiSettings',
+            [
+                'root' => esc_url_raw(rest_url()),
+                'nonce' => wp_create_nonce('wp_rest'),
+                'namespace' => 'event-manager/v1'
+            ]
+        );
+        
+        // Now enqueue the script after localization
+        wp_enqueue_script('mayo-admin');
     }
 
     public static function set_custom_columns($columns) {
@@ -326,6 +342,7 @@ class Admin {
     }
 
     public static function render_settings_page() {
+        // Output a container div for React to render into
         echo '<div id="mayo-settings-root"></div>';
     }
 }

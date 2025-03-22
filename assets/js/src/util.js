@@ -67,3 +67,50 @@ export const formatRecurringPattern = (pattern) => {
     
     return text;
 };
+
+/**
+ * Call the WordPress REST API
+ * 
+ * @param {string} endpoint - API endpoint path
+ * @param {Object} options - Fetch options
+ * @returns {Promise} Fetch promise
+ */
+export const apiFetch = async (endpoint, options = {}) => {
+    const baseUrl = '/wp-json/event-manager/v1';
+    const url = `${baseUrl}${endpoint}`;
+    
+    // Check for nonce in various places
+    let nonce = '';
+    
+    // First check if mayoApiSettings exists (our plugin's settings)
+    if (window.mayoApiSettings && window.mayoApiSettings.nonce) {
+        nonce = window.mayoApiSettings.nonce;
+    } 
+    // Fallback to WordPress core's wpApiSettings
+    else if (window.wpApiSettings && window.wpApiSettings.nonce) {
+        nonce = window.wpApiSettings.nonce;
+    }
+    
+    const defaultOptions = {
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': nonce
+        }
+    };
+    
+    const fetchOptions = { ...defaultOptions, ...options };
+    
+    try {
+        const response = await fetch(url, fetchOptions);
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('API fetch error:', error);
+        throw error;
+    }
+};

@@ -306,15 +306,32 @@ class Rest {
     }
 
     public static function bmltenabled_mayo_update_settings($request) {
+        // Check permissions again (this is already checked by permission_callback but adding for security)
+        if (!current_user_can('manage_options')) {
+            return new \WP_Error(
+                'rest_forbidden',
+                __('Sorry, you are not allowed to update settings.'),
+                ['status' => 401]
+            );
+        }
+        
         $params = $request->get_params();
         $settings = [];
 
+        // Accept either bmlt_root_server or rootserver parameter for backward compatibility
         if (isset($params['bmlt_root_server'])) {
             $settings['bmlt_root_server'] = esc_url_raw(trim($params['bmlt_root_server']));
+        } elseif (isset($params['rootserver'])) {
+            $settings['bmlt_root_server'] = esc_url_raw(trim($params['rootserver']));
         }
 
         update_option('mayo_settings', $settings);
-        return new \WP_REST_Response($settings);
+        
+        return new \WP_REST_Response([
+            'success' => true,
+            'message' => 'Settings updated successfully',
+            'settings' => $settings
+        ]);
     }
 
     public static function bmltenabled_mayo_get_event_details($request) {
