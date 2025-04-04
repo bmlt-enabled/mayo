@@ -3,7 +3,8 @@
 ### 1.0.12 (UNRELEASED)
 * Added the ability to upload PDFs and display them.
 * Added the ability to set other required fields on the event submission form.
-* Fix to prevent insecure root servers [50].
+* Calendar RSS link [#11]
+* Fix to prevent insecure root servers [#50].
 
 ### 1.0.11 (March 22, 2025)
 * Fix for root server settings not saving [#48].
