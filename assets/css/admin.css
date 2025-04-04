@@ -194,4 +194,75 @@
 
 .mayo-settings-notice {
     margin: 20px 0;
+}
+
+.mayo-admin-pdf-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    background: #f1f1f1;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #135e96;
+}
+
+.mayo-admin-pdf-link:hover {
+    background: #e5e5e5;
+    color: #043959;
+}
+
+.mayo-admin-pdf-link .dashicons {
+    margin-right: 4px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Add these new styles */
+.mayo-attachments-section {
+    padding: 8px 0;
+}
+
+.mayo-attachment-preview,
+.mayo-pdf-section {
+    margin-bottom: 16px;
+}
+
+.mayo-attachment-preview:last-child,
+.mayo-pdf-section:last-child {
+    margin-bottom: 0;
+}
+
+.mayo-pdf-preview {
+    display: flex;
+    align-items: center;
+}
+
+.mayo-admin-pdf-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #2271b1;
+    transition: all 0.2s ease;
+}
+
+.mayo-admin-pdf-link:hover {
+    background: #e5e5e5;
+    color: #135e96;
+}
+
+.mayo-admin-pdf-link .dashicons {
+    margin-right: 6px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.description {
+    color: #757575;
+    font-style: italic;
+    margin: 4px 0;
 } 

@@ -96,6 +96,11 @@ class Frontend {
                 '1.0'
             );
         }
+
+        wp_localize_script('mayo-public', 'mayoApiSettings', [
+            'root' => esc_url_raw(rest_url()),
+            'nonce' => wp_create_nonce('wp_rest')
+        ]);
     }
 
     private static function is_shortcode_present_in_widgets($shortcode) {

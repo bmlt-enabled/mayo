@@ -23,8 +23,23 @@ const EventWidgetCard = ({ event, timeFormat }) => {
                         className="mayo-widget-event-image"
                     />
                 )}
+                {event.meta.event_pdf_url && (
+                    <div className="mayo-widget-event-pdf">
+                        <a 
+                            href={event.meta.event_pdf_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mayo-pdf-link mayo-pdf-link-widget"
+                        >
+                            View Flyer
+                        </a>
+                    </div>
+                )}
             </a>
-            <a href={event.link} className="mayo-widget-event-link">Read More...</a>
+            <div className="mayo-widget-event-actions">
+                <a href={event.link} className="mayo-widget-event-link">Read More...</a>
+                
+            </div>
         </div>
     )
 }

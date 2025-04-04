@@ -1,5 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
+import { uploadPDF } from '../../util';
 
 const EventForm = () => {
     const [formData, setFormData] = useState({
@@ -26,22 +27,34 @@ const EventForm = () => {
     const [tags, setTags] = useState([]);
     const [error, setError] = useState(null);
     const { serviceBodies } = useEventProvider();
+    const [pdfUploadStatus, setPdfUploadStatus] = useState({
+        isUploading: false,
+        error: null
+    });
+    const [uploadType, setUploadType] = useState(null);
 
     useEffect(() => {
-        // Fetch available categories and tags
         const fetchTaxonomies = async () => {
             try {
                 const [categoriesRes, tagsRes] = await Promise.all([
                     fetch('/wp-json/wp/v2/categories'),
                     fetch('/wp-json/wp/v2/tags')
                 ]);
+
+                if (!categoriesRes.ok || !tagsRes.ok) {
+                    throw new Error('Failed to fetch taxonomies');
+                }
+
                 const categoriesData = await categoriesRes.json();
                 const tagsData = await tagsRes.json();
                 
-                setCategories(categoriesData);
-                setTags(tagsData);
+                setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+                setTags(Array.isArray(tagsData) ? tagsData : []);
             } catch (error) {
                 console.error('Error fetching taxonomies:', error);
+                // Set empty arrays as fallback
+                setCategories([]);
+                setTags([]);
             }
         };
         
@@ -53,33 +66,60 @@ const EventForm = () => {
         setIsSubmitting(true);
         setMessage(null);
 
-        // Validate email
-        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
-            setMessage({ type: 'error', text: 'Please enter a valid email address.' });
-            setIsSubmitting(false);
-            return;
-        }
-
-        const data = new FormData();
-        Object.keys(formData).forEach(key => {
-            data.append(key, formData[key]);
-        });
-
         try {
+            // Check required fields
+            if (!formData.event_name || !formData.event_type || !formData.service_body) {
+                throw new Error('Please fill in all required fields: Event Name, Event Type, and Service Body');
+            }
+
+            const data = new FormData();
+            
+            // Add all form fields to FormData
+            Object.keys(formData).forEach(key => {
+                if (key === 'flyer' && formData[key] instanceof File) {
+                    data.append('flyer', formData[key]);
+                }
+                else if (Array.isArray(formData[key])) {
+                    formData[key].forEach(value => {
+                        data.append(`${key}[]`, value);
+                    });
+                }
+                else if (formData[key] != null && formData[key] !== '') {
+                    data.append(key, formData[key]);
+                }
+            });
+
+            // Log FormData for debugging
+            console.log('Form data being sent:');
+            for (let pair of data.entries()) {
+                console.log(pair[0], pair[1]);
+            }
+
+            // Get the nonce
+            const nonce = window.mayoApiSettings?.nonce || 
+                         document.querySelector('#_wpnonce')?.value || 
+                         window.wpApiSettings?.nonce;
+
             const response = await fetch('/wp-json/event-manager/v1/submit-event', {
                 method: 'POST',
                 body: data,
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                headers: {
+                    'X-WP-Nonce': nonce
+                }
             });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
+
             const result = await response.json();
-            
-            if (result.success) {
-                setMessage({ type: 'success', text: 'Event submitted successfully! Awaiting approval.' });
+            console.log('Server response:', result);
+
+            // Simplified success check
+            if (response.ok && (result.id || result.success)) {
+                setMessage({ 
+                    type: 'success', 
+                    text: 'Event submitted successfully!' 
+                });
+
+                // Reset form
                 setFormData({
                     event_name: '',
                     event_type: '',
@@ -96,13 +136,18 @@ const EventForm = () => {
                     categories: [],
                     tags: [],
                     service_body: '',
-                    email: ''
+                    email: '',
                 });
+                setUploadType(null);
             } else {
-                setMessage({ type: 'error', text: result.message });
+                throw new Error(result.message || 'Failed to submit event');
             }
         } catch (error) {
-            setMessage({ type: 'error', text: 'Error submitting event. Please try again.' });
+            console.error('Form submission error:', error);
+            setMessage({ 
+                type: 'error', 
+                text: error.message || 'Error submitting form' 
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -110,10 +155,22 @@ const EventForm = () => {
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: files ? files[0] : value
-        }));
+        
+        if (files && files[0]) {
+            const file = files[0];
+            // Set upload type for UI purposes only
+            setUploadType(file.type === 'application/pdf' ? 'pdf' : 'image');
+            // Store all files as attachments in the flyer field
+            setFormData(prev => ({
+                ...prev,
+                flyer: file
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleservice_bodyChange = (event) => {
@@ -121,6 +178,14 @@ const EventForm = () => {
             ...prev,
             service_body: event.target.value
         }));
+    };
+
+    const clearUploads = () => {
+        setFormData(prev => ({
+            ...prev,
+            flyer: null
+        }));
+        setUploadType(null);
     };
 
     if (error) return <div className="mayo-error">{error}</div>;
@@ -164,7 +229,7 @@ const EventForm = () => {
                         onChange={handleservice_bodyChange}
                         required
                     >
-                        <option value="" disabled>Select a service body</option>
+                        <option value="">Select a service body</option>
                         {serviceBodies.map((body) => (
                             <option key={body.id} value={body.id}>
                                 {body.name} ({body.id})
@@ -259,14 +324,46 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="flyer">Event Flyer (Allowed file types: .jpg, .jpeg, .png, .gif)</label>
-                    <input
-                        type="file"
-                        id="flyer"
-                        name="flyer"
-                        accept="image/*"
-                        onChange={handleChange}
-                    />
+                    <label>Event Flyer</label>
+                    <div className="mayo-upload-section">
+                        {!uploadType && (
+                            <>
+                                <input
+                                    type="file"
+                                    id="flyer-upload"
+                                    name="flyer"
+                                    accept="image/*,.pdf"
+                                    onChange={handleChange}
+                                    style={{ display: 'none' }}
+                                />
+                                <label htmlFor="flyer-upload" className="mayo-upload-button">
+                                    Upload Flyer
+                                </label>
+                                <p className="mayo-upload-info">
+                                    Supported file types: Images (.jpg, .jpeg, .png, .gif) or PDF
+                                </p>
+                            </>
+                        )}
+
+                        {uploadType && (
+                            <div className="mayo-upload-preview">
+                                <p>
+                                    Selected {uploadType === 'pdf' ? 'PDF' : 'Image'}: {' '}
+                                    {uploadType === 'pdf' ? 
+                                        (formData.pdf_file?.name || 'No file selected') : 
+                                        (formData.flyer?.name || 'No file selected')
+                                    }
+                                </p>
+                                <button 
+                                    type="button" 
+                                    onClick={clearUploads}
+                                    className="mayo-clear-upload"
+                                >
+                                    Clear Upload
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="mayo-form-field">
@@ -305,19 +402,19 @@ const EventForm = () => {
                 <div className="mayo-form-field">
                     <label>Categories</label>
                     <div className="mayo-taxonomy-list">
-                        {categories.map(category => (
-                            <label key={category.id} className="mayo-taxonomy-item">
+                        {Array.isArray(categories) && categories.map(category => (
+                            <label key={category?.id} className="mayo-taxonomy-item">
                                 <input
                                     type="checkbox"
-                                    checked={formData.categories.includes(category.id)}
+                                    checked={formData.categories.includes(category?.id)}
                                     onChange={(e) => {
                                         const newCategories = e.target.checked
-                                            ? [...formData.categories, category.id]
-                                            : formData.categories.filter(id => id !== category.id);
+                                            ? [...formData.categories, category?.id]
+                                            : formData.categories.filter(id => id !== category?.id);
                                         setFormData({...formData, categories: newCategories});
                                     }}
                                 />
-                                {category.name}
+                                {category?.name || 'Unnamed Category'}
                             </label>
                         ))}
                     </div>
@@ -326,19 +423,19 @@ const EventForm = () => {
                 <div className="mayo-form-field">
                     <label>Tags</label>
                     <div className="mayo-taxonomy-list">
-                        {tags.map(tag => (
-                            <label key={tag.id} className="mayo-taxonomy-item">
+                        {Array.isArray(tags) && tags.map(tag => (
+                            <label key={tag?.id || 'default'} className="mayo-taxonomy-item">
                                 <input
                                     type="checkbox"
-                                    checked={formData.tags.includes(tag.name)}
+                                    checked={formData.tags.includes(tag?.name)}
                                     onChange={(e) => {
                                         const newTags = e.target.checked
-                                            ? [...formData.tags, tag.name]
-                                            : formData.tags.filter(name => name !== tag.name);
+                                            ? [...formData.tags, tag?.name]
+                                            : formData.tags.filter(name => name !== tag?.name);
                                         setFormData({...formData, tags: newTags});
                                     }}
                                 />
-                                {tag.name}
+                                {tag?.name || 'Unnamed Tag'}
                             </label>
                         ))}
                     </div>
@@ -354,7 +451,7 @@ const EventForm = () => {
 
                 {message && (
                     <div className={`mayo-message mayo-message-${message.type}`}>
-                        {message.text}
+                        {typeof message.text === 'string' ? message.text : 'An error occurred while submitting the form. Please try again.'}
                     </div>
                 )}
             </form>

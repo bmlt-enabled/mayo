@@ -8,6 +8,7 @@ const EventDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { getServiceBodyName } = useEventProvider();
+    const [showPdfEmbed, setShowPdfEmbed] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -63,6 +64,52 @@ const EventDetails = () => {
                     <header className="mayo-single-event-header">
                         <h1 className="mayo-single-event-title" dangerouslySetInnerHTML={{ __html: title.rendered }} />
                     </header>
+
+                    {event.meta.event_pdf_url && (
+                        <div className="mayo-single-event-attachments">
+                            <h3>Event Flyer</h3>
+                            <div className="mayo-event-pdf">
+                                <div className="mayo-pdf-actions">
+                                    <button 
+                                        className="mayo-pdf-toggle"
+                                        onClick={() => setShowPdfEmbed(!showPdfEmbed)}
+                                    >
+                                        {showPdfEmbed ? 'Hide Flyer' : 'View Flyer'}
+                                    </button>
+                                    <a 
+                                        href={event.meta.event_pdf_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mayo-pdf-link"
+                                    >
+                                        Download Flyer
+                                    </a>
+                                </div>
+                                
+                                {showPdfEmbed && (
+                                    <div className="mayo-pdf-embed">
+                                        <object
+                                            data={event.meta.event_pdf_url}
+                                            type="application/pdf"
+                                            width="100%"
+                                            height="400px"
+                                        >
+                                            <p>
+                                                Your browser doesn't support PDF embedding. You can{' '}
+                                                <a 
+                                                    href={event.meta.event_pdf_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    download the flyer here
+                                                </a>.
+                                            </p>
+                                        </object>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {event.featured_image && (
                         <div className="mayo-single-event-image">
