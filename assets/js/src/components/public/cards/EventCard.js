@@ -125,8 +125,7 @@ const EventCard = ({ event, timeFormat }) => {
                                     <div className="mayo-pdf-actions">
                                         <a 
                                             href={event.meta.event_pdf_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                            download
                                             className="mayo-pdf-link"
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -162,8 +161,7 @@ const EventCard = ({ event, timeFormat }) => {
                                 <div className="mayo-pdf-actions">
                                     <a 
                                         href={event.featured_image}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        download
                                         className="mayo-pdf-link"
                                         onClick={(e) => e.stopPropagation()}
                                     >

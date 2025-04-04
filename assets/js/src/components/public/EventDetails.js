@@ -72,8 +72,7 @@ const EventDetails = () => {
                                 <div className="mayo-pdf-actions">
                                     <a 
                                         href={event.meta.event_pdf_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        download
                                         className="mayo-pdf-link"
                                     >
                                         Download Flyer
@@ -108,8 +107,7 @@ const EventDetails = () => {
                             <div className="mayo-pdf-actions">
                             <a 
                                 href={event.featured_image}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                download
                                 className="mayo-pdf-link"
                             >
                                 Download Flyer
