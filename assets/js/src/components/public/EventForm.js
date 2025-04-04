@@ -392,10 +392,7 @@ const EventForm = () => {
                             <div className="mayo-upload-preview">
                                 <p>
                                     Selected {uploadType === 'pdf' ? 'PDF' : 'Image'}: {' '}
-                                    {uploadType === 'pdf' ? 
-                                        (formData.pdf_file?.name || 'No file selected') : 
-                                        (formData.flyer?.name || 'No file selected')
-                                    }
+                                    {formData.flyer?.name || 'No file selected'}
                                 </p>
                                 <button 
                                     type="button" 
