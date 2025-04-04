@@ -394,7 +394,6 @@ class Rest {
     }
 
     public static function bmltenabled_mayo_update_settings($request) {
-        // Check permissions again (this is already checked by permission_callback but adding for security)
         if (!current_user_can('manage_options')) {
             return new \WP_Error(
                 'rest_forbidden',
@@ -406,11 +405,20 @@ class Rest {
         $params = $request->get_params();
         $settings = [];
 
-        // Accept either bmlt_root_server or rootserver parameter for backward compatibility
+        // Validate HTTPS URL
         if (isset($params['bmlt_root_server'])) {
-            $settings['bmlt_root_server'] = esc_url_raw(trim($params['bmlt_root_server']));
-        } elseif (isset($params['rootserver'])) {
-            $settings['bmlt_root_server'] = esc_url_raw(trim($params['rootserver']));
+            $url = esc_url_raw(trim($params['bmlt_root_server']));
+            
+            // Check if URL uses HTTPS
+            if (!empty($url) && strpos($url, 'https://') !== 0) {
+                return new \WP_Error(
+                    'invalid_url_protocol',
+                    __('BMLT Root Server URL must use HTTPS protocol.'),
+                    ['status' => 400]
+                );
+            }
+            
+            $settings['bmlt_root_server'] = $url;
         }
 
         update_option('mayo_settings', $settings);
