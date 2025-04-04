@@ -112,17 +112,16 @@ const EventForm = () => {
                 if (key === 'flyer' && formData[key] instanceof File) {
                     data.append('flyer', formData[key]);
                 }
-                else if (Array.isArray(formData[key])) {
-                    formData[key].forEach(value => {
-                        data.append(`${key}[]`, value);
-                    });
+                // Convert arrays to comma-separated strings for categories and tags
+                else if (key === 'categories' || key === 'tags') {
+                    data.append(key, formData[key].join(','));
                 }
+                // Handle other fields
                 else if (formData[key] != null && formData[key] !== '') {
                     data.append(key, formData[key]);
                 }
             });
 
-            // Remove debug logging
             const nonce = window.mayoApiSettings?.nonce || 
                          document.querySelector('#_wpnonce')?.value || 
                          window.wpApiSettings?.nonce;
