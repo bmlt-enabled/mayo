@@ -265,4 +265,12 @@
     color: #757575;
     font-style: italic;
     margin: 4px 0;
+}
+
+.mayo-invalid-url input {
+    border-color: #cc1818;
+}
+
+.mayo-invalid-url .components-text-control__help {
+    color: #cc1818;
 } 
