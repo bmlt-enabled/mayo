@@ -11,6 +11,7 @@ class Frontend {
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
     }
 
+
     public static function render_event_form($atts = []) {
         $defaults = [
             'additional_required_fields' => ''
@@ -112,6 +113,7 @@ class Frontend {
                 ['wp-components'],
                 '1.0'
             );
+            wp_enqueue_style('dashicons');
         }
 
         wp_localize_script('mayo-public', 'mayoApiSettings', [

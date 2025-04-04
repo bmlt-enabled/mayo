@@ -1,6 +1,9 @@
 # Release Notes
 
-### 1.1.0 (UNRELEASED)
+### 1.1.1 (April 4, 2025)
+* Fix RSS icon which wasn't showing for non-logged in users.
+
+### 1.1.0 (April 4, 2025)
 * Added the ability to upload PDFs and display them.
 * Added the ability to set other required fields on the event submission form.
 * Added custom classes for tags, categories, service body and event type [#51].
