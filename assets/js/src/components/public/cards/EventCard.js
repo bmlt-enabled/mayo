@@ -85,9 +85,9 @@ const EventCard = ({ event, timeFormat }) => {
                             <div dangerouslySetInnerHTML={{ __html: event.content.rendered }} />
                         </div>
 
-                        {event.meta.event_pdf_url && (
-                            <div className="mayo-event-attachments">
-                                <h4>Attachments</h4>
+                        <div className="mayo-event-attachments">
+                            <h4>Event Flyer</h4>
+                            {event.meta.event_pdf_url && (
                                 <div className="mayo-event-pdf">
                                     <div className="mayo-pdf-actions">
                                         <a 
@@ -103,10 +103,10 @@ const EventCard = ({ event, timeFormat }) => {
                                     
                                     <div className="mayo-pdf-embed">
                                         <object
-                                            data={`${event.meta.event_pdf_url}#view=FitH&toolbar=0&navpanes=0&scrollbar=0`}
+                                            data={`${event.meta.event_pdf_url}#view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
                                             type="application/pdf"
                                             width="100%"
-                                            height="400px"
+                                            height="500"
                                         >
                                             <p>
                                                 Your browser doesn't support PDF embedding. You can{' '}
@@ -122,17 +122,28 @@ const EventCard = ({ event, timeFormat }) => {
                                         </object>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {event.featured_image && (
+                            {event.featured_image && (
                             <div className="mayo-event-image">
-                                <h4>Event Flyer</h4>
+                                <div className="mayo-pdf-actions">
+                                    <a 
+                                        href={event.featured_image}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mayo-pdf-link"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        Download Flyer
+                                    </a>
+                                </div>
                                 <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
                                     <img src={event.featured_image} alt={event.title.rendered} />
                                 </a>
                             </div>
                         )}
+
+                        </div>
 
                         {(event.meta.location_name || event.meta.location_address || event.meta.location_details) && (
                             <div className="mayo-event-location">
