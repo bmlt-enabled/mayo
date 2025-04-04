@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 get_header(); ?>
 
-<div id="mayo-archive-root">Sup fool</div>
+<div id="mayo-archive-root">Loading...</div>
 
 <?php 
 wp_enqueue_script('mayo-public');

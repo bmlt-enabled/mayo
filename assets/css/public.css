@@ -1247,4 +1247,34 @@
 .mayo-file-input:focus + .mayo-upload-button {
     outline: 2px solid #2271b1;
     outline-offset: 2px;
+}
+
+.mayo-event-list-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.mayo-rss-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #ff6b00;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.mayo-rss-link:hover {
+    background: #f0f1f2;
+    color: #e65c00;
+}
+
+.mayo-rss-link .dashicons {
+    margin-right: 6px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
 } 

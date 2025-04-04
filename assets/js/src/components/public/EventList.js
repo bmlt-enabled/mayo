@@ -30,6 +30,30 @@ const EventList = ({ widget = false, settings = {} }) => {
         return urlParams.has(key) ? urlParams.get(key) : defaultValue;
     };
 
+    const getRssUrl = () => {
+        const baseUrl = '/';
+        const params = new URLSearchParams();
+
+        params.append('feed', 'mayo_events');
+        
+        // Use the same parameter logic as fetchEvents
+        let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
+        let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
+        let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
+        let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+        let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
+        
+        // Add parameters only if they have non-empty values
+        if (eventType) params.append('event_type', eventType);
+        if (serviceBody) params.append('service_body', serviceBody);
+        if (relation !== 'AND') params.append('relation', relation);
+        if (categories) params.append('categories', categories);
+        if (tags) params.append('tags', tags);
+        
+        const queryString = params.toString();
+        return `${baseUrl}${queryString ? '?' + queryString : ''}`;
+    };
+
     const fetchEvents = async () => {
         try {
             let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
@@ -109,6 +133,18 @@ const EventList = ({ widget = false, settings = {} }) => {
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
+            <div className="mayo-event-list-header">
+                <a 
+                    href={getRssUrl()} 
+                    className="mayo-rss-link" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    title="Calendar RSS Feed"
+                >
+                    <span className="dashicons dashicons-rss"></span>
+                </a>
+            </div>
+            
             {isWidget ? (
                 <div className="mayo-widget-events">
                     {getPaginatedEvents().map(event => (
