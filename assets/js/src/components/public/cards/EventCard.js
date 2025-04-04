@@ -85,6 +85,46 @@ const EventCard = ({ event, timeFormat }) => {
                             <div dangerouslySetInnerHTML={{ __html: event.content.rendered }} />
                         </div>
 
+                        {event.meta.event_pdf_url && (
+                            <div className="mayo-event-attachments">
+                                <h4>Attachments</h4>
+                                <div className="mayo-event-pdf">
+                                    <div className="mayo-pdf-actions">
+                                        <a 
+                                            href={event.meta.event_pdf_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mayo-pdf-link"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Download Flyer
+                                        </a>
+                                    </div>
+                                    
+                                    <div className="mayo-pdf-embed">
+                                        <object
+                                            data={`${event.meta.event_pdf_url}#view=FitH`}
+                                            type="application/pdf"
+                                            width="100%"
+                                            height="400px"
+                                        >
+                                            <p>
+                                                Your browser doesn't support PDF embedding. You can{' '}
+                                                <a 
+                                                    href={event.meta.event_pdf_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    download the flyer here
+                                                </a>.
+                                            </p>
+                                        </object>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {event.featured_image && (
                             <div className="mayo-event-image">
                                 <h4>Event Flyer</h4>
@@ -172,6 +212,11 @@ const EventCard = ({ event, timeFormat }) => {
                     </div>
                 </div>
             )}
+
+            {/* Add this for debugging */}
+            <div style={{display: 'none'}}>
+                PDF URL: {event.meta.event_pdf_url || 'No PDF URL'}
+            </div>
         </div>
     );
 };

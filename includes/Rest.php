@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use DateTime;
 use DateInterval;
+use Imagick;
 
 class Rest {
     public static function init() {
@@ -12,7 +13,10 @@ class Rest {
             register_rest_route('event-manager/v1', '/submit-event', [
                 'methods' => 'POST',
                 'callback' => [__CLASS__, 'bmltenabled_mayo_submit_event'],
-                'permission_callback' => '__return_true',
+                'permission_callback' => function() {
+                    // Allow unauthenticated users to submit events
+                    return true;
+                },
             ]);
 
             register_rest_route('event-manager/v1', '/events', [
@@ -47,7 +51,7 @@ class Rest {
     public static function bmltenabled_mayo_submit_event($request) {
         $params = $request->get_params();
         
-        // Create the post
+        // Create the post first
         $post_data = [
             'post_title'   => sanitize_text_field($params['event_name']),
             'post_content' => sanitize_textarea_field($params['description'] ?? ''),
@@ -64,21 +68,7 @@ class Rest {
             ], 400);
         }
 
-        // Handle file upload
-        $nonce = wp_create_nonce('wp_rest');
-        if (!empty($_FILES['flyer']) && wp_verify_nonce($nonce, 'wp_rest')) {
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-            
-            $attachment_id = media_handle_upload('flyer', $post_id);
-            
-            if (!is_wp_error($attachment_id)) {
-                set_post_thumbnail($post_id, $attachment_id);
-            }
-        }
-
-        // Add event metadata
+        // Add all event metadata first
         add_post_meta($post_id, 'event_type', sanitize_text_field($params['event_type']));
         add_post_meta($post_id, 'event_start_date', sanitize_text_field($params['event_start_date']));
         add_post_meta($post_id, 'event_end_date', sanitize_text_field($params['event_end_date']));
@@ -108,13 +98,68 @@ class Rest {
             wp_set_post_tags($post_id, $params['tags']);
         }
 
+        // Handle file uploads
+        $attachment_ids = [];
+        if (!empty($_FILES)) {
+            if (!function_exists('wp_handle_upload')) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+            }
+            if (!function_exists('wp_generate_attachment_metadata')) {
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+            }
+            if (!function_exists('wp_insert_attachment')) {
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+            }
+
+            foreach ($_FILES as $file_key => $file) {
+                // Skip empty files
+                if (empty($file['name']) || $file['size'] <= 0) {
+                    continue;
+                }
+                
+                $uploaded_file = wp_handle_upload($file, array('test_form' => false));
+                
+                if (isset($uploaded_file['error'])) {
+                    error_log('Upload error: ' . $uploaded_file['error']);
+                    continue;
+                }
+                
+                // Prepare attachment data
+                $attachment = array(
+                    'guid'           => $uploaded_file['url'],
+                    'post_mime_type' => $uploaded_file['type'],
+                    'post_title'     => sanitize_file_name(basename($uploaded_file['file'])),
+                    'post_content'   => '',
+                    'post_status'    => 'inherit'
+                );
+                
+                // Insert attachment
+                $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file'], $post_id);
+                if (!is_wp_error($attachment_id)) {
+                    $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
+                    wp_update_attachment_metadata($attachment_id, $attachment_data);
+                    $attachment_ids[] = $attachment_id;
+
+                    // Handle PDF files
+                    if ($uploaded_file['type'] === 'application/pdf') {
+                        update_post_meta($post_id, 'event_pdf_url', $uploaded_file['url']);
+                        update_post_meta($post_id, 'event_pdf_id', $attachment_id);
+                    } 
+                    // Handle image files
+                    elseif (strpos($uploaded_file['type'], 'image/') === 0) {
+                        set_post_thumbnail($post_id, $attachment_id);
+                    }
+                }
+            }
+        }
+
         // Send email notification
         self::send_event_submission_email($post_id, $params);
 
-        return new \WP_REST_Response([
-            'success' => true,
-            'post_id' => $post_id
-        ], 200);
+        // Format response data
+        $formatted_event = self::format_event($post_id);
+        
+        return new \WP_REST_Response($formatted_event, 200);
     }
 
     private static function send_event_submission_email($post_id, $params) {
@@ -270,34 +315,77 @@ class Rest {
         return $event;
     }
 
-    private static function format_event($post) {
-        try {
-            return [
-                'id' => $post->ID,
-                'title' => ['rendered' => $post->post_title],
-                'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
-                'content' => ['rendered' => apply_filters('the_content', $post->post_content)],
-                'link' => get_permalink($post->ID),
-                'categories' => wp_get_post_categories($post->ID, ['fields' => 'all']),
-                'tags' => wp_get_post_tags($post->ID, ['fields' => 'all']),
-                'meta' => [
-                    'event_type' => get_post_meta($post->ID, 'event_type', true),
-                    'event_start_date' => get_post_meta($post->ID, 'event_start_date', true),
-                    'event_end_date' => get_post_meta($post->ID, 'event_end_date', true),
-                    'event_start_time' => get_post_meta($post->ID, 'event_start_time', true),
-                    'event_end_time' => get_post_meta($post->ID, 'event_end_time', true),
-                    'timezone' => get_post_meta($post->ID, 'timezone', true),
-                    'location_name' => get_post_meta($post->ID, 'location_name', true),
-                    'location_address' => get_post_meta($post->ID, 'location_address', true),
-                    'location_details' => get_post_meta($post->ID, 'location_details', true),
-                    'recurring_pattern' => get_post_meta($post->ID, 'recurring_pattern', true),
-                    'service_body' => get_post_meta($post->ID, 'service_body', true),
-                ],
-                'recurring' => false
-            ];
-        } catch (\Exception $e) {
-            throw $e;
+    /**
+     * Format event data for API response
+     */
+    public static function format_event($post_id) {
+        $post = get_post($post_id);
+        
+        if (!$post) {
+            return null;
         }
+        
+        $data = [
+            'id' => $post->ID,
+            'title' => [
+                'rendered' => get_the_title($post)
+            ],
+            'content' => [
+                'rendered' => apply_filters('the_content', $post->post_content)
+            ],
+            'link' => get_permalink($post),
+            'meta' => []
+        ];
+        
+        // Get featured image
+        if (has_post_thumbnail($post)) {
+            $data['featured_image'] = get_the_post_thumbnail_url($post, 'large');
+        }
+        
+        // Explicitly get and add PDF data
+        $event_pdf_url = get_post_meta($post->ID, 'event_pdf_url', true);
+        $event_pdf_id = get_post_meta($post->ID, 'event_pdf_id', true);
+
+        if ($event_pdf_url) {
+            $data['meta']['event_pdf_url'] = $event_pdf_url;
+            $data['meta']['event_pdf_id'] = $event_pdf_id;
+        }
+
+        // Add debugging
+        error_log('Event PDF data for post ' . $post->ID . ': ' . json_encode([
+            'url' => $event_pdf_url,
+            'id' => $event_pdf_id
+        ]));
+        
+        // Get event meta fields
+        $meta_fields = [
+            'event_type',
+            'event_start_date',
+            'event_end_date',
+            'event_start_time',
+            'event_end_time',
+            'timezone',
+            'recurring_pattern',
+            'location_name',
+            'location_address',
+            'location_details',
+            'service_body',
+            'event_pdf_url',  // Add these to ensure they're included
+            'event_pdf_id'
+        ];
+        
+        foreach ($meta_fields as $field) {
+            $value = get_post_meta($post->ID, $field, true);
+            if ($value) {
+                $data['meta'][$field] = $value;
+            }
+        }
+        
+        // Get categories and tags
+        $data['categories'] = static::get_terms($post, 'category');
+        $data['tags'] = static::get_terms($post, 'post_tag');
+        
+        return $data;
     }
 
     public static function bmltenabled_mayo_get_settings() {
@@ -350,6 +438,43 @@ class Rest {
         }
 
         return new \WP_Error('no_event', 'Event not found', ['status' => 404]);
+    }
+
+    /**
+     * Get terms for a post
+     * 
+     * @param WP_Post|int $post Post object or post ID
+     * @param string $taxonomy Taxonomy name
+     * @return array Array of term objects
+     */
+    private static function get_terms($post, $taxonomy) {
+        $post_id = is_object($post) ? $post->ID : $post;
+        
+        $terms = wp_get_post_terms($post_id, $taxonomy, array(
+            'fields' => 'all'
+        ));
+
+        if (is_wp_error($terms)) {
+            return array();
+        }
+
+        return array_map(function($term) {
+            return array(
+                'id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug,
+                'link' => get_term_link($term)
+            );
+        }, $terms);
+    }
+
+    // Add this new method to ensure nonce is available
+    public static function enqueue_scripts() {
+        // Add this to your plugin's enqueue_scripts action
+        wp_localize_script('mayo-public', 'mayoApiSettings', [
+            'root' => esc_url_raw(rest_url()),
+            'nonce' => wp_create_nonce('wp_rest')
+        ]);
     }
 }
 
