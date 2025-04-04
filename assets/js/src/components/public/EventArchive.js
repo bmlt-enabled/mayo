@@ -76,7 +76,7 @@ const EventArchive = () => {
                                                 {pdfEmbedStates[event.id] && (
                                                     <div className="mayo-pdf-embed">
                                                         <object
-                                                            data={`${event.meta.event_pdf_url}#view=FitH`}
+                                                            data={`${event.meta.event_pdf_url}#view=FitH&toolbar=0&navpanes=0&scrollbar=0`}
                                                             type="application/pdf"
                                                             width="100%"
                                                             height="400px"
