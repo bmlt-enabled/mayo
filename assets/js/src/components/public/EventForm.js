@@ -3,6 +3,32 @@ import { useEventProvider } from '../providers/EventProvider';
 import { uploadPDF } from '../../util';
 
 const EventForm = () => {
+    // Get the settings from the data attribute
+    const formElement = document.getElementById('mayo-event-form');
+    const settingsKey = formElement?.dataset?.settings;
+    const settings = window[settingsKey] || {};
+    
+    // Define default required fields that cannot be overridden
+    const defaultRequiredFields = [
+        'event_name',
+        'event_type',
+        'service_body',
+        'email',
+        'event_start_date',
+        'event_start_time',
+        'event_end_time',
+        'event_end_date',
+        'timezone'
+    ];
+
+    // Get additional required fields from settings
+    const additionalRequiredFields = settings.additionalRequiredFields ? 
+        settings.additionalRequiredFields.split(',').map(field => field.trim()) : 
+        [];
+
+    // Combine both arrays for all required fields
+    const allRequiredFields = [...defaultRequiredFields, ...additionalRequiredFields];
+
     const [formData, setFormData] = useState({
         event_name: '',
         event_type: '',
@@ -67,9 +93,16 @@ const EventForm = () => {
         setMessage(null);
 
         try {
-            // Check required fields
-            if (!formData.event_name || !formData.event_type || !formData.service_body) {
-                throw new Error('Please fill in all required fields: Event Name, Event Type, and Service Body');
+            // Check all required fields
+            const missingFields = allRequiredFields.filter(field => {
+                if (field === 'flyer') {
+                    return !formData.flyer;
+                }
+                return !formData[field];
+            });
+
+            if (missingFields.length > 0) {
+                throw new Error(`Please fill in all required fields: ${missingFields.join(', ')}`);
             }
 
             const data = new FormData();
@@ -89,13 +122,7 @@ const EventForm = () => {
                 }
             });
 
-            // Log FormData for debugging
-            console.log('Form data being sent:');
-            for (let pair of data.entries()) {
-                console.log(pair[0], pair[1]);
-            }
-
-            // Get the nonce
+            // Remove debug logging
             const nonce = window.mayoApiSettings?.nonce || 
                          document.querySelector('#_wpnonce')?.value || 
                          window.wpApiSettings?.nonce;
@@ -110,9 +137,7 @@ const EventForm = () => {
             });
 
             const result = await response.json();
-            console.log('Server response:', result);
 
-            // Simplified success check
             if (response.ok && (result.id || result.success)) {
                 setMessage({ 
                     type: 'success', 
@@ -143,7 +168,7 @@ const EventForm = () => {
                 throw new Error(result.message || 'Failed to submit event');
             }
         } catch (error) {
-            console.error('Form submission error:', error);
+            // Remove console.error
             setMessage({ 
                 type: 'error', 
                 text: error.message || 'Error submitting form' 
@@ -188,31 +213,40 @@ const EventForm = () => {
         setUploadType(null);
     };
 
+    // Update form field rendering to use dynamic required attribute
+    const isFieldRequired = (fieldName) => {
+        return allRequiredFields.includes(fieldName);
+    };
+
     if (error) return <div className="mayo-error">{error}</div>;
 
     return (
         <div className="mayo-event-form">
             <form onSubmit={handleSubmit}>
                 <div className="mayo-form-field">
-                    <label htmlFor="event_name">Event Name *</label>
+                    <label htmlFor="event_name">
+                        Event Name {isFieldRequired('event_name') && '*'}
+                    </label>
                     <input
                         type="text"
                         id="event_name"
                         name="event_name"
                         value={formData.event_name}
                         onChange={handleChange}
-                        required
+                        required={isFieldRequired('event_name')}
                     />
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="event_type">Event Type *</label>
+                    <label htmlFor="event_type">
+                        Event Type {isFieldRequired('event_type') && '*'}
+                    </label>
                     <select
                         id="event_type"
                         name="event_type"
                         value={formData.event_type}
                         onChange={handleChange}
-                        required
+                        required={isFieldRequired('event_type')}
                     >
                         <option value="">Select Event Type</option>
                         <option value="Service">Service</option>
@@ -296,13 +330,15 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="timezone">Timezone</label>
+                    <label htmlFor="timezone">
+                        Timezone {isFieldRequired('timezone') && '*'}
+                    </label>
                     <select
                         id="timezone"
                         name="timezone"
                         value={formData.timezone}
                         onChange={handleChange}
-                        required
+                        required={isFieldRequired('timezone')}
                     >
                         <option value="America/New_York">Eastern Time</option>
                         <option value="America/Chicago">Central Time</option>
@@ -314,17 +350,22 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="description">Description</label>
+                    <label htmlFor="description">
+                        Description {isFieldRequired('description') && '*'}
+                    </label>
                     <textarea
                         id="description"
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
+                        required={isFieldRequired('description')}
                     />
                 </div>
 
                 <div className="mayo-form-field">
-                    <label>Event Flyer</label>
+                    <label>
+                        Event Flyer {isFieldRequired('flyer') && '*'}
+                    </label>
                     <div className="mayo-upload-section">
                         {!uploadType && (
                             <>
@@ -334,13 +375,15 @@ const EventForm = () => {
                                     name="flyer"
                                     accept="image/*,.pdf"
                                     onChange={handleChange}
-                                    style={{ display: 'none' }}
+                                    required={isFieldRequired('flyer')}
+                                    className="mayo-file-input"
                                 />
                                 <label htmlFor="flyer-upload" className="mayo-upload-button">
                                     Upload Flyer
                                 </label>
                                 <p className="mayo-upload-info">
                                     Supported file types: Images (.jpg, .jpeg, .png, .gif) or PDF
+                                    {isFieldRequired('flyer') && ' (Required)'}
                                 </p>
                             </>
                         )}

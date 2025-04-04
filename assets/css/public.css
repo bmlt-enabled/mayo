@@ -1232,4 +1232,19 @@
     padding: 4px 8px;
     text-align: center;
     height: 28px;
+}
+
+.mayo-file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+/* Add focus styles for accessibility */
+.mayo-file-input:focus + .mayo-upload-button {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
 } 

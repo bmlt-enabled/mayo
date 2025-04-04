@@ -91,23 +91,56 @@ const ShortcodesDocs = () => {
                 <p>Use this shortcode to display a form that allows users to submit events:</p>
                 <pre><code>[mayo_event_form]</code></pre>
                 
-                <h3>Features</h3>
-                <ul className="ul-disc">
-                    <li>Event name and type selection</li>
-                    <li>Date and time selection</li>
-                    <li>Event description with rich text editor</li>
-                    <li>Event flyer upload</li>
-                    <li>Location details (name, address, additional info)</li>
-                    <li>Category and tag selection</li>
-                    <li>Recurring event patterns</li>
+                <h3>Default Required Fields</h3>
+                <p>The following fields are always required and cannot be overridden:</p>
+                <ul>
+                    <li>Event Name (event_name)</li>
+                    <li>Event Type (event_type)</li>
+                    <li>Service Body (service_body)</li>
+                    <li>Email (email)</li>
+                    <li>Start Date (event_start_date)</li>
+                    <li>Start Time (event_start_time)</li>
+                    <li>End Date (event_end_date)</li>
+                    <li>End Time (event_end_time)</li>
+                    <li>Timezone (timezone)</li>
                 </ul>
 
+                <h3>Optional Parameters</h3>
+                <table className="widefat">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                            <th>Available Fields</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>additional_required_fields</td>
+                            <td>Comma-separated list of additional fields that should be required</td>
+                            <td>empty (no additional required fields)</td>
+                            <td>
+                                <ul>
+                                    <li>description</li>
+                                    <li>location_name</li>
+                                    <li>location_address</li>
+                                    <li>location_details</li>
+                                    <li>flyer</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Example with Additional Required Fields</h3>
+                <pre><code>[mayo_event_form additional_required_fields="flyer,location_name,location_address"]</code></pre>
+                
                 <h3>Notes</h3>
                 <ul className="ul-disc">
-                    <li>Submitted events are saved as pending and require admin approval</li>
-                    <li>Required fields are marked with an asterisk (*)</li>
-                    <li>Images are automatically processed and stored in the media library</li>
-                    <li>Form includes built-in validation and error handling</li>
+                    <li>Default required fields are always enforced</li>
+                    <li>Additional required fields will be marked with an asterisk (*)</li>
+                    <li>Form validation will ensure all required fields are filled</li>
                 </ul>
             </div>
         </div>

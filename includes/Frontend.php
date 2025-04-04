@@ -11,8 +11,25 @@ class Frontend {
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
     }
 
-    public static function render_event_form() {
-        return '<div id="mayo-event-form"></div>';
+    public static function render_event_form($atts = []) {
+        $defaults = [
+            'additional_required_fields' => ''
+        ];
+        $atts = shortcode_atts($defaults, $atts);
+        
+        // Create unique settings for this instance
+        static $instance = 0;
+        $instance++;
+        
+        $settings_key = "mayoEventFormSettings_$instance";
+        wp_localize_script('mayo-public', $settings_key, [
+            'additionalRequiredFields' => $atts['additional_required_fields']
+        ]);
+        
+        return sprintf(
+            '<div id="mayo-event-form" data-settings="%s"></div>',
+            esc_attr($settings_key)
+        );
     }
 
     public static function render_event_list($atts = [], $content = null, $tag = '') {
