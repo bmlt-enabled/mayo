@@ -2,14 +2,47 @@ import { useState } from '@wordpress/element';
 import { useEventProvider } from '../../providers/EventProvider';
 import { formatTime, formatTimezone, formatRecurringPattern, dayNames, monthNames } from '../../../util';
 
+// Helper function to convert emoji and special characters to Unicode
+const convertToUnicode = (str) => {
+    return str.split('')
+        .map(char => {
+            const code = char.codePointAt(0);
+            return code > 127 ? `u${code}` : char;
+        })
+        .join('');
+};
+
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    // Create date object for display (using only the date part)
     const eventDate = new Date(event.meta.event_start_date + 'T00:00:00');
     const { getServiceBodyName } = useEventProvider();
 
+    // Generate class names with emoji handling
+    const categoryClasses = event.categories
+        .map(cat => `mayo-event-category-${convertToUnicode(cat.name).toLowerCase().replace(/\s+/g, '-')}`)
+        .join(' ');
+
+    const tagClasses = event.tags
+        .map(tag => `mayo-event-tag-${convertToUnicode(tag.name).toLowerCase().replace(/\s+/g, '-')}`)
+        .join(' ');
+
+    // Add event type class
+    const eventTypeClass = event.meta.event_type ? 
+        `mayo-event-type-${convertToUnicode(event.meta.event_type).toLowerCase().replace(/\s+/g, '-')}` : 
+        '';
+
+    const serviceBodyClass = `mayo-event-service-body-${convertToUnicode(getServiceBodyName(event.meta.service_body)).toLowerCase().replace(/\s+/g, '-')}`;
+
+    const cardClasses = [
+        'mayo-event-card',
+        categoryClasses,
+        tagClasses,
+        eventTypeClass,
+        serviceBodyClass
+    ].filter(Boolean).join(' ');
+
     return (
-        <div className="mayo-event-card">
+        <div className={cardClasses}>
             <div 
                 className="mayo-event-header"
                 onClick={() => setIsExpanded(!isExpanded)}
