@@ -65,8 +65,7 @@ const EventArchive = () => {
                                                     </button>
                                                     <a 
                                                         href={event.meta.event_pdf_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
+                                                        download
                                                         className="mayo-pdf-link"
                                                     >
                                                         Download Flyer
