@@ -27,7 +27,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
 require_once __DIR__ . '/includes/Frontend.php';
 require_once __DIR__ . '/includes/Rest.php';
-require_once __DIR__ . '/includes/CalendarRSS.php';
+require_once __DIR__ . '/includes/CalendarFeed.php';
 
 use BmltEnabled\Mayo\Admin;
 use BmltEnabled\Mayo\Frontend;

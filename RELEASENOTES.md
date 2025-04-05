@@ -1,6 +1,7 @@
 # Release Notes
 
 ### 1.1.1 (April 4, 2025)
+* Switch to ICS format for Calendar Feed.
 * Fix RSS icon which wasn't showing for non-logged in users.
 
 ### 1.1.0 (April 4, 2025)

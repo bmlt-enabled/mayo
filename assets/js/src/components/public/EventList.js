@@ -139,9 +139,9 @@ const EventList = ({ widget = false, settings = {} }) => {
                     className="mayo-rss-link" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    title="Calendar RSS Feed"
+                    title="Calendar Feed"
                 >
-                    <span className="dashicons dashicons-rss"></span>
+                    <span className="dashicons dashicons-calendar"></span>
                 </a>
             </div>
             

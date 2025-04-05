@@ -27,8 +27,7 @@ const EventWidgetCard = ({ event, timeFormat }) => {
                     <div className="mayo-widget-event-pdf">
                         <a 
                             href={event.meta.event_pdf_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            download
                             className="mayo-pdf-link mayo-pdf-link-widget"
                         >
                             View Flyer
