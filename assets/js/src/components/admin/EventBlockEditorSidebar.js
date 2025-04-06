@@ -315,6 +315,7 @@ const EventBlockEditorSidebar = () => {
                     value={meta.service_body}
                     options={[
                         { label: 'Select a service body', value: '' },
+                        { label: 'Unaffiliated (0)', value: '0' },
                         ...serviceBodies.map(body => ({
                             label: `${body.name} (${body.id})`,
                             value: body.id
