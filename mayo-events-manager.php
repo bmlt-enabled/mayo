@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Mayo Events Manager
- * Description: A plugin for managing and displaying public submission, and recurring schedules.
+ * Description: A plugin for managing and displaying events.
  * Version: 1.1.3
  * Author: bmlt-enabled
  * License: MIT
