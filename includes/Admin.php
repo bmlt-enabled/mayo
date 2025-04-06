@@ -71,6 +71,15 @@ class Admin {
             'mayo-settings',
             [__CLASS__, 'render_settings_page']
         );
+
+        add_submenu_page(
+            'mayo-events',
+            'CSS Classes',
+            'CSS Classes',
+            'manage_options',
+            'mayo-css-classes',
+            [__CLASS__, 'render_css_classes_page']
+        );
     }
 
     public static function render_admin_page() {
@@ -78,7 +87,7 @@ class Admin {
     }
 
     public static function enqueue_scripts($hook) {
-        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings'])) {
+        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes'])) {
             return;
         }
 
@@ -402,5 +411,10 @@ class Admin {
     public static function render_settings_page() {
         // Output a container div for React to render into
         echo '<div id="mayo-settings-root"></div>';
+    }
+
+    public static function render_css_classes_page() {
+        // Output a container div for React to render into
+        echo '<div id="mayo-css-classes-root" class="wrap"></div>';
     }
 }
