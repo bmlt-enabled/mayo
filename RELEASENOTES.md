@@ -1,5 +1,8 @@
 # Release Notes
 
+### 1.1.2 (April 6, 2025)
+* Added Unaffiliated option for Service Body selection. [#1]
+
 ### 1.1.1 (April 4, 2025)
 * Switch to ICS format for Calendar Feed.
 * Fix RSS icon which wasn't showing for non-logged in users.

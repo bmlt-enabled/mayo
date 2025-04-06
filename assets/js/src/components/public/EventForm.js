@@ -263,6 +263,7 @@ const EventForm = () => {
                         required
                     >
                         <option value="">Select a service body</option>
+                        <option value="0">Unaffiliated (0)</option>
                         {serviceBodies.map((body) => (
                             <option key={body.id} value={body.id}>
                                 {body.name} ({body.id})
