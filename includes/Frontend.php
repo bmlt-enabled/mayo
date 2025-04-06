@@ -33,55 +33,31 @@ class Frontend {
         );
     }
 
-    public static function render_event_list($atts = [], $content = null, $tag = '') {
-        static $instance = 0;
-        $instance++;
-        
-        // Get the current filter being applied
-        $current_filter = current_filter();
-        
-        // Check if we're in a widget context
-        $is_widget = (
-            $current_filter === 'widget_text' || 
-            $current_filter === 'widget_text_content' ||
-            $current_filter === 'widget_block_content' ||
-            $current_filter === 'widget_custom_html_content' ||
-            doing_filter('dynamic_sidebar')
-        );
-
+    public static function render_event_list($atts = []) {
         $defaults = [
-            'time_format' => '12hour', // or '24hour'
+            'widget' => false,
             'per_page' => 10,
-            'show_pagination' => 'true',
-            'categories' => '',  // Comma-separated category slugs
-            'tags' => '',       // Comma-separated tag slugs
-            'event_type' => '',  // Single event type (Service, Activity)
-            'status' => 'publish',  // Single event status (publish, pending)
-            'service_body' => '',  // Comma-separated service body IDs
+            'show_pagination' => true,
+            'time_format' => '12hour',
+            'event_type' => '',
+            'service_body' => '',
+            'relation' => 'AND',
+            'categories' => '',
+            'tags' => '',
+            'source_ids' => ''
         ];
-        $atts = shortcode_atts($defaults, $atts);
+
+        $settings = wp_parse_args($atts, $defaults);
         
-        wp_enqueue_script('mayo-public');
-        wp_enqueue_style('mayo-public');
-
-        // Create unique settings for this instance
-        $settings_key = "mayoEventSettings_$instance";
-        wp_localize_script('mayo-public', $settings_key, [
-            'timeFormat' => $atts['time_format'],
-            'perPage' => intval($atts['per_page']),
-            'showPagination' => $atts['show_pagination'] === 'true',
-            'categories' => $atts['categories'],
-            'tags' => $atts['tags'],
-            'eventType' => $atts['event_type'],
-            'status' => $atts['status'],
-            'serviceBody' => $atts['service_body'],
-        ]);
-
+        // Create a unique ID for this instance
+        $settings_id = 'mayo_event_list_settings_' . wp_rand();
+        
+        // Add the settings to window object
+        wp_localize_script('mayo-public', $settings_id, $settings);
+        
         return sprintf(
-            '<div id="mayo-event-list-%d" data-instance="%d"%s></div>',
-            $instance,
-            $instance,
-            $is_widget ? ' class="mayo-widget-list"' : ''
+            '<div id="mayo-event-list" class="mayo-event-list" data-settings="%s"></div>',
+            esc_attr($settings_id)
         );
     }
 

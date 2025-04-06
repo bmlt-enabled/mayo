@@ -19,7 +19,11 @@ const EventList = ({ widget = false, settings = {} }) => {
         // ... other settings
     } = settings;
 
+    // Add initial settings debug
+    console.log('EventList mounted with settings:', settings);
+
     useEffect(() => {
+        console.log('EventList useEffect triggered with settings:', settings);
         setIsWidget(widget);
         setTimeFormat(settingsTimeFormat);
         fetchEvents();
@@ -62,51 +66,51 @@ const EventList = ({ widget = false, settings = {} }) => {
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
-            // Build the endpoint URL with query parameters
+            let sourceIds = settings?.source_ids ? settings.source_ids : 'local';
+            
+            console.log('Building request with params:', {
+                status,
+                eventType,
+                serviceBody,
+                relation,
+                categories,
+                tags,
+                sourceIds
+            });
+            
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
                 + `&event_type=${eventType}`
                 + `&service_body=${serviceBody}`
                 + `&relation=${relation}`
                 + `&categories=${categories}`
-                + `&tags=${tags}`;
+                + `&tags=${tags}`
+                + `&source_ids=${sourceIds}`;
+            
+            console.log('Sending request to:', endpoint);
             
             const response = await fetch(endpoint);
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response not OK:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json();
             
-            const now = new Date();
-            const upcomingEvents = data
-                .filter(event => {
-                    const timezone = event.meta.timezone || 'America/New_York';
-                    const eventDateString = `${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}`;
-                    const eventDate = new Date(new Date(eventDateString).toLocaleString('en-US', { timeZone: timezone }));
-
-                    if (eventDate <= now) return false;
-
-                    return true;
-                })
-                .sort((a, b) => {
-                    // Create date objects with timezone consideration
-                    const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}${a.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: a.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
-                    const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}${b.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: b.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
-                    
-                    if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                        // If either date is invalid, fall back to comparing just the date strings
-                        return a.meta.event_start_date.localeCompare(b.meta.event_start_date);
-                    }
-                    
-                    return dateA - dateB;
-                });
-
-            setEvents(upcomingEvents);
+            const data = await response.json();
+            console.log('Received data:', data);
+            
+            if (!Array.isArray(data)) {
+                console.error('Received non-array data:', data);
+                throw new Error('Invalid data format received');
+            }
+            
+            setEvents(data);
             setLoading(false);
+            
         } catch (err) {
             console.error('Error in fetchEvents:', err);
-            setError(`Failed to load events: ${err.message}`);
+            setError('Failed to load events: ' + err.message);
             setLoading(false);
         }
     };
