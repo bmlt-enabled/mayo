@@ -192,16 +192,9 @@ class Rest {
 
         // Always get local events if no source IDs specified, or if 'local' is in the source IDs
         if (empty($sourceIds) || in_array('local', $sourceIds)) {
-            error_log('Mayo Events: Fetching local events');
             $local_events = self::get_local_events($_GET);
-            error_log('Mayo Events: Local events query parameters: ' . print_r($_GET, true));
-            error_log('Mayo Events: Found ' . count($local_events) . ' local events');
-            
-            if (empty($local_events)) {
-                error_log('Mayo Events: No local events found. Checking post type exists...');
-                error_log('Mayo Events: Post types: ' . print_r(get_post_types(), true));
-            }
-            
+
+        
             $events = array_merge($events, array_map(function($event) {
                 $event['source'] = [
                     'id' => 'local',
@@ -526,15 +519,6 @@ class Rest {
                 'link' => get_term_link($term)
             );
         }, $terms);
-    }
-
-    // Add this new method to ensure nonce is available
-    public static function enqueue_scripts() {
-        // Add this to your plugin's enqueue_scripts action
-        wp_localize_script('mayo-public', 'mayoApiSettings', [
-            'root' => esc_url_raw(rest_url()),
-            'nonce' => wp_create_nonce('wp_rest')
-        ]);
     }
 
     private static function generate_readable_id() {
