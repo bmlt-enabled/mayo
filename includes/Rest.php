@@ -390,7 +390,12 @@ class Rest {
 
     public static function bmltenabled_mayo_get_settings() {
         $settings = get_option('mayo_settings', []);
-        return new \WP_REST_Response($settings);
+        $external_sources = get_option('mayo_external_sources', []);
+        
+        return new \WP_REST_Response([
+            'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
+            'external_sources' => $external_sources
+        ]);
     }
 
     public static function bmltenabled_mayo_update_settings($request) {
@@ -404,6 +409,7 @@ class Rest {
         
         $params = $request->get_params();
         $settings = [];
+        $external_sources = [];
 
         // Validate HTTPS URL
         if (isset($params['bmlt_root_server'])) {
@@ -421,12 +427,34 @@ class Rest {
             $settings['bmlt_root_server'] = $url;
         }
 
+        if (isset($params['external_sources']) && is_array($params['external_sources'])) {
+            foreach ($params['external_sources'] as $source) {
+                if (empty($source['url'])) continue;
+                
+                // Keep existing ID or generate new readable one
+                $id = !empty($source['id']) ? sanitize_text_field($source['id']) : self::generate_readable_id();
+                
+                $external_sources[] = [
+                    'id' => $id,
+                    'url' => esc_url_raw(trim($source['url'])),
+                    'event_type' => sanitize_text_field($source['event_type'] ?? ''),
+                    'service_body' => sanitize_text_field($source['service_body'] ?? ''),
+                    'categories' => sanitize_text_field($source['categories'] ?? ''),
+                    'tags' => sanitize_text_field($source['tags'] ?? ''),
+                    'enabled' => (bool) ($source['enabled'] ?? false)
+                ];
+            }
+        }
+
         update_option('mayo_settings', $settings);
-        
+        update_option('mayo_external_sources', $external_sources);
         return new \WP_REST_Response([
             'success' => true,
             'message' => 'Settings updated successfully',
-            'settings' => $settings
+            'settings' => [
+                'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
+                'external_sources' => $external_sources
+            ]
         ]);
     }
 
@@ -474,6 +502,17 @@ class Rest {
                 'link' => get_term_link($term)
             );
         }, $terms);
+    }
+
+    /**
+     * Generate a readable ID for external sources
+     * 
+     * @return string A readable ID
+     */
+    private static function generate_readable_id() {
+        $prefix = 'source_';
+        $random = substr(md5(uniqid(rand(), true)), 0, 8);
+        return $prefix . $random;
     }
 
     // Add this new method to ensure nonce is available

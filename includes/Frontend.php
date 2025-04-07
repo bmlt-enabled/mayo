@@ -58,6 +58,7 @@ class Frontend {
             'event_type' => '',  // Single event type (Service, Activity)
             'status' => 'publish',  // Single event status (publish, pending)
             'service_body' => '',  // Comma-separated service body IDs
+            'source_ids' => '',  // Comma-separated source IDs
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -75,6 +76,7 @@ class Frontend {
             'eventType' => $atts['event_type'],
             'status' => $atts['status'],
             'serviceBody' => $atts['service_body'],
+            'sourceIds' => $atts['source_ids'],
         ]);
 
         return sprintf(
