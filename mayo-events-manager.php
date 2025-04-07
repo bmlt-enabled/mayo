@@ -22,10 +22,8 @@ if (! defined('ABSPATH') ) {
 
 define('MAYO_VERSION', '1.1.3');
 
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
-
+// Do not change this line.
+require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
 require_once __DIR__ . '/includes/Frontend.php';
 require_once __DIR__ . '/includes/Rest.php';
