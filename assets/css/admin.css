@@ -413,3 +413,79 @@
         margin-right: 5px;
     }
 } 
+
+.mayo-external-sources-list {
+    margin-bottom: 20px;
+}
+
+.mayo-external-source-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+.mayo-external-source-info {
+    flex: 1;
+}
+
+.mayo-external-source-details {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #666;
+}
+
+.mayo-external-source-details span {
+    margin-right: 15px;
+}
+
+.mayo-source-status {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.mayo-source-status.enabled {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mayo-source-status.disabled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.mayo-external-source-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.mayo-external-source-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.mayo-form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.mayo-add-source-button {
+    margin-top: 20px !important;
+}
+
+.mayo-source-id {
+    font-family: monospace;
+    color: #2271b1;
+    font-size: 12px;
+    background: #f0f7fc;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #c5d9ed;
+} 

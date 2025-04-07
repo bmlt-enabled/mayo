@@ -33,13 +33,13 @@ class Frontend {
         );
     }
 
-    public static function render_event_list($atts = [], $content = null, $tag = '') {
+    public static function render_event_list($atts = []) {
         static $instance = 0;
         $instance++;
-        
+
         // Get the current filter being applied
         $current_filter = current_filter();
-        
+
         // Check if we're in a widget context
         $is_widget = (
             $current_filter === 'widget_text' || 
@@ -48,25 +48,32 @@ class Frontend {
             $current_filter === 'widget_custom_html_content' ||
             doing_filter('dynamic_sidebar')
         );
-
+        
         $defaults = [
-            'time_format' => '12hour', // or '24hour'
+            'widget' => false,
             'per_page' => 10,
-            'show_pagination' => 'true',
-            'categories' => '',  // Comma-separated category slugs
-            'tags' => '',       // Comma-separated tag slugs
-            'event_type' => '',  // Single event type (Service, Activity)
-            'status' => 'publish',  // Single event status (publish, pending)
-            'service_body' => '',  // Comma-separated service body IDs
+            'show_pagination' => true,
+            'time_format' => '12hour',
+            'event_type' => '',
+            'service_body' => '',
+            'relation' => 'AND',
+            'categories' => '',
+            'tags' => '',
+            'source_ids' => '',
+            'status' => ''
         ];
+
         $atts = shortcode_atts($defaults, $atts);
         
-        wp_enqueue_script('mayo-public');
-        wp_enqueue_style('mayo-public');
-
-        // Create unique settings for this instance
-        $settings_key = "mayoEventSettings_$instance";
-        wp_localize_script('mayo-public', $settings_key, [
+        // Add more debugging
+        error_log('render_event_list after shortcode_atts: ' . print_r($atts, true));
+        
+        // Create a unique ID for this instance using a combination of timestamp and random number
+        $instance = time() . '_' . wp_rand(1000, 9999);
+        $settings_id = "mayoEventSettings_$instance";
+        
+        // Add the settings to window object
+        wp_localize_script('mayo-public', $settings_id, [
             'timeFormat' => $atts['time_format'],
             'perPage' => intval($atts['per_page']),
             'showPagination' => $atts['show_pagination'] === 'true',
@@ -75,8 +82,14 @@ class Frontend {
             'eventType' => $atts['event_type'],
             'status' => $atts['status'],
             'serviceBody' => $atts['service_body'],
+            'relation' => $atts['relation'],
+            'sourceIds' => $atts['source_ids'],
+            'widget' => $atts['widget'] === 'true'
         ]);
-
+        
+        // Add more debugging
+        error_log('render_event_list returning HTML with instance: ' . $instance);
+        
         return sprintf(
             '<div id="mayo-event-list-%d" data-instance="%d"%s></div>',
             $instance,
@@ -139,6 +152,20 @@ class Frontend {
                                 
                             foreach ($widget_instance as $instance) {
                                 if (is_array($instance) && isset($instance['content']) && has_shortcode($instance['content'], $shortcode)) {
+                                    // Add debugging
+                                    error_log('Shortcode found in widget: ' . $instance['content']);
+                                    
+                                    // Extract shortcode attributes
+                                    preg_match_all('/' . get_shortcode_regex() . '/', $instance['content'], $matches);
+                                    if (!empty($matches[3])) {
+                                        foreach ($matches[3] as $index => $shortcode_name) {
+                                            if ($shortcode_name === $shortcode) {
+                                                $attrs = shortcode_parse_atts($matches[3][$index]);
+                                                error_log('Shortcode attributes in widget: ' . print_r($attrs, true));
+                                            }
+                                        }
+                                    }
+                                    
                                     return true;
                                 }
                             }

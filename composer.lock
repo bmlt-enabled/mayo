@@ -4,8 +4,62 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a333cb09e79ef51bc1bb7a72a2be47f3",
-    "packages": [],
+    "content-hash": "65a60c2219e51e6fdd99777b1e31a2f3",
+    "packages": [
+        {
+            "name": "madhouseplatform/random-names-generator",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MadhousePlatform/names-generator-php.git",
+                "reference": "84267a62ce4d401aa548d49647d4c794d6488521"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MadhousePlatform/names-generator-php/zipball/84267a62ce4d401aa548d49647d4c794d6488521",
+                "reference": "84267a62ce4d401aa548d49647d4c794d6488521",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MadhousePlatform\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Denver F",
+                    "email": "sketch@sketchni.uk",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Glenn Engelen",
+                    "email": "glenn@nordpeak.studio",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Small library that generates a Docker like random name from the list of adjectives and surnames of famous people in the science and tech world.",
+            "keywords": [
+                "generator",
+                "inspiring",
+                "random"
+            ],
+            "support": {
+                "source": "https://github.com/MadhousePlatform/names-generator-php/tree/1.0.5"
+            },
+            "time": "2022-02-16T14:52:52+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "squizlabs/php_codesniffer",
