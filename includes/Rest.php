@@ -175,27 +175,27 @@ class Rest {
         );
 
         wp_mail($to, $subject, $message);
-    }
+    }   
 
-    public static function bmltenabled_mayo_get_events($request) {
+    private static function get_local_events($params) {
         $is_archive = false;
     
-        if (isset($_GET['archive'])) {
+        if (isset($params['archive'])) {
             $nonce = wp_create_nonce('wp_rest');
             if (wp_verify_nonce($nonce, 'wp_rest')) {
-                $archive = sanitize_text_field(wp_unslash($_GET['archive']));
+                $archive = sanitize_text_field(wp_unslash($params['archive']));
                 if ($archive === 'true') {
                     $is_archive = true;
                 }
             }
         }
 
-        $status = isset($_GET['status']) ? sanitize_text_field(wp_unslash($_GET['status'])) : 'publish';
-        $eventType = isset($_GET['event_type']) ? sanitize_text_field(wp_unslash($_GET['event_type'])) : '';
-        $serviceBody = isset($_GET['service_body']) ? sanitize_text_field(wp_unslash($_GET['service_body'])) : '';
-        $relation = isset($_GET['relation']) ? sanitize_text_field(wp_unslash($_GET['relation'])) : 'AND';
-        $categories = isset($_GET['categories']) ? sanitize_text_field(wp_unslash($_GET['categories'])) : '';
-        $tags = isset($_GET['tags']) ? sanitize_text_field(wp_unslash($_GET['tags'])) : '';
+        $status = isset($params['status']) ? sanitize_text_field(wp_unslash($params['status'])) : 'publish';
+        $eventType = isset($params['event_type']) ? sanitize_text_field(wp_unslash($params['event_type'])) : '';
+        $serviceBody = isset($params['service_body']) ? sanitize_text_field(wp_unslash($params['service_body'])) : '';
+        $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
+        $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
+        $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
 
         $meta_keys = [
             'event_type' => $eventType,
@@ -242,6 +242,96 @@ class Rest {
                 throw $e;
             }
         }
+
+        return $events;
+    }
+
+    private static function fetch_external_events($source) {
+        try {
+            // Build query parameters
+            $params = [];
+            if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
+            if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
+            if (!empty($source['categories'])) $params['categories'] = $source['categories'];
+            if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+
+            // Build URL with parameters
+            $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
+
+            $response = wp_remote_get($url, [
+                'timeout' => 15,
+                'sslverify' => true
+            ]);
+
+            if (is_wp_error($response)) {
+                error_log('External Events Error: ' . $response->get_error_message());
+                return [];
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $events = json_decode($body, true);
+
+            if (!is_array($events)) return [];
+
+            // Add source information to each event
+            foreach ($events as &$event) {
+                $event['external_source'] = [
+                    'id' => $source['id'],
+                    'url' => parse_url($source['url'], PHP_URL_HOST)
+                ];
+            }
+
+            return $events;
+        } catch (\Exception $e) {
+            error_log('External Events Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public static function bmltenabled_mayo_get_events($request) {
+        $events = [];
+        $local_events = [];
+        
+        // Get source IDs from request
+        $sourceIds = isset($_GET['source_ids']) ? 
+            array_map('sanitize_text_field', explode(',', $_GET['source_ids'])) : 
+            [];
+    
+        // Always get local events if no source IDs specified, or if 'local' is in the source IDs
+        if (empty($sourceIds) || in_array('local', $sourceIds)) {
+            $local_events = self::get_local_events($_GET);
+        
+            $events = array_merge($events, array_map(function($event) {
+                $event['source'] = [
+                    'id' => 'local',
+                    'name' => 'Local Events',
+                    'url' => get_site_url()
+                ];
+                return $event;
+            }, $local_events));
+        }
+
+        // Get external events from specified sources
+        if (!empty($sourceIds)) {
+            $external_sources = get_option('mayo_external_sources', []);
+            foreach ($external_sources as $source) {
+                if (!in_array($source['id'], $sourceIds) || !$source['enabled']) {
+                    continue;
+                }
+
+                $external_events = self::fetch_external_events($source);
+                if (!empty($external_events)) {
+                    $events = array_merge($events, $external_events);
+                }
+            }
+        }
+
+        // Sort all events by date
+        usort($events, function($a, $b) {
+            $dateA = $a['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
+            $dateB = $b['meta']['event_start_date'] . ' ' . ($b['meta']['event_start_time'] ?? '00:00:00');
+            return strtotime($dateA) - strtotime($dateB);
+        });
 
         return new \WP_REST_Response($events);
     }
