@@ -62,13 +62,16 @@ const EventList = ({ widget = false, settings = {} }) => {
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
+            let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
+
             // Build the endpoint URL with query parameters
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
                 + `&event_type=${eventType}`
                 + `&service_body=${serviceBody}`
                 + `&relation=${relation}`
                 + `&categories=${categories}`
-                + `&tags=${tags}`;
+                + `&tags=${tags}`
+                + `&source_ids=${sourceIds}`;
             
             const response = await fetch(endpoint);
             if (!response.ok) {
