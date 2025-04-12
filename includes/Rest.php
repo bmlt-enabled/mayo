@@ -273,17 +273,78 @@ class Rest {
 
             if (!is_array($events)) return [];
 
+            // Fetch service bodies from the external source
+            $service_bodies = self::fetch_external_service_bodies($source);
+            
             // Add source information to each event
             foreach ($events as &$event) {
                 $event['external_source'] = [
                     'id' => $source['id'],
-                    'url' => parse_url($source['url'], PHP_URL_HOST)
+                    'url' => parse_url($source['url'], PHP_URL_HOST),
+                    'service_bodies' => $service_bodies
                 ];
             }
 
             return $events;
         } catch (\Exception $e) {
             error_log('External Events Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Fetch service bodies from an external source
+     * 
+     * @param array $source The external source configuration
+     * @return array Array of service bodies
+     */
+    private static function fetch_external_service_bodies($source) {
+        try {
+            // Get BMLT root server from the external source
+            $settings_url = trailingslashit($source['url']) . 'wp-json/event-manager/v1/settings';
+            
+            $settings_response = wp_remote_get($settings_url, [
+                'timeout' => 15,
+                'sslverify' => true
+            ]);
+            
+            if (is_wp_error($settings_response)) {
+                error_log('External Settings Error: ' . $settings_response->get_error_message());
+                return [];
+            }
+            
+            $settings_body = wp_remote_retrieve_body($settings_response);
+            $settings = json_decode($settings_body, true);
+            
+            if (empty($settings['bmlt_root_server'])) {
+                error_log('External source has no BMLT root server configured: ' . $source['url']);
+                return [];
+            }
+            
+            // Fetch service bodies from the BMLT root server
+            $bmlt_url = add_query_arg('switcher', 'GetServiceBodies', trailingslashit($settings['bmlt_root_server']) . 'client_interface/json/');
+            
+            $bmlt_response = wp_remote_get($bmlt_url, [
+                'timeout' => 15,
+                'sslverify' => true
+            ]);
+            
+            if (is_wp_error($bmlt_response)) {
+                error_log('External BMLT Error: ' . $bmlt_response->get_error_message());
+                return [];
+            }
+            
+            $bmlt_body = wp_remote_retrieve_body($bmlt_response);
+            $service_bodies = json_decode($bmlt_body, true);
+            
+            if (!is_array($service_bodies)) {
+                error_log('Invalid service bodies response from external source: ' . $source['url']);
+                return [];
+            }
+            
+            return $service_bodies;
+        } catch (\Exception $e) {
+            error_log('External Service Bodies Error: ' . $e->getMessage());
             return [];
         }
     }

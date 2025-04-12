@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
+import { useEventProvider } from '../providers/EventProvider';
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
@@ -10,6 +11,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [timeFormat, setTimeFormat] = useState('12hour');
     const [isWidget, setIsWidget] = useState(false);
+    const { updateExternalServiceBodies } = useEventProvider();
     
     // Get settings from props instead of global
     const {
@@ -24,6 +26,25 @@ const EventList = ({ widget = false, settings = {} }) => {
         setTimeFormat(settingsTimeFormat);
         fetchEvents();
     }, [settings]);
+
+    // Process external service bodies when events are loaded
+    useEffect(() => {
+        if (events.length > 0) {
+            // Group events by external source
+            const externalSources = {};
+            
+            events.forEach(event => {
+                if (event.external_source && event.external_source.service_bodies) {
+                    externalSources[event.external_source.id] = event.external_source.service_bodies;
+                }
+            });
+            
+            // Update external service bodies for each source
+            Object.entries(externalSources).forEach(([sourceId, serviceBodies]) => {
+                updateExternalServiceBodies(sourceId, serviceBodies);
+            });
+        }
+    }, [events, updateExternalServiceBodies]);
 
     const getQueryStringValue = (key, defaultValue = null) => {
         const urlParams = new URLSearchParams(window.location.search);
