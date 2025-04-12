@@ -1,5 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
-import { TextControl, Button, Panel, PanelBody, PanelRow, Spinner, Notice, ToggleControl } from '@wordpress/components';
+import { TextControl, Button, Panel, PanelBody, PanelRow, Spinner, Notice, ToggleControl, SelectControl } from '@wordpress/components';
 import { apiFetch } from '../../util';
 
 // Add URL validation function
@@ -273,11 +273,15 @@ const Settings = () => {
                                 onChange={(value) => setCurrentSource({...currentSource, url: value})}
                                 help="Enter the URL of the WordPress site (e.g., https://example.com)"
                             />
-                            <TextControl
+                            <SelectControl
                                 label="Event Type"
                                 value={currentSource.event_type}
+                                options={[
+                                    { label: 'Activity', value: 'Activity' },
+                                    { label: 'Service', value: 'Service' }
+                                ]}
                                 onChange={(value) => setCurrentSource({...currentSource, event_type: value})}
-                                help="Filter by event type (optional)"
+                                help="Select the event type"
                             />
                             <TextControl
                                 label="Service Body"
