@@ -127,6 +127,9 @@ const Settings = () => {
             });
 
             setExternalSources(newSources);
+            setCurrentSource(null);
+            setIsEditingSource(null);
+            setIsAddingNew(false);
             setSuccessMessage('External source deleted successfully!');
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
