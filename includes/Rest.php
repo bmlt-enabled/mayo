@@ -281,6 +281,7 @@ class Rest {
                 $event['external_source'] = [
                     'id' => $source['id'],
                     'url' => parse_url($source['url'], PHP_URL_HOST),
+                    'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
                     'service_bodies' => $service_bodies
                 ];
             }

@@ -58,6 +58,7 @@ const Settings = () => {
     const handleAddNewClick = () => {
         setCurrentSource({
             id: '', // Will be generated on the server
+            name: '', // Add name field
             url: '',
             event_type: '',
             service_body: '',
@@ -231,7 +232,7 @@ const Settings = () => {
                                 {externalSources.map((source, index) => (
                                     <div key={source.id} className="mayo-external-source-item">
                                         <div className="mayo-external-source-info">
-                                            <strong>{source.url}</strong>
+                                            <strong>{source.name || source.url}</strong>
                                             <div className="mayo-external-source-details">
                                                 <span className="mayo-source-id">ID: {source.id}</span>
                                                 {source.event_type && <span>Type: {source.event_type}</span>}
@@ -275,6 +276,12 @@ const Settings = () => {
                                 value={currentSource.url}
                                 onChange={(value) => setCurrentSource({...currentSource, url: value})}
                                 help="Enter the URL of the WordPress site (e.g., https://example.com)"
+                            />
+                            <TextControl
+                                label="Source Name"
+                                value={currentSource.name}
+                                onChange={(value) => setCurrentSource({...currentSource, name: value})}
+                                help="Enter a friendly name for this source (e.g., District 5 Website)"
                             />
                             <SelectControl
                                 label="Event Type"

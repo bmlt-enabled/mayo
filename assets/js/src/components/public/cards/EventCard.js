@@ -80,6 +80,11 @@ const EventCard = ({ event, timeFormat }) => {
                                 </span>
                             )}
                         </span>
+                        {event.external_source && (
+                            <span className="mayo-event-source">
+                                Source: {event.external_source.url}
+                            </span>
+                        )}
                         {(event.categories.length > 0 || event.tags.length > 0) && (
                             <div className="mayo-event-brief-taxonomies">
                                 {event.categories.map(cat => (

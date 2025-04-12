@@ -167,8 +167,15 @@
 }
 
 .mayo-event-type {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.mayo-event-source {
+    font-style: italic;
     color: #666;
-    font-weight: 500;
+    margin-right: 10px;
+    font-size: 0.9em;
 }
 
 .mayo-event-datetime {
