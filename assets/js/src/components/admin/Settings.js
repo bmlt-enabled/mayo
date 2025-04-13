@@ -33,7 +33,6 @@ const Settings = () => {
                 setIsLoading(true);
                 setError(null);
                 const response = await apiFetch('/settings');
-                console.log('Loaded settings:', response);
                 setSettings({
                     bmlt_root_server: response.bmlt_root_server || ''
                 });
@@ -61,7 +60,7 @@ const Settings = () => {
             id: '', // Will be generated on the server
             name: '', // Add name field
             url: '',
-            event_type: '', // Initialize with empty string
+            event_type: '',
             service_body: '',
             categories: '',
             tags: '',
@@ -90,8 +89,6 @@ const Settings = () => {
                 event_type: currentSource.event_type || ''
             };
             
-            console.log('Saving source with event_type:', sourceToSave.event_type);
-
             const newSources = [...externalSources];
             if (isEditingSource !== null) {
                 newSources[isEditingSource] = sourceToSave;
@@ -238,38 +235,35 @@ const Settings = () => {
                     {!isAddingNew && !isEditingSource && (
                         <>
                             <div className="mayo-external-sources-list">
-                                {externalSources.map((source, index) => {
-                                    console.log('Source in list:', source.id, 'event_type:', source.event_type);
-                                    return (
-                                        <div key={source.id} className="mayo-external-source-item">
-                                            <div className="mayo-external-source-info">
-                                                <strong>{source.name || source.url}</strong>
-                                                <div className="mayo-external-source-details">
-                                                    <span className="mayo-source-id">ID: {source.id}</span>
-                                                    {source.event_type && <span>Type: {source.event_type}</span>}
-                                                    {source.service_body && <span>Service Body: {source.service_body}</span>}
-                                                    <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
-                                                        {source.enabled ? 'Enabled' : 'Disabled'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="mayo-external-source-actions">
-                                                <Button
-                                                    isSecondary
-                                                    onClick={() => handleEditSource(source, index)}
-                                                >
-                                                    Edit
-                                                </Button>
-                                                <Button
-                                                    isDestructive
-                                                    onClick={() => handleDeleteSource(index)}
-                                                >
-                                                    Delete
-                                                </Button>
+                                {externalSources.map((source, index) => (
+                                    <div key={source.id} className="mayo-external-source-item">
+                                        <div className="mayo-external-source-info">
+                                            <strong>{source.name || source.url}</strong>
+                                            <div className="mayo-external-source-details">
+                                                <span className="mayo-source-id">ID: {source.id}</span>
+                                                {source.event_type && <span>Type: {source.event_type}</span>}
+                                                {source.service_body && <span>Service Body: {source.service_body}</span>}
+                                                <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
+                                                    {source.enabled ? 'Enabled' : 'Disabled'}
+                                                </span>
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                        <div className="mayo-external-source-actions">
+                                            <Button
+                                                isSecondary
+                                                onClick={() => handleEditSource(source, index)}
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                isDestructive
+                                                onClick={() => handleDeleteSource(index)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                             <Button
                                 isPrimary
@@ -304,7 +298,6 @@ const Settings = () => {
                                     { label: 'Service', value: 'Service' }
                                 ]}
                                 onChange={(value) => {
-                                    console.log('Event type changed to:', value);
                                     setCurrentSource({...currentSource, event_type: value});
                                 }}
                                 help="Select the event type"
