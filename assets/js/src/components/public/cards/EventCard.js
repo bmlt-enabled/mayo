@@ -152,7 +152,7 @@ const EventCard = ({ event, timeFormat }) => {
                                         <object
                                             data={`${event.meta.event_pdf_url}#view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
                                             type="application/pdf"
-                                            width="100%"
+                                            width="386"
                                             height="500"
                                         >
                                             <p>
@@ -222,34 +222,27 @@ const EventCard = ({ event, timeFormat }) => {
                             </div>
                         )}
 
-                        {(event.categories.length > 0 || event.tags.length > 0) && (
-                            <div className="mayo-event-taxonomies">
-                                {event.categories.length > 0 && (
-                                    <div className="mayo-event-categories">
-                                        <h4>Categories</h4>
-                                        <div className="mayo-taxonomy-list">
-                                            {event.categories.map(cat => (
-                                                <span key={cat.id} className="mayo-event-category">
-                                                    {cat.name}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {event.tags.length > 0 && (
-                                    <div className="mayo-event-tags">
-                                        <h4>Tags</h4>
-                                        <div className="mayo-taxonomy-list">
-                                            {event.tags.map(tag => (
-                                                <span key={tag.id} className="mayo-event-tag">
-                                                    {tag.name}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        <div className="mayo-event-taxonomies">
+                            {event.categories.length > 0 && (
+                                <div className="mayo-archive-event-categories">
+                                    {event.categories.map(cat => (
+                                        <span key={cat.id} className="mayo-event-category">
+                                            {cat.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            {event.tags.length > 0 && (
+                                <div className="mayo-archive-event-tags">
+                                    {event.tags.map(tag => (
+                                        <span key={tag.id} className="mayo-event-tag">
+                                            {tag.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         {event.meta.recurring_pattern && event.meta.recurring_pattern.type !== 'none' && (
                             <div className="mayo-event-recurring">

@@ -83,7 +83,7 @@ const EventDetails = () => {
                                     <object
                                         data={`${event.meta.event_pdf_url}#view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
                                         type="application/pdf"
-                                        width="100%"
+                                        width="386"
                                         height="500"
                                     >
                                         <p>
