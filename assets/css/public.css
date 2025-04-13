@@ -146,17 +146,36 @@
 
 .mayo-event-brief {
     display: flex;
-    gap: 0.75em;
     align-items: center;
     margin-top: 0.25em;
     font-size: 0.9em;
     flex-wrap: wrap;
 }
 
+.mayo-event-brief-meta {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.mayo-event-brief-type,
+.mayo-event-brief-service-body,
+.mayo-event-brief-datetime {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    font-size: 0.9em;
+}
+
 .mayo-event-brief-taxonomies {
     display: flex;
-    gap: 0.4em;
     flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+    width: 100%; /* Force full width */
+    clear: both; /* Force new line */
 }
 
 .mayo-event-category-small,
@@ -575,8 +594,8 @@
 }
 
 .mayo-event-tag {
-    background: #e7f5ff;
-    color: #1864ab;
+    background-color: #e5f5e8;
+    color: #1fa23d;
 }
 
 .mayo-form-field select {
