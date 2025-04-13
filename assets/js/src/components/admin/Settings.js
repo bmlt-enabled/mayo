@@ -15,16 +15,19 @@ const isValidHttpsUrl = (url) => {
 
 const Settings = () => {
     const [settings, setSettings] = useState({
-        bmlt_root_server: ''
+        bmlt_root_server: '',
+        cache_duration: 60 // Default 60 seconds (1 minute)
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isPurgingCache, setIsPurgingCache] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
     const [externalSources, setExternalSources] = useState([]);
     const [isEditingSource, setIsEditingSource] = useState(null);
     const [currentSource, setCurrentSource] = useState(null);
     const [isAddingNew, setIsAddingNew] = useState(false);
+    const [cacheStatus, setCacheStatus] = useState([]);
 
     // Load settings when component mounts
     useEffect(() => {
@@ -34,9 +37,14 @@ const Settings = () => {
                 setError(null);
                 const response = await apiFetch('/settings');
                 setSettings({
-                    bmlt_root_server: response.bmlt_root_server || ''
+                    bmlt_root_server: response.bmlt_root_server || '',
+                    cache_duration: response.cache_duration || 60 // Default 60 seconds if not set
                 });
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
+                
+                // Load cache status
+                const cacheResponse = await apiFetch('/cache-status');
+                setCacheStatus(cacheResponse);
             } catch (err) {
                 setError('Failed to load settings. Please refresh the page and try again.');
             } finally {
@@ -156,10 +164,16 @@ const Settings = () => {
                 throw new Error('BMLT Root Server URL must use HTTPS protocol.');
             }
             
+            // Validate cache duration is a positive number
+            if (isNaN(settings.cache_duration) || settings.cache_duration < 0) {
+                throw new Error('Cache duration must be a positive number.');
+            }
+            
             const response = await apiFetch('/settings', {
                 method: 'POST',
                 body: JSON.stringify({
                     bmlt_root_server: settings.bmlt_root_server,
+                    cache_duration: parseInt(settings.cache_duration, 10),
                     external_sources: externalSources
                 })
             });
@@ -170,6 +184,28 @@ const Settings = () => {
             setError(err.message || 'Failed to save settings.');
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handlePurgeCache = async () => {
+        try {
+            setIsPurgingCache(true);
+            setError(null);
+            
+            await apiFetch('/purge-cache', {
+                method: 'POST'
+            });
+            
+            // Refresh cache status after purging
+            const cacheResponse = await apiFetch('/cache-status');
+            setCacheStatus(cacheResponse);
+            
+            setSuccessMessage('External events cache purged successfully!');
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            setError('Failed to purge cache. Please try again.');
+        } finally {
+            setIsPurgingCache(false);
         }
     };
 
@@ -265,13 +301,45 @@ const Settings = () => {
                                     </div>
                                 ))}
                             </div>
-                            <Button
-                                isPrimary
-                                onClick={handleAddNewClick}
-                                className="mayo-add-source-button"
-                            >
-                                Add New External Source
-                            </Button>
+                            <div className="mayo-external-sources-actions">
+                                <Button
+                                    isPrimary
+                                    onClick={handleAddNewClick}
+                                    className="mayo-add-source-button"
+                                >
+                                    Add New External Source
+                                </Button>
+                            </div>
+                            
+                            <div className="mayo-cache-settings">
+                                <h3 style={{ paddingTop: '20px' }}>Cache Settings</h3>
+                                <TextControl
+                                    type="number"
+                                    label="External Events Cache Duration (seconds)"
+                                    value={settings.cache_duration}
+                                    onChange={(value) => handleChange('cache_duration', value)}
+                                    help="How long to cache external events before fetching fresh data. Default is 60 seconds (1 minute)."
+                                    min="0"
+                                />
+                                <div className="mayo-cache-actions">
+                                    <Button 
+                                        isPrimary 
+                                        onClick={handleSave}
+                                        isBusy={isSaving}
+                                        disabled={isSaving}
+                                    >
+                                        {isSaving ? 'Saving...' : 'Save Cache Settings'}
+                                    </Button>
+                                    <Button
+                                        isSecondary
+                                        onClick={handlePurgeCache}
+                                        isBusy={isPurgingCache}
+                                        className="mayo-purge-cache-button"
+                                    >
+                                        {isPurgingCache ? 'Purging...' : 'Purge External Events Cache'}
+                                    </Button>
+                                </div>
+                            </div>
                         </>
                     )}
 

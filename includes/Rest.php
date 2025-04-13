@@ -45,6 +45,22 @@ class Rest {
                 'callback' => [__CLASS__, 'bmltenabled_mayo_get_event_details'],
                 'permission_callback' => '__return_true', // Adjust permissions as needed
             ]);
+
+            register_rest_route('event-manager/v1', '/purge-cache', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'purge_external_events_cache'],
+                'permission_callback' => function() {
+                    return current_user_can('manage_options');
+                }
+            ]);
+
+            register_rest_route('event-manager/v1', '/cache-status', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_cache_status'],
+                'permission_callback' => function() {
+                    return current_user_can('manage_options');
+                }
+            ]);
         });
     }
 
@@ -387,6 +403,10 @@ class Rest {
             
             // If we have enabled sources, fetch events in parallel
             if (!empty($enabled_sources)) {
+                // Get cache duration from settings
+                $settings = get_option('mayo_settings', []);
+                $cache_duration = isset($settings['cache_duration']) ? intval($settings['cache_duration']) : 60; // Default 60 seconds
+                
                 // Check if we have cached results
                 $cache_key = 'mayo_external_events_' . md5(serialize($enabled_sources) . serialize($_GET));
                 $cached_events = get_transient($cache_key);
@@ -398,8 +418,8 @@ class Rest {
                     // Fetch fresh events
                     $external_events = self::fetch_external_events_parallel($enabled_sources);
                     
-                    // Cache the results for 1 minute
-                    set_transient($cache_key, $external_events, 60);
+                    // Cache the results for the configured duration
+                    set_transient($cache_key, $external_events, $cache_duration);
                 }
                 
                 if (!empty($external_events)) {
@@ -677,8 +697,14 @@ class Rest {
         $settings = get_option('mayo_settings', []);
         $external_sources = get_option('mayo_external_sources', []);
         
+        // Ensure cache_duration is set with a default value
+        if (!isset($settings['cache_duration'])) {
+            $settings['cache_duration'] = 60; // Default 60 seconds (1 minute)
+        }
+        
         return new \WP_REST_Response([
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
+            'cache_duration' => $settings['cache_duration'],
             'external_sources' => $external_sources
         ]);
     }
@@ -693,53 +719,37 @@ class Rest {
         }
         
         $params = $request->get_params();
-        $settings = [];
-        $external_sources = [];
-
-        // Validate HTTPS URL
+        $settings = get_option('mayo_settings', []);
+        
+        // Update BMLT root server
         if (isset($params['bmlt_root_server'])) {
-            $url = esc_url_raw(trim($params['bmlt_root_server']));
-            
-            // Check if URL uses HTTPS
-            if (!empty($url) && strpos($url, 'https://') !== 0) {
-                return new \WP_Error(
-                    'invalid_url_protocol',
-                    __('BMLT Root Server URL must use HTTPS protocol.'),
-                    ['status' => 400]
-                );
-            }
-            
-            $settings['bmlt_root_server'] = $url;
+            $settings['bmlt_root_server'] = sanitize_text_field($params['bmlt_root_server']);
         }
-
+        
+        // Update cache duration
+        if (isset($params['cache_duration'])) {
+            $cache_duration = intval($params['cache_duration']);
+            // Ensure it's a positive number
+            if ($cache_duration < 0) {
+                $cache_duration = 60; // Default to 60 seconds if invalid
+            }
+            $settings['cache_duration'] = $cache_duration;
+        }
+        
+        // Update external sources
         if (isset($params['external_sources']) && is_array($params['external_sources'])) {
-            foreach ($params['external_sources'] as $source) {
-                if (empty($source['url'])) continue;
-                
-                // Keep existing ID or generate new readable one
-                $id = !empty($source['id']) ? sanitize_text_field($source['id']) : self::generate_readable_id();
-                
-                $external_sources[] = [
-                    'id' => $id,
-                    'url' => esc_url_raw(trim($source['url'])),
-                    'name' => sanitize_text_field($source['name'] ?? ''),
-                    'event_type' => sanitize_text_field($source['event_type'] ?? ''),
-                    'service_body' => sanitize_text_field($source['service_body'] ?? ''),
-                    'categories' => sanitize_text_field($source['categories'] ?? ''),
-                    'tags' => sanitize_text_field($source['tags'] ?? ''),
-                    'enabled' => (bool) ($source['enabled'] ?? false)
-                ];
-            }
+            $external_sources = self::sanitize_sources($params['external_sources']);
+            update_option('mayo_external_sources', $external_sources);
         }
-
+        
         update_option('mayo_settings', $settings);
-        update_option('mayo_external_sources', $external_sources);
+        
         return new \WP_REST_Response([
             'success' => true,
-            'message' => 'Settings updated successfully',
             'settings' => [
                 'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
-                'external_sources' => $external_sources
+                'cache_duration' => $settings['cache_duration'],
+                'external_sources' => get_option('mayo_external_sources', [])
             ]
         ]);
     }
@@ -808,6 +818,115 @@ class Rest {
             'root' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest')
         ]);
+    }
+
+    /**
+     * Purge the external events cache
+     * 
+     * @param WP_REST_Request $request The request object
+     * @return WP_REST_Response The response object
+     */
+    public static function purge_external_events_cache($request) {
+        global $wpdb;
+        
+        // Delete all transients that start with 'mayo_external_events_'
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $wpdb->esc_like('_transient_mayo_external_events_') . '%'
+            )
+        );
+        
+        // Also delete the timeout transients
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $wpdb->esc_like('_transient_timeout_mayo_external_events_') . '%'
+            )
+        );
+        
+        return new \WP_REST_Response([
+            'success' => true,
+            'message' => 'External events cache purged successfully'
+        ]);
+    }
+
+    /**
+     * Sanitize external sources
+     * 
+     * @param array $sources Array of external sources
+     * @return array Sanitized external sources
+     */
+    private static function sanitize_sources($sources) {
+        $sanitized_sources = [];
+        
+        foreach ($sources as $source) {
+            if (empty($source['url'])) continue;
+            
+            // Keep existing ID or generate new readable one
+            $id = !empty($source['id']) ? sanitize_text_field($source['id']) : self::generate_readable_id();
+            
+            $sanitized_sources[] = [
+                'id' => $id,
+                'url' => esc_url_raw(trim($source['url'])),
+                'name' => sanitize_text_field($source['name'] ?? ''),
+                'event_type' => sanitize_text_field($source['event_type'] ?? ''),
+                'service_body' => sanitize_text_field($source['service_body'] ?? ''),
+                'categories' => sanitize_text_field($source['categories'] ?? ''),
+                'tags' => sanitize_text_field($source['tags'] ?? ''),
+                'enabled' => (bool) ($source['enabled'] ?? false)
+            ];
+        }
+        
+        return $sanitized_sources;
+    }
+
+    /**
+     * Get cache status for external sources
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public static function get_cache_status($request) {
+        $settings = get_option('mayo_event_manager_settings', []);
+        $external_sources = isset($settings['external_sources']) ? $settings['external_sources'] : [];
+        $cache_status = [];
+
+        foreach ($external_sources as $source) {
+            $cache_key = 'mayo_external_events_' . md5($source['url']);
+            $cached_data = get_transient($cache_key);
+            
+            $cache_status[] = [
+                'id' => $source['id'],
+                'name' => $source['name'] ?? $source['url'],
+                'url' => $source['url'],
+                'enabled' => $source['enabled'] ?? false,
+                'is_cached' => $cached_data !== false,
+                'last_updated' => $cached_data ? get_transient($cache_key . '_time') : null,
+                'event_count' => $cached_data ? count($cached_data) : 0
+            ];
+        }
+
+        return rest_ensure_response($cache_status);
+    }
+
+    /**
+     * Purge the external events cache
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public static function purge_cache($request) {
+        $settings = get_option('mayo_event_manager_settings', []);
+        $external_sources = isset($settings['external_sources']) ? $settings['external_sources'] : [];
+        
+        foreach ($external_sources as $source) {
+            $cache_key = 'mayo_external_events_' . md5($source['url']);
+            delete_transient($cache_key);
+            delete_transient($cache_key . '_time');
+        }
+        
+        return rest_ensure_response(['success' => true]);
     }
 }
 
