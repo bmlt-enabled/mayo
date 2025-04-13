@@ -238,11 +238,18 @@ class Rest {
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
 
-        $meta_keys = [
-            'event_type' => $eventType
-        ];
+        $meta_query = [];
 
-        // Handle service body separately to support multiple values
+        // Handle event type
+        if (!empty($eventType)) {
+            $meta_query[] = [
+                'key' => 'event_type',
+                'value' => $eventType,
+                'compare' => '='
+            ];
+        }
+
+        // Handle service body
         if (!empty($serviceBody)) {
             $service_bodies = array_map('trim', explode(',', $serviceBody));
             $meta_query[] = [
@@ -252,30 +259,21 @@ class Rest {
             ];
         }
 
-        $meta_query = [];
-
-        foreach ($meta_keys as $key => $value) {
-            if ($value != '') {
-                $meta_query[] = [
-                    'key' => $key,
-                    'value' => $value,
-                    'compare' => '='
-                ];
-            }
-        }
-
         if (count($meta_query) > 0) {
             $meta_query['relation'] = $relation;
         }
 
-        $posts = get_posts([
+        $args = [
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
             'post_status' => $status,
             'meta_query' => $meta_query,
             'category_name' => $categories,
             'tag' => $tags
-        ]);
+        ];
+
+        // Get posts with error handling
+        $posts = get_posts($args);
 
         $events = [];
         foreach ($posts as $post) {

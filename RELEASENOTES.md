@@ -1,7 +1,8 @@
 # Release Notes
 
 ### 1.2.0 (April 13, 2025)
-* Allowed for external event pulling from other Mayo driven sites. [#4]
+* Added the ability for external event pulling from other Mayo driven sites. [#4]
+* Added the ability to filter on muliple service body ids [#70]
 * Notification emails are now customizable. [#72]
 
 ### 1.1.3 (April 6, 2025)
