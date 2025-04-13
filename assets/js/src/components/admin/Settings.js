@@ -13,10 +13,28 @@ const isValidHttpsUrl = (url) => {
     }
 };
 
+// Add email validation function
+const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+// Add function to validate multiple emails
+const isValidEmailList = (emailList) => {
+    if (!emailList) return true; // Empty is valid (will use admin email)
+    
+    // Split by comma or semicolon
+    const emails = emailList.split(/[,;]/).map(email => email.trim()).filter(email => email);
+    
+    // Check if all emails are valid
+    return emails.every(email => isValidEmail(email));
+};
+
 const Settings = () => {
     const [settings, setSettings] = useState({
         bmlt_root_server: '',
-        cache_duration: 60 // Default 60 seconds (1 minute)
+        cache_duration: 60, // Default 60 seconds (1 minute)
+        notification_email: '' // Add notification email setting
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -38,7 +56,8 @@ const Settings = () => {
                 const response = await apiFetch('/settings');
                 setSettings({
                     bmlt_root_server: response.bmlt_root_server || '',
-                    cache_duration: response.cache_duration || 60 // Default 60 seconds if not set
+                    cache_duration: response.cache_duration || 60, // Default 60 seconds if not set
+                    notification_email: response.notification_email || '' // Add notification email
                 });
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
                 
@@ -169,11 +188,17 @@ const Settings = () => {
                 throw new Error('Cache duration must be a positive number.');
             }
             
+            // Validate notification email if provided
+            if (settings.notification_email && !isValidEmailList(settings.notification_email)) {
+                throw new Error('Please enter valid email addresses for notifications. Multiple emails can be separated by commas or semicolons.');
+            }
+            
             const response = await apiFetch('/settings', {
                 method: 'POST',
                 body: JSON.stringify({
                     bmlt_root_server: settings.bmlt_root_server,
                     cache_duration: parseInt(settings.cache_duration, 10),
+                    notification_email: settings.notification_email,
                     external_sources: externalSources
                 })
             });
@@ -254,11 +279,31 @@ const Settings = () => {
                     </PanelRow>
                     
                     <PanelRow>
+                        <TextControl
+                            label="Notification Email"
+                            value={settings.notification_email}
+                            onChange={(value) => handleChange('notification_email', value)}
+                            help={
+                                settings.notification_email && !isValidEmailList(settings.notification_email)
+                                    ? "Please enter valid email addresses. Multiple emails can be separated by commas or semicolons."
+                                    : "Email addresses to receive event submission notifications. Multiple emails can be separated by commas or semicolons. Leave empty to send to all admins."
+                            }
+                            className={
+                                settings.notification_email && !isValidEmailList(settings.notification_email)
+                                    ? 'mayo-invalid-email'
+                                    : ''
+                            }
+                        />
+                    </PanelRow>
+                    
+                    <PanelRow>
                         <Button 
                             isPrimary 
                             onClick={handleSave}
                             isBusy={isSaving}
-                            disabled={isSaving || (settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server))}
+                            disabled={isSaving || 
+                                (settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)) ||
+                                (settings.notification_email && !isValidEmailList(settings.notification_email))}
                         >
                             {isSaving ? 'Saving...' : 'Save Settings'}
                         </Button>

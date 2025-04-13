@@ -178,7 +178,33 @@ class Rest {
     }
 
     private static function send_event_submission_email($post_id, $params) {
-        $to = get_option('admin_email'); // Send to the site admin email
+        // Get notification email from settings
+        $settings = get_option('mayo_settings', []);
+        $notification_email = isset($settings['notification_email']) && !empty($settings['notification_email']) 
+            ? $settings['notification_email'] 
+            : get_option('admin_email'); // Fallback to admin email if not set
+        
+        // Process multiple email addresses
+        $to = [];
+        if (strpos($notification_email, ',') !== false || strpos($notification_email, ';') !== false) {
+            // Split by comma or semicolon and trim each email
+            $emails = preg_split('/[,;]/', $notification_email);
+            foreach ($emails as $email) {
+                $email = trim($email);
+                if (is_email($email)) {
+                    $to[] = $email;
+                }
+            }
+        } else {
+            // Single email
+            $to = $notification_email;
+        }
+        
+        // If no valid emails found, use admin email
+        if (empty($to)) {
+            $to = get_option('admin_email');
+        }
+        
         $subject = 'New Event Submission: ' . sanitize_text_field($params['event_name']);
         $message = sprintf(
             "A new event has been submitted:\n\nEvent Name: %s\nEvent Type: %s\nStart Date: %s\nEnd Date: %s\n\nView the event: %s",
@@ -704,6 +730,7 @@ class Rest {
         return new \WP_REST_Response([
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
             'cache_duration' => $settings['cache_duration'],
+            'notification_email' => $settings['notification_email'] ?? '',
             'external_sources' => $external_sources
         ]);
     }
@@ -735,6 +762,30 @@ class Rest {
             $settings['cache_duration'] = $cache_duration;
         }
         
+        // Update notification email
+        if (isset($params['notification_email'])) {
+            // Sanitize the email list
+            $email_list = sanitize_text_field($params['notification_email']);
+            
+            // Validate each email in the list
+            if (!empty($email_list)) {
+                $emails = preg_split('/[,;]/', $email_list);
+                $valid_emails = [];
+                
+                foreach ($emails as $email) {
+                    $email = trim($email);
+                    if (is_email($email)) {
+                        $valid_emails[] = $email;
+                    }
+                }
+                
+                // Join valid emails with commas
+                $settings['notification_email'] = implode(', ', $valid_emails);
+            } else {
+                $settings['notification_email'] = '';
+            }
+        }
+        
         // Update external sources
         if (isset($params['external_sources']) && is_array($params['external_sources'])) {
             $external_sources = self::sanitize_sources($params['external_sources']);
@@ -748,6 +799,7 @@ class Rest {
             'settings' => [
                 'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
                 'cache_duration' => $settings['cache_duration'],
+                'notification_email' => $settings['notification_email'] ?? '',
                 'external_sources' => get_option('mayo_external_sources', [])
             ]
         ]);

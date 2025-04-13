@@ -103,8 +103,14 @@ const ShortcodesDocs = () => {
 
             <div className="card">
                 <h2>Event Submission Form Shortcode</h2>
-                <p>Use this shortcode to display a form that allows users to submit events:</p>
-                <pre><code>[mayo_event_form]</code></pre>
+                <p>
+                    The Event Submission Form Shortcode allows users to submit new events to your site. The form includes fields for event name, type, start date, end date, and more.
+                </p>
+                <p>
+                    When a new event is submitted, an email notification will be sent to the email addresses configured in the plugin settings. Multiple email addresses can be specified, separated by commas or semicolons.
+                </p>
+                <h3>Shortcode</h3>
+                <code>[mayo_event_submission_form]</code>
                 
                 <h3>Default Required Fields</h3>
                 <p>The following fields are always required and cannot be overridden:</p>
