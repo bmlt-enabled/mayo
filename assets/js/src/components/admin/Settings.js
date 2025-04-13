@@ -43,7 +43,7 @@ const Settings = () => {
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
                 
                 // Load cache status
-                const cacheResponse = await apiFetch('/cache-status');
+                const cacheResponse = await apiFetch('/cache');
                 setCacheStatus(cacheResponse);
             } catch (err) {
                 setError('Failed to load settings. Please refresh the page and try again.');
@@ -192,12 +192,12 @@ const Settings = () => {
             setIsPurgingCache(true);
             setError(null);
             
-            await apiFetch('/purge-cache', {
+            await apiFetch('/cache', {
                 method: 'POST'
             });
             
             // Refresh cache status after purging
-            const cacheResponse = await apiFetch('/cache-status');
+            const cacheResponse = await apiFetch('/cache');
             setCacheStatus(cacheResponse);
             
             setSuccessMessage('External events cache purged successfully!');

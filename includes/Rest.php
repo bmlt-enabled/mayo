@@ -26,18 +26,17 @@ class Rest {
             ]);
 
             register_rest_route('event-manager/v1', '/settings', [
-                [
-                    'methods' => 'GET',
-                    'callback' => [__CLASS__, 'bmltenabled_mayo_get_settings'],
-                    'permission_callback' => '__return_true',
-                ],
-                [
-                    'methods' => 'POST',
-                    'callback' => [__CLASS__, 'bmltenabled_mayo_update_settings'],
-                    'permission_callback' => function() {
-                        return current_user_can( 'manage_options' );
-                    }
-                ],
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'bmltenabled_mayo_get_settings'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            register_rest_route('event-manager/v1', '/settings', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'bmltenabled_mayo_update_settings'],
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_options' );
+                }
             ]);
 
             register_rest_route('event-manager/v1', '/event/(?P<slug>[a-zA-Z0-9-]+)', [
@@ -46,7 +45,7 @@ class Rest {
                 'permission_callback' => '__return_true', // Adjust permissions as needed
             ]);
 
-            register_rest_route('event-manager/v1', '/purge-cache', [
+            register_rest_route('event-manager/v1', '/cache', [
                 'methods' => 'POST',
                 'callback' => [__CLASS__, 'purge_external_events_cache'],
                 'permission_callback' => function() {
@@ -54,7 +53,7 @@ class Rest {
                 }
             ]);
 
-            register_rest_route('event-manager/v1', '/cache-status', [
+            register_rest_route('event-manager/v1', '/cache', [
                 'methods' => 'GET',
                 'callback' => [__CLASS__, 'get_cache_status'],
                 'permission_callback' => function() {
