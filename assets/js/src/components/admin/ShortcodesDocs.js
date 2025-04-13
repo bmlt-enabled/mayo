@@ -76,14 +76,29 @@ const ShortcodesDocs = () => {
                             <td>e.g., "1,2,3"</td>
                             <td>Yes</td>
                         </tr>
+                        <tr>
+                            <td>source_ids</td>
+                            <td>Filter events by source IDs (comma-separated)</td>
+                            <td>empty (all sources including local)</td>
+                            <td>e.g., "local,source_123,source_456"</td>
+                            <td>Yes</td>
+                        </tr>
                     </tbody>
                 </table>
                 
                 <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service"]</code></pre>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" source_ids="local,source_123"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&source_ids=local,source_123</code></pre>
+                
+                <h3>Notes</h3>
+                <ul className="ul-disc">
+                    <li>Local events are always included by default unless specifically excluded</li>
+                    <li>To include only local events, use <code>source_ids="local"</code></li>
+                    <li>To exclude local events, specify only external source IDs (e.g., <code>source_ids="source_123,source_456"</code>)</li>
+                    <li>To include all events (local and external), leave source_ids empty</li>
+                </ul>
             </div>
 
             <div className="card">
