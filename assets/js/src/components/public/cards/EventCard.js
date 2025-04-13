@@ -1,4 +1,4 @@
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../../providers/EventProvider';
 import { formatTime, formatTimezone, formatRecurringPattern, dayNames, monthNames } from '../../../util';
 
@@ -15,7 +15,14 @@ const convertToUnicode = (str) => {
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const eventDate = new Date(event.meta.event_start_date + 'T00:00:00');
-    const { getServiceBodyName } = useEventProvider();
+    const { getServiceBodyName, updateExternalServiceBodies } = useEventProvider();
+
+    // Update external service bodies if this is an external event
+    useEffect(() => {
+        if (event.external_source && event.external_source.service_bodies) {
+            updateExternalServiceBodies(event.external_source.id, event.external_source.service_bodies);
+        }
+    }, [event.external_source?.id, event.external_source?.service_bodies, updateExternalServiceBodies]);
 
     // Generate class names with emoji handling
     const categoryClasses = event.categories
@@ -31,7 +38,10 @@ const EventCard = ({ event, timeFormat }) => {
         `mayo-event-type-${convertToUnicode(event.meta.event_type).toLowerCase().replace(/\s+/g, '-')}` : 
         '';
 
-    const serviceBodyClass = `mayo-event-service-body-${convertToUnicode(getServiceBodyName(event.meta.service_body)).toLowerCase().replace(/\s+/g, '-')}`;
+    // Determine the source ID for service body lookup
+    const sourceId = event.external_source ? event.external_source.id : 'local';
+    
+    const serviceBodyClass = `mayo-event-service-body-${convertToUnicode(getServiceBodyName(event.meta.service_body, sourceId)).toLowerCase().replace(/\s+/g, '-')}`;
 
     const cardClasses = [
         'mayo-event-card',
@@ -70,6 +80,11 @@ const EventCard = ({ event, timeFormat }) => {
                                 </span>
                             )}
                         </span>
+                        {event.external_source && (
+                            <span className="mayo-event-source">
+                                Source: {event.external_source.url}
+                            </span>
+                        )}
                         {(event.categories.length > 0 || event.tags.length > 0) && (
                             <div className="mayo-event-brief-taxonomies">
                                 {event.categories.map(cat => (
@@ -203,7 +218,7 @@ const EventCard = ({ event, timeFormat }) => {
                         {event.meta.service_body && (
                             <div className="mayo-event-service-body">
                                 <h4>Service Body</h4>
-                                <p>{getServiceBodyName(event.meta.service_body)}</p>
+                                <p>{getServiceBodyName(event.meta.service_body, sourceId)}</p>
                             </div>
                         )}
 

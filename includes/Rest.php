@@ -26,24 +26,39 @@ class Rest {
             ]);
 
             register_rest_route('event-manager/v1', '/settings', [
-                [
-                    'methods' => 'GET',
-                    'callback' => [__CLASS__, 'bmltenabled_mayo_get_settings'],
-                    'permission_callback' => '__return_true',
-                ],
-                [
-                    'methods' => 'POST',
-                    'callback' => [__CLASS__, 'bmltenabled_mayo_update_settings'],
-                    'permission_callback' => function() {
-                        return current_user_can( 'manage_options' );
-                    }
-                ],
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'bmltenabled_mayo_get_settings'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            register_rest_route('event-manager/v1', '/settings', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'bmltenabled_mayo_update_settings'],
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_options' );
+                }
             ]);
 
             register_rest_route('event-manager/v1', '/event/(?P<slug>[a-zA-Z0-9-]+)', [
                 'methods' => 'GET',
                 'callback' => [__CLASS__, 'bmltenabled_mayo_get_event_details'],
                 'permission_callback' => '__return_true', // Adjust permissions as needed
+            ]);
+
+            register_rest_route('event-manager/v1', '/cache', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'purge_external_events_cache'],
+                'permission_callback' => function() {
+                    return current_user_can('manage_options');
+                }
+            ]);
+
+            register_rest_route('event-manager/v1', '/cache', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_cache_status'],
+                'permission_callback' => function() {
+                    return current_user_can('manage_options');
+                }
             ]);
         });
     }
@@ -163,7 +178,33 @@ class Rest {
     }
 
     private static function send_event_submission_email($post_id, $params) {
-        $to = get_option('admin_email'); // Send to the site admin email
+        // Get notification email from settings
+        $settings = get_option('mayo_settings', []);
+        $notification_email = isset($settings['notification_email']) && !empty($settings['notification_email']) 
+            ? $settings['notification_email'] 
+            : get_option('admin_email'); // Fallback to admin email if not set
+        
+        // Process multiple email addresses
+        $to = [];
+        if (strpos($notification_email, ',') !== false || strpos($notification_email, ';') !== false) {
+            // Split by comma or semicolon and trim each email
+            $emails = preg_split('/[,;]/', $notification_email);
+            foreach ($emails as $email) {
+                $email = trim($email);
+                if (is_email($email)) {
+                    $to[] = $email;
+                }
+            }
+        } else {
+            // Single email
+            $to = $notification_email;
+        }
+        
+        // If no valid emails found, use admin email
+        if (empty($to)) {
+            $to = get_option('admin_email');
+        }
+        
         $subject = 'New Event Submission: ' . sanitize_text_field($params['event_name']);
         $message = sprintf(
             "A new event has been submitted:\n\nEvent Name: %s\nEvent Type: %s\nStart Date: %s\nEnd Date: %s\n\nView the event: %s",
@@ -175,27 +216,27 @@ class Rest {
         );
 
         wp_mail($to, $subject, $message);
-    }
+    }   
 
-    public static function bmltenabled_mayo_get_events($request) {
+    private static function get_local_events($params) {
         $is_archive = false;
     
-        if (isset($_GET['archive'])) {
+        if (isset($params['archive'])) {
             $nonce = wp_create_nonce('wp_rest');
             if (wp_verify_nonce($nonce, 'wp_rest')) {
-                $archive = sanitize_text_field(wp_unslash($_GET['archive']));
+                $archive = sanitize_text_field(wp_unslash($params['archive']));
                 if ($archive === 'true') {
                     $is_archive = true;
                 }
             }
         }
 
-        $status = isset($_GET['status']) ? sanitize_text_field(wp_unslash($_GET['status'])) : 'publish';
-        $eventType = isset($_GET['event_type']) ? sanitize_text_field(wp_unslash($_GET['event_type'])) : '';
-        $serviceBody = isset($_GET['service_body']) ? sanitize_text_field(wp_unslash($_GET['service_body'])) : '';
-        $relation = isset($_GET['relation']) ? sanitize_text_field(wp_unslash($_GET['relation'])) : 'AND';
-        $categories = isset($_GET['categories']) ? sanitize_text_field(wp_unslash($_GET['categories'])) : '';
-        $tags = isset($_GET['tags']) ? sanitize_text_field(wp_unslash($_GET['tags'])) : '';
+        $status = isset($params['status']) ? sanitize_text_field(wp_unslash($params['status'])) : 'publish';
+        $eventType = isset($params['event_type']) ? sanitize_text_field(wp_unslash($params['event_type'])) : '';
+        $serviceBody = isset($params['service_body']) ? sanitize_text_field(wp_unslash($params['service_body'])) : '';
+        $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
+        $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
+        $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
 
         $meta_keys = [
             'event_type' => $eventType,
@@ -243,7 +284,296 @@ class Rest {
             }
         }
 
+        return $events;
+    }
+
+    private static function fetch_external_events($source) {
+        try {
+            // Build query parameters
+            $params = [];
+            if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
+            if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
+            if (!empty($source['categories'])) $params['categories'] = $source['categories'];
+            if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+
+            // Build URL with parameters
+            $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
+
+            $response = wp_remote_get($url, [
+                'timeout' => 15,
+                'sslverify' => true
+            ]);
+
+            if (is_wp_error($response)) {
+                error_log('External Events Error: ' . $response->get_error_message());
+                return [];
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $events = json_decode($body, true);
+
+            if (!is_array($events)) return [];
+
+            // Fetch service bodies from the external source
+            $service_bodies = self::fetch_external_service_bodies($source);
+            
+            // Add source information to each event
+            foreach ($events as &$event) {
+                $event['external_source'] = [
+                    'id' => $source['id'],
+                    'url' => parse_url($source['url'], PHP_URL_HOST),
+                    'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
+                    'service_bodies' => $service_bodies
+                ];
+            }
+
+            return $events;
+        } catch (\Exception $e) {
+            error_log('External Events Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Fetch service bodies from an external source
+     * 
+     * @param array $source The external source configuration
+     * @return array Array of service bodies
+     */
+    private static function fetch_external_service_bodies($source) {
+        try {
+            // Get BMLT root server from the external source
+            $settings_url = trailingslashit($source['url']) . 'wp-json/event-manager/v1/settings';
+            
+            $settings_response = wp_remote_get($settings_url, [
+                'timeout' => 15,
+                'sslverify' => true
+            ]);
+            
+            if (is_wp_error($settings_response)) {
+                error_log('External Settings Error: ' . $settings_response->get_error_message());
+                return [];
+            }
+            
+            $settings_body = wp_remote_retrieve_body($settings_response);
+            $settings = json_decode($settings_body, true);
+            
+            if (empty($settings['bmlt_root_server'])) {
+                error_log('External source has no BMLT root server configured: ' . $source['url']);
+                return [];
+            }
+            
+            // Fetch service bodies from the BMLT root server
+            $bmlt_url = add_query_arg('switcher', 'GetServiceBodies', trailingslashit($settings['bmlt_root_server']) . 'client_interface/json/');
+            
+            $bmlt_response = wp_remote_get($bmlt_url, [
+                'timeout' => 15,
+                'sslverify' => true
+            ]);
+            
+            if (is_wp_error($bmlt_response)) {
+                error_log('External BMLT Error: ' . $bmlt_response->get_error_message());
+                return [];
+            }
+            
+            $bmlt_body = wp_remote_retrieve_body($bmlt_response);
+            $service_bodies = json_decode($bmlt_body, true);
+            
+            if (!is_array($service_bodies)) {
+                error_log('Invalid service bodies response from external source: ' . $source['url']);
+                return [];
+            }
+            
+            return $service_bodies;
+        } catch (\Exception $e) {
+            error_log('External Service Bodies Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public static function bmltenabled_mayo_get_events($request) {
+        $events = [];
+        $local_events = [];
+        
+        // Get source IDs from request
+        $sourceIds = isset($_GET['source_ids']) ? 
+            array_map('sanitize_text_field', explode(',', $_GET['source_ids'])) : 
+            [];
+    
+        // Always get local events if no source IDs specified, or if 'local' is in the source IDs
+        if (empty($sourceIds) || in_array('local', $sourceIds)) {
+            $local_events = self::get_local_events($_GET);
+        
+            $events = array_merge($events, array_map(function($event) {
+                $event['source'] = [
+                    'id' => 'local',
+                    'name' => 'Local Events',
+                    'url' => get_site_url()
+                ];
+                return $event;
+            }, $local_events));
+        }
+
+        // Get external events from specified sources
+        if (!empty($sourceIds)) {
+            $external_sources = get_option('mayo_external_sources', []);
+            $enabled_sources = [];
+            
+            // Filter enabled sources that match the requested source IDs
+            foreach ($external_sources as $source) {
+                if (in_array($source['id'], $sourceIds) && $source['enabled']) {
+                    $enabled_sources[] = $source;
+                }
+            }
+            
+            // If we have enabled sources, fetch events in parallel
+            if (!empty($enabled_sources)) {
+                // Get cache duration from settings
+                $settings = get_option('mayo_settings', []);
+                $cache_duration = isset($settings['cache_duration']) ? intval($settings['cache_duration']) : 60; // Default 60 seconds
+                
+                // Check if we have cached results
+                $cache_key = 'mayo_external_events_' . md5(serialize($enabled_sources) . serialize($_GET));
+                $cached_events = get_transient($cache_key);
+                
+                if ($cached_events !== false) {
+                    // Use cached events
+                    $external_events = $cached_events;
+                } else {
+                    // Fetch fresh events
+                    $external_events = self::fetch_external_events_parallel($enabled_sources);
+                    
+                    // Cache the results for the configured duration
+                    set_transient($cache_key, $external_events, $cache_duration);
+                }
+                
+                if (!empty($external_events)) {
+                    $events = array_merge($events, $external_events);
+                }
+            }
+        }
+
+        // Sort all events by date
+        usort($events, function($a, $b) {
+            $dateA = $a['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
+            $dateB = $b['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
+            return strtotime($dateA) - strtotime($dateB);
+        });
+
         return new \WP_REST_Response($events);
+    }
+    
+    /**
+     * Fetch events from multiple external sources in parallel
+     * 
+     * @param array $sources Array of external source configurations
+     * @return array Array of events from all sources
+     */
+    private static function fetch_external_events_parallel($sources) {
+        $all_events = [];
+        
+        // If no sources to fetch from, return empty array
+        if (empty($sources)) {
+            return [];
+        }
+        
+        // Use curl_multi for true parallel requests
+        if (function_exists('curl_multi_init')) {
+            $mh = curl_multi_init();
+            $curl_handles = [];
+            $source_map = [];
+            
+            // Prepare all curl handles
+            foreach ($sources as $index => $source) {
+                // Build query parameters
+                $params = [];
+                if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
+                if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
+                if (!empty($source['categories'])) $params['categories'] = $source['categories'];
+                if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+
+                // Build URL with parameters
+                $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
+                
+                // Create curl handle
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                
+                // Add to multi handle
+                curl_multi_add_handle($mh, $ch);
+                
+                // Store handle and source mapping
+                $curl_handles[$index] = $ch;
+                $source_map[$index] = $source;
+            }
+            
+            // Execute the requests in parallel
+            $running = null;
+            do {
+                curl_multi_exec($mh, $running);
+                curl_multi_select($mh);
+            } while ($running > 0);
+            
+            // Process responses
+            $service_bodies_cache = [];
+            foreach ($curl_handles as $index => $ch) {
+                $source = $source_map[$index];
+                $response = curl_multi_getcontent($ch);
+                
+                if (empty($response)) {
+                    error_log('External Events Error: Empty response from ' . $source['url']);
+                    curl_multi_remove_handle($mh, $ch);
+                    continue;
+                }
+                
+                $events = json_decode($response, true);
+                
+                if (!is_array($events)) {
+                    error_log('External Events Error: Invalid JSON response from ' . $source['url']);
+                    curl_multi_remove_handle($mh, $ch);
+                    continue;
+                }
+                
+                // Get service bodies for this source (or use cached version)
+                $source_id = $source['id'];
+                if (!isset($service_bodies_cache[$source_id])) {
+                    $service_bodies_cache[$source_id] = self::fetch_external_service_bodies($source);
+                }
+                
+                // Add source information to each event
+                foreach ($events as &$event) {
+                    $event['external_source'] = [
+                        'id' => $source['id'],
+                        'url' => parse_url($source['url'], PHP_URL_HOST),
+                        'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
+                        'service_bodies' => $service_bodies_cache[$source_id]
+                    ];
+                }
+                
+                // Add events to the collection
+                $all_events = array_merge($all_events, $events);
+                
+                // Clean up
+                curl_multi_remove_handle($mh, $ch);
+            }
+            
+            // Close multi handle
+            curl_multi_close($mh);
+        } else {
+            // Fallback to sequential requests if curl_multi is not available
+            foreach ($sources as $source) {
+                $external_events = self::fetch_external_events($source);
+                if (!empty($external_events)) {
+                    $all_events = array_merge($all_events, $external_events);
+                }
+            }
+        }
+        
+        return $all_events;
     }
 
     private static function generate_recurring_events($post, $pattern) {
@@ -390,7 +720,19 @@ class Rest {
 
     public static function bmltenabled_mayo_get_settings() {
         $settings = get_option('mayo_settings', []);
-        return new \WP_REST_Response($settings);
+        $external_sources = get_option('mayo_external_sources', []);
+        
+        // Ensure cache_duration is set with a default value
+        if (!isset($settings['cache_duration'])) {
+            $settings['cache_duration'] = 60; // Default 60 seconds (1 minute)
+        }
+        
+        return new \WP_REST_Response([
+            'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
+            'cache_duration' => $settings['cache_duration'],
+            'notification_email' => $settings['notification_email'] ?? '',
+            'external_sources' => $external_sources
+        ]);
     }
 
     public static function bmltenabled_mayo_update_settings($request) {
@@ -403,30 +745,63 @@ class Rest {
         }
         
         $params = $request->get_params();
-        $settings = [];
-
-        // Validate HTTPS URL
+        $settings = get_option('mayo_settings', []);
+        
+        // Update BMLT root server
         if (isset($params['bmlt_root_server'])) {
-            $url = esc_url_raw(trim($params['bmlt_root_server']));
-            
-            // Check if URL uses HTTPS
-            if (!empty($url) && strpos($url, 'https://') !== 0) {
-                return new \WP_Error(
-                    'invalid_url_protocol',
-                    __('BMLT Root Server URL must use HTTPS protocol.'),
-                    ['status' => 400]
-                );
-            }
-            
-            $settings['bmlt_root_server'] = $url;
+            $settings['bmlt_root_server'] = sanitize_text_field($params['bmlt_root_server']);
         }
-
+        
+        // Update cache duration
+        if (isset($params['cache_duration'])) {
+            $cache_duration = intval($params['cache_duration']);
+            // Ensure it's a positive number
+            if ($cache_duration < 0) {
+                $cache_duration = 60; // Default to 60 seconds if invalid
+            }
+            $settings['cache_duration'] = $cache_duration;
+        }
+        
+        // Update notification email
+        if (isset($params['notification_email'])) {
+            // Sanitize the email list
+            $email_list = sanitize_text_field($params['notification_email']);
+            
+            // Validate each email in the list
+            if (!empty($email_list)) {
+                $emails = preg_split('/[,;]/', $email_list);
+                $valid_emails = [];
+                
+                foreach ($emails as $email) {
+                    $email = trim($email);
+                    if (is_email($email)) {
+                        $valid_emails[] = $email;
+                    }
+                }
+                
+                // Join valid emails with commas
+                $settings['notification_email'] = implode(', ', $valid_emails);
+            } else {
+                $settings['notification_email'] = '';
+            }
+        }
+        
+        // Update external sources
+        if (isset($params['external_sources']) && is_array($params['external_sources'])) {
+            $external_sources = self::sanitize_sources($params['external_sources']);
+            update_option('mayo_external_sources', $external_sources);
+        }
+        
         update_option('mayo_settings', $settings);
         
         return new \WP_REST_Response([
             'success' => true,
-            'message' => 'Settings updated successfully',
-            'settings' => $settings
+            'settings' => [
+                'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
+                'cache_duration' => $settings['cache_duration'],
+                'notification_email' => $settings['notification_email'] ?? '',
+                'external_sources' => get_option('mayo_external_sources', [])
+            ]
         ]);
     }
 
@@ -476,6 +851,17 @@ class Rest {
         }, $terms);
     }
 
+    /**
+     * Generate a readable ID for external sources
+     * 
+     * @return string A readable ID
+     */
+    private static function generate_readable_id() {
+        $prefix = 'source_';
+        $random = substr(md5(uniqid(rand(), true)), 0, 8);
+        return $prefix . $random;
+    }
+
     // Add this new method to ensure nonce is available
     public static function enqueue_scripts() {
         // Add this to your plugin's enqueue_scripts action
@@ -483,6 +869,115 @@ class Rest {
             'root' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest')
         ]);
+    }
+
+    /**
+     * Purge the external events cache
+     * 
+     * @param WP_REST_Request $request The request object
+     * @return WP_REST_Response The response object
+     */
+    public static function purge_external_events_cache($request) {
+        global $wpdb;
+        
+        // Delete all transients that start with 'mayo_external_events_'
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $wpdb->esc_like('_transient_mayo_external_events_') . '%'
+            )
+        );
+        
+        // Also delete the timeout transients
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $wpdb->esc_like('_transient_timeout_mayo_external_events_') . '%'
+            )
+        );
+        
+        return new \WP_REST_Response([
+            'success' => true,
+            'message' => 'External events cache purged successfully'
+        ]);
+    }
+
+    /**
+     * Sanitize external sources
+     * 
+     * @param array $sources Array of external sources
+     * @return array Sanitized external sources
+     */
+    private static function sanitize_sources($sources) {
+        $sanitized_sources = [];
+        
+        foreach ($sources as $source) {
+            if (empty($source['url'])) continue;
+            
+            // Keep existing ID or generate new readable one
+            $id = !empty($source['id']) ? sanitize_text_field($source['id']) : self::generate_readable_id();
+            
+            $sanitized_sources[] = [
+                'id' => $id,
+                'url' => esc_url_raw(trim($source['url'])),
+                'name' => sanitize_text_field($source['name'] ?? ''),
+                'event_type' => sanitize_text_field($source['event_type'] ?? ''),
+                'service_body' => sanitize_text_field($source['service_body'] ?? ''),
+                'categories' => sanitize_text_field($source['categories'] ?? ''),
+                'tags' => sanitize_text_field($source['tags'] ?? ''),
+                'enabled' => (bool) ($source['enabled'] ?? false)
+            ];
+        }
+        
+        return $sanitized_sources;
+    }
+
+    /**
+     * Get cache status for external sources
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public static function get_cache_status($request) {
+        $settings = get_option('mayo_event_manager_settings', []);
+        $external_sources = isset($settings['external_sources']) ? $settings['external_sources'] : [];
+        $cache_status = [];
+
+        foreach ($external_sources as $source) {
+            $cache_key = 'mayo_external_events_' . md5($source['url']);
+            $cached_data = get_transient($cache_key);
+            
+            $cache_status[] = [
+                'id' => $source['id'],
+                'name' => $source['name'] ?? $source['url'],
+                'url' => $source['url'],
+                'enabled' => $source['enabled'] ?? false,
+                'is_cached' => $cached_data !== false,
+                'last_updated' => $cached_data ? get_transient($cache_key . '_time') : null,
+                'event_count' => $cached_data ? count($cached_data) : 0
+            ];
+        }
+
+        return rest_ensure_response($cache_status);
+    }
+
+    /**
+     * Purge the external events cache
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public static function purge_cache($request) {
+        $settings = get_option('mayo_event_manager_settings', []);
+        $external_sources = isset($settings['external_sources']) ? $settings['external_sources'] : [];
+        
+        foreach ($external_sources as $source) {
+            $cache_key = 'mayo_external_events_' . md5($source['url']);
+            delete_transient($cache_key);
+            delete_transient($cache_key . '_time');
+        }
+        
+        return rest_ensure_response(['success' => true]);
     }
 }
 

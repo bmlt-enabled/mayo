@@ -5,6 +5,7 @@ export const EventContext = createContext()
 export const useEventProvider = () => useContext(EventContext);
 export const EventProvider = ({ children }) => {
     const [serviceBodies, setServiceBodies] = useState([])
+    const [externalServiceBodies, setExternalServiceBodies] = useState({})
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -31,12 +32,37 @@ export const EventProvider = ({ children }) => {
         fetchServiceBodies();
     }, [])
 
-    const getServiceBodyName = (id) => {
-        return serviceBodies.find(body => body.id === id)?.name || 'Unknown';
+    const getServiceBodyName = (id, sourceId = 'local') => {
+        // If it's a local service body
+        if (sourceId === 'local') {
+            const serviceBody = serviceBodies.find(body => body.id === id);
+            return serviceBody?.name || 'Unknown';
+        }
+        
+        // If it's an external service body
+        if (externalServiceBodies[sourceId]) {
+            const serviceBody = externalServiceBodies[sourceId].find(body => body.id === id);
+            return serviceBody?.name || 'Unknown';
+        }
+        
+        return 'Unknown';
+    }
+    
+    const updateExternalServiceBodies = (sourceId, bodies) => {
+        if (!bodies || !Array.isArray(bodies) || bodies.length === 0) return;
+        
+        setExternalServiceBodies(prev => ({
+            ...prev,
+            [sourceId]: bodies
+        }));
     }
     
     return (
-        <EventContext.Provider value={{ serviceBodies, getServiceBodyName }}>
+        <EventContext.Provider value={{ 
+            serviceBodies, 
+            getServiceBodyName, 
+            updateExternalServiceBodies 
+        }}>
             {loading ? <div>Loading...</div> : children}
         </EventContext.Provider>
     )
