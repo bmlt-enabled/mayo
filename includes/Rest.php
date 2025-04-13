@@ -583,12 +583,16 @@ class Rest {
             foreach ($params['external_sources'] as $source) {
                 if (empty($source['url'])) continue;
                 
+                // Debug the event_type value
+                error_log('External source event_type: ' . (isset($source['event_type']) ? $source['event_type'] : 'not set'));
+                
                 // Keep existing ID or generate new readable one
                 $id = !empty($source['id']) ? sanitize_text_field($source['id']) : self::generate_readable_id();
                 
                 $external_sources[] = [
                     'id' => $id,
                     'url' => esc_url_raw(trim($source['url'])),
+                    'name' => sanitize_text_field($source['name'] ?? ''),
                     'event_type' => sanitize_text_field($source['event_type'] ?? ''),
                     'service_body' => sanitize_text_field($source['service_body'] ?? ''),
                     'categories' => sanitize_text_field($source['categories'] ?? ''),
