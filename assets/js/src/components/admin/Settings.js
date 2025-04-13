@@ -356,109 +356,110 @@ const Settings = () => {
                                 </Button>
                             </div>
                             
-                            <div className="mayo-cache-settings">
-                                <h3 style={{ paddingTop: '20px' }}>Cache Settings</h3>
-                                <TextControl
-                                    type="number"
-                                    label="External Events Cache Duration (seconds)"
-                                    value={settings.cache_duration}
-                                    onChange={(value) => handleChange('cache_duration', value)}
-                                    help="How long to cache external events before fetching fresh data. Default is 60 seconds (1 minute)."
-                                    min="0"
-                                />
-                                <div className="mayo-cache-actions">
-                                    <Button 
-                                        isPrimary 
-                                        onClick={handleSave}
-                                        isBusy={isSaving}
-                                        disabled={isSaving}
-                                    >
-                                        {isSaving ? 'Saving...' : 'Save Cache Settings'}
-                                    </Button>
-                                    <Button
-                                        isSecondary
-                                        onClick={handlePurgeCache}
-                                        isBusy={isPurgingCache}
-                                        className="mayo-purge-cache-button"
-                                    >
-                                        {isPurgingCache ? 'Purging...' : 'Purge External Events Cache'}
-                                    </Button>
+                            {(isAddingNew || isEditingSource !== null) && currentSource && (
+                                <div className="mayo-external-source-form">
+                                    <TextControl
+                                        label="Site URL"
+                                        value={currentSource.url}
+                                        onChange={(value) => setCurrentSource({...currentSource, url: value})}
+                                        help="Enter the URL of the WordPress site (e.g., https://example.com)"
+                                    />
+                                    <TextControl
+                                        label="Source Name"
+                                        value={currentSource.name}
+                                        onChange={(value) => setCurrentSource({...currentSource, name: value})}
+                                        help="Enter a friendly name for this source (e.g., District 5 Website)"
+                                    />
+                                    <SelectControl
+                                        label="Event Type"
+                                        value={currentSource.event_type || ''}
+                                        options={[
+                                            { label: 'Select an event type', value: '' },
+                                            { label: 'Activity', value: 'Activity' },
+                                            { label: 'Service', value: 'Service' }
+                                        ]}
+                                        onChange={(value) => {
+                                            setCurrentSource({...currentSource, event_type: value});
+                                        }}
+                                        help="Select the event type"
+                                    />
+                                    <TextControl
+                                        label="Service Body"
+                                        value={currentSource.service_body}
+                                        onChange={(value) => setCurrentSource({...currentSource, service_body: value})}
+                                        help="Filter by service body (optional)"
+                                    />
+                                    <TextControl
+                                        label="Categories"
+                                        value={currentSource.categories}
+                                        onChange={(value) => setCurrentSource({...currentSource, categories: value})}
+                                        help="Filter by categories (comma-separated)"
+                                    />
+                                    <TextControl
+                                        label="Tags"
+                                        value={currentSource.tags}
+                                        onChange={(value) => setCurrentSource({...currentSource, tags: value})}
+                                        help="Filter by tags (comma-separated)"
+                                    />
+                                    <ToggleControl
+                                        label="Enable Source"
+                                        checked={currentSource.enabled}
+                                        onChange={(value) => setCurrentSource({...currentSource, enabled: value})}
+                                    />
+                                    <div className="mayo-form-actions">
+                                        <Button
+                                            isPrimary
+                                            onClick={handleSaveSource}
+                                            isBusy={isSaving}
+                                        >
+                                            {isSaving ? 'Saving...' : 'Save Source'}
+                                        </Button>
+                                        <Button
+                                            isSecondary
+                                            onClick={() => {
+                                                setCurrentSource(null);
+                                                setIsEditingSource(null);
+                                                setIsAddingNew(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </>
                     )}
-
-                    {(isAddingNew || isEditingSource !== null) && currentSource && (
-                        <div className="mayo-external-source-form">
-                            <TextControl
-                                label="Site URL"
-                                value={currentSource.url}
-                                onChange={(value) => setCurrentSource({...currentSource, url: value})}
-                                help="Enter the URL of the WordPress site (e.g., https://example.com)"
-                            />
-                            <TextControl
-                                label="Source Name"
-                                value={currentSource.name}
-                                onChange={(value) => setCurrentSource({...currentSource, name: value})}
-                                help="Enter a friendly name for this source (e.g., District 5 Website)"
-                            />
-                            <SelectControl
-                                label="Event Type"
-                                value={currentSource.event_type || ''}
-                                options={[
-                                    { label: 'Select an event type', value: '' },
-                                    { label: 'Activity', value: 'Activity' },
-                                    { label: 'Service', value: 'Service' }
-                                ]}
-                                onChange={(value) => {
-                                    setCurrentSource({...currentSource, event_type: value});
-                                }}
-                                help="Select the event type"
-                            />
-                            <TextControl
-                                label="Service Body"
-                                value={currentSource.service_body}
-                                onChange={(value) => setCurrentSource({...currentSource, service_body: value})}
-                                help="Filter by service body (optional)"
-                            />
-                            <TextControl
-                                label="Categories"
-                                value={currentSource.categories}
-                                onChange={(value) => setCurrentSource({...currentSource, categories: value})}
-                                help="Filter by categories (comma-separated)"
-                            />
-                            <TextControl
-                                label="Tags"
-                                value={currentSource.tags}
-                                onChange={(value) => setCurrentSource({...currentSource, tags: value})}
-                                help="Filter by tags (comma-separated)"
-                            />
-                            <ToggleControl
-                                label="Enable Source"
-                                checked={currentSource.enabled}
-                                onChange={(value) => setCurrentSource({...currentSource, enabled: value})}
-                            />
-                            <div className="mayo-form-actions">
-                                <Button
-                                    isPrimary
-                                    onClick={handleSaveSource}
-                                    isBusy={isSaving}
-                                >
-                                    {isSaving ? 'Saving...' : 'Save Source'}
-                                </Button>
-                                <Button
-                                    isSecondary
-                                    onClick={() => {
-                                        setCurrentSource(null);
-                                        setIsEditingSource(null);
-                                        setIsAddingNew(false);
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+                </PanelBody>
+            </Panel>
+            
+            <Panel>
+                <PanelBody title="Cache Settings" initialOpen={true}>
+                    <TextControl
+                        type="number"
+                        label="External Events Cache Duration (seconds)"
+                        value={settings.cache_duration}
+                        onChange={(value) => handleChange('cache_duration', value)}
+                        help="How long to cache external events before fetching fresh data. Default is 60 seconds (1 minute)."
+                        min="0"
+                    />
+                    <div className="mayo-cache-actions">
+                        <Button 
+                            isPrimary 
+                            onClick={handleSave}
+                            isBusy={isSaving}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? 'Saving...' : 'Save Cache Settings'}
+                        </Button>
+                        <Button
+                            isSecondary
+                            onClick={handlePurgeCache}
+                            isBusy={isPurgingCache}
+                            className="mayo-purge-cache-button"
+                        >
+                            {isPurgingCache ? 'Purging...' : 'Purge External Events Cache'}
+                        </Button>
+                    </div>
                 </PanelBody>
             </Panel>
         </div>
