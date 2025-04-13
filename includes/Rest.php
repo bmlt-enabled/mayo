@@ -238,35 +238,42 @@ class Rest {
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
 
-        $meta_keys = [
-            'event_type' => $eventType,
-            'service_body' => $serviceBody
-        ];
-
         $meta_query = [];
 
-        foreach ($meta_keys as $key => $value) {
-            if ($value != '') {
-                $meta_query[] = [
-                    'key' => $key,
-                    'value' => $value,
-                    'compare' => '='
-                ];
-            }
+        // Handle event type
+        if (!empty($eventType)) {
+            $meta_query[] = [
+                'key' => 'event_type',
+                'value' => $eventType,
+                'compare' => '='
+            ];
+        }
+
+        // Handle service body
+        if (!empty($serviceBody)) {
+            $service_bodies = array_map('trim', explode(',', $serviceBody));
+            $meta_query[] = [
+                'key' => 'service_body',
+                'value' => $service_bodies,
+                'compare' => 'IN'
+            ];
         }
 
         if (count($meta_query) > 0) {
             $meta_query['relation'] = $relation;
         }
 
-        $posts = get_posts([
+        $args = [
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
             'post_status' => $status,
             'meta_query' => $meta_query,
             'category_name' => $categories,
             'tag' => $tags
-        ]);
+        ];
+
+        // Get posts with error handling
+        $posts = get_posts($args);
 
         $events = [];
         foreach ($posts as $post) {
@@ -397,10 +404,10 @@ class Rest {
         
         // Get source IDs from request
         $sourceIds = isset($_GET['source_ids']) ? 
-            array_map('sanitize_text_field', explode(',', $_GET['source_ids'])) : 
+            array_map('trim', array_filter(explode(',', $_GET['source_ids']))) : 
             [];
     
-        // Always get local events if no source IDs specified, or if 'local' is in the source IDs
+        // Get local events by default unless source_ids is explicitly set and doesn't include 'local'
         if (empty($sourceIds) || in_array('local', $sourceIds)) {
             $local_events = self::get_local_events($_GET);
         

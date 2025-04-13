@@ -71,9 +71,9 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>service_body</td>
-                            <td>Shows events for a given service body</td>
+                            <td>Filter events by service body IDs (comma-separated)</td>
                             <td>empty (all service bodies)</td>
-                            <td>e.g., "1,2,3"</td>
+                            <td>e.g., "1,2,3" (shows events from any of the specified service bodies)</td>
                             <td>Yes</td>
                         </tr>
                         <tr>
@@ -87,10 +87,10 @@ const ShortcodesDocs = () => {
                 </table>
                 
                 <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" source_ids="local,source_123"]</code></pre>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&source_ids=local,source_123</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
