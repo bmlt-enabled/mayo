@@ -8,7 +8,6 @@ const EventArchive = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { getServiceBodyName } = useEventProvider();
-    const [pdfEmbedStates, setPdfEmbedStates] = useState({});
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -30,13 +29,6 @@ const EventArchive = () => {
         fetchEvents();
     }, []);
 
-    const togglePdfEmbed = (eventId) => {
-        setPdfEmbedStates(prev => ({
-            ...prev,
-            [eventId]: !prev[eventId]
-        }));
-    };
-
     if (loading) return <div>Loading events...</div>;
     if (error) return <div className="mayo-error">{error}</div>;
 
@@ -52,51 +44,6 @@ const EventArchive = () => {
                         return (
                             <article key={event.id} className="mayo-archive-event">
                                 <div className="mayo-archive-event-content">
-                                    {event.meta.event_pdf_url && (
-                                        <div className="mayo-archive-event-attachments">
-                                            <h3>Event Flyer</h3>
-                                            <div className="mayo-event-pdf">
-                                                <div className="mayo-pdf-actions">
-                                                    <button 
-                                                        className="mayo-pdf-toggle"
-                                                        onClick={() => togglePdfEmbed(event.id)}
-                                                    >
-                                                        {pdfEmbedStates[event.id] ? 'Hide Flyer' : 'View Flyer'}
-                                                    </button>
-                                                    <a 
-                                                        href={event.meta.event_pdf_url}
-                                                        download
-                                                        className="mayo-pdf-link"
-                                                    >
-                                                        Download Flyer
-                                                    </a>
-                                                </div>
-                                                
-                                                {pdfEmbedStates[event.id] && (
-                                                    <div className="mayo-pdf-embed">
-                                                        <object
-                                                            data={`${event.meta.event_pdf_url}#view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
-                                                            type="application/pdf"
-                                                            width="386"
-                                                            height="500"
-                                                        >
-                                                            <p>
-                                                                Your browser doesn't support PDF embedding. You can{' '}
-                                                                <a 
-                                                                    href={event.meta.event_pdf_url}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                >
-                                                                    download the flyer here
-                                                                </a>.
-                                                            </p>
-                                                        </object>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
                                     {event.featured_image && (
                                         <div className="mayo-archive-event-image">
                                             <a href={event.featured_image} target="_blank" rel="noopener noreferrer">

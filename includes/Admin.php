@@ -199,13 +199,7 @@ class Admin {
                     $thumb_url = get_the_post_thumbnail_url($post_id, 'thumbnail');
                     echo '<img src="' . esc_url($thumb_url) . '" width="50" height="50" style="margin-right: 10px;" />';
                 }
-                
-                // Check for PDF attachment
-                $pdf_url = get_post_meta($post_id, 'pdf_file_url', true);
-                if ($pdf_url) {
-                    echo '<a href="' . esc_url($pdf_url) . '" target="_blank" class="mayo-admin-pdf-link">';
-                    echo '<span class="dashicons dashicons-pdf"></span> View PDF</a>';
-                }
+
                 break;
         }
     }
@@ -357,47 +351,6 @@ class Admin {
                 'monthlyWeekday' => '',
                 'endDate' => ''
             ],
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
-            }
-        ]);
-
-        register_post_meta('mayo_event', 'pdf_file_id', [
-            'show_in_rest' => true,
-            'single' => true,
-            'type' => 'string',
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
-            }
-        ]);
-
-        register_post_meta('mayo_event', 'pdf_file_url', [
-            'show_in_rest' => true,
-            'single' => true,
-            'type' => 'string',
-            'default' => '',
-            'sanitize_callback' => 'esc_url_raw',
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
-            }
-        ]);
-
-        // Add these two meta field registrations
-        register_post_meta('mayo_event', 'event_pdf_url', [
-            'show_in_rest' => true,
-            'single' => true,
-            'type' => 'string',
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
-            }
-        ]);
-
-        register_post_meta('mayo_event', 'event_pdf_id', [
-            'show_in_rest' => true,
-            'single' => true,
-            'type' => 'string',
             'auth_callback' => function() { 
                 return current_user_can('edit_posts'); 
             }

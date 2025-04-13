@@ -8,7 +8,6 @@ const EventDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { getServiceBodyName } = useEventProvider();
-    const [showPdfEmbed, setShowPdfEmbed] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -65,50 +64,14 @@ const EventDetails = () => {
                         <h1 className="mayo-single-event-title" dangerouslySetInnerHTML={{ __html: title.rendered }} />
                     </header>
 
-                    <h3>Event Flyer</h3>
-                    {event.meta.event_pdf_url && (
-                        <div className="mayo-single-event-attachments">
-                            <div className="mayo-event-pdf">
-                                <div className="mayo-pdf-actions">
-                                    <a 
-                                        href={event.meta.event_pdf_url}
-                                        download
-                                        className="mayo-pdf-link"
-                                    >
-                                        Download Flyer
-                                    </a>
-                                </div>
-                                
-                                <div className="mayo-pdf-embed">
-                                    <object
-                                        data={`${event.meta.event_pdf_url}#view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
-                                        type="application/pdf"
-                                        width="386"
-                                        height="500"
-                                    >
-                                        <p>
-                                            Your browser doesn't support PDF embedding. You can{' '}
-                                            <a 
-                                                href={event.meta.event_pdf_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                download the flyer here
-                                            </a>.
-                                        </p>
-                                    </object>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {event.featured_image && (
+                    <h3>Event Flyer</h3>
                         <div className="mayo-single-event-image">
-                            <div className="mayo-pdf-actions">
+                            <div className="mayo-image-actions">
                             <a 
                                 href={event.featured_image}
                                 download
-                                className="mayo-pdf-link"
+                                className="mayo-image-link"
                             >
                                 Download Flyer
                             </a>

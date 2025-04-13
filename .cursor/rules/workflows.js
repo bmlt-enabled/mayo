@@ -15,7 +15,7 @@ module.exports = {
                 pattern: "File upload handling after metadata processing"
             },
             {
-                description: "Handle both PDF and image attachments consistently",
+                description: "Handle image attachments consistently",
                 pattern: "Conditional processing based on mime type"
             },
             {
