@@ -1,5 +1,8 @@
 # Release Notes
 
+### 1.2.0 (April 13, 2025)
+* Allowed for external event pulling from other Mayo driven sites. [#4]
+
 ### 1.1.2 (April 6, 2025)
 * Added Unaffiliated option for Service Body selection. [#1]
 

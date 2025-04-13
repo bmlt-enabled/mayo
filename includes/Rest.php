@@ -376,12 +376,32 @@ class Rest {
         // Get external events from specified sources
         if (!empty($sourceIds)) {
             $external_sources = get_option('mayo_external_sources', []);
+            $enabled_sources = [];
+            
+            // Filter enabled sources that match the requested source IDs
             foreach ($external_sources as $source) {
-                if (!in_array($source['id'], $sourceIds) || !$source['enabled']) {
-                    continue;
+                if (in_array($source['id'], $sourceIds) && $source['enabled']) {
+                    $enabled_sources[] = $source;
                 }
-
-                $external_events = self::fetch_external_events($source);
+            }
+            
+            // If we have enabled sources, fetch events in parallel
+            if (!empty($enabled_sources)) {
+                // Check if we have cached results
+                $cache_key = 'mayo_external_events_' . md5(serialize($enabled_sources) . serialize($_GET));
+                $cached_events = get_transient($cache_key);
+                
+                if ($cached_events !== false) {
+                    // Use cached events
+                    $external_events = $cached_events;
+                } else {
+                    // Fetch fresh events
+                    $external_events = self::fetch_external_events_parallel($enabled_sources);
+                    
+                    // Cache the results for 1 minute
+                    set_transient($cache_key, $external_events, 60);
+                }
+                
                 if (!empty($external_events)) {
                     $events = array_merge($events, $external_events);
                 }
@@ -391,11 +411,124 @@ class Rest {
         // Sort all events by date
         usort($events, function($a, $b) {
             $dateA = $a['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
-            $dateB = $b['meta']['event_start_date'] . ' ' . ($b['meta']['event_start_time'] ?? '00:00:00');
+            $dateB = $b['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
             return strtotime($dateA) - strtotime($dateB);
         });
 
         return new \WP_REST_Response($events);
+    }
+    
+    /**
+     * Fetch events from multiple external sources in parallel
+     * 
+     * @param array $sources Array of external source configurations
+     * @return array Array of events from all sources
+     */
+    private static function fetch_external_events_parallel($sources) {
+        $all_events = [];
+        
+        // If no sources to fetch from, return empty array
+        if (empty($sources)) {
+            return [];
+        }
+        
+        // Use curl_multi for true parallel requests
+        if (function_exists('curl_multi_init')) {
+            $mh = curl_multi_init();
+            $curl_handles = [];
+            $source_map = [];
+            
+            // Prepare all curl handles
+            foreach ($sources as $index => $source) {
+                // Build query parameters
+                $params = [];
+                if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
+                if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
+                if (!empty($source['categories'])) $params['categories'] = $source['categories'];
+                if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+
+                // Build URL with parameters
+                $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
+                
+                // Create curl handle
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                
+                // Add to multi handle
+                curl_multi_add_handle($mh, $ch);
+                
+                // Store handle and source mapping
+                $curl_handles[$index] = $ch;
+                $source_map[$index] = $source;
+            }
+            
+            // Execute the requests in parallel
+            $running = null;
+            do {
+                curl_multi_exec($mh, $running);
+                curl_multi_select($mh);
+            } while ($running > 0);
+            
+            // Process responses
+            $service_bodies_cache = [];
+            foreach ($curl_handles as $index => $ch) {
+                $source = $source_map[$index];
+                $response = curl_multi_getcontent($ch);
+                
+                if (empty($response)) {
+                    error_log('External Events Error: Empty response from ' . $source['url']);
+                    curl_multi_remove_handle($mh, $ch);
+                    continue;
+                }
+                
+                $events = json_decode($response, true);
+                
+                if (!is_array($events)) {
+                    error_log('External Events Error: Invalid JSON response from ' . $source['url']);
+                    curl_multi_remove_handle($mh, $ch);
+                    continue;
+                }
+                
+                // Get service bodies for this source (or use cached version)
+                $source_id = $source['id'];
+                if (!isset($service_bodies_cache[$source_id])) {
+                    $service_bodies_cache[$source_id] = self::fetch_external_service_bodies($source);
+                }
+                
+                // Add source information to each event
+                foreach ($events as &$event) {
+                    $event['external_source'] = [
+                        'id' => $source['id'],
+                        'url' => parse_url($source['url'], PHP_URL_HOST),
+                        'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
+                        'service_bodies' => $service_bodies_cache[$source_id]
+                    ];
+                }
+                
+                // Add events to the collection
+                $all_events = array_merge($all_events, $events);
+                
+                // Clean up
+                curl_multi_remove_handle($mh, $ch);
+            }
+            
+            // Close multi handle
+            curl_multi_close($mh);
+        } else {
+            // Fallback to sequential requests if curl_multi is not available
+            foreach ($sources as $source) {
+                $external_events = self::fetch_external_events($source);
+                if (!empty($external_events)) {
+                    $all_events = array_merge($all_events, $external_events);
+                }
+            }
+        }
+        
+        return $all_events;
     }
 
     private static function generate_recurring_events($post, $pattern) {
