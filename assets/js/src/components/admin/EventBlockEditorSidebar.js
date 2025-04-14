@@ -86,45 +86,6 @@ const EventBlockEditorSidebar = () => {
         return '';
     };
 
-    // Update the handlePdfUpload function with better logging
-    const handlePdfUpload = () => {
-        const fileFrame = window.wp.media({
-            title: 'Select or Upload PDF',
-            library: {
-                type: 'application/pdf'
-            },
-            button: {
-                text: 'Use this PDF'
-            },
-            multiple: false
-        });
-
-        fileFrame.on('select', function() {
-            const attachment = fileFrame.state().get('selection').first().toJSON();
-            console.log('Selected PDF attachment:', attachment);
-
-            // Update meta values
-            const updates = {
-                meta: {
-                    ...meta,
-                    event_pdf_url: attachment.url,
-                    event_pdf_id: attachment.id.toString()
-                }
-            };
-            
-            console.log('Updating post with:', updates);
-            editPost(updates);
-
-            // Add a timeout to check if the meta was updated
-            setTimeout(() => {
-                const updatedMeta = select('core/editor').getEditedPostAttribute('meta');
-                console.log('Updated meta after save:', updatedMeta);
-            }, 1000);
-        });
-
-        fileFrame.open();
-    };
-
     return (
         <PluginDocumentSettingPanel
             name="mayo-event-details"
@@ -351,67 +312,6 @@ const EventBlockEditorSidebar = () => {
                     placeholder="Parking info, entrance details, etc."
                     __nextHasNoMarginBottom={true}
                 />
-            </PanelBody>
-
-            <PanelBody
-                title="PDF Document"
-                initialOpen={true}
-            >
-                <div className="mayo-pdf-section">
-                    {meta.event_pdf_url ? (
-                        <div className="mayo-pdf-preview">
-                            <div className="mayo-pdf-link-wrapper" style={{ marginBottom: '8px' }}>
-                                <a 
-                                    href={meta.event_pdf_url} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="mayo-pdf-link"
-                                    style={{ 
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        padding: '8px 12px',
-                                        background: '#f0f0f1',
-                                        borderRadius: '2px',
-                                        textDecoration: 'none',
-                                        color: '#2271b1'
-                                    }}
-                                >
-                                    <span 
-                                        className="dashicons dashicons-pdf" 
-                                        style={{ marginRight: '8px' }}
-                                    />
-                                    View PDF
-                                </a>
-                            </div>
-                            <Button
-                                isDestructive
-                                variant="secondary"
-                                onClick={() => {
-                                    const updates = {
-                                        meta: {
-                                            ...meta,
-                                            event_pdf_url: '',
-                                            event_pdf_id: ''
-                                        }
-                                    };
-                                    console.log('Removing PDF:', updates);
-                                    editPost(updates);
-                                }}
-                            >
-                                Remove PDF
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="mayo-pdf-upload">
-                            <Button
-                                variant="secondary"
-                                onClick={handlePdfUpload}
-                            >
-                                {__('Upload PDF')}
-                            </Button>
-                        </div>
-                    )}
-                </div>
             </PanelBody>
         </PluginDocumentSettingPanel>
     );

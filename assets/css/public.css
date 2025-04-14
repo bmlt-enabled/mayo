@@ -193,6 +193,7 @@
 .mayo-event-source {
     font-style: italic;
     color: #666;
+    margin-left: 10px;
     margin-right: 10px;
     font-size: 0.9em;
 }
@@ -1072,68 +1073,14 @@
 .mayo-widget-event-link:hover {
     text-decoration: underline;
 }
-
-.mayo-event-pdf {
-    margin-top: 1rem;
-}
-
-.mayo-pdf-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    color: #2271b1;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.mayo-pdf-link:hover {
-    background: #e5e5e5;
-    color: #135e96;
-    text-decoration: none;
-}
-
-.mayo-pdf-link .dashicons {
-    margin-right: 8px;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-}
-
-.mayo-pdf-link-widget {
-    padding: 4px 8px;
-    font-size: 0.9em;
-}
-
-.mayo-pdf-link-widget .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}
-
-.mayo-pdf-embed {
-    margin: 1rem 0;
-    border-radius: 4px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.mayo-pdf-embed object {
-    display: block;
-    margin: 0 auto;
-}
-
 /* Center the download button */
-.mayo-pdf-actions {
+.mayo-image-actions {
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
 }
 
-.mayo-pdf-toggle,
-.mayo-pdf-link {
+.mayo-image-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1147,19 +1094,7 @@
     text-align: center;
     box-sizing: border-box; /* Ensure padding is included in width */
 }
-
-.mayo-pdf-toggle {
-    background: #2271b1;
-    color: white;
-    border: none;
-    font-weight: normal; /* Match font weight */
-}
-
-.mayo-pdf-toggle:hover {
-    background: #135e96;
-}
-
-.mayo-pdf-link {
+.mayo-image-link {
     background: #f5f5f5;
     border: 1px solid #ddd;
     color: #2271b1;
@@ -1167,13 +1102,13 @@
     font-weight: normal; /* Match font weight */
 }
 
-.mayo-pdf-link:hover {
+.mayo-image-link:hover {
     background: #e5e5e5;
     color: #135e96;
     text-decoration: none;
 }
 
-.mayo-pdf-link .dashicons {
+.mayo-image-link .dashicons {
     margin-right: 8px;
     font-size: 18px;
     width: 18px;
@@ -1243,20 +1178,6 @@
     flex-direction: column;
     gap: 0.5em;
     margin-top: 0.5em;
-}
-
-.mayo-widget-event-pdf {
-    display: flex;
-    gap: 0.5em;
-    margin-top: 0.25em;
-}
-
-.mayo-pdf-link-widget {
-    flex: 1;
-    font-size: 0.85em;
-    padding: 4px 8px;
-    text-align: center;
-    height: 28px;
 }
 
 .mayo-file-input {

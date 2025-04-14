@@ -1,6 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
-import { uploadPDF } from '../../util';
 
 const EventForm = () => {
     // Get the settings from the data attribute
@@ -53,10 +52,6 @@ const EventForm = () => {
     const [tags, setTags] = useState([]);
     const [error, setError] = useState(null);
     const { serviceBodies } = useEventProvider();
-    const [pdfUploadStatus, setPdfUploadStatus] = useState({
-        isUploading: false,
-        error: null
-    });
     const [uploadType, setUploadType] = useState(null);
 
     useEffect(() => {
@@ -183,7 +178,7 @@ const EventForm = () => {
         if (files && files[0]) {
             const file = files[0];
             // Set upload type for UI purposes only
-            setUploadType(file.type === 'application/pdf' ? 'pdf' : 'image');
+            setUploadType('image');
             // Store all files as attachments in the flyer field
             setFormData(prev => ({
                 ...prev,
@@ -373,7 +368,7 @@ const EventForm = () => {
                                     type="file"
                                     id="flyer-upload"
                                     name="flyer"
-                                    accept="image/*,.pdf"
+                                    accept="image/*"
                                     onChange={handleChange}
                                     required={isFieldRequired('flyer')}
                                     className="mayo-file-input"
@@ -382,7 +377,7 @@ const EventForm = () => {
                                     Upload Flyer
                                 </label>
                                 <p className="mayo-upload-info">
-                                    Supported file types: Images (.jpg, .jpeg, .png, .gif) or PDF
+                                    Supported file types: Images (.jpg, .jpeg, .png, .gif)
                                     {isFieldRequired('flyer') && ' (Required)'}
                                 </p>
                             </>
@@ -391,7 +386,7 @@ const EventForm = () => {
                         {uploadType && (
                             <div className="mayo-upload-preview">
                                 <p>
-                                    Selected {uploadType === 'pdf' ? 'PDF' : 'Image'}: {' '}
+                                    Selected {uploadType === 'Image'}: {' '}
                                     {formData.flyer?.name || 'No file selected'}
                                 </p>
                                 <button 

@@ -155,13 +155,8 @@ class Rest {
                     wp_update_attachment_metadata($attachment_id, $attachment_data);
                     $attachment_ids[] = $attachment_id;
 
-                    // Handle PDF files
-                    if ($uploaded_file['type'] === 'application/pdf') {
-                        update_post_meta($post_id, 'event_pdf_url', $uploaded_file['url']);
-                        update_post_meta($post_id, 'event_pdf_id', $attachment_id);
-                    } 
                     // Handle image files
-                    elseif (strpos($uploaded_file['type'], 'image/') === 0) {
+                    if (strpos($uploaded_file['type'], 'image/') === 0) {
                         set_post_thumbnail($post_id, $attachment_id);
                     }
                 }
@@ -678,21 +673,7 @@ class Rest {
         if (has_post_thumbnail($post)) {
             $data['featured_image'] = get_the_post_thumbnail_url($post, 'large');
         }
-        
-        // Explicitly get and add PDF data
-        $event_pdf_url = get_post_meta($post->ID, 'event_pdf_url', true);
-        $event_pdf_id = get_post_meta($post->ID, 'event_pdf_id', true);
 
-        if ($event_pdf_url) {
-            $data['meta']['event_pdf_url'] = $event_pdf_url;
-            $data['meta']['event_pdf_id'] = $event_pdf_id;
-        }
-
-        // Add debugging
-        error_log('Event PDF data for post ' . $post->ID . ': ' . json_encode([
-            'url' => $event_pdf_url,
-            'id' => $event_pdf_id
-        ]));
         
         // Get event meta fields
         $meta_fields = [
@@ -707,8 +688,6 @@ class Rest {
             'location_address',
             'location_details',
             'service_body',
-            'event_pdf_url',  // Add these to ensure they're included
-            'event_pdf_id'
         ];
         
         foreach ($meta_fields as $field) {

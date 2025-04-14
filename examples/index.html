@@ -100,41 +100,6 @@
 		  transition: transform 0.3s ease;
 		}
 
-		/* PDF container */
-		.pdf-container {
-		  width: 100%;
-		  margin-bottom: 10px;
-		  background-color: #f8f9fa;
-		  border-radius: 8px;
-		  overflow: hidden;
-		  cursor: pointer;
-		  position: relative;
-		}
-
-		.pdf-container object {
-		  width: 100%;
-		  height: 350px;
-		  border: none;
-		}
-
-		.pdf-overlay {
-		  position: absolute;
-		  top: 0;
-		  left: 0;
-		  width: 100%;
-		  height: 100%;
-		  background-color: rgba(0, 0, 0, 0.3);
-		  display: flex;
-		  align-items: center;
-		  justify-content: center;
-		  opacity: 0;
-		  transition: opacity 0.3s ease;
-		}
-
-		.pdf-container:hover .pdf-overlay {
-		  opacity: 1;
-		}
-
 		/* Image overlay with zoom icon */
 		.image-overlay {
 		  position: absolute;
@@ -439,24 +404,6 @@
 	          </div>
 	        </div>
 	    `;
-	    } else if (event.meta.event_pdf_url) {
-	      // Show PDF as embedded object
-	      imageHtml = `
-	        <div class="pdf-container">
-	          <object
-	            data="${event.meta.event_pdf_url}#view=Fit&toolbar=0&navpanes=0&scrollbar=0"
-	            type="application/pdf"
-	            width="100%"
-	            height="350"
-	          >
-	            <p>Unable to display PDF file. <a href="${event.meta.event_pdf_url}" target="_blank">Download</a> instead.</p>
-	          </object>
-	          <div class="pdf-overlay">
-	            <span class="zoom-icon">🔍</span>
-	          </div>
-	        </div>
-	      `;
-	    }
 	    
 	    // Format date/time section
 	    let dateTimeHtml = `
@@ -542,7 +489,6 @@
 	    // Add click handler to open image in new tab
 	    const thumbnail = eventEl.querySelector('.mayo-event-thumbnail');
 	    const overlay = eventEl.querySelector('.image-overlay');
-	    const pdfContainer = eventEl.querySelector('.pdf-container');
 	    
 	    if (thumbnail) {
 	      thumbnail.addEventListener('click', function(e) {
@@ -554,12 +500,6 @@
 	      overlay.addEventListener('click', function(e) {
 	        e.preventDefault();
 	        window.open(event.featured_image, '_blank');
-	      });
-	    }
-	    if (pdfContainer) {
-	      pdfContainer.addEventListener('click', function(e) {
-	        e.preventDefault();
-	        window.open(event.meta.event_pdf_url, '_blank');
 	      });
 	    }
 	    

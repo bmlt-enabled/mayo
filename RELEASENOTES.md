@@ -1,5 +1,8 @@
 # Release Notes
 
+### 1.2.1 (April 13, 2025)
+* Removed PDF support which was unstable and inconsistent to maintain.
+
 ### 1.2.0 (April 13, 2025)
 * Added the ability for external event pulling from other Mayo driven sites. [#4]
 * Added the ability to filter on muliple service body ids [#70]
