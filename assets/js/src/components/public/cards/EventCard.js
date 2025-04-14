@@ -133,23 +133,24 @@ const EventCard = ({ event, timeFormat }) => {
                             <div dangerouslySetInnerHTML={{ __html: event.content.rendered }} />
                         </div>
 
-                        <div className="mayo-event-attachments">
-                            <h4>Event Flyer</h4>
-                            {event.featured_image && (
-                            <div className="mayo-event-image">
-                                <div className="mayo-image-actions">
-                                    <a 
-                                        href={event.featured_image}
-                                        download
-                                        className="mayo-image-link"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Download Flyer
+                        {event.featured_image && (
+                            <div className="mayo-event-attachments">
+                                <h4>Event Flyer</h4>
+                                <div className="mayo-event-image">
+                                    <div className="mayo-image-actions">
+                                        <a 
+                                            href={event.featured_image}
+                                            download
+                                            className="mayo-image-link"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Download Flyer
+                                        </a>
+                                    </div>
+                                    <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
+                                        <img src={event.featured_image} alt={event.title.rendered} />
                                     </a>
                                 </div>
-                                <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
-                                    <img src={event.featured_image} alt={event.title.rendered} />
-                                </a>
                             </div>
                         )}
 
@@ -223,7 +224,6 @@ const EventCard = ({ event, timeFormat }) => {
                                 Read More
                             </a>
                         </div>
-                    </div>
                 </div>
             )}
         </div>

@@ -65,7 +65,6 @@ const EventDetails = () => {
                     </header>
 
                     {event.featured_image && (
-                    <h3>Event Flyer</h3>
                         <div className="mayo-single-event-image">
                             <div className="mayo-image-actions">
                             <a 
