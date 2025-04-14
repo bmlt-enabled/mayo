@@ -1,5 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
-import { formatTimezone } from '../../util'; // Import the helper function
+import { formatTimezone, getQueryStringValue } from '../../util'; // Import the helper function
 import { useEventProvider } from '../providers/EventProvider';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -11,8 +11,17 @@ const EventArchive = () => {
 
     useEffect(() => {
         const fetchEvents = async () => {
+            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : 'publish';
+            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : '';
+            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : '';
+            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : 'AND';
+            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : '';
+            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : '';
+            let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : '';
+            let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : 'true';
+            
             try {
-                const response = await apiFetch({ path: '/wp-json/event-manager/v1/events?archive=true' });
+                const response = await apiFetch({ path: `/wp-json/event-manager/v1/events?archive=${archive}&status=${status}&event_type=${eventType}&service_body=${serviceBody}&relation=${relation}&categories=${categories}&tags=${tags}&source_ids=${sourceIds}` });
                 if (response) {
                     setEvents(response);
                 } else {

@@ -68,6 +68,11 @@ export const formatRecurringPattern = (pattern) => {
     return text;
 };
 
+export const getQueryStringValue = (key, defaultValue = null) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.has(key) ? urlParams.get(key) : defaultValue;
+};
+
 /**
  * Call the WordPress REST API
  * 

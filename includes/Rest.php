@@ -219,10 +219,7 @@ class Rest {
         if (isset($params['archive'])) {
             $nonce = wp_create_nonce('wp_rest');
             if (wp_verify_nonce($nonce, 'wp_rest')) {
-                $archive = sanitize_text_field(wp_unslash($params['archive']));
-                if ($archive === 'true') {
-                    $is_archive = true;
-                }
+                $is_archive = sanitize_text_field(wp_unslash($params['archive'])) === 'true';
             }
         }
 

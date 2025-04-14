@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 import { useEventProvider } from '../providers/EventProvider';
+import { getQueryStringValue } from '../../util';
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
@@ -45,11 +46,6 @@ const EventList = ({ widget = false, settings = {} }) => {
             });
         }
     }, [events, updateExternalServiceBodies]);
-
-    const getQueryStringValue = (key, defaultValue = null) => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.has(key) ? urlParams.get(key) : defaultValue;
-    };
 
     const getRssUrl = () => {
         const baseUrl = '/';
