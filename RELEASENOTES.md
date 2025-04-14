@@ -2,6 +2,7 @@
 
 ### 1.2.1 (April 13, 2025)
 * Removed PDF support which was unstable and inconsistent to maintain.
+* Fixing external sources admin side, which was broken. [#76]
 
 ### 1.2.0 (April 13, 2025)
 * Added the ability for external event pulling from other Mayo driven sites. [#4]

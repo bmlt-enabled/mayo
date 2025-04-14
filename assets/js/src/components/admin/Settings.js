@@ -313,121 +313,119 @@ const Settings = () => {
             
             <Panel>
                 <PanelBody title="External Event Sources" initialOpen={true}>
-                    {!isAddingNew && !isEditingSource && (
-                        <>
-                            <div className="mayo-external-sources-list">
-                                {externalSources.map((source, index) => (
-                                    <div key={source.id} className="mayo-external-source-item">
-                                        <div className="mayo-external-source-info">
-                                            <strong>{source.name || source.url}</strong>
-                                            <div className="mayo-external-source-details">
-                                                <span className="mayo-source-id">ID: {source.id}</span>
-                                                {source.event_type && <span>Type: {source.event_type}</span>}
-                                                {source.service_body && <span>Service Body: {source.service_body}</span>}
-                                                <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
-                                                    {source.enabled ? 'Enabled' : 'Disabled'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="mayo-external-source-actions">
-                                            <Button
-                                                isSecondary
-                                                onClick={() => handleEditSource(source, index)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                isDestructive
-                                                onClick={() => handleDeleteSource(index)}
-                                            >
-                                                Delete
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mayo-external-sources-actions">
-                                <Button
-                                    isPrimary
-                                    onClick={handleAddNewClick}
-                                    className="mayo-add-source-button"
-                                >
-                                    Add New External Source
-                                </Button>
-                            </div>
-                            
-                            {(isAddingNew || isEditingSource !== null) && currentSource && (
-                                <div className="mayo-external-source-form">
-                                    <TextControl
-                                        label="Site URL"
-                                        value={currentSource.url}
-                                        onChange={(value) => setCurrentSource({...currentSource, url: value})}
-                                        help="Enter the URL of the WordPress site (e.g., https://example.com)"
-                                    />
-                                    <TextControl
-                                        label="Source Name"
-                                        value={currentSource.name}
-                                        onChange={(value) => setCurrentSource({...currentSource, name: value})}
-                                        help="Enter a friendly name for this source (e.g., District 5 Website)"
-                                    />
-                                    <SelectControl
-                                        label="Event Type"
-                                        value={currentSource.event_type || ''}
-                                        options={[
-                                            { label: 'Select an event type', value: '' },
-                                            { label: 'Activity', value: 'Activity' },
-                                            { label: 'Service', value: 'Service' }
-                                        ]}
-                                        onChange={(value) => {
-                                            setCurrentSource({...currentSource, event_type: value});
-                                        }}
-                                        help="Select the event type"
-                                    />
-                                    <TextControl
-                                        label="Service Body"
-                                        value={currentSource.service_body}
-                                        onChange={(value) => setCurrentSource({...currentSource, service_body: value})}
-                                        help="Filter by service body (optional)"
-                                    />
-                                    <TextControl
-                                        label="Categories"
-                                        value={currentSource.categories}
-                                        onChange={(value) => setCurrentSource({...currentSource, categories: value})}
-                                        help="Filter by categories (comma-separated)"
-                                    />
-                                    <TextControl
-                                        label="Tags"
-                                        value={currentSource.tags}
-                                        onChange={(value) => setCurrentSource({...currentSource, tags: value})}
-                                        help="Filter by tags (comma-separated)"
-                                    />
-                                    <ToggleControl
-                                        label="Enable Source"
-                                        checked={currentSource.enabled}
-                                        onChange={(value) => setCurrentSource({...currentSource, enabled: value})}
-                                    />
-                                    <div className="mayo-form-actions">
-                                        <Button
-                                            isPrimary
-                                            onClick={handleSaveSource}
-                                            isBusy={isSaving}
-                                        >
-                                            {isSaving ? 'Saving...' : 'Save Source'}
-                                        </Button>
-                                        <Button
-                                            isSecondary
-                                            onClick={() => {
-                                                setCurrentSource(null);
-                                                setIsEditingSource(null);
-                                                setIsAddingNew(false);
-                                            }}
-                                        >
-                                            Cancel
-                                        </Button>
+                    <div className="mayo-external-sources-list">
+                        {externalSources.map((source, index) => (
+                            <div key={source.id} className="mayo-external-source-item">
+                                <div className="mayo-external-source-info">
+                                    <strong>{source.name || source.url}</strong>
+                                    <div className="mayo-external-source-details">
+                                        <span className="mayo-source-id">ID: {source.id}</span>
+                                        {source.event_type && <span>Type: {source.event_type}</span>}
+                                        {source.service_body && <span>Service Body: {source.service_body}</span>}
+                                        <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
+                                            {source.enabled ? 'Enabled' : 'Disabled'}
+                                        </span>
                                     </div>
                                 </div>
-                            )}
-                        </>
+                                <div className="mayo-external-source-actions">
+                                    <Button
+                                        isSecondary
+                                        onClick={() => handleEditSource(source, index)}
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        isDestructive
+                                        onClick={() => handleDeleteSource(index)}
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="mayo-external-sources-actions">
+                        <Button
+                            isPrimary
+                            onClick={handleAddNewClick}
+                            className="mayo-add-source-button"
+                            disabled={isAddingNew || isEditingSource !== null}
+                        >
+                            Add New External Source
+                        </Button>
+                    </div>
+                    
+                    {(isAddingNew || isEditingSource !== null) && currentSource && (
+                        <div className="mayo-external-source-form">
+                            <TextControl
+                                label="Site URL"
+                                value={currentSource.url}
+                                onChange={(value) => setCurrentSource({...currentSource, url: value})}
+                                help="Enter the URL of the WordPress site (e.g., https://example.com)"
+                            />
+                            <TextControl
+                                label="Source Name"
+                                value={currentSource.name}
+                                onChange={(value) => setCurrentSource({...currentSource, name: value})}
+                                help="Enter a friendly name for this source (e.g., District 5 Website)"
+                            />
+                            <SelectControl
+                                label="Event Type"
+                                value={currentSource.event_type || ''}
+                                options={[
+                                    { label: 'Select an event type', value: '' },
+                                    { label: 'Activity', value: 'Activity' },
+                                    { label: 'Service', value: 'Service' }
+                                ]}
+                                onChange={(value) => {
+                                    setCurrentSource({...currentSource, event_type: value});
+                                }}
+                                help="Select the event type"
+                            />
+                            <TextControl
+                                label="Service Body"
+                                value={currentSource.service_body}
+                                onChange={(value) => setCurrentSource({...currentSource, service_body: value})}
+                                help="Filter by service body (optional)"
+                            />
+                            <TextControl
+                                label="Categories"
+                                value={currentSource.categories}
+                                onChange={(value) => setCurrentSource({...currentSource, categories: value})}
+                                help="Filter by categories (comma-separated)"
+                            />
+                            <TextControl
+                                label="Tags"
+                                value={currentSource.tags}
+                                onChange={(value) => setCurrentSource({...currentSource, tags: value})}
+                                help="Filter by tags (comma-separated)"
+                            />
+                            <ToggleControl
+                                label="Enable Source"
+                                checked={currentSource.enabled}
+                                onChange={(value) => setCurrentSource({...currentSource, enabled: value})}
+                            />
+                            <div className="mayo-form-actions">
+                                <Button
+                                    isPrimary
+                                    onClick={handleSaveSource}
+                                    isBusy={isSaving}
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Source'}
+                                </Button>
+                                <Button
+                                    isSecondary
+                                    onClick={() => {
+                                        setCurrentSource(null);
+                                        setIsEditingSource(null);
+                                        setIsAddingNew(false);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                            </div>
+                        </div>
                     )}
                 </PanelBody>
             </Panel>
