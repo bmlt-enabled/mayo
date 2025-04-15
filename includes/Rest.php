@@ -92,6 +92,7 @@ class Rest {
         add_post_meta($post_id, 'timezone', sanitize_text_field($params['timezone']));
         add_post_meta($post_id, 'service_body', sanitize_text_field($params['service_body']));
         add_post_meta($post_id, 'email', sanitize_email($params['email']));
+        add_post_meta($post_id, 'contact_name', sanitize_text_field($params['contact_name']));
 
         // Add location metadata
         if (!empty($params['location_name'])) {
