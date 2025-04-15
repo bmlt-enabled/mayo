@@ -2,6 +2,7 @@
 
 ### 1.2.2 (UNRELEASED)
 * Added contact name field and exposed email as well to the admin UI (fields are private and meant for point of contact) [#81]
+* Added Service Body name into the Admin UI [#80]
 
 ### 1.2.1 (April 13, 2025)
 * Removed PDF support which was unstable and inconsistent to maintain.

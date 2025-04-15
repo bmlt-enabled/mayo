@@ -153,7 +153,42 @@ class Admin {
                 echo esc_html(get_post_meta($post_id, 'event_type', true));
                 break;
             case 'service_body':
-                echo esc_html(get_post_meta($post_id, 'service_body', true));
+                $service_body_id = get_post_meta($post_id, 'service_body', true);
+                if ($service_body_id === '0') {
+                    echo esc_html('Unaffiliated (0)');
+                } else {
+                    // Get the service body name from the BMLT root server
+                    $settings = get_option('mayo_settings', []);
+                    $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+                    $found = false;
+                    
+                    if (!empty($bmlt_root_server)) {
+                        $response = wp_remote_get($bmlt_root_server . '/client_interface/json/?switcher=GetServiceBodies');
+                        
+                        if (!is_wp_error($response)) {
+                            $service_bodies = json_decode(wp_remote_retrieve_body($response), true);
+                            
+                            if (is_array($service_bodies)) {
+                                foreach ($service_bodies as $body) {
+                                    if ($body['id'] == $service_body_id) {
+                                        echo esc_html($body['name'] . ' (' . $body['id'] . ')');
+                                        $found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Fallback if we couldn't get the name
+                    if (!$found) {
+                        if (empty($service_body_id)) {
+                            echo esc_html('—');
+                        } else {
+                            echo esc_html('Service Body (' . $service_body_id . ')');
+                        }
+                    }
+                }
                 break;
             case 'event_datetime':
                 $start_date = get_post_meta($post_id, 'event_start_date', true);
