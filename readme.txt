@@ -4,8 +4,8 @@ Contributors: bmltenabled, radius314
 Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
-Tested up to: 6.7
-Stable tag: 1.2.1
+Tested up to: 6.8
+Stable tag: 1.2.2
 
 License: MIT
 License URI: https://opensource.org/licenses/MIT

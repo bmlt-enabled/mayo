@@ -44,7 +44,8 @@ const EventForm = () => {
         categories: [],
         tags: [],
         service_body: '',
-        email: ''
+        email: '',
+        contact_name: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
@@ -156,6 +157,7 @@ const EventForm = () => {
                     tags: [],
                     service_body: '',
                     email: '',
+                    contact_name: ''
                 });
                 setUploadType(null);
             } else {
@@ -268,7 +270,7 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="email">Email *</label>
+                    <label htmlFor="email">Point of Contact Email (Private) *</label>
                     <input
                         type="email"
                         id="email"
@@ -276,6 +278,20 @@ const EventForm = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        placeholder="Your email address (will not be displayed publicly)"
+                    />
+                </div>
+
+                <div className="mayo-form-field">
+                    <label htmlFor="contact_name">Point of Contact Name (Private) *</label>
+                    <input
+                        type="text"
+                        id="contact_name"
+                        name="contact_name"
+                        value={formData.contact_name}
+                        onChange={handleChange}
+                        required
+                        placeholder="Your name (will not be displayed publicly)"
                     />
                 </div>
 
