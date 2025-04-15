@@ -1,6 +1,6 @@
 # Release Notes
 
-### 1.2.2 (UNRELEASED)
+### 1.2.2 (April 15, 2025)
 * Added contact name field and exposed email as well to the admin UI (fields are private and meant for point of contact) [#81]
 * Added Service Body name into the Admin UI [#80]
 
