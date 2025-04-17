@@ -1,5 +1,8 @@
 # Release Notes
 
+### 1.2.3 (April 16, 2025)
+* Fixed HTML entities in category names showing incorrectly (e.g., "&" showing as "&amp;") in the event submission form [#84]
+
 ### 1.2.2 (April 15, 2025)
 * Added contact name field and exposed email as well to the admin UI (fields are private and meant for point of contact) [#81]
 * Added Service Body name into the Admin UI [#80]
