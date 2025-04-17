@@ -110,7 +110,7 @@ const ShortcodesDocs = () => {
                     When a new event is submitted, an email notification will be sent to the email addresses configured in the plugin settings. Multiple email addresses can be specified, separated by commas or semicolons.
                 </p>
                 <h3>Shortcode</h3>
-                <code>[mayo_event_submission_form]</code>
+                <code>[mayo_event_form]</code>
                 
                 <h3>Default Required Fields</h3>
                 <p>The following fields are always required and cannot be overridden:</p>
