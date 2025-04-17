@@ -7,6 +7,13 @@ const EventForm = () => {
     const settingsKey = formElement?.dataset?.settings;
     const settings = window[settingsKey] || {};
     
+    // Helper function to decode HTML entities
+    const decodeHtmlEntities = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    };
+    
     // Define default required fields that cannot be overridden
     const defaultRequiredFields = [
         'event_name',
@@ -465,7 +472,7 @@ const EventForm = () => {
                                         setFormData({...formData, categories: newCategories});
                                     }}
                                 />
-                                {category?.name || 'Unnamed Category'}
+                                {category?.name ? decodeHtmlEntities(category.name) : 'Unnamed Category'}
                             </label>
                         ))}
                     </div>
