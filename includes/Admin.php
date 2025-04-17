@@ -200,6 +200,14 @@ class Admin {
                 // Create a DateTimeZone object from the stored timezone
                 $tz = !empty($timezone) ? new \DateTimeZone($timezone) : wp_timezone();
                 
+                // Get timezone abbreviation to display
+                $timezone_abbr = '';
+                if (!empty($timezone)) {
+                    // Create a datetime in the event's timezone to get its abbreviation
+                    $dt_for_tz = new \DateTime('now', $tz);
+                    $timezone_abbr = $dt_for_tz->format('T'); // Gets timezone abbreviation (like EDT, PST)
+                }
+                
                 // Format start date/time
                 if ($start_date) {
                     // Create DateTime object with the event's timezone
@@ -230,12 +238,24 @@ class Admin {
                     }
                     
                     if ($start_formatted && $end_formatted) {
-                        echo esc_html("$start_formatted - $end_formatted");
+                        $display = "$start_formatted - $end_formatted";
+                        if (!empty($timezone_abbr)) {
+                            $display .= " ($timezone_abbr)";
+                        }
+                        echo esc_html($display);
                     } else {
-                        echo esc_html($start_formatted ?: $end_formatted);
+                        $display = $start_formatted ?: $end_formatted;
+                        if (!empty($timezone_abbr)) {
+                            $display .= " ($timezone_abbr)";
+                        }
+                        echo esc_html($display);
                     }
                 } else {
-                    echo esc_html($start_formatted ?? '');
+                    $display = $start_formatted ?? '';
+                    if (!empty($timezone_abbr) && !empty($display)) {
+                        $display .= " ($timezone_abbr)";
+                    }
+                    echo esc_html($display);
                 }
                 break;
             case 'status':
