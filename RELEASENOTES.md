@@ -3,6 +3,7 @@
 ### 1.2.5 (April 17, 2025)
 * Fixed incorrect shortcode documentation in admin UI [#87]
 * Fixed issue where not all categories and tags appeared in the event submission form [#88]
+* Fixed timezone display issues in admin Events list showing incorrect dates and times [#89]
 
 ### 1.2.4 (April 16, 2025)
 * Added recurring event pattern support to the event submission form [#27]
