@@ -1,5 +1,8 @@
 # Release Notes
 
+### 1.2.5 (April 17, 2025)
+* Fixed incorrect shortcode documentation in admin UI [#87]
+
 ### 1.2.4 (April 16, 2025)
 * Added recurring event pattern support to the event submission form [#27]
 
