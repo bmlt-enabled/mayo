@@ -94,6 +94,40 @@ class Rest {
         add_post_meta($post_id, 'email', sanitize_email($params['email']));
         add_post_meta($post_id, 'contact_name', sanitize_text_field($params['contact_name']));
 
+        // Add recurring pattern metadata if provided
+        if (!empty($params['recurring_pattern'])) {
+            // Decode the JSON string if it's a string
+            $recurring_pattern = is_string($params['recurring_pattern']) 
+                ? json_decode($params['recurring_pattern'], true) 
+                : $params['recurring_pattern'];
+            
+            // Ensure recurring_pattern is an array
+            if (!is_array($recurring_pattern)) {
+                $recurring_pattern = [];
+            }
+            
+            // Sanitize the recurring pattern data
+            $sanitized_pattern = [
+                'type' => isset($recurring_pattern['type']) ? sanitize_text_field($recurring_pattern['type']) : 'none',
+                'interval' => isset($recurring_pattern['interval']) ? intval($recurring_pattern['interval']) : 1,
+                'endDate' => isset($recurring_pattern['endDate']) ? sanitize_text_field($recurring_pattern['endDate']) : null
+            ];
+            
+            // Add type-specific fields
+            if (isset($recurring_pattern['type']) && $recurring_pattern['type'] === 'weekly' && !empty($recurring_pattern['weekdays']) && is_array($recurring_pattern['weekdays'])) {
+                $sanitized_pattern['weekdays'] = array_map('intval', $recurring_pattern['weekdays']);
+            } elseif (isset($recurring_pattern['type']) && $recurring_pattern['type'] === 'monthly') {
+                $sanitized_pattern['monthlyType'] = isset($recurring_pattern['monthlyType']) ? sanitize_text_field($recurring_pattern['monthlyType']) : 'date';
+                if (isset($recurring_pattern['monthlyType']) && $recurring_pattern['monthlyType'] === 'date' && isset($recurring_pattern['monthlyDate'])) {
+                    $sanitized_pattern['monthlyDate'] = intval($recurring_pattern['monthlyDate']);
+                } elseif (isset($recurring_pattern['monthlyWeekday'])) {
+                    $sanitized_pattern['monthlyWeekday'] = sanitize_text_field($recurring_pattern['monthlyWeekday']);
+                }
+            }
+            
+            add_post_meta($post_id, 'recurring_pattern', $sanitized_pattern);
+        }
+
         // Add location metadata
         if (!empty($params['location_name'])) {
             add_post_meta($post_id, 'location_name', sanitize_text_field($params['location_name']));

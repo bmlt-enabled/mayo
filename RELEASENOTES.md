@@ -1,5 +1,8 @@
 # Release Notes
 
+### 1.2.4 (April 16, 2025)
+* Added recurring event pattern support to the event submission form [#27]
+
 ### 1.2.3 (April 16, 2025)
 * Fixed HTML entities in category names showing incorrectly (e.g., "&" showing as "&amp;") in the event submission form [#84]
 
