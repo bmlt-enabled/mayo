@@ -78,8 +78,8 @@ const EventForm = () => {
         const fetchTaxonomies = async () => {
             try {
                 const [categoriesRes, tagsRes] = await Promise.all([
-                    fetch('/wp-json/wp/v2/categories'),
-                    fetch('/wp-json/wp/v2/tags')
+                    fetch('/wp-json/wp/v2/categories?hide_empty=false&per_page=100'),
+                    fetch('/wp-json/wp/v2/tags?hide_empty=false&per_page=100')
                 ]);
 
                 if (!categoriesRes.ok || !tagsRes.ok) {
