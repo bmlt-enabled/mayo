@@ -195,12 +195,26 @@ class Admin {
                 $end_date = get_post_meta($post_id, 'event_end_date', true);
                 $start_time = get_post_meta($post_id, 'event_start_time', true);
                 $end_time = get_post_meta($post_id, 'event_end_time', true);
+                $timezone = get_post_meta($post_id, 'timezone', true);
+                
+                // Create a DateTimeZone object from the stored timezone
+                $tz = !empty($timezone) ? new \DateTimeZone($timezone) : wp_timezone();
+                
+                // Get timezone abbreviation to display
+                $timezone_abbr = '';
+                if (!empty($timezone)) {
+                    // Create a datetime in the event's timezone to get its abbreviation
+                    $dt_for_tz = new \DateTime('now', $tz);
+                    $timezone_abbr = $dt_for_tz->format('T'); // Gets timezone abbreviation (like EDT, PST)
+                }
                 
                 // Format start date/time
                 if ($start_date) {
-                    $start_formatted = wp_date('M j, Y', strtotime($start_date));
+                    // Create DateTime object with the event's timezone
+                    $start_dt = new \DateTime($start_date . ' ' . ($start_time ?: '00:00:00'), $tz);
+                    $start_formatted = $start_dt->format('M j, Y');
                     if ($start_time) {
-                        $start_formatted .= ' ' . wp_date('g:i A', strtotime($start_time));
+                        $start_formatted .= ' ' . $start_dt->format('g:i A');
                     }
                 }
                 
@@ -208,21 +222,40 @@ class Admin {
                 if ($end_date || $end_time) {
                     $end_formatted = '';
                     if ($end_date) {
-                        $end_formatted = wp_date('M j, Y', strtotime($end_date));
-                    } else {
-                        $end_formatted = $start_formatted ? wp_date('M j, Y', strtotime($start_date)) : '';
+                        // Create DateTime object with the event's timezone
+                        $end_dt = new \DateTime($end_date . ' ' . ($end_time ?: '00:00:00'), $tz);
+                        $end_formatted = $end_dt->format('M j, Y');
+                    } else if ($start_date) {
+                        // Use start date with end time
+                        $end_dt = new \DateTime($start_date . ' ' . ($end_time ?: '00:00:00'), $tz);
+                        $end_formatted = $end_dt->format('M j, Y');
                     }
+                    
                     if ($end_time) {
-                        $end_formatted .= ' ' . wp_date('g:i A', strtotime($end_time));
+                        if (isset($end_dt)) {
+                            $end_formatted .= ' ' . $end_dt->format('g:i A');
+                        }
                     }
                     
                     if ($start_formatted && $end_formatted) {
-                        echo esc_html("$start_formatted - $end_formatted");
+                        $display = "$start_formatted - $end_formatted";
+                        if (!empty($timezone_abbr)) {
+                            $display .= " ($timezone_abbr)";
+                        }
+                        echo esc_html($display);
                     } else {
-                        echo esc_html($start_formatted ?: $end_formatted);
+                        $display = $start_formatted ?: $end_formatted;
+                        if (!empty($timezone_abbr)) {
+                            $display .= " ($timezone_abbr)";
+                        }
+                        echo esc_html($display);
                     }
                 } else {
-                    echo esc_html($start_formatted ?? '');
+                    $display = $start_formatted ?? '';
+                    if (!empty($timezone_abbr) && !empty($display)) {
+                        $display .= " ($timezone_abbr)";
+                    }
+                    echo esc_html($display);
                 }
                 break;
             case 'status':
