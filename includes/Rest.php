@@ -432,6 +432,10 @@ class Rest {
         $events = [];
         $local_events = [];
         
+        // Pagination parameters
+        $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+        $per_page = isset($_GET['per_page']) ? max(1, intval($_GET['per_page'])) : 10;
+        
         // Get source IDs from request
         $sourceIds = isset($_GET['source_ids']) ? 
             array_map('trim', array_filter(explode(',', $_GET['source_ids']))) : 
@@ -493,11 +497,30 @@ class Rest {
         // Sort all events by date
         usort($events, function($a, $b) {
             $dateA = $a['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
-            $dateB = $b['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
+            $dateB = $b['meta']['event_start_date'] . ' ' . ($b['meta']['event_start_time'] ?? '00:00:00');
             return strtotime($dateA) - strtotime($dateB);
         });
+        
+        // Apply pagination
+        $total_events = count($events);
+        $total_pages = ceil($total_events / $per_page);
+        
+        // Ensure page is within bounds
+        $page = min($page, max(1, $total_pages));
+        
+        // Get the subset of events for the current page
+        $offset = ($page - 1) * $per_page;
+        $paginated_events = array_slice($events, $offset, $per_page);
 
-        return new \WP_REST_Response($events);
+        return new \WP_REST_Response([
+            'events' => $paginated_events,
+            'pagination' => [
+                'total' => $total_events,
+                'per_page' => $per_page,
+                'current_page' => $page,
+                'total_pages' => $total_pages
+            ]
+        ]);
     }
     
     /**
