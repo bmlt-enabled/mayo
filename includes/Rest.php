@@ -266,9 +266,114 @@ class Rest {
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
         $timezone = isset($params['timezone']) ? sanitize_text_field(wp_unslash($params['timezone'])) : 'America/New_York';
 
-        error_log('Mayo Events API: Archive mode is ' . ($is_archive ? 'true' : 'false'));
-        error_log('Mayo Events API: Using timezone ' . $timezone);
+        $today = new DateTime('now', new \DateTimeZone($timezone));
+        $today->setTime(0, 0, 0); // Start of today
+        $current_date = $today->format('Y-m-d');
+        
+        $events = [];
+        
+        // If we're in archive mode, just get all events
+        if ($is_archive) {
+            $events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
+        } else {
+            // In normal mode, we'll fetch events in two steps:
+            
+            // 1. Get direct future events (non-recurring or with future start dates)
+            $future_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $current_date);
+            
+            $events = array_merge($events, $future_events);
+            
+            // 2. Get all events with recurring patterns, regardless of start date
+            $recurring_meta_query = [
+                [
+                    'key' => 'recurring_pattern',
+                    'compare' => 'EXISTS'
+                ],
+                [
+                    'key' => 'recurring_pattern',
+                    'value' => 'none',
+                    'compare' => '!='
+                ]
+            ];
+            
+            // Add event type filter if specified
+            if (!empty($eventType)) {
+                $recurring_meta_query[] = [
+                    'key' => 'event_type',
+                    'value' => $eventType,
+                    'compare' => '='
+                ];
+            }
 
+            // Add service body filter if specified
+            if (!empty($serviceBody)) {
+                $service_bodies = array_map('trim', explode(',', $serviceBody));
+                $recurring_meta_query[] = [
+                    'key' => 'service_body',
+                    'value' => $service_bodies,
+                    'compare' => 'IN'
+                ];
+            }
+            
+            // Always set AND relation for this query
+            $recurring_meta_query['relation'] = 'AND';
+            
+            $args = [
+                'post_type' => 'mayo_event',
+                'posts_per_page' => -1,
+                'post_status' => $status,
+                'meta_query' => $recurring_meta_query,
+                'category_name' => $categories,
+                'tag' => $tags
+            ];
+            
+            $recurring_posts = get_posts($args);
+            
+            // Process these recurring posts and add only future instances
+            foreach ($recurring_posts as $post) {
+                try {
+                    $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+                    $start_date = get_post_meta($post->ID, 'event_start_date', true);
+                    
+                    if (!$recurring_pattern || !$start_date || $recurring_pattern['type'] === 'none') {
+                        continue;
+                    }
+                    
+                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
+                    
+                    // Filter to keep only future events
+                    $future_recurring_events = array_filter($recurring_events, function($event) use ($today) {
+                        if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
+                            return false;
+                        }
+                        
+                        try {
+                            $event_date_str = $event['meta']['event_start_date'];
+                            $event_date = new DateTime($event_date_str);
+                            $event_date->setTime(0, 0, 0); // Set to beginning of day for comparison
+                            return $event_date >= $today;
+                        } catch (\Exception $e) {
+                            error_log('Mayo Events API: Error parsing recurring event date: ' . $e->getMessage());
+                            return false;
+                        }
+                    });
+                    
+                    if (count($future_recurring_events) > 0) {
+                        $events = array_merge($events, $future_recurring_events);
+                    }
+                } catch (\Exception $e) {
+                    error_log('Mayo Events API: Error processing recurring event: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return $events;
+    }
+    
+    /**
+     * Helper method to query events with the given parameters
+     */
+    private static function query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $min_date = null) {
         $meta_query = [];
 
         // Handle event type
@@ -290,17 +395,11 @@ class Rest {
             ];
         }
 
-        // If not archive mode, add date filter to only get future events
-        if (!$is_archive) {
-            $today = new DateTime('now', new \DateTimeZone($timezone));
-            $today->setTime(0, 0, 0); // Start of today
-            
-            $current_date = $today->format('Y-m-d');
-            error_log('Mayo Events API: Filtering events from date ' . $current_date);
-            
+        // Add date filter if specified
+        if (!is_null($min_date)) {
             $meta_query[] = [
                 'key' => 'event_start_date',
-                'value' => $current_date,
+                'value' => $min_date,
                 'compare' => '>=',
                 'type' => 'DATE'
             ];
@@ -319,42 +418,18 @@ class Rest {
             'tag' => $tags
         ];
 
-        error_log('Mayo Events API: WP_Query args: ' . print_r($args, true));
-
         // Get posts with error handling
         $posts = get_posts($args);
-        error_log('Mayo Events API: Found ' . count($posts) . ' posts matching query');
-
         $events = [];
+        
         foreach ($posts as $post) {
             try {
-                $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
-                
-                if (!$is_archive && $recurring_pattern && $recurring_pattern['type'] !== 'none') {
-                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
-                    
-                    // Filter recurring events to only include future events (if not in archive mode)
-                    if (!$is_archive) {
-                        $recurring_events = array_filter($recurring_events, function($event) use ($today) {
-                            $event_date_str = $event['meta']['event_start_date'];
-                            $event_date = new DateTime($event_date_str);
-                            $event_date->setTime(0, 0, 0); // Set to beginning of day for comparison
-                            error_log('Mayo Events API: Comparing recurring event date ' . $event_date_str . ' with today ' . $today->format('Y-m-d'));
-                            return $event_date >= $today;
-                        });
-                    }
-                    
-                    error_log('Mayo Events API: Generated ' . count($recurring_events) . ' recurring events for post ID ' . $post->ID);
-                    $events = array_merge($events, $recurring_events);
-                } else {
-                    $events[] = self::format_event($post);
-                }
+                $events[] = self::format_event($post);
             } catch (\Exception $e) {
-                error_log('Mayo Events API: Error processing event: ' . $e->getMessage());
-                throw $e;
+                error_log('Mayo Events API: Error formatting event: ' . $e->getMessage());
             }
         }
-
+        
         return $events;
     }
 
@@ -477,9 +552,6 @@ class Rest {
         $events = [];
         $local_events = [];
         
-        // Debug logging
-        error_log('Mayo Events API Request: ' . print_r($_GET, true));
-        
         // Pagination parameters
         $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
         $per_page = isset($_GET['per_page']) ? max(1, intval($_GET['per_page'])) : 10;
@@ -492,7 +564,6 @@ class Rest {
         // Get local events by default unless source_ids is explicitly set and doesn't include 'local'
         if (empty($sourceIds) || in_array('local', $sourceIds)) {
             $local_events = self::get_local_events($_GET);
-            error_log('Mayo Events API: Found ' . count($local_events) . ' local events');
         
             $events = array_merge($events, array_map(function($event) {
                 $event['source'] = [
@@ -529,11 +600,9 @@ class Rest {
                 if ($cached_events !== false) {
                     // Use cached events
                     $external_events = $cached_events;
-                    error_log('Mayo Events API: Using ' . count($external_events) . ' cached external events');
                 } else {
                     // Fetch fresh events
                     $external_events = self::fetch_external_events_parallel($enabled_sources);
-                    error_log('Mayo Events API: Fetched ' . count($external_events) . ' fresh external events');
                     
                     // Cache the results for the configured duration
                     set_transient($cache_key, $external_events, $cache_duration);
@@ -545,20 +614,7 @@ class Rest {
             }
         }
 
-        // Log total events found
-        error_log('Mayo Events API: Total events before pagination: ' . count($events));
-
         // Sort all events by date
-        foreach ($events as $event) {
-            if (isset($event['title']['rendered']) && $event['title']['rendered'] === 'Test 2') {
-                error_log('Mayo Events API: Test 2 event data: ' . print_r($event['meta'], true));
-            }
-            
-            if (empty($event['meta']['event_start_date']) || $event['meta']['event_start_date'] === '') {
-                error_log('Mayo Events API: Event with missing date: ' . (isset($event['title']['rendered']) ? $event['title']['rendered'] : 'Unknown title'));
-            }
-        }
-        
         usort($events, function($a, $b) {
             // Check if required meta fields exist
             if (!isset($a['meta']['event_start_date'])) {
@@ -596,8 +652,6 @@ class Rest {
         // Get the subset of events for the current page
         $offset = ($page - 1) * $per_page;
         $paginated_events = array_slice($events, $offset, $per_page);
-        
-        error_log('Mayo Events API: Returning ' . count($paginated_events) . ' events after pagination');
         
         // Restore previous error reporting level
         error_reporting($previous_error_reporting);
@@ -733,6 +787,21 @@ class Rest {
         return $all_events;
     }
 
+    /**
+     * Convert a number to its ordinal representation
+     * 
+     * @param int $number The number to convert
+     * @return string The ordinal representation (1st, 2nd, 3rd, etc.)
+     */
+    private static function ordinal($number) {
+        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+        if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
+            return $number. 'th';
+        } else {
+            return $number. $ends[$number % 10];
+        }
+    }
+
     private static function generate_recurring_events($post, $pattern) {
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
@@ -742,12 +811,28 @@ class Rest {
         if ($pattern['type'] === 'monthly') {
             $current = clone $start;
             while ($current <= $end) {
-                if ($pattern['monthlyType'] === 'date') {
+                $original_month_date = $current->format('Y-m-d');
+                
+                if (isset($pattern['monthlyType']) && $pattern['monthlyType'] === 'date') {
                     // Specific date of month
                     $day = (int)$pattern['monthlyDate'];
+                    
+                    // Check if the day exists in current month
+                    $days_in_month = (int)$current->format('t');
+                    if ($day > $days_in_month) {
+                        // Move to next month
+                        $current->modify('first day of next month');
+                        continue;
+                    }
+                    
                     $current->setDate($current->format('Y'), $current->format('m'), $day);
                 } else {
                     // Specific weekday (e.g., 3rd Thursday)
+                    if (!isset($pattern['monthlyWeekday'])) {
+                        $current->modify('first day of next month');
+                        continue;
+                    }
+                    
                     list($week, $weekday) = explode(',', $pattern['monthlyWeekday']);
                     $week = (int)$week;
                     $weekday = (int)$weekday;
@@ -781,10 +866,13 @@ class Rest {
             while ($current <= $end) {
                 if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
                     // For weekly pattern, check if current day is in selected weekdays
-                    if (in_array($current->format('w'), $pattern['weekdays'])) {
+                    $current_day = $current->format('w'); // 0 (Sunday) to 6 (Saturday)
+                    
+                    if (in_array($current_day, $pattern['weekdays'])) {
                         $events[] = self::format_recurring_event($post, $current);
                     }
                 } else {
+                    // For daily patterns
                     $events[] = self::format_recurring_event($post, $current);
                 }
                 

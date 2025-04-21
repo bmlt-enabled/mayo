@@ -79,8 +79,8 @@ const EventCard = ({ event, timeFormat }) => {
                 <div className="mayo-event-summary">
                     <h3 dangerouslySetInnerHTML={{ __html: event.title.rendered }} />
                     {!hasValidDate && (
-                        <div className="mayo-event-invalid-date-warning">
-                            ⚠️ This event has an invalid or missing date
+                        <div className="mayo-event-date-warning">
+                            This event has no date set
                         </div>
                     )}
                     <div className="mayo-event-brief">

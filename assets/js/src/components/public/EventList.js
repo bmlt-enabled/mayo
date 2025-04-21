@@ -162,7 +162,6 @@ const EventList = ({ widget = false, settings = {} }) => {
             
             // Process events to handle invalid dates
             const processedEvents = processEvents(data.events);
-            console.log('Events after processing:', processedEvents);
             
             // Update pagination info
             setCurrentPage(data.pagination.current_page);
@@ -198,14 +197,13 @@ const EventList = ({ widget = false, settings = {} }) => {
     if (error && events.length === 0) return <div className="mayo-error">{error}</div>;
     if (!events.length) {
         if (showArchived) {
-            return <div className="mayo-no-events">No events found in the archive. <span className="mayo-debug">(archive=true)</span></div>;
+            return <div className="mayo-no-events">No events found in the archive.</div>;
         } else {
             return <div className="mayo-no-events">
                 No upcoming events found. 
                 <a href={`${window.location.pathname}?archive=true`} className="mayo-archive-link">
                     View past events
                 </a>
-                <span className="mayo-debug">(timezone={userTimezone})</span>
             </div>;
         }
     }

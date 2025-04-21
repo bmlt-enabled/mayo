@@ -77,5 +77,3 @@ Mayo is meant to be simple, and does not provide all the functionality of a typi
 - **Additional Notification Options**: Expand notification capabilities to include SMS or push notifications.
 - **Advanced Filtering**: Implement more advanced filtering and search options for events.
 - **User Roles and Permissions**: Enhance role-based access control for event management.
-
-== Changelog ==

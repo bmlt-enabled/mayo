@@ -24,8 +24,8 @@ const EventWidgetCard = ({ event, timeFormat }) => {
             </div>
             <h4 className="mayo-widget-event-title">{event.title.rendered}</h4>
             {!hasValidDate && (
-                <div className="mayo-event-invalid-date-warning">
-                    ⚠️ Invalid date
+                <div className="mayo-event-date-warning">
+                    Event date not set
                 </div>
             )}
             {event.meta.event_start_time && (
