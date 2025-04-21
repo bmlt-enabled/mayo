@@ -249,6 +249,9 @@ class Rest {
     }   
 
     private static function get_local_events($params) {
+        // Start overall timing
+        $get_events_start = microtime(true);
+        
         $is_archive = false;
     
         if (isset($params['archive'])) {
@@ -267,6 +270,16 @@ class Rest {
         $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
+        
+        // Get the recurrence limit
+        $settings = get_option('mayo_settings', []);
+        $default_recurrence_limit = isset($settings['default_recurrence_limit']) ? intval($settings['default_recurrence_limit']) : 5;
+        
+        // If provided in the request, use it (but cap at the default value to prevent DoS)
+        $recurrence_limit = isset($params['recurrence_limit']) ? intval(wp_unslash($params['recurrence_limit'])) : $default_recurrence_limit;
+        
+        // Ensure we don't exceed the default limit to prevent DoS attacks
+        $recurrence_limit = min($recurrence_limit, $default_recurrence_limit);
 
         $meta_query = [];
 
@@ -302,24 +315,61 @@ class Rest {
             'tag' => $tags
         ];
 
+        // Log the query parameters for debugging
+        error_log("[Performance] Querying events with params: " . json_encode([
+            'status' => $status,
+            'event_type' => $eventType,
+            'service_body' => $serviceBody,
+            'recurrence_limit' => $recurrence_limit
+        ]));
+        
+        $query_start = microtime(true);
         // Get posts with error handling
         $posts = get_posts($args);
+        $query_time = microtime(true) - $query_start;
+        
+        error_log("[Performance] Found " . count($posts) . " event posts in {$query_time}s");
 
         $events = [];
+        $recurring_count = 0;
+        $non_recurring_count = 0;
+        
+        $start_time = microtime(true);
+        
+        // Process events
         foreach ($posts as $post) {
+            $event_start = microtime(true);
             try {
                 $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
                 
                 if (!$is_archive && $recurring_pattern && $recurring_pattern['type'] !== 'none') {
-                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
+                    $recurring_count++;
+                    // Log details about each recurring event for analysis
+                    error_log("[Performance] Processing recurring event ID: {$post->ID}, type: {$recurring_pattern['type']}");
+                    
+                    $recurring_start = microtime(true);
+                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern, $recurrence_limit);
+                    $recurring_time = microtime(true) - $recurring_start;
+                    
+                    error_log("[Performance] Generated " . count($recurring_events) . " recurring instances in {$recurring_time}s");
+                    
                     $events = array_merge($events, $recurring_events);
                 } else {
+                    $non_recurring_count++;
                     $events[] = self::format_event($post);
                 }
             } catch (\Exception $e) {
+                error_log("[Error] Failed to process event {$post->ID}: " . $e->getMessage());
                 throw $e;
             }
+            $event_time = microtime(true) - $event_start;
+            if ($event_time > 1.0) {
+                error_log("[Performance] Slow event processing for ID {$post->ID}: {$event_time}s");
+            }
         }
+        
+        $total_time = microtime(true) - $get_events_start;
+        error_log("[Performance] get_local_events completed in {$total_time}s - Processed {$recurring_count} recurring and {$non_recurring_count} non-recurring events");
 
         return $events;
     }
@@ -613,64 +663,311 @@ class Rest {
         return $all_events;
     }
 
-    private static function generate_recurring_events($post, $pattern) {
+    private static function generate_recurring_events($post, $pattern, $recurrence_limit = null) {
+        // Start overall timing
+        $total_start_time = microtime(true);
+        
+        // Log input parameters for debugging
+        error_log("[DEBUG] Event ID: {$post->ID}, Title: '" . get_the_title($post) . "'");
+        error_log("[DEBUG] Pattern details: " . json_encode($pattern));
+        error_log("[DEBUG] Recurrence limit: " . ($recurrence_limit ?? 'null'));
+        
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
         $start = new DateTime(get_post_meta($post->ID, 'event_start_date', true));
-        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : (clone $start)->modify('+1 year');
+        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : (clone $start)->modify('+6 months'); // Limit to 6 months max
+        
+        error_log("[DEBUG] Date range: {$start->format('Y-m-d')} to {$end->format('Y-m-d')}");
+        
+        // Set maximum limit for recurring instances to prevent timeouts
+        $max_instances = !is_null($recurrence_limit) && $recurrence_limit > 0 ? (int)$recurrence_limit : 5;
+        $instance_count = 0;
+        
+        // Log start for debugging
+        error_log("[Performance] Starting recurring event generation for post ID: {$post->ID}, pattern: {$pattern['type']}, limit: {$max_instances}");
         
         if ($pattern['type'] === 'monthly') {
+            $section_start = microtime(true);
             $current = clone $start;
-            while ($current <= $end) {
-                if ($pattern['monthlyType'] === 'date') {
-                    // Specific date of month
-                    $day = (int)$pattern['monthlyDate'];
-                    $current->setDate($current->format('Y'), $current->format('m'), $day);
-                } else {
-                    // Specific weekday (e.g., 3rd Thursday)
-                    list($week, $weekday) = explode(',', $pattern['monthlyWeekday']);
-                    $week = (int)$week;
-                    $weekday = (int)$weekday;
-                    
-                    // Calculate the date
-                    $current->modify('first day of this month');
-                    if ($week > 0) {
-                        // First, second, third, fourth, fifth
-                        $current->modify('+' . ($week - 1) . ' weeks');
-                        $current->modify('next ' . $weekdays[$weekday]);
-                    } else {
-                        // Last occurrence
-                        $current->modify('last ' . $weekdays[$weekday] . ' of this month');
-                    }
+            $loop_count = 0;
+            
+            error_log("[DEBUG:Monthly] Starting monthly pattern processing");
+            if ($pattern['monthlyType'] === 'date') {
+                // Validate monthlyDate is a valid number
+                if (empty($pattern['monthlyDate']) || !is_numeric($pattern['monthlyDate']) || (int)$pattern['monthlyDate'] <= 0) {
+                    error_log("[ERROR:Monthly] Invalid monthlyDate value: " . ($pattern['monthlyDate'] ?? 'empty') . " - must be a positive number");
+                    // Default to the day of the month from the start date if monthlyDate is invalid
+                    $pattern['monthlyDate'] = (int)$start->format('j');
+                    error_log("[DEBUG:Monthly] Using start date's day instead: {$pattern['monthlyDate']}");
+                }
+                error_log("[DEBUG:Monthly] Type: specific date of month ({$pattern['monthlyDate']})");
+            } else {
+                $week_num = isset($pattern['monthlyWeekday']) ? explode(',', $pattern['monthlyWeekday'])[0] : 'unknown';
+                $weekday_num = isset($pattern['monthlyWeekday']) ? explode(',', $pattern['monthlyWeekday'])[1] : 'unknown';
+                $weekday_name = isset($weekday_num) && is_numeric($weekday_num) && isset($weekdays[(int)$weekday_num]) ? $weekdays[(int)$weekday_num] : 'unknown';
+                
+                // Validate weekday parameters
+                if (!isset($pattern['monthlyWeekday']) || empty($pattern['monthlyWeekday'])) {
+                    error_log("[ERROR:Monthly] Invalid monthlyWeekday value");
+                    // Default to the first occurrence of the current day of week
+                    $current_weekday = (int)$start->format('w');
+                    $pattern['monthlyWeekday'] = "1,{$current_weekday}";
+                    error_log("[DEBUG:Monthly] Using default weekday instead: 1,{$current_weekday} (First {$weekdays[$current_weekday]})");
+                    $week_num = 1;
+                    $weekday_num = $current_weekday;
+                    $weekday_name = $weekdays[$current_weekday];
                 }
                 
-                if ($current >= $start && $current <= $end) {
-                    $events[] = self::format_recurring_event($post, $current);
-                }
-                
-                // Move to next month
-                $current->modify('first day of next month');
+                error_log("[DEBUG:Monthly] Type: specific weekday (Week: {$week_num}, Day: {$weekday_name})");
             }
+            
+            // Add safety counter to prevent infinite loops
+            $max_iterations = 24; // Maximum 24 months (2 years) to prevent infinite loops
+            $safety_counter = 0;
+            
+            while ($current <= $end && $instance_count < $max_instances && $safety_counter < $max_iterations) {
+                $safety_counter++;
+                $loop_start = microtime(true);
+                $loop_count++;
+                
+                error_log("[DEBUG:Monthly] Processing month {$loop_count}: {$current->format('Y-m')}");
+                
+                try {
+                    // Store original date before any modifications to avoid cumulative errors
+                    $current_year = (int)$current->format('Y');
+                    $current_month = (int)$current->format('m');
+                    
+                    if ($pattern['monthlyType'] === 'date') {
+                        // Specific date of month
+                        $day = (int)$pattern['monthlyDate'];
+                        
+                        // Check if day exists in this month using standard PHP date functions
+                        $days_in_month = (int)date('t', mktime(0, 0, 0, $current_month, 1, $current_year));
+                        error_log("[DEBUG:Monthly] Month {$current_year}-{$current_month} has {$days_in_month} days, target day is {$day}");
+                        
+                        if ($day > 0 && $day <= $days_in_month) {
+                            // Create a new DateTime to avoid accumulating errors
+                            $event_date = new DateTime();
+                            $event_date->setDate($current_year, $current_month, $day);
+                            
+                            error_log("[DEBUG:Monthly] Created potential event date: {$event_date->format('Y-m-d')}");
+                            
+                            if ($event_date >= $start && $event_date <= $end) {
+                                $events[] = self::format_recurring_event($post, $event_date);
+                                $instance_count++;
+                                error_log("[Performance] Added monthly date event: {$event_date->format('Y-m-d')} (instance #{$instance_count})");
+                            } else {
+                                error_log("[DEBUG:Monthly] Date {$event_date->format('Y-m-d')} outside range {$start->format('Y-m-d')} to {$end->format('Y-m-d')}");
+                            }
+                        } else {
+                            error_log("[DEBUG:Monthly] Skipping invalid day {$day} for month {$current_year}-{$current_month}");
+                        }
+                    } else {
+                        // Specific weekday (e.g., 3rd Thursday)
+                        list($week, $weekday) = explode(',', $pattern['monthlyWeekday']);
+                        $week = (int)$week;
+                        $weekday = (int)$weekday;
+                        
+                        error_log("[DEBUG:Monthly] Processing weekday pattern: week {$week}, day {$weekday} ({$weekdays[$weekday]})");
+                        
+                        // Create a fresh date for the first of the month
+                        $first_of_month = new DateTime();
+                        $first_of_month->setDate($current_year, $current_month, 1);
+                        
+                        if ($week > 0) {
+                            // First, find the first occurrence of this weekday in the month
+                            $first_day_weekday = (int)$first_of_month->format('w');
+                            $days_until_weekday = ($weekday - $first_day_weekday + 7) % 7;
+                            
+                            error_log("[DEBUG:Monthly] First of month ({$first_of_month->format('Y-m-d')}) is a {$weekdays[$first_day_weekday]}");
+                            error_log("[DEBUG:Monthly] Days until first {$weekdays[$weekday]}: {$days_until_weekday}");
+                            
+                            $event_date = clone $first_of_month;
+                            $event_date->modify("+{$days_until_weekday} days"); // First occurrence
+                            
+                            error_log("[DEBUG:Monthly] First occurrence of {$weekdays[$weekday]}: {$event_date->format('Y-m-d')}");
+                            
+                            // Now add weeks if needed
+                            if ($week > 1) {
+                                error_log("[DEBUG:Monthly] Calculating week {$week} by adding " . ($week - 1) . " weeks");
+                                $event_date->modify("+" . ($week - 1) . " weeks");
+                                error_log("[DEBUG:Monthly] Result after adding weeks: {$event_date->format('Y-m-d')}");
+                            }
+                            
+                            // Check if still in the same month
+                            if ((int)$event_date->format('m') === $current_month) {
+                                error_log("[DEBUG:Monthly] Date is still in target month");
+                                if ($event_date >= $start && $event_date <= $end) {
+                                    $events[] = self::format_recurring_event($post, $event_date);
+                                    $instance_count++;
+                                    error_log("[Performance] Added monthly weekday event: {$event_date->format('Y-m-d')} (instance #{$instance_count})");
+                                } else {
+                                    error_log("[DEBUG:Monthly] Date {$event_date->format('Y-m-d')} outside range {$start->format('Y-m-d')} to {$end->format('Y-m-d')}");
+                                }
+                            } else {
+                                error_log("[DEBUG:Monthly] Date {$event_date->format('Y-m-d')} not in target month {$current_month}");
+                            }
+                        } else {
+                            // Last occurrence - find it directly
+                            $last_day = new DateTime();
+                            $last_day->setDate($current_year, $current_month, 1);
+                            $last_day->modify('last day of this month');
+                            
+                            error_log("[DEBUG:Monthly] Last day of month: {$last_day->format('Y-m-d')}");
+                            
+                            $last_day_of_month = (int)$last_day->format('j');
+                            $event_date = clone $last_day;
+                            
+                            error_log("[DEBUG:Monthly] Finding last {$weekdays[$weekday]} of month");
+                            
+                            // Walk backwards until we find the right weekday
+                            $backwards_steps = 0;
+                            while ((int)$event_date->format('w') != $weekday && (int)$event_date->format('j') > 1) {
+                                $event_date->modify('-1 day');
+                                $backwards_steps++;
+                                
+                                if ($backwards_steps > 7) {
+                                    error_log("[WARNING:Monthly] Too many backward steps in finding last weekday");
+                                    break;
+                                }
+                            }
+                            
+                            error_log("[DEBUG:Monthly] Found last {$weekdays[$weekday]} on {$event_date->format('Y-m-d')} after {$backwards_steps} steps");
+                            
+                            if ((int)$event_date->format('w') == $weekday) {
+                                if ($event_date >= $start && $event_date <= $end) {
+                                    $events[] = self::format_recurring_event($post, $event_date);
+                                    $instance_count++;
+                                    error_log("[Performance] Added monthly last weekday event: {$event_date->format('Y-m-d')} (instance #{$instance_count})");
+                                } else {
+                                    error_log("[DEBUG:Monthly] Date {$event_date->format('Y-m-d')} outside range {$start->format('Y-m-d')} to {$end->format('Y-m-d')}");
+                                }
+                            } else {
+                                error_log("[WARNING:Monthly] Failed to find valid last {$weekdays[$weekday]} in {$current_year}-{$current_month}");
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    error_log("[ERROR:Monthly] Pattern error: " . $e->getMessage() . " in month {$current_year}-{$current_month}");
+                    error_log("[ERROR:Monthly] Stack trace: " . $e->getTraceAsString());
+                }
+                
+                // Calculate next month
+                error_log("[DEBUG:Monthly] Moving to next month from {$current->format('Y-m-d')}");
+                
+                // Explicitly create a new date for next month to avoid cumulative errors
+                $current = new DateTime();
+                $current->setDate($current_year, $current_month, 1);
+                
+                // Apply interval (skip months based on interval)
+                $interval_value = max(1, (int)$pattern['interval']);
+                error_log("[DEBUG:Monthly] Using interval: {$interval_value} months");
+                
+                if ($interval_value > 1) {
+                    $current->modify("+" . $interval_value . " months");
+                    error_log("[DEBUG:Monthly] Skipping to month: {$current->format('Y-m')} (interval: {$interval_value})");
+                } else {
+                    $current->modify('first day of next month');
+                }
+                
+                error_log("[DEBUG:Monthly] Next month: {$current->format('Y-m-d')}");
+                
+                $loop_time = microtime(true) - $loop_start;
+                if ($loop_time > 0.1) {
+                    error_log("[Performance] Slow monthly loop iteration #{$loop_count}: {$loop_time}s");
+                }
+            }
+            
+            if ($safety_counter >= $max_iterations) {
+                error_log("[WARNING] Safety limit reached for monthly pattern on post ID {$post->ID} - max iterations: {$max_iterations}");
+            }
+            
+            $section_time = microtime(true) - $section_start;
+            error_log("[Performance] Monthly pattern completed in {$section_time}s after {$loop_count} iterations, safety counter: {$safety_counter}");
         } else {
+            $section_start = microtime(true);
+            
+            if ($pattern['type'] === 'weekly') {
+                error_log("[DEBUG:Weekly] Weekly pattern with interval {$pattern['interval']}");
+                if (!empty($pattern['weekdays'])) {
+                    $weekday_names = array_map(function($day) use ($weekdays) {
+                        return $weekdays[$day];
+                    }, $pattern['weekdays']);
+                    error_log("[DEBUG:Weekly] Selected weekdays: " . implode(', ', $weekday_names));
+                } else {
+                    error_log("[DEBUG:Weekly] No specific weekdays defined");
+                }
+            } else if ($pattern['type'] === 'daily') {
+                error_log("[DEBUG:Daily] Daily pattern with interval {$pattern['interval']}");
+            } else {
+                error_log("[DEBUG:Other] Unknown pattern type: {$pattern['type']}");
+            }
+            
             $interval = new DateInterval('P' . $pattern['interval'] . 
                 ($pattern['type'] === 'daily' ? 'D' : 
                 ($pattern['type'] === 'weekly' ? 'W' : 'M')));
             
-            $current = clone $start;
+            error_log("[DEBUG] Created interval: P{$pattern['interval']}" . 
+                ($pattern['type'] === 'daily' ? 'D' : 
+                ($pattern['type'] === 'weekly' ? 'W' : 'M')));
             
-            while ($current <= $end) {
-                if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
-                    // For weekly pattern, check if current day is in selected weekdays
-                    if (in_array($current->format('w'), $pattern['weekdays'])) {
+            $current = clone $start;
+            $loop_count = 0;
+            
+            // Add safety counter for non-monthly patterns too
+            $max_iterations = 100;
+            $safety_counter = 0;
+            
+            while ($current <= $end && $instance_count < $max_instances && $safety_counter < $max_iterations) {
+                $safety_counter++;
+                $loop_start = microtime(true);
+                $loop_count++;
+                
+                error_log("[DEBUG:{$pattern['type']}] Processing date: {$current->format('Y-m-d')} (loop #{$loop_count})");
+                
+                try {
+                    if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
+                        // For weekly pattern, check if current day is in selected weekdays
+                        $current_day = (int)$current->format('w');
+                        $is_selected_day = in_array($current->format('w'), $pattern['weekdays']);
+                        
+                        error_log("[DEBUG:Weekly] Current day is {$weekdays[$current_day]}, selected: " . ($is_selected_day ? 'yes' : 'no'));
+                        
+                        if ($is_selected_day) {
+                            $events[] = self::format_recurring_event($post, $current);
+                            $instance_count++;
+                            error_log("[Performance] Added weekly event: {$current->format('Y-m-d')} (instance #{$instance_count})");
+                        }
+                    } else {
                         $events[] = self::format_recurring_event($post, $current);
+                        $instance_count++;
+                        error_log("[Performance] Added {$pattern['type']} event: {$current->format('Y-m-d')} (instance #{$instance_count})");
                     }
-                } else {
-                    $events[] = self::format_recurring_event($post, $current);
+                } catch (\Exception $e) {
+                    error_log("[ERROR:{$pattern['type']}] Pattern error: " . $e->getMessage() . " on date {$current->format('Y-m-d')}");
                 }
                 
+                error_log("[DEBUG:{$pattern['type']}] Adding interval to date {$current->format('Y-m-d')}");
+                $pre_add = clone $current;
                 $current->add($interval);
+                error_log("[DEBUG:{$pattern['type']}] After adding interval: {$current->format('Y-m-d')} (from {$pre_add->format('Y-m-d')})");
+                
+                $loop_time = microtime(true) - $loop_start;
+                if ($loop_time > 0.1) { // Log slow iterations (>100ms)
+                    error_log("[Performance] Slow {$pattern['type']} loop iteration #{$loop_count}: {$loop_time}s");
+                }
             }
+            
+            if ($safety_counter >= $max_iterations) {
+                error_log("[WARNING] Safety limit reached for {$pattern['type']} pattern on post ID {$post->ID} - max iterations: {$max_iterations}");
+            }
+            
+            $section_time = microtime(true) - $section_start;
+            error_log("[Performance] {$pattern['type']} pattern completed in {$section_time}s after {$loop_count} iterations, safety counter: {$safety_counter}");
         }
+        
+        $total_time = microtime(true) - $total_start_time;
+        error_log("[Performance] Total recurring event generation for post ID {$post->ID}: {$total_time}s, generated {$instance_count} events out of requested {$max_instances}");
         
         return $events;
     }
@@ -748,10 +1045,16 @@ class Rest {
             $settings['cache_duration'] = 60; // Default 60 seconds (1 minute)
         }
         
+        // Ensure default_recurrence_limit is set with a default value
+        if (!isset($settings['default_recurrence_limit'])) {
+            $settings['default_recurrence_limit'] = 5; // Default to 5 instances
+        }
+        
         return new \WP_REST_Response([
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
             'cache_duration' => $settings['cache_duration'],
             'notification_email' => $settings['notification_email'] ?? '',
+            'default_recurrence_limit' => $settings['default_recurrence_limit'],
             'external_sources' => $external_sources
         ]);
     }
@@ -781,6 +1084,16 @@ class Rest {
                 $cache_duration = 60; // Default to 60 seconds if invalid
             }
             $settings['cache_duration'] = $cache_duration;
+        }
+        
+        // Update default recurrence limit
+        if (isset($params['default_recurrence_limit'])) {
+            $default_recurrence_limit = intval($params['default_recurrence_limit']);
+            // Ensure it's a positive number
+            if ($default_recurrence_limit < 1) {
+                $default_recurrence_limit = 5; // Default to 5 if invalid
+            }
+            $settings['default_recurrence_limit'] = $default_recurrence_limit;
         }
         
         // Update notification email
@@ -821,6 +1134,7 @@ class Rest {
                 'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
                 'cache_duration' => $settings['cache_duration'],
                 'notification_email' => $settings['notification_email'] ?? '',
+                'default_recurrence_limit' => $settings['default_recurrence_limit'],
                 'external_sources' => get_option('mayo_external_sources', [])
             ]
         ]);
