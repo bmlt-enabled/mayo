@@ -34,7 +34,8 @@ const Settings = () => {
     const [settings, setSettings] = useState({
         bmlt_root_server: '',
         cache_duration: 60, // Default 60 seconds (1 minute)
-        notification_email: '' // Add notification email setting
+        notification_email: '', // Add notification email setting
+        default_recurrence_limit: 5 // Default recurrence limit
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -57,7 +58,8 @@ const Settings = () => {
                 setSettings({
                     bmlt_root_server: response.bmlt_root_server || '',
                     cache_duration: response.cache_duration || 60, // Default 60 seconds if not set
-                    notification_email: response.notification_email || '' // Add notification email
+                    notification_email: response.notification_email || '', // Add notification email
+                    default_recurrence_limit: response.default_recurrence_limit || 5 // Default to 5 if not set
                 });
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
                 
@@ -188,6 +190,11 @@ const Settings = () => {
                 throw new Error('Cache duration must be a positive number.');
             }
             
+            // Validate default recurrence limit is a positive number
+            if (isNaN(settings.default_recurrence_limit) || settings.default_recurrence_limit < 1) {
+                throw new Error('Default recurrence limit must be a positive number.');
+            }
+            
             // Validate notification email if provided
             if (settings.notification_email && !isValidEmailList(settings.notification_email)) {
                 throw new Error('Please enter valid email addresses for notifications. Multiple emails can be separated by commas or semicolons.');
@@ -199,6 +206,7 @@ const Settings = () => {
                     bmlt_root_server: settings.bmlt_root_server,
                     cache_duration: parseInt(settings.cache_duration, 10),
                     notification_email: settings.notification_email,
+                    default_recurrence_limit: parseInt(settings.default_recurrence_limit, 10),
                     external_sources: externalSources
                 })
             });
@@ -259,7 +267,7 @@ const Settings = () => {
             )}
             
             <Panel>
-                <PanelBody title="BMLT Settings" initialOpen={true}>
+                <PanelBody title="Settings" initialOpen={true}>
                     <PanelRow>
                         <TextControl
                             label="BMLT Root Server URL"
@@ -293,6 +301,17 @@ const Settings = () => {
                                     ? 'mayo-invalid-email'
                                     : ''
                             }
+                        />
+                    </PanelRow>
+
+                    <PanelRow>
+                        <TextControl
+                            type="number"
+                            label="Default Recurrence Limit"
+                            value={settings.default_recurrence_limit}
+                            onChange={(value) => handleChange('default_recurrence_limit', value)}
+                            help="Maximum number of recurring event instances to show. Higher values might cause timeouts."
+                            min="1"
                         />
                     </PanelRow>
                     

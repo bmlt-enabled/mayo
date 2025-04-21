@@ -1,5 +1,9 @@
 # Release Notes
 
+### 1.2.6 (April 18, 2025)
+* Added default recurrence limit setting to prevent timeouts when displaying recurring events [#91]
+* Added server-side enforcement of recurrence limits to prevent DoS attacks [#95]
+
 ### 1.2.5 (April 17, 2025)
 * Fixed incorrect shortcode documentation in admin UI [#87]
 * Fixed issue where not all categories and tags appeared in the event submission form [#88]
