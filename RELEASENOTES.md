@@ -1,5 +1,10 @@
 # Release Notes
 
+### 1.2.6 (April 22, 2025)
+* Added server-side pagination to events API for better performance with large datasets [#91]
+* Implemented infinite scroll on the event list for improved user experience [#95]
+* Optimized recurring event generation to prevent timeout issues
+
 ### 1.2.5 (April 17, 2025)
 * Fixed incorrect shortcode documentation in admin UI [#87]
 * Fixed issue where not all categories and tags appeared in the event submission form [#88]
