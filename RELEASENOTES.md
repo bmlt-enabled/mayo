@@ -3,6 +3,8 @@
 ### 1.2.6 (April 22, 2025)
 * Added server-side pagination to events API for better performance with large datasets [#91]
 * Implemented infinite scroll on the event list for improved user experience [#95]
+* Added server-side filtering to only show future events by default, with archive=true parameter option
+* Added timezone support for accurate date filtering across different timezones
 * Optimized recurring event generation to prevent timeout issues
 
 ### 1.2.5 (April 17, 2025)

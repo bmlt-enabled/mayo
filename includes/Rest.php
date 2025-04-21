@@ -252,12 +252,9 @@ class Rest {
         $is_archive = false;
     
         if (isset($params['archive'])) {
-            $nonce = wp_create_nonce('wp_rest');
-            if (wp_verify_nonce($nonce, 'wp_rest')) {
-                $archive = sanitize_text_field(wp_unslash($params['archive']));
-                if ($archive === 'true') {
-                    $is_archive = true;
-                }
+            $archive = sanitize_text_field(wp_unslash($params['archive']));
+            if ($archive === 'true') {
+                $is_archive = true;
             }
         }
 
@@ -267,6 +264,10 @@ class Rest {
         $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
+        $timezone = isset($params['timezone']) ? sanitize_text_field(wp_unslash($params['timezone'])) : 'America/New_York';
+
+        error_log('Mayo Events API: Archive mode is ' . ($is_archive ? 'true' : 'false'));
+        error_log('Mayo Events API: Using timezone ' . $timezone);
 
         $meta_query = [];
 
@@ -289,6 +290,22 @@ class Rest {
             ];
         }
 
+        // If not archive mode, add date filter to only get future events
+        if (!$is_archive) {
+            $today = new DateTime('now', new \DateTimeZone($timezone));
+            $today->setTime(0, 0, 0); // Start of today
+            
+            $current_date = $today->format('Y-m-d');
+            error_log('Mayo Events API: Filtering events from date ' . $current_date);
+            
+            $meta_query[] = [
+                'key' => 'event_start_date',
+                'value' => $current_date,
+                'compare' => '>=',
+                'type' => 'DATE'
+            ];
+        }
+
         if (count($meta_query) > 0) {
             $meta_query['relation'] = $relation;
         }
@@ -302,8 +319,11 @@ class Rest {
             'tag' => $tags
         ];
 
+        error_log('Mayo Events API: WP_Query args: ' . print_r($args, true));
+
         // Get posts with error handling
         $posts = get_posts($args);
+        error_log('Mayo Events API: Found ' . count($posts) . ' posts matching query');
 
         $events = [];
         foreach ($posts as $post) {
@@ -312,11 +332,25 @@ class Rest {
                 
                 if (!$is_archive && $recurring_pattern && $recurring_pattern['type'] !== 'none') {
                     $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
+                    
+                    // Filter recurring events to only include future events (if not in archive mode)
+                    if (!$is_archive) {
+                        $recurring_events = array_filter($recurring_events, function($event) use ($today) {
+                            $event_date_str = $event['meta']['event_start_date'];
+                            $event_date = new DateTime($event_date_str);
+                            $event_date->setTime(0, 0, 0); // Set to beginning of day for comparison
+                            error_log('Mayo Events API: Comparing recurring event date ' . $event_date_str . ' with today ' . $today->format('Y-m-d'));
+                            return $event_date >= $today;
+                        });
+                    }
+                    
+                    error_log('Mayo Events API: Generated ' . count($recurring_events) . ' recurring events for post ID ' . $post->ID);
                     $events = array_merge($events, $recurring_events);
                 } else {
                     $events[] = self::format_event($post);
                 }
             } catch (\Exception $e) {
+                error_log('Mayo Events API: Error processing event: ' . $e->getMessage());
                 throw $e;
             }
         }
@@ -332,6 +366,10 @@ class Rest {
             if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
             if (!empty($source['categories'])) $params['categories'] = $source['categories'];
             if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+            
+            // Pass archive and timezone parameters if they exist in the original request
+            if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
+            if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
 
             // Build URL with parameters
             $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
@@ -347,7 +385,10 @@ class Rest {
             }
 
             $body = wp_remote_retrieve_body($response);
-            $events = json_decode($body, true);
+            $data = json_decode($body, true);
+            
+            // Handle both new (with pagination) and old response formats
+            $events = isset($data['events']) ? $data['events'] : $data;
 
             if (!is_array($events)) return [];
 
@@ -429,8 +470,15 @@ class Rest {
     }
 
     public static function bmltenabled_mayo_get_events($request) {
+        // Prevent any output that might interfere with headers
+        $previous_error_reporting = error_reporting();
+        error_reporting(E_ERROR | E_PARSE); // Only report serious errors during API calls
+        
         $events = [];
         $local_events = [];
+        
+        // Debug logging
+        error_log('Mayo Events API Request: ' . print_r($_GET, true));
         
         // Pagination parameters
         $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -444,6 +492,7 @@ class Rest {
         // Get local events by default unless source_ids is explicitly set and doesn't include 'local'
         if (empty($sourceIds) || in_array('local', $sourceIds)) {
             $local_events = self::get_local_events($_GET);
+            error_log('Mayo Events API: Found ' . count($local_events) . ' local events');
         
             $events = array_merge($events, array_map(function($event) {
                 $event['source'] = [
@@ -480,9 +529,11 @@ class Rest {
                 if ($cached_events !== false) {
                     // Use cached events
                     $external_events = $cached_events;
+                    error_log('Mayo Events API: Using ' . count($external_events) . ' cached external events');
                 } else {
                     // Fetch fresh events
                     $external_events = self::fetch_external_events_parallel($enabled_sources);
+                    error_log('Mayo Events API: Fetched ' . count($external_events) . ' fresh external events');
                     
                     // Cache the results for the configured duration
                     set_transient($cache_key, $external_events, $cache_duration);
@@ -494,11 +545,45 @@ class Rest {
             }
         }
 
+        // Log total events found
+        error_log('Mayo Events API: Total events before pagination: ' . count($events));
+
         // Sort all events by date
+        foreach ($events as $event) {
+            if (isset($event['title']['rendered']) && $event['title']['rendered'] === 'Test 2') {
+                error_log('Mayo Events API: Test 2 event data: ' . print_r($event['meta'], true));
+            }
+            
+            if (empty($event['meta']['event_start_date']) || $event['meta']['event_start_date'] === '') {
+                error_log('Mayo Events API: Event with missing date: ' . (isset($event['title']['rendered']) ? $event['title']['rendered'] : 'Unknown title'));
+            }
+        }
+        
         usort($events, function($a, $b) {
-            $dateA = $a['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
-            $dateB = $b['meta']['event_start_date'] . ' ' . ($b['meta']['event_start_time'] ?? '00:00:00');
-            return strtotime($dateA) - strtotime($dateB);
+            // Check if required meta fields exist
+            if (!isset($a['meta']['event_start_date'])) {
+                return 1; // Move items with missing dates to the end
+            }
+            if (!isset($b['meta']['event_start_date'])) {
+                return -1; // Move items with missing dates to the end
+            }
+            
+            $dateA = $a['meta']['event_start_date'] . ' ' . (isset($a['meta']['event_start_time']) ? $a['meta']['event_start_time'] : '00:00:00');
+            $dateB = $b['meta']['event_start_date'] . ' ' . (isset($b['meta']['event_start_time']) ? $b['meta']['event_start_time'] : '00:00:00');
+            
+            // Handle invalid dates
+            $timeA = strtotime($dateA);
+            $timeB = strtotime($dateB);
+            
+            if ($timeA === false && $timeB === false) {
+                return 0;
+            } elseif ($timeA === false) {
+                return 1;
+            } elseif ($timeB === false) {
+                return -1;
+            }
+            
+            return $timeA - $timeB;
         });
         
         // Apply pagination
@@ -511,6 +596,11 @@ class Rest {
         // Get the subset of events for the current page
         $offset = ($page - 1) * $per_page;
         $paginated_events = array_slice($events, $offset, $per_page);
+        
+        error_log('Mayo Events API: Returning ' . count($paginated_events) . ' events after pagination');
+        
+        // Restore previous error reporting level
+        error_reporting($previous_error_reporting);
 
         return new \WP_REST_Response([
             'events' => $paginated_events,
@@ -551,6 +641,10 @@ class Rest {
                 if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
                 if (!empty($source['categories'])) $params['categories'] = $source['categories'];
                 if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+                
+                // Pass archive and timezone parameters if they exist in the original request
+                if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
+                if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
 
                 // Build URL with parameters
                 $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
@@ -590,7 +684,10 @@ class Rest {
                     continue;
                 }
                 
-                $events = json_decode($response, true);
+                $data = json_decode($response, true);
+                
+                // Handle both new (with pagination) and old response formats
+                $events = isset($data['events']) ? $data['events'] : $data;
                 
                 if (!is_array($events)) {
                     error_log('External Events Error: Invalid JSON response from ' . $source['url']);
@@ -724,7 +821,19 @@ class Rest {
                 'rendered' => apply_filters('the_content', $post->post_content)
             ],
             'link' => get_permalink($post),
-            'meta' => []
+            'meta' => [
+                // Default values for required fields
+                'event_start_date' => '',
+                'event_end_date' => '',
+                'event_start_time' => '',
+                'event_end_time' => '',
+                'timezone' => 'America/New_York',
+                'event_type' => '',
+                'service_body' => '',
+                'location_name' => '',
+                'location_address' => '',
+                'location_details' => '',
+            ]
         ];
         
         // Get featured image

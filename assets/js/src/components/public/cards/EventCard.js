@@ -14,7 +14,15 @@ const convertToUnicode = (str) => {
 
 const EventCard = ({ event, timeFormat }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const eventDate = new Date(event.meta.event_start_date + 'T00:00:00');
+    
+    // Check for valid date
+    const hasValidDate = event.meta.event_start_date && 
+        event.meta.event_start_date !== '' && 
+        !isNaN(new Date(event.meta.event_start_date + 'T00:00:00').getTime());
+    
+    // Create date object if valid
+    const eventDate = hasValidDate ? new Date(event.meta.event_start_date + 'T00:00:00') : null;
+    
     const { getServiceBodyName, updateExternalServiceBodies } = useEventProvider();
 
     // Update external service bodies if this is an external event
@@ -58,28 +66,36 @@ const EventCard = ({ event, timeFormat }) => {
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="mayo-event-date-badge">
-                    {eventDate && !isNaN(eventDate.getTime()) ? (
+                    {hasValidDate ? (
                         <>
                             <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
                             <span className="mayo-event-day-number">{eventDate.getDate()}</span>
                             <span className="mayo-event-month">{monthNames[eventDate.getMonth()]}</span>
                         </>
                     ) : (
-                        <span className="mayo-event-date-error">Invalid Date</span>
+                        <span className="mayo-event-date-error">No Date</span>
                     )}
                 </div>
                 <div className="mayo-event-summary">
                     <h3 dangerouslySetInnerHTML={{ __html: event.title.rendered }} />
+                    {!hasValidDate && (
+                        <div className="mayo-event-invalid-date-warning">
+                            ⚠️ This event has an invalid or missing date
+                        </div>
+                    )}
                     <div className="mayo-event-brief">
                         <span className="mayo-event-type">{event.meta.event_type}</span>
-                        <span className="mayo-event-time">
-                            {formatTime(event.meta.event_start_time, timeFormat)} - {formatTime(event.meta.event_end_time, timeFormat)}
-                            {event.meta.timezone && (
-                                <span className="mayo-event-timezone">
-                                    {' '}({formatTimezone(event.meta.timezone)})
-                                </span>
-                            )}
-                        </span>
+                        {event.meta.event_start_time && (
+                            <span className="mayo-event-time">
+                                {formatTime(event.meta.event_start_time, timeFormat)} 
+                                {event.meta.event_end_time && ` - ${formatTime(event.meta.event_end_time, timeFormat)}`}
+                                {event.meta.timezone && (
+                                    <span className="mayo-event-timezone">
+                                        {' '}({formatTimezone(event.meta.timezone)})
+                                    </span>
+                                )}
+                            </span>
+                        )}
                         {event.external_source && (
                             <span className="mayo-event-source">
                                 Source: {event.external_source.url}
