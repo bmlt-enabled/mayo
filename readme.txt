@@ -139,10 +139,10 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
-### 1.2.7 (May 3, 2025)
+=== 1.2.7 === 
 * Fixed an issue where the page would get stuck when using multiple shortcodes with external source IDs
 
-### 1.2.6 (May 3, 2025)
+=== 1.2.6 ===
 * Added support for restricting categories and tags in the event submission form via shortcode parameters (`categories` and `tags`). [#98]
     * You can now include or exclude categories/tags using a minus sign (e.g., `categories="meetings,-workshops"`, `tags="featured,-ticketed"`).
     * Category and tag slugs are always compared in lowercase for consistency with WordPress URLs.
@@ -152,53 +152,53 @@ This project is licensed under the GPL v2 or later.
 * Added timezone support for accurate date filtering across different timezones
 * Optimized recurring event generation to prevent timeout issues
 
-### 1.2.5 (April 17, 2025)
+=== 1.2.5 ===
 * Fixed incorrect shortcode documentation in admin UI [#87]
 * Fixed issue where not all categories and tags appeared in the event submission form [#88]
 * Fixed timezone display issues in admin Events list showing incorrect dates and times [#89]
 * Added timezone abbreviation display in admin Events list for better clarity
 
-### 1.2.4 (April 16, 2025)
+=== 1.2.4 ===
 * Added recurring event pattern support to the event submission form [#27]
 
-### 1.2.3 (April 16, 2025)
+=== 1.2.3 ===
 * Fixed HTML entities in category names showing incorrectly (e.g., "&" showing as "&amp;") in the event submission form [#84]
 
-### 1.2.2 (April 15, 2025)
+=== 1.2.2 ===
 * Added contact name field and exposed email as well to the admin UI (fields are private and meant for point of contact) [#81]
 * Added Service Body name into the Admin UI [#80]
 
-### 1.2.1 (April 13, 2025)
+=== 1.2.1 ===
 * Removed PDF support which was unstable and inconsistent to maintain.
 * Fixing external sources admin side, which was broken. [#76]
 
-### 1.2.0 (April 13, 2025)
+=== 1.2.0 ===
 * Added the ability for external event pulling from other Mayo driven sites. [#4]
 * Added the ability to filter on muliple service body ids [#70]
 * Notification emails are now customizable. [#72]
 * Set fixed size for PDFs [#73]
 
-### 1.1.3 (April 6, 2025)
+=== 1.1.3 ===
 * Added CSS skinning capabilities and documentation. [#51]
 
-### 1.1.2 (April 6, 2025)
+=== 1.1.2 ===
 * Added Unaffiliated option for Service Body selection. [#1]
 
-### 1.1.1 (April 4, 2025)
+=== 1.1.1 ===
 * Switch to ICS format for Calendar Feed.
 * Fix RSS icon which wasn't showing for non-logged in users.
 
-### 1.1.0 (April 4, 2025)
+=== 1.1.0 ===
 * Added the ability to upload PDFs and display them.
 * Added the ability to set other required fields on the event submission form.
 * Added custom classes for tags, categories, service body and event type [#51].
 * Calendar RSS link [#11]
 * Fix to prevent insecure root servers [#50].
 
-### 1.0.11 (March 22, 2025)
+=== 1.0.11 ===
 * Fix for root server settings not saving [#48].
 
-### 1.0.10 (March 18, 2025)
+=== 1.0.10 ===
 * Added widget support [#10].
 * Added text on the submission for to indicate what file types are allowed.
 * Added the ability to show events with a given status [#31].
