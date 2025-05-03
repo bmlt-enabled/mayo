@@ -57,7 +57,7 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>show_pagination</td>
-                            <td>Whether to show pagination controls</td>
+                            <td>Whether to show "Load More" button at bottom of list (infinite scroll is always enabled)</td>
                             <td>true</td>
                             <td>true, false</td>
                             <td>No</td>
@@ -79,18 +79,32 @@ const ShortcodesDocs = () => {
                         <tr>
                             <td>source_ids</td>
                             <td>Filter events by source IDs (comma-separated)</td>
-                            <td>empty (all sources including local)</td>
+                            <td>empty (local events only)</td>
                             <td>e.g., "local,source_123,source_456"</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>archive</td>
+                            <td>Show past events instead of only upcoming events</td>
+                            <td>false</td>
+                            <td>true, false</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>timezone</td>
+                            <td>Timezone to use for date filtering</td>
+                            <td>Browser's timezone</td>
+                            <td>Any valid IANA timezone (e.g., "America/New_York", "Europe/London")</td>
                             <td>Yes</td>
                         </tr>
                     </tbody>
                 </table>
                 
                 <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123"]</code></pre>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" timezone="America/New_York"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&timezone=America/New_York</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
@@ -98,6 +112,10 @@ const ShortcodesDocs = () => {
                     <li>To include only local events, use <code>source_ids="local"</code></li>
                     <li>To exclude local events, specify only external source IDs (e.g., <code>source_ids="source_123,source_456"</code>)</li>
                     <li>To include all events (local and external), leave source_ids empty</li>
+                    <li>When <code>archive="true"</code>, both past and future events will be shown</li>
+                    <li>When <code>archive="false"</code> (default), only upcoming events will be shown</li>
+                    <li>The <code>timezone</code> parameter ensures date filtering is accurate across different time zones</li>
+                    <li>Events are loaded using infinite scroll automatically as the user scrolls down the page</li>
                 </ul>
             </div>
 

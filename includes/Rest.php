@@ -252,12 +252,9 @@ class Rest {
         $is_archive = false;
     
         if (isset($params['archive'])) {
-            $nonce = wp_create_nonce('wp_rest');
-            if (wp_verify_nonce($nonce, 'wp_rest')) {
-                $archive = sanitize_text_field(wp_unslash($params['archive']));
-                if ($archive === 'true') {
-                    $is_archive = true;
-                }
+            $archive = sanitize_text_field(wp_unslash($params['archive']));
+            if ($archive === 'true') {
+                $is_archive = true;
             }
         }
 
@@ -267,7 +264,116 @@ class Rest {
         $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
+        $timezone = isset($params['timezone']) ? sanitize_text_field(wp_unslash($params['timezone'])) : 'America/New_York';
 
+        $today = new DateTime('now', new \DateTimeZone($timezone));
+        $today->setTime(0, 0, 0); // Start of today
+        $current_date = $today->format('Y-m-d');
+        
+        $events = [];
+        
+        // If we're in archive mode, just get all events
+        if ($is_archive) {
+            $events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
+        } else {
+            // In normal mode, we'll fetch events in two steps:
+            
+            // 1. Get direct future events (non-recurring or with future start dates)
+            $future_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $current_date);
+            
+            $events = array_merge($events, $future_events);
+            
+            // 2. Get all events with recurring patterns, regardless of start date
+            $recurring_meta_query = [
+                [
+                    'key' => 'recurring_pattern',
+                    'compare' => 'EXISTS'
+                ],
+                [
+                    'key' => 'recurring_pattern',
+                    'value' => 'none',
+                    'compare' => '!='
+                ]
+            ];
+            
+            // Add event type filter if specified
+            if (!empty($eventType)) {
+                $recurring_meta_query[] = [
+                    'key' => 'event_type',
+                    'value' => $eventType,
+                    'compare' => '='
+                ];
+            }
+
+            // Add service body filter if specified
+            if (!empty($serviceBody)) {
+                $service_bodies = array_map('trim', explode(',', $serviceBody));
+                $recurring_meta_query[] = [
+                    'key' => 'service_body',
+                    'value' => $service_bodies,
+                    'compare' => 'IN'
+                ];
+            }
+            
+            // Always set AND relation for this query
+            $recurring_meta_query['relation'] = 'AND';
+            
+            $args = [
+                'post_type' => 'mayo_event',
+                'posts_per_page' => -1,
+                'post_status' => $status,
+                'meta_query' => $recurring_meta_query,
+                'category_name' => $categories,
+                'tag' => $tags
+            ];
+            
+            $recurring_posts = get_posts($args);
+            
+            // Process these recurring posts and add only future instances
+            foreach ($recurring_posts as $post) {
+                try {
+                    $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+                    $start_date = get_post_meta($post->ID, 'event_start_date', true);
+                    
+                    if (!$recurring_pattern || !$start_date || $recurring_pattern['type'] === 'none') {
+                        continue;
+                    }
+                    
+                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
+                    
+                    // Filter to keep only future events
+                    $future_recurring_events = array_filter($recurring_events, function($event) use ($today) {
+                        if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
+                            return false;
+                        }
+                        
+                        try {
+                            $event_date_str = $event['meta']['event_start_date'];
+                            $event_date = new DateTime($event_date_str);
+                            $event_date->setTime(0, 0, 0); // Set to beginning of day for comparison
+                            return $event_date >= $today;
+                        } catch (\Exception $e) {
+                            error_log('Mayo Events API: Error parsing recurring event date: ' . $e->getMessage());
+                            return false;
+                        }
+                    });
+                    
+                    if (count($future_recurring_events) > 0) {
+                        $events = array_merge($events, $future_recurring_events);
+                    }
+                } catch (\Exception $e) {
+                    error_log('Mayo Events API: Error processing recurring event: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return $events;
+    }
+    
+    /**
+     * Helper method to query events with the given parameters
+     */
+    private static function query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $min_date = null) {
         $meta_query = [];
 
         // Handle event type
@@ -289,6 +395,16 @@ class Rest {
             ];
         }
 
+        // Add date filter if specified
+        if (!is_null($min_date)) {
+            $meta_query[] = [
+                'key' => 'event_start_date',
+                'value' => $min_date,
+                'compare' => '>=',
+                'type' => 'DATE'
+            ];
+        }
+
         if (count($meta_query) > 0) {
             $meta_query['relation'] = $relation;
         }
@@ -304,23 +420,16 @@ class Rest {
 
         // Get posts with error handling
         $posts = get_posts($args);
-
         $events = [];
+        
         foreach ($posts as $post) {
             try {
-                $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
-                
-                if (!$is_archive && $recurring_pattern && $recurring_pattern['type'] !== 'none') {
-                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
-                    $events = array_merge($events, $recurring_events);
-                } else {
-                    $events[] = self::format_event($post);
-                }
+                $events[] = self::format_event($post);
             } catch (\Exception $e) {
-                throw $e;
+                error_log('Mayo Events API: Error formatting event: ' . $e->getMessage());
             }
         }
-
+        
         return $events;
     }
 
@@ -332,6 +441,10 @@ class Rest {
             if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
             if (!empty($source['categories'])) $params['categories'] = $source['categories'];
             if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+            
+            // Pass archive and timezone parameters if they exist in the original request
+            if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
+            if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
 
             // Build URL with parameters
             $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
@@ -347,7 +460,10 @@ class Rest {
             }
 
             $body = wp_remote_retrieve_body($response);
-            $events = json_decode($body, true);
+            $data = json_decode($body, true);
+            
+            // Handle both new (with pagination) and old response formats
+            $events = isset($data['events']) ? $data['events'] : $data;
 
             if (!is_array($events)) return [];
 
@@ -429,6 +545,10 @@ class Rest {
     }
 
     public static function bmltenabled_mayo_get_events($request) {
+        // Prevent any output that might interfere with headers
+        $previous_error_reporting = error_reporting();
+        error_reporting(E_ERROR | E_PARSE); // Only report serious errors during API calls
+        
         $events = [];
         $local_events = [];
         
@@ -496,9 +616,30 @@ class Rest {
 
         // Sort all events by date
         usort($events, function($a, $b) {
-            $dateA = $a['meta']['event_start_date'] . ' ' . ($a['meta']['event_start_time'] ?? '00:00:00');
-            $dateB = $b['meta']['event_start_date'] . ' ' . ($b['meta']['event_start_time'] ?? '00:00:00');
-            return strtotime($dateA) - strtotime($dateB);
+            // Check if required meta fields exist
+            if (!isset($a['meta']['event_start_date'])) {
+                return 1; // Move items with missing dates to the end
+            }
+            if (!isset($b['meta']['event_start_date'])) {
+                return -1; // Move items with missing dates to the end
+            }
+            
+            $dateA = $a['meta']['event_start_date'] . ' ' . (isset($a['meta']['event_start_time']) ? $a['meta']['event_start_time'] : '00:00:00');
+            $dateB = $b['meta']['event_start_date'] . ' ' . (isset($b['meta']['event_start_time']) ? $b['meta']['event_start_time'] : '00:00:00');
+            
+            // Handle invalid dates
+            $timeA = strtotime($dateA);
+            $timeB = strtotime($dateB);
+            
+            if ($timeA === false && $timeB === false) {
+                return 0;
+            } elseif ($timeA === false) {
+                return 1;
+            } elseif ($timeB === false) {
+                return -1;
+            }
+            
+            return $timeA - $timeB;
         });
         
         // Apply pagination
@@ -511,6 +652,9 @@ class Rest {
         // Get the subset of events for the current page
         $offset = ($page - 1) * $per_page;
         $paginated_events = array_slice($events, $offset, $per_page);
+        
+        // Restore previous error reporting level
+        error_reporting($previous_error_reporting);
 
         return new \WP_REST_Response([
             'events' => $paginated_events,
@@ -551,6 +695,10 @@ class Rest {
                 if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
                 if (!empty($source['categories'])) $params['categories'] = $source['categories'];
                 if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+                
+                // Pass archive and timezone parameters if they exist in the original request
+                if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
+                if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
 
                 // Build URL with parameters
                 $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
@@ -590,7 +738,10 @@ class Rest {
                     continue;
                 }
                 
-                $events = json_decode($response, true);
+                $data = json_decode($response, true);
+                
+                // Handle both new (with pagination) and old response formats
+                $events = isset($data['events']) ? $data['events'] : $data;
                 
                 if (!is_array($events)) {
                     error_log('External Events Error: Invalid JSON response from ' . $source['url']);
@@ -636,6 +787,21 @@ class Rest {
         return $all_events;
     }
 
+    /**
+     * Convert a number to its ordinal representation
+     * 
+     * @param int $number The number to convert
+     * @return string The ordinal representation (1st, 2nd, 3rd, etc.)
+     */
+    private static function ordinal($number) {
+        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+        if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
+            return $number. 'th';
+        } else {
+            return $number. $ends[$number % 10];
+        }
+    }
+
     private static function generate_recurring_events($post, $pattern) {
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
@@ -645,12 +811,28 @@ class Rest {
         if ($pattern['type'] === 'monthly') {
             $current = clone $start;
             while ($current <= $end) {
-                if ($pattern['monthlyType'] === 'date') {
+                $original_month_date = $current->format('Y-m-d');
+                
+                if (isset($pattern['monthlyType']) && $pattern['monthlyType'] === 'date') {
                     // Specific date of month
                     $day = (int)$pattern['monthlyDate'];
+                    
+                    // Check if the day exists in current month
+                    $days_in_month = (int)$current->format('t');
+                    if ($day > $days_in_month) {
+                        // Move to next month
+                        $current->modify('first day of next month');
+                        continue;
+                    }
+                    
                     $current->setDate($current->format('Y'), $current->format('m'), $day);
                 } else {
                     // Specific weekday (e.g., 3rd Thursday)
+                    if (!isset($pattern['monthlyWeekday'])) {
+                        $current->modify('first day of next month');
+                        continue;
+                    }
+                    
                     list($week, $weekday) = explode(',', $pattern['monthlyWeekday']);
                     $week = (int)$week;
                     $weekday = (int)$weekday;
@@ -684,10 +866,13 @@ class Rest {
             while ($current <= $end) {
                 if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
                     // For weekly pattern, check if current day is in selected weekdays
-                    if (in_array($current->format('w'), $pattern['weekdays'])) {
+                    $current_day = $current->format('w'); // 0 (Sunday) to 6 (Saturday)
+                    
+                    if (in_array($current_day, $pattern['weekdays'])) {
                         $events[] = self::format_recurring_event($post, $current);
                     }
                 } else {
+                    // For daily patterns
                     $events[] = self::format_recurring_event($post, $current);
                 }
                 
@@ -724,7 +909,19 @@ class Rest {
                 'rendered' => apply_filters('the_content', $post->post_content)
             ],
             'link' => get_permalink($post),
-            'meta' => []
+            'meta' => [
+                // Default values for required fields
+                'event_start_date' => '',
+                'event_end_date' => '',
+                'event_start_time' => '',
+                'event_end_time' => '',
+                'timezone' => 'America/New_York',
+                'event_type' => '',
+                'service_body' => '',
+                'location_name' => '',
+                'location_address' => '',
+                'location_details' => '',
+            ]
         ];
         
         // Get featured image

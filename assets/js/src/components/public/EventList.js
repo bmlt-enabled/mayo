@@ -22,8 +22,12 @@ const EventList = ({ widget = false, settings = {} }) => {
         showPagination = true,
         infiniteScroll = true,
         timeFormat: settingsTimeFormat = '12hour',
+        showArchived = false,
         // ... other settings
     } = settings;
+
+    // Get user's current timezone
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timezone || 'America/New_York';
 
     useEffect(() => {
         setIsWidget(widget);
@@ -98,6 +102,33 @@ const EventList = ({ widget = false, settings = {} }) => {
         return `${baseUrl}${queryString ? '?' + queryString : ''}`;
     };
 
+    // Sort events properly on the client side as well to handle invalid dates
+    const processEvents = (eventList) => {
+        return eventList.map(event => {
+            // Add validation flag
+            const hasValidDate = event.meta.event_start_date && 
+                event.meta.event_start_date !== '' && 
+                !isNaN(new Date(event.meta.event_start_date).getTime());
+            
+            return {
+                ...event,
+                hasValidDate,
+                isInvalid: !hasValidDate
+            };
+        }).sort((a, b) => {
+            // Move invalid dates to the end
+            if (!a.hasValidDate && !b.hasValidDate) return 0;
+            if (!a.hasValidDate) return 1;
+            if (!b.hasValidDate) return -1;
+            
+            // Sort by date for valid dates
+            const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}`);
+            const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}`);
+            return dateA - dateB;
+        });
+    };
+
+    // Update fetchEvents to use processEvents
     const fetchEvents = async (page = 1) => {
         setLoading(true);
         try {
@@ -108,6 +139,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
+            let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (showArchived ? 'true' : 'false');
 
             // Build the endpoint URL with query parameters
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
@@ -118,7 +150,9 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&tags=${tags}`
                 + `&source_ids=${sourceIds}`
                 + `&page=${page}`
-                + `&per_page=${perPage}`;
+                + `&per_page=${perPage}`
+                + `&timezone=${encodeURIComponent(userTimezone)}`
+                + `&archive=${archive}`;
             
             const response = await fetch(endpoint);
             if (!response.ok) {
@@ -126,42 +160,31 @@ const EventList = ({ widget = false, settings = {} }) => {
             }
             const data = await response.json();
             
-            const now = new Date();
-            const upcomingEvents = data.events
-                .filter(event => {
-                    const timezone = event.meta.timezone || 'America/New_York';
-                    const eventDateString = `${event.meta.event_start_date}T${event.meta.event_start_time || '00:00:00'}`;
-                    const eventDate = new Date(new Date(eventDateString).toLocaleString('en-US', { timeZone: timezone }));
-
-                    if (eventDate <= now) return false;
-
-                    return true;
-                })
-                .sort((a, b) => {
-                    // Create date objects with timezone consideration
-                    const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}${a.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: a.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
-                    const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}${b.meta.timezone ? 
-                        new Date().toLocaleString('en-US', { timeZone: b.meta.timezone, timeZoneName: 'short' }).split(' ')[2] : ''}`);
-                    
-                    if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-                        // If either date is invalid, fall back to comparing just the date strings
-                        return a.meta.event_start_date.localeCompare(b.meta.event_start_date);
-                    }
-                    
-                    return dateA - dateB;
-                });
+            // Ensure we have the expected data structure
+            if (!data || typeof data !== 'object') {
+                throw new Error('Invalid API response format');
+            }
+            
+            // Handle both old and new response formats
+            const events = Array.isArray(data) ? data : (data.events || []);
+            const pagination = data.pagination || {
+                current_page: 1,
+                total_pages: Math.ceil(events.length / perPage)
+            };
+            
+            // Process events to handle invalid dates
+            const processedEvents = processEvents(events);
             
             // Update pagination info
-            setCurrentPage(data.pagination.current_page);
-            setTotalPages(data.pagination.total_pages);
-            setHasMore(data.pagination.current_page < data.pagination.total_pages);
+            setCurrentPage(pagination.current_page);
+            setTotalPages(pagination.total_pages);
+            setHasMore(pagination.current_page < pagination.total_pages);
 
             // For infinite scroll, append new events if it's not the first page
             if (page > 1 && infiniteScroll) {
-                setEvents(prevEvents => [...prevEvents, ...upcomingEvents]);
+                setEvents(prevEvents => [...prevEvents, ...processedEvents]);
             } else {
-                setEvents(upcomingEvents);
+                setEvents(processedEvents);
             }
             
             setLoading(false);
@@ -184,7 +207,18 @@ const EventList = ({ widget = false, settings = {} }) => {
 
     if (loading && events.length === 0) return <div>Loading events...</div>;
     if (error && events.length === 0) return <div className="mayo-error">{error}</div>;
-    if (!events.length) return <div>No upcoming events</div>;
+    if (!events.length) {
+        if (showArchived) {
+            return <div className="mayo-no-events">No events found in the archive.</div>;
+        } else {
+            return <div className="mayo-no-events">
+                No upcoming events found. 
+                <a href={`${window.location.pathname}?archive=true`} className="mayo-archive-link">
+                    View past events
+                </a>
+            </div>;
+        }
+    }
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
