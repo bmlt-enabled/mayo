@@ -72,7 +72,8 @@ class Frontend {
         $defaults = [
             'time_format' => '12hour', // or '24hour'
             'per_page' => 10,
-            'show_pagination' => 'true',
+            'show_pagination' => 'false',
+            'infinite_scroll' => 'true',
             'categories' => '',  // Comma-separated category slugs
             'tags' => '',       // Comma-separated tag slugs
             'event_type' => '',  // Single event type (Service, Activity)
@@ -91,6 +92,7 @@ class Frontend {
             'timeFormat' => $atts['time_format'],
             'perPage' => intval($atts['per_page']),
             'showPagination' => $atts['show_pagination'] === 'true',
+            'infiniteScroll' => $atts['infinite_scroll'] === 'true',
             'categories' => $atts['categories'],
             'tags' => $atts['tags'],
             'eventType' => $atts['event_type'],

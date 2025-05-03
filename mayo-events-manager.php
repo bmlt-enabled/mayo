@@ -5,14 +5,14 @@
  * Description: A plugin for managing and displaying events.
  * Version: 1.2.7
  * Author: bmlt-enabled
- * License: MIT
+ * License: GPLv2 or later
  * Author URI: https://bmlt.app
  * php version 8.2
  *
  * @category WordPress_Plugin
  * @package  MayoEventsManager
  * @author   bmlt-enabled <help@bmlt.app>
- * @license  https://opensource.org/licenses/MIT MIT
+ * @license  http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
  * @link     https://bmlt.app
  */
 
