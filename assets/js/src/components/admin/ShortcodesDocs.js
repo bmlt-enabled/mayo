@@ -169,11 +169,23 @@ const ShortcodesDocs = () => {
                                 </ul>
                             </td>
                         </tr>
+                        <tr>
+                            <td>categories</td>
+                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it.</td>
+                            <td>empty (all categories)</td>
+                            <td>e.g., <pre>meetings,workshops</pre> to show only meetings and workshops, or <pre>-meetings,-workshops</pre> to show all categories except meetings and workshops</td>
+                        </tr>
+                        <tr>
+                            <td>tags</td>
+                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it. Tag slugs are always compared in lowercase.</td>
+                            <td>empty (all tags)</td>
+                            <td>e.g., <pre>featured,ticketed</pre> to show only featured and ticketed tags, or <pre>-featured,-ticketed</pre> to show all tags except featured and ticketed</td>
+                        </tr>
                     </tbody>
                 </table>
                 
-                <h3>Example with Additional Required Fields</h3>
-                <pre><code>[mayo_event_form additional_required_fields="flyer,location_name,location_address"]</code></pre>
+                <h3>Example with Additional Required Fields, Categories, and Tags</h3>
+                <pre><code>[mayo_event_form additional_required_fields="flyer,location_name,location_address" categories="meetings,workshops" tags="featured,-ticketed"]</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">

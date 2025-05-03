@@ -1,6 +1,9 @@
 # Release Notes
 
-### 1.2.6 (April 22, 2025)
+### 1.2.6 (May 3, 2025)
+* Added support for restricting categories and tags in the event submission form via shortcode parameters (`categories` and `tags`). [#98]
+    * You can now include or exclude categories/tags using a minus sign (e.g., `categories="meetings,-workshops"`, `tags="featured,-ticketed"`).
+    * Category and tag slugs are always compared in lowercase for consistency with WordPress URLs.
 * Added server-side pagination to events API for better performance with large datasets [#91]
 * Implemented infinite scroll on the event list for improved user experience [#95]
 * Added server-side filtering to only show future events by default, with archive=true parameter option
