@@ -13,14 +13,20 @@ const EventArchive = () => {
         const fetchEvents = async () => {
             try {
                 const response = await apiFetch({ path: '/wp-json/event-manager/v1/events?archive=true' });
-                if (response) {
+                
+                // Ensure we have a valid response and it's an array
+                if (response && Array.isArray(response)) {
                     setEvents(response);
+                } else if (response && response.events && Array.isArray(response.events)) {
+                    setEvents(response.events);
                 } else {
-                    throw new Error('No events found');
+                    console.warn('Unexpected API response format:', response);
+                    setEvents([]);
                 }
             } catch (err) {
                 console.error('Error fetching events:', err);
                 setError('Failed to load events');
+                setEvents([]);
             } finally {
                 setLoading(false);
             }
@@ -31,6 +37,7 @@ const EventArchive = () => {
 
     if (loading) return <div>Loading events...</div>;
     if (error) return <div className="mayo-error">{error}</div>;
+    if (!events.length) return <div className="mayo-no-events">No archived events found.</div>;
 
     return (
         <div className="mayo-archive-container">
@@ -83,7 +90,7 @@ const EventArchive = () => {
                                                 </div>
                                             )}
 
-                                            {event.categories.length > 0 && (
+                                            {event.categories?.length > 0 && (
                                                 <div className="mayo-archive-event-categories">
                                                     {event.categories.map(cat => (
                                                         <span key={cat.id} className="mayo-event-category">
@@ -93,7 +100,7 @@ const EventArchive = () => {
                                                 </div>
                                             )}
 
-                                            {event.tags.length > 0 && (
+                                            {event.tags?.length > 0 && (
                                                 <div className="mayo-archive-event-tags">
                                                     {event.tags.map(tag => (
                                                         <span key={tag.id} className="mayo-event-tag">
