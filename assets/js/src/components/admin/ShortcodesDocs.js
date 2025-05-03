@@ -79,7 +79,7 @@ const ShortcodesDocs = () => {
                         <tr>
                             <td>source_ids</td>
                             <td>Filter events by source IDs (comma-separated)</td>
-                            <td>empty (all sources including local)</td>
+                            <td>empty (local events only)</td>
                             <td>e.g., "local,source_123,source_456"</td>
                             <td>Yes</td>
                         </tr>
