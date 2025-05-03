@@ -6,6 +6,7 @@ import { useEventProvider } from '../providers/EventProvider';
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
     const loaderRef = useRef(null);
+    const updateTimeout = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [events, setEvents] = useState([]);
@@ -16,47 +17,65 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [totalPages, setTotalPages] = useState(1);
     const { updateExternalServiceBodies } = useEventProvider();
     
-    // Get settings from props instead of global
-    const {
-        perPage = 10,
-        showPagination = true,
-        infiniteScroll = true,
-        timeFormat: settingsTimeFormat = '12hour',
-        showArchived = false,
-        // ... other settings
-    } = settings;
-
     // Get user's current timezone
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timezone || 'America/New_York';
 
+    // Initialize component
     useEffect(() => {
         setIsWidget(widget);
-        setTimeFormat(settingsTimeFormat);
-        fetchEvents(1); // Reset to page 1 when settings change
-    }, [settings]);
+        setTimeFormat(settings?.timeFormat || '12hour');
+        setCurrentPage(1);
+        setEvents([]);
+        setLoading(true);
+        setError(null);
+        setHasMore(true);
+        setTotalPages(1);
+        
+        fetchEvents(1);
+    }, [settings, widget]);
 
     // Process external service bodies when events are loaded
-    useEffect(() => {
-        if (events.length > 0) {
-            // Group events by external source
-            const externalSources = {};
+    const processServiceBodies = useCallback((events) => {
+        if (!events.length || !settings?.sourceIds) {
+            return;
+        }
+
+        // Clear any pending updates
+        if (updateTimeout.current) {
+            clearTimeout(updateTimeout.current);
+        }
+
+        // Debounce the service body update
+        updateTimeout.current = setTimeout(() => {
+            const externalSources = new Map();
             
             events.forEach(event => {
                 if (event.external_source && event.external_source.service_bodies) {
-                    externalSources[event.external_source.id] = event.external_source.service_bodies;
+                    const sourceId = event.external_source.id;
+                    const serviceBodies = event.external_source.service_bodies;
+                    
+                    if (settings.sourceIds.includes(sourceId)) {
+                        externalSources.set(sourceId, serviceBodies);
+                    }
                 }
             });
             
-            // Update external service bodies for each source
-            Object.entries(externalSources).forEach(([sourceId, serviceBodies]) => {
+            externalSources.forEach((serviceBodies, sourceId) => {
                 updateExternalServiceBodies(sourceId, serviceBodies);
             });
+        }, 300);
+    }, [settings?.sourceIds, updateExternalServiceBodies]);
+
+    // Call processServiceBodies when events change
+    useEffect(() => {
+        if (events.length > 0) {
+            processServiceBodies(events);
         }
-    }, [events, updateExternalServiceBodies]);
+    }, [events, processServiceBodies]);
 
     // Set up intersection observer for infinite scroll
     useEffect(() => {
-        if (!infiniteScroll || !loaderRef.current || !hasMore || widget) return;
+        if (!settings?.infiniteScroll || !loaderRef.current || !hasMore) return;
         
         const observer = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore && !loading && currentPage < totalPages) {
@@ -71,7 +90,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 observer.unobserve(loaderRef.current);
             }
         };
-    }, [hasMore, loading, currentPage, totalPages, infiniteScroll]);
+    }, [hasMore, loading, currentPage, totalPages, settings?.infiniteScroll]);
 
     const getQueryStringValue = (key, defaultValue = null) => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -139,7 +158,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
-            let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (showArchived ? 'true' : 'false');
+            let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
 
             // Build the endpoint URL with query parameters
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
@@ -150,7 +169,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&tags=${tags}`
                 + `&source_ids=${sourceIds}`
                 + `&page=${page}`
-                + `&per_page=${perPage}`
+                + `&per_page=${settings?.perPage || 10}`
                 + `&timezone=${encodeURIComponent(userTimezone)}`
                 + `&archive=${archive}`;
             
@@ -169,7 +188,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             const events = Array.isArray(data) ? data : (data.events || []);
             const pagination = data.pagination || {
                 current_page: 1,
-                total_pages: Math.ceil(events.length / perPage)
+                total_pages: Math.ceil(events.length / (settings?.perPage || 10))
             };
             
             // Process events to handle invalid dates
@@ -181,7 +200,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             setHasMore(pagination.current_page < pagination.total_pages);
 
             // For infinite scroll, append new events if it's not the first page
-            if (page > 1 && infiniteScroll) {
+            if (page > 1 && settings?.infiniteScroll) {
                 setEvents(prevEvents => [...prevEvents, ...processedEvents]);
             } else {
                 setEvents(processedEvents);
@@ -197,7 +216,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     const handlePageChange = (newPage) => {
-        if (infiniteScroll) return;
+        if (settings?.infiniteScroll) return;
         
         setCurrentPage(newPage);
         fetchEvents(newPage);
@@ -208,7 +227,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     if (loading && events.length === 0) return <div>Loading events...</div>;
     if (error && events.length === 0) return <div className="mayo-error">{error}</div>;
     if (!events.length) {
-        if (showArchived) {
+        if (settings?.showArchived) {
             return <div className="mayo-no-events">No events found in the archive.</div>;
         } else {
             return <div className="mayo-no-events">
@@ -255,7 +274,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                     ))}
                     
                     {/* Infinite scroll loading indicator */}
-                    {infiniteScroll && hasMore && (
+                    {settings?.infiniteScroll && hasMore && (
                         <div ref={loaderRef} className="mayo-infinite-loader">
                             {loading && <div className="mayo-loader">Loading more events...</div>}
                         </div>
@@ -264,7 +283,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             )}
             
             {/* Standard pagination */}
-            {showPagination && totalPages > 1 && !infiniteScroll && (
+            {settings?.showPagination && totalPages > 1 && !settings?.infiniteScroll && (
                 <div className="mayo-pagination">
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
