@@ -1,4 +1,4 @@
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
 
 const EventForm = () => {
@@ -6,6 +6,28 @@ const EventForm = () => {
     const formElement = document.getElementById('mayo-event-form');
     const settingsKey = formElement?.dataset?.settings;
     const settings = window[settingsKey] || {};
+    
+    // Get categories from shortcode parameter
+    const categoriesParam = formElement?.dataset?.categories || '';
+    const categoriesFilter = useMemo(() => (
+        categoriesParam
+            ? categoriesParam.split(',').map(slug => slug.trim().toLowerCase())
+            : []
+    ), [categoriesParam]);
+    // Split categories into included and excluded
+    const includedCategories = useMemo(() => categoriesFilter.filter(slug => !slug.startsWith('-')), [categoriesFilter]);
+    const excludedCategories = useMemo(() => categoriesFilter.filter(slug => slug.startsWith('-')).map(slug => slug.substring(1)), [categoriesFilter]);
+    
+    // Get tags from shortcode parameter
+    const tagsParam = formElement?.dataset?.tags || '';
+    const tagsFilter = useMemo(() => (
+        tagsParam
+            ? tagsParam.split(',').map(slug => slug.trim().toLowerCase())
+            : []
+    ), [tagsParam]);
+    // Split tags into included and excluded
+    const includedTags = useMemo(() => tagsFilter.filter(slug => !slug.startsWith('-')), [tagsFilter]);
+    const excludedTags = useMemo(() => tagsFilter.filter(slug => slug.startsWith('-')).map(slug => slug.substring(1)), [tagsFilter]);
     
     // Helper function to decode HTML entities
     const decodeHtmlEntities = (text) => {
@@ -89,8 +111,36 @@ const EventForm = () => {
                 const categoriesData = await categoriesRes.json();
                 const tagsData = await tagsRes.json();
                 
-                setCategories(Array.isArray(categoriesData) ? categoriesData : []);
-                setTags(Array.isArray(tagsData) ? tagsData : []);
+                // Filter categories based on included and excluded categories
+                const filteredCategories = categoriesData.filter(cat => {
+                    const catSlug = (cat.slug || '').toLowerCase();
+                    if (includedCategories.length > 0) {
+                        // If there are included categories, only show those
+                        return includedCategories.includes(catSlug);
+                    } else if (excludedCategories.length > 0) {
+                        // If there are excluded categories, show all except those
+                        return !excludedCategories.includes(catSlug);
+                    }
+                    // If no restrictions, show all categories
+                    return true;
+                });
+                
+                // Filter tags based on included and excluded tags
+                const filteredTags = tagsData.filter(tag => {
+                    const tagSlug = (tag.slug || '').toLowerCase();
+                    if (includedTags.length > 0) {
+                        // If there are included tags, only show those
+                        return includedTags.includes(tagSlug);
+                    } else if (excludedTags.length > 0) {
+                        // If there are excluded tags, show all except those
+                        return !excludedTags.includes(tagSlug);
+                    }
+                    // If no restrictions, show all tags
+                    return true;
+                });
+                
+                setCategories(Array.isArray(filteredCategories) ? filteredCategories : []);
+                setTags(Array.isArray(filteredTags) ? filteredTags : []);
             } catch (error) {
                 console.error('Error fetching taxonomies:', error);
                 // Set empty arrays as fallback
@@ -100,7 +150,7 @@ const EventForm = () => {
         };
         
         fetchTaxonomies();
-    }, []);
+    }, [includedCategories, excludedCategories, includedTags, excludedTags]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

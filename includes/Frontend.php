@@ -30,7 +30,9 @@ class Frontend {
 
     public static function render_event_form($atts = []) {
         $defaults = [
-            'additional_required_fields' => ''
+            'additional_required_fields' => '',
+            'categories' => '',
+            'tags' => ''
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -44,8 +46,10 @@ class Frontend {
         ]);
         
         return sprintf(
-            '<div id="mayo-event-form" data-settings="%s"></div>',
-            esc_attr($settings_key)
+            '<div id="mayo-event-form" data-settings="%s" data-categories="%s" data-tags="%s"></div>',
+            esc_attr($settings_key),
+            esc_attr($atts['categories']),
+            esc_attr($atts['tags'])
         );
     }
 
