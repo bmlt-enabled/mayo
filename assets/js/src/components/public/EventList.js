@@ -160,13 +160,25 @@ const EventList = ({ widget = false, settings = {} }) => {
             }
             const data = await response.json();
             
+            // Ensure we have the expected data structure
+            if (!data || typeof data !== 'object') {
+                throw new Error('Invalid API response format');
+            }
+            
+            // Handle both old and new response formats
+            const events = Array.isArray(data) ? data : (data.events || []);
+            const pagination = data.pagination || {
+                current_page: 1,
+                total_pages: Math.ceil(events.length / perPage)
+            };
+            
             // Process events to handle invalid dates
-            const processedEvents = processEvents(data.events);
+            const processedEvents = processEvents(events);
             
             // Update pagination info
-            setCurrentPage(data.pagination.current_page);
-            setTotalPages(data.pagination.total_pages);
-            setHasMore(data.pagination.current_page < data.pagination.total_pages);
+            setCurrentPage(pagination.current_page);
+            setTotalPages(pagination.total_pages);
+            setHasMore(pagination.current_page < pagination.total_pages);
 
             // For infinite scroll, append new events if it's not the first page
             if (page > 1 && infiniteScroll) {

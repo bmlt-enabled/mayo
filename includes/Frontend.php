@@ -9,6 +9,22 @@ class Frontend {
         add_shortcode('mayo_event_form', [__CLASS__, 'render_event_form']);
         add_shortcode('mayo_event_list', [__CLASS__, 'render_event_list']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
+        
+        // Register the script early
+        add_action('init', function() {
+            wp_register_script(
+                'mayo-public',
+                plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',
+                [
+                    'wp-element',
+                    'wp-components',
+                    'wp-i18n',
+                    'wp-api-fetch'
+                ],
+                '1.0',
+                true
+            );
+        });
     }
 
 
