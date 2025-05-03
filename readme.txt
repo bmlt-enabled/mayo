@@ -135,6 +135,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.2.7 =
 * Fixed an issue where the page would get stuck when using multiple shortcodes with external source IDs
+* Fixes to /mayo archive page
 
 = 1.2.6 =
 * Added support for restricting categories and tags in the event submission form via shortcode parameters (`categories` and `tags`). [#98]
