@@ -806,7 +806,17 @@ class Rest {
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
         $start = new DateTime(get_post_meta($post->ID, 'event_start_date', true));
-        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : (clone $start)->modify('+1 year');
+        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : null;
+        
+        // Set a reasonable limit to prevent infinite loops (5 years worth of events)
+        $max_events = 0;
+        if ($pattern['type'] === 'daily') {
+            $max_events = 365 * 5; // 5 years of daily events
+        } elseif ($pattern['type'] === 'weekly') {
+            $max_events = 52 * 5; // 5 years of weekly events
+        } elseif ($pattern['type'] === 'monthly') {
+            $max_events = 12 * 5; // 5 years of monthly events
+        }
         
         if ($pattern['type'] === 'monthly') {
             // Start from the next interval month after the initial event
@@ -814,7 +824,7 @@ class Rest {
             $interval = $pattern['interval'];
             $current->modify('first day of +' . $interval . ' month');
             
-            while ($current <= $end) {
+            while (($end === null || $current <= $end) && count($events) < $max_events) {
                 if (isset($pattern['monthlyType']) && $pattern['monthlyType'] === 'date') {
                     // Specific date of month
                     $day = (int)$pattern['monthlyDate'];
@@ -861,7 +871,7 @@ class Rest {
                     }
                 }
                 
-                if ($current <= $end) {
+                if ($current <= $end || $end === null) {
                     $events[] = self::format_recurring_event($post, $current);
                 }
                 
@@ -877,7 +887,7 @@ class Rest {
             $current = clone $start;
             $current->add($interval);
             
-            while ($current <= $end) {
+            while (($end === null || $current <= $end) && count($events) < $max_events) {
                 if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
                     // For weekly pattern, we need to check each day in the interval
                     $interval_start = clone $current;
@@ -885,7 +895,7 @@ class Rest {
                     $interval_end->add($interval);
                     
                     // Check each day in the interval
-                    while ($interval_start < $interval_end) {
+                    while ($interval_start < $interval_end && count($events) < $max_events) {
                         $current_day = $interval_start->format('w'); // 0 (Sunday) to 6 (Saturday)
                         
                         if (in_array($current_day, $pattern['weekdays'])) {
