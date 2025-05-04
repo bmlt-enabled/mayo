@@ -879,14 +879,23 @@ class Rest {
             
             while ($current <= $end) {
                 if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
-                    // For weekly pattern, check if current day is in selected weekdays
-                    $current_day = $current->format('w'); // 0 (Sunday) to 6 (Saturday)
+                    // For weekly pattern, we need to check each day in the interval
+                    $interval_start = clone $current;
+                    $interval_end = clone $current;
+                    $interval_end->add($interval);
                     
-                    if (in_array($current_day, $pattern['weekdays'])) {
-                        $events[] = self::format_recurring_event($post, $current);
+                    // Check each day in the interval
+                    while ($interval_start < $interval_end) {
+                        $current_day = $interval_start->format('w'); // 0 (Sunday) to 6 (Saturday)
+                        
+                        if (in_array($current_day, $pattern['weekdays'])) {
+                            $events[] = self::format_recurring_event($post, clone $interval_start);
+                        }
+                        
+                        $interval_start->modify('+1 day');
                     }
                 } else {
-                    // For daily patterns
+                    // For daily patterns, just add the event and move to next interval
                     $events[] = self::format_recurring_event($post, $current);
                 }
                 
