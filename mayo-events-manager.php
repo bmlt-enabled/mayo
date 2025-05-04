@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing and displaying events.
- * Version: 1.2.7
+ * Version: 1.2.8
  * Author: bmlt-enabled
  * License: GPLv2 or later
  * Author URI: https://bmlt.app
@@ -20,7 +20,7 @@ if (! defined('ABSPATH') ) {
     exit; // Exit if accessed directly
 }
 
-define('MAYO_VERSION', '1.2.7');
+define('MAYO_VERSION', '1.2.8');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';

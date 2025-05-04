@@ -40,11 +40,19 @@ const EventBlockEditorSidebar = () => {
         type: 'none',
         interval: 1,
         weekdays: [],
-        endDate: ''
+        endDate: '',
+        monthlyType: 'date',
+        monthlyDate: '',
+        monthlyWeekday: ''
     };
 
     const updateRecurringPattern = (updates) => {
-        const newPattern = { ...recurringPattern, ...updates };
+        const newPattern = { 
+            ...recurringPattern, 
+            ...updates,
+            // Ensure weekdays is always an array
+            weekdays: updates.weekdays || recurringPattern.weekdays || []
+        };
         updateMetaValue('recurring_pattern', newPattern);
     };
 
