@@ -806,13 +806,25 @@ class Rest {
         $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $events = [];
         $start = new DateTime(get_post_meta($post->ID, 'event_start_date', true));
-        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : (clone $start)->modify('+1 year');
+        $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : null;
+        
+        // Set a reasonable limit to prevent infinite loops (5 years worth of events)
+        $max_events = 0;
+        if ($pattern['type'] === 'daily') {
+            $max_events = 365 * 5; // 5 years of daily events
+        } elseif ($pattern['type'] === 'weekly') {
+            $max_events = 52 * 5; // 5 years of weekly events
+        } elseif ($pattern['type'] === 'monthly') {
+            $max_events = 12 * 5; // 5 years of monthly events
+        }
         
         if ($pattern['type'] === 'monthly') {
+            // Start from the next interval month after the initial event
             $current = clone $start;
-            while ($current <= $end) {
-                $original_month_date = $current->format('Y-m-d');
-                
+            $interval = $pattern['interval'];
+            $current->modify('first day of +' . $interval . ' month');
+            
+            while (($end === null || $current <= $end) && count($events) < $max_events) {
                 if (isset($pattern['monthlyType']) && $pattern['monthlyType'] === 'date') {
                     // Specific date of month
                     $day = (int)$pattern['monthlyDate'];
@@ -820,8 +832,8 @@ class Rest {
                     // Check if the day exists in current month
                     $days_in_month = (int)$current->format('t');
                     if ($day > $days_in_month) {
-                        // Move to next month
-                        $current->modify('first day of next month');
+                        // Move to next interval month
+                        $current->modify('first day of +' . $interval . ' month');
                         continue;
                     }
                     
@@ -829,7 +841,8 @@ class Rest {
                 } else {
                     // Specific weekday (e.g., 3rd Thursday)
                     if (!isset($pattern['monthlyWeekday'])) {
-                        $current->modify('first day of next month');
+                        // Move to next interval month
+                        $current->modify('first day of +' . $interval . ' month');
                         continue;
                     }
                     
@@ -840,39 +853,59 @@ class Rest {
                     // Calculate the date
                     $current->modify('first day of this month');
                     if ($week > 0) {
-                        // First, second, third, fourth, fifth
-                        $current->modify('+' . ($week - 1) . ' weeks');
-                        $current->modify('next ' . $weekdays[$weekday]);
+                        // For first Sunday, we need to find the first occurrence
+                        if ($week === 1) {
+                            // Get the day of week for the first day of month (0-6, where 0 is Sunday)
+                            $first_day_of_week = (int)$current->format('w');
+                            // Calculate days to add to get to the first Sunday
+                            $days_to_add = ($weekday - $first_day_of_week + 7) % 7;
+                            $current->modify('+' . $days_to_add . ' days');
+                        } else {
+                            // For other weeks (2nd, 3rd, etc.)
+                            $current->modify('+' . ($week - 1) . ' weeks');
+                            $current->modify('next ' . $weekdays[$weekday]);
+                        }
                     } else {
                         // Last occurrence
                         $current->modify('last ' . $weekdays[$weekday] . ' of this month');
                     }
                 }
                 
-                if ($current >= $start && $current <= $end) {
+                if ($current <= $end || $end === null) {
                     $events[] = self::format_recurring_event($post, $current);
                 }
                 
-                // Move to next month
-                $current->modify('first day of next month');
+                // Move to next interval month
+                $current->modify('first day of +' . $interval . ' month');
             }
         } else {
             $interval = new DateInterval('P' . $pattern['interval'] . 
                 ($pattern['type'] === 'daily' ? 'D' : 
                 ($pattern['type'] === 'weekly' ? 'W' : 'M')));
             
+            // Start from the next interval after the initial event
             $current = clone $start;
+            $current->add($interval);
             
-            while ($current <= $end) {
+            while (($end === null || $current <= $end) && count($events) < $max_events) {
                 if ($pattern['type'] === 'weekly' && !empty($pattern['weekdays'])) {
-                    // For weekly pattern, check if current day is in selected weekdays
-                    $current_day = $current->format('w'); // 0 (Sunday) to 6 (Saturday)
+                    // For weekly pattern, we need to check each day in the interval
+                    $interval_start = clone $current;
+                    $interval_end = clone $current;
+                    $interval_end->add($interval);
                     
-                    if (in_array($current_day, $pattern['weekdays'])) {
-                        $events[] = self::format_recurring_event($post, $current);
+                    // Check each day in the interval
+                    while ($interval_start < $interval_end && count($events) < $max_events) {
+                        $current_day = $interval_start->format('w'); // 0 (Sunday) to 6 (Saturday)
+                        
+                        if (in_array($current_day, $pattern['weekdays'])) {
+                            $events[] = self::format_recurring_event($post, clone $interval_start);
+                        }
+                        
+                        $interval_start->modify('+1 day');
                     }
                 } else {
-                    // For daily patterns
+                    // For daily patterns, just add the event and move to next interval
                     $events[] = self::format_recurring_event($post, $current);
                 }
                 
@@ -886,6 +919,7 @@ class Rest {
     private static function format_recurring_event($post, $date) {
         $event = self::format_event($post);
         $event['meta']['event_start_date'] = $date->format('Y-m-d');
+        $event['meta']['event_end_date'] = $date->format('Y-m-d'); // Set end date to match start date
         $event['recurring'] = true;
         return $event;
     }

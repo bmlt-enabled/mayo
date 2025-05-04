@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.8
-Stable tag: 1.2.8
+Stable tag: 1.2.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,7 +117,7 @@ This project is licensed under the GPL v2 or later.
 * Email Handling: Uses WordPress's `wp_mail` function to send notifications.
 * Data Storage: Stores event metadata using WordPress's post meta system, ensuring compatibility and scalability.
 
-== Installation and Usage ==
+== Installation ==
 
 1. Installation:
    - Upload the plugin files to the `/wp-content/plugins/mayo-event-manager` directory.
@@ -132,6 +132,9 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.2.9 =
+* Fixed a few more recurrence issues [#104] [#105]
 
 = 1.2.8 =
 * Fixed recurring weekly event issue that would sometimes throw an error on admin entry

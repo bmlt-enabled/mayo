@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/bootstrap.php" colors="true" beStrictAboutTestsThatDoNotTestAnything="true" beStrictAboutOutputDuringTests="true" beStrictAboutChangesToGlobalState="true" verbose="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory suffix=".php">./includes</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="Integration">
+      <directory prefix="test-" suffix=".php">./tests/integration</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
+    <env name="WP_CORE_DIR" value="/tmp/wordpress/"/>
+  </php>
+</phpunit>

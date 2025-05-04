@@ -11,25 +11,25 @@ module.exports = {
             files: [
                 'mayo-events-manager.php',
                 'readme.txt',
-                'RELEASENOTES.md'
+                'package.json'
             ],
             
             // The check function
             check: async (context) => {
                 const mainPlugin = await context.readFile('mayo-events-manager.php');
                 const readmeTxt = await context.readFile('readme.txt');
-                const releaseNotes = await context.readFile('RELEASENOTES.md');
+                const packageJson = await context.readFile('package.json');
                 
                 // Extract versions
                 const pluginVersion = mainPlugin.match(/Version:\s*(\d+\.\d+\.\d+)/)?.[1];
                 const defineVersion = mainPlugin.match(/define\('MAYO_VERSION',\s*'(\d+\.\d+\.\d+)'\)/)?.[1];
                 const readmeVersion = readmeTxt.match(/Stable tag:\s*(\d+\.\d+\.\d+)/)?.[1];
-                const releaseNotesVersion = releaseNotes.match(/###\s*(\d+\.\d+\.\d+)/)?.[1];
+                const packageVersion = JSON.parse(packageJson).version;
                 
                 const errors = [];
                 
                 // Check if all versions match
-                const versions = new Set([pluginVersion, defineVersion, readmeVersion, releaseNotesVersion]);
+                const versions = new Set([pluginVersion, defineVersion, readmeVersion, packageVersion]);
                 if (versions.size > 1) {
                     errors.push('Version numbers are not consistent across files:');
                     if (pluginVersion !== defineVersion) {
@@ -38,15 +38,9 @@ module.exports = {
                     if (pluginVersion !== readmeVersion) {
                         errors.push('- Version in plugin header does not match readme.txt stable tag');
                     }
-                    if (pluginVersion !== releaseNotesVersion) {
-                        errors.push('- Version in plugin header does not match latest RELEASENOTES.md entry');
+                    if (pluginVersion !== packageVersion) {
+                        errors.push('- Version in plugin header does not match package.json version');
                     }
-                }
-                
-                // Check if release notes entry has a date
-                const latestReleaseEntry = releaseNotes.match(/###\s*\d+\.\d+\.\d+\s*\((.*?)\)/)?.[1];
-                if (!latestReleaseEntry) {
-                    errors.push('Latest release notes entry is missing a date');
                 }
                 
                 return {
@@ -62,31 +56,31 @@ module.exports = {
                     message: 'Please manually update version numbers in:' +
                             '\n1. mayo-events-manager.php (both Version: and define)' +
                             '\n2. readme.txt (Stable tag:)' +
-                            '\n3. RELEASENOTES.md (add new version entry with date)'
+                            '\n3. package.json (version)'
                 };
             }
         },
         
         {
-            name: 'release-notes-format',
-            description: 'Ensures release notes entries follow the correct format',
+            name: 'changelog-format',
+            description: 'Ensures changelog entries in readme.txt follow the correct WordPress format',
             
-            files: ['RELEASENOTES.md'],
+            files: ['readme.txt'],
             
             check: async (context) => {
-                const releaseNotes = await context.readFile('RELEASENOTES.md');
+                const readmeTxt = await context.readFile('readme.txt');
                 const errors = [];
                 
-                // Check format of each release entry
-                const entries = releaseNotes.match(/###\s*\d+\.\d+\.\d+\s*\(.*?\)/g) || [];
+                // Check format of each changelog entry
+                const entries = readmeTxt.match(/=\s*\d+\.\d+\.\d+\s*=/g) || [];
                 entries.forEach(entry => {
-                    if (!entry.match(/###\s*\d+\.\d+\.\d+\s*\([A-Z][a-z]+ \d{1,2}, \d{4}\)/)) {
-                        errors.push(`Invalid release notes entry format: ${entry}`);
+                    if (!entry.match(/=\s*\d+\.\d+\.\d+\s*=/)) {
+                        errors.push(`Invalid changelog entry format: ${entry}`);
                     }
                 });
                 
                 // Check bullet points format
-                const bulletPoints = releaseNotes.match(/^\*\s+.*$/gm) || [];
+                const bulletPoints = readmeTxt.match(/^\*\s+.*$/gm) || [];
                 bulletPoints.forEach(point => {
                     if (!point.match(/^\*\s+[A-Z].*[\.\]]$/)) {
                         errors.push(`Invalid bullet point format: ${point}`);
