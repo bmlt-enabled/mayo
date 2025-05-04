@@ -3,3 +3,4 @@ vendor
 assets/js/dist
 *.zip
 .vscode
+.phpunit.result.cache
