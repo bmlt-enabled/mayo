@@ -839,7 +839,7 @@ class Rest {
                     
                     $current->setDate($current->format('Y'), $current->format('m'), $day);
                 } else {
-                    // Specific weekday (e.g., 3rd Thursday)
+                    // Specific weekday (e.g., 2nd Thursday)
                     if (!isset($pattern['monthlyWeekday'])) {
                         // Move to next interval month
                         $current->modify('first day of +' . $interval . ' month');
@@ -853,17 +853,13 @@ class Rest {
                     // Calculate the date
                     $current->modify('first day of this month');
                     if ($week > 0) {
-                        // For first Sunday, we need to find the first occurrence
-                        if ($week === 1) {
-                            // Get the day of week for the first day of month (0-6, where 0 is Sunday)
-                            $first_day_of_week = (int)$current->format('w');
-                            // Calculate days to add to get to the first Sunday
-                            $days_to_add = ($weekday - $first_day_of_week + 7) % 7;
-                            $current->modify('+' . $days_to_add . ' days');
-                        } else {
-                            // For other weeks (2nd, 3rd, etc.)
+                        // For nth weekday, we need to:
+                        // 1. Go to the first day of the month
+                        // 2. Find the first occurrence of the weekday
+                        // 3. Add (week-1) weeks to get to the nth occurrence
+                        $current->modify('first ' . $weekdays[$weekday] . ' of this month');
+                        if ($week > 1) {
                             $current->modify('+' . ($week - 1) . ' weeks');
-                            $current->modify('next ' . $weekdays[$weekday]);
                         }
                     } else {
                         // Last occurrence

@@ -37,8 +37,8 @@ class RecurringEventGenerator {
                     $current->modify('first day of +' . $interval . ' month');
                     $current->setDate($current->format('Y'), $current->format('m'), $day);
                 }
-            } else {
-                // Specific weekday (e.g., 1st Sunday)
+            } elseif (isset($pattern['monthlyWeekday'])) {
+                // Specific weekday (e.g., 2nd Thursday)
                 list($week, $weekday) = explode(',', $pattern['monthlyWeekday']);
                 $week = (int)$week;
                 $weekday = (int)$weekday;
@@ -49,15 +49,16 @@ class RecurringEventGenerator {
                 // Find the first occurrence after the start date
                 $target = clone $current;
                 if ($week > 0) {
-                    if ($week === 1) {
-                        $first_day_of_week = (int)$target->format('w');
-                        $days_to_add = ($weekday - $first_day_of_week + 7) % 7;
-                        $target->modify('+' . $days_to_add . ' days');
-                    } else {
+                    // For nth weekday, we need to:
+                    // 1. Go to the first day of the month
+                    // 2. Find the first occurrence of the weekday
+                    // 3. Add (week-1) weeks to get to the nth occurrence
+                    $target->modify('first ' . $this->getWeekdayName($weekday) . ' of this month');
+                    if ($week > 1) {
                         $target->modify('+' . ($week - 1) . ' weeks');
-                        $target->modify('next ' . $this->getWeekdayName($weekday));
                     }
                 } else {
+                    // For last weekday
                     $target->modify('last ' . $this->getWeekdayName($weekday) . ' of this month');
                 }
                 
@@ -66,13 +67,9 @@ class RecurringEventGenerator {
                     $current->modify('first day of next month');
                     $target = clone $current;
                     if ($week > 0) {
-                        if ($week === 1) {
-                            $first_day_of_week = (int)$target->format('w');
-                            $days_to_add = ($weekday - $first_day_of_week + 7) % 7;
-                            $target->modify('+' . $days_to_add . ' days');
-                        } else {
+                        $target->modify('first ' . $this->getWeekdayName($weekday) . ' of this month');
+                        if ($week > 1) {
                             $target->modify('+' . ($week - 1) . ' weeks');
-                            $target->modify('next ' . $this->getWeekdayName($weekday));
                         }
                     } else {
                         $target->modify('last ' . $this->getWeekdayName($weekday) . ' of this month');
@@ -84,13 +81,9 @@ class RecurringEventGenerator {
                     $current->modify('first day of +' . $interval . ' month');
                     $target = clone $current;
                     if ($week > 0) {
-                        if ($week === 1) {
-                            $first_day_of_week = (int)$target->format('w');
-                            $days_to_add = ($weekday - $first_day_of_week + 7) % 7;
-                            $target->modify('+' . $days_to_add . ' days');
-                        } else {
+                        $target->modify('first ' . $this->getWeekdayName($weekday) . ' of this month');
+                        if ($week > 1) {
                             $target->modify('+' . ($week - 1) . ' weeks');
-                            $target->modify('next ' . $this->getWeekdayName($weekday));
                         }
                     } else {
                         $target->modify('last ' . $this->getWeekdayName($weekday) . ' of this month');
