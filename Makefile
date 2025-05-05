@@ -43,3 +43,7 @@ lint: composer ## PHP Lint
 .PHONY: fmt
 fmt: composer ## PHP Fmt
 	vendor/squizlabs/php_codesniffer/bin/phpcbf *.php
+
+.PHONY: test
+test: composer ## PHP Unit Test
+	composer test:integration

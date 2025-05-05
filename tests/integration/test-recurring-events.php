@@ -33,6 +33,24 @@ class RecurringEventsIntegrationTest extends WP_UnitTestCase {
         $this->assertEquals('2025-12-15', $events[5]);
     }
 
+    public function testMonthlyRecurringEventsWithWeekday() {
+        $startDate = '2025-02-13';
+        $endDate = '2025-05-13';
+        $pattern = [
+            'type' => 'monthly',
+            'interval' => 1,
+            'monthlyWeekday' => '2,4' // 2nd Thursday (4 = Thursday)
+        ];
+
+        $events = $this->generator->generateEvents($startDate, $pattern, $endDate);
+        
+        $this->assertCount(4, $events);
+        $this->assertEquals('2025-02-13', $events[0]); // 2nd Thursday of February
+        $this->assertEquals('2025-03-13', $events[1]); // 2nd Thursday of March
+        $this->assertEquals('2025-04-10', $events[2]); // 2nd Thursday of April
+        $this->assertEquals('2025-05-08', $events[3]); // 2nd Thursday of May
+    }
+
     public function testWeeklyRecurringEvents() {
         $startDate = '2025-07-15';
         $endDate = '2025-07-29';
