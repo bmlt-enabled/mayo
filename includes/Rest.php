@@ -1115,7 +1115,7 @@ class Rest {
         return array_map(function($term) {
             return array(
                 'id' => $term->term_id,
-                'name' => $term->name,
+                'name' => html_entity_decode($term->name),
                 'slug' => $term->slug,
                 'link' => get_term_link($term)
             );
