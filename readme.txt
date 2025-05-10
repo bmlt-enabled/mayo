@@ -135,6 +135,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.2.11 =
 * Fixed HTML encoding issues on displays. [#109]
+* Fixed an issue where someone could upload a non-image file. [#111]
 
 = 1.2.10 =
 * Fixed another monthly recurrence bug.
