@@ -158,6 +158,17 @@ const EventForm = () => {
         setMessage(null);
 
         try {
+            // Validate file type before submission
+            if (formData.flyer) {
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                const fileExtension = formData.flyer.name.split('.').pop().toLowerCase();
+                const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                
+                if (!allowedTypes.includes(formData.flyer.type) || !allowedExtensions.includes(fileExtension)) {
+                    throw new Error('Please select a valid image file (JPG, PNG, or GIF)');
+                }
+            }
+
             // Check all required fields
             const missingFields = allRequiredFields.filter(field => {
                 if (field === 'flyer') {
@@ -261,13 +272,67 @@ const EventForm = () => {
         
         if (files && files[0]) {
             const file = files[0];
-            // Set upload type for UI purposes only
-            setUploadType('image');
-            // Store all files as attachments in the flyer field
-            setFormData(prev => ({
-                ...prev,
-                flyer: file
-            }));
+            // Immediate validation of file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+            
+            // Immediately reject if not an allowed type
+            if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
+                setMessage({ 
+                    type: 'error', 
+                    text: 'Please select a valid image file (JPG, PNG, or GIF)' 
+                });
+                e.target.value = ''; // Clear the file input
+                setFormData(prev => ({
+                    ...prev,
+                    flyer: null
+                }));
+                setUploadType(null);
+                return;
+            }
+
+            // If it passes initial validation, verify it's actually an image
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Valid image file
+                    setUploadType('image');
+                    setFormData(prev => ({
+                        ...prev,
+                        flyer: file
+                    }));
+                    setMessage(null); // Clear any previous error messages
+                };
+                img.onerror = () => {
+                    // Not a valid image
+                    setMessage({ 
+                        type: 'error', 
+                        text: 'The selected file is not a valid image' 
+                    });
+                    e.target.value = ''; // Clear the file input
+                    setFormData(prev => ({
+                        ...prev,
+                        flyer: null
+                    }));
+                    setUploadType(null);
+                };
+                img.src = event.target.result;
+            };
+            reader.onerror = () => {
+                setMessage({ 
+                    type: 'error', 
+                    text: 'Error reading the file' 
+                });
+                e.target.value = ''; // Clear the file input
+                setFormData(prev => ({
+                    ...prev,
+                    flyer: null
+                }));
+                setUploadType(null);
+            };
+            reader.readAsDataURL(file);
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -694,6 +759,11 @@ const EventForm = () => {
                                     Supported file types: Images (.jpg, .jpeg, .png, .gif)
                                     {isFieldRequired('flyer') && ' (Required)'}
                                 </p>
+                                {message && message.type === 'error' && message.text.includes('image') && (
+                                    <p className="mayo-upload-error">
+                                        {message.text}
+                                    </p>
+                                )}
                             </>
                         )}
 

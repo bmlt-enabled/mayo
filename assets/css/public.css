@@ -1301,4 +1301,14 @@
 .mayo-event-tag {
     background-color: #e5f5e8;
     color: #1fa23d;
+}
+
+.mayo-upload-error {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+    padding: 5px;
+    background-color: #fff;
+    border-left: 3px solid #dc3545;
+    padding-left: 10px;
 } 
