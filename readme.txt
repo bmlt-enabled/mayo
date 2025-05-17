@@ -136,6 +136,7 @@ This project is licensed under the GPL v2 or later.
 = 1.3.0 =
 * Service bodies are shown in un-expanded cards on the display. [#113]
 * Expand and collapse all button.
+* Print capbility.
 
 = 1.2.11 =
 * Fixed HTML encoding issues on displays. [#109]
