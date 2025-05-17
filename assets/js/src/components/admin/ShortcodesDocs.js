@@ -21,6 +21,13 @@ const ShortcodesDocs = () => {
                     </thead>
                     <tbody>
                         <tr>
+                            <td>infinite_scroll</td>
+                            <td>Enable automatic loading of more events as user scrolls down the page</td>
+                            <td>true</td>
+                            <td>true, false</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
                             <td>categories</td>
                             <td>Filter by category slugs (comma-separated)</td>
                             <td>empty (all categories)</td>
@@ -53,14 +60,7 @@ const ShortcodesDocs = () => {
                             <td>Number of events to show per page</td>
                             <td>10</td>
                             <td>Any positive number</td>
-                            <td>No</td>
-                        </tr>
-                        <tr>
-                            <td>show_pagination</td>
-                            <td>Whether to show "Load More" button at bottom of list (infinite scroll is always enabled)</td>
-                            <td>true</td>
-                            <td>true, false</td>
-                            <td>No</td>
+                            <td>Yes</td>
                         </tr>
                         <tr>
                             <td>status</td>
@@ -104,7 +104,7 @@ const ShortcodesDocs = () => {
                 <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" timezone="America/New_York"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&timezone=America/New_York</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&timezone=America/New_York&infinite_scroll=false&per_page=20</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
