@@ -160,6 +160,8 @@ const EventList = ({ widget = false, settings = {} }) => {
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
             let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
+            let infiniteScroll = getQueryStringValue('infinite_scroll') !== null ? getQueryStringValue('infinite_scroll') === 'true' : (settings?.infiniteScroll ?? true);
+            let perPage = getQueryStringValue('per_page') !== null ? parseInt(getQueryStringValue('per_page')) : (settings?.perPage || 10);
 
             // Build the endpoint URL with query parameters
             const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
@@ -170,7 +172,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&tags=${tags}`
                 + `&source_ids=${sourceIds}`
                 + `&page=${page}`
-                + `&per_page=${settings?.perPage || 10}`
+                + `&per_page=${perPage}`
                 + `&timezone=${encodeURIComponent(userTimezone)}`
                 + `&archive=${archive}`;
             
@@ -201,7 +203,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             setHasMore(pagination.current_page < pagination.total_pages);
 
             // For infinite scroll, append new events if it's not the first page
-            if (page > 1 && settings?.infiniteScroll) {
+            if (page > 1 && infiniteScroll) {
                 setEvents(prevEvents => [...prevEvents, ...processedEvents]);
             } else {
                 setEvents(processedEvents);
@@ -415,36 +417,18 @@ const EventList = ({ widget = false, settings = {} }) => {
                     ))}
                     
                     {/* Infinite scroll loading indicator */}
-                    {settings?.infiniteScroll && hasMore && (
-                        <div ref={loaderRef} className="mayo-infinite-loader">
-                            {loading && <div className="mayo-loader">Loading more events...</div>}
-                        </div>
-                    )}
-                </div>
-            )}
-            
-            {/* Standard pagination */}
-            {settings?.showPagination && totalPages > 1 && !settings?.infiniteScroll && (
-                <div className="mayo-pagination">
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="mayo-pagination-button"
-                    >
-                        Previous
-                    </button>
-                    
-                    <span className="mayo-pagination-info">
-                        Page {currentPage} of {totalPages}
-                    </span>
-                    
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="mayo-pagination-button"
-                    >
-                        Next
-                    </button>
+                    {getQueryStringValue('infinite_scroll') !== null ? 
+                        getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
+                            <div ref={loaderRef} className="mayo-infinite-loader">
+                                {loading && <div className="mayo-loader">Loading more events...</div>}
+                            </div>
+                        )
+                        : settings?.infiniteScroll && hasMore && (
+                            <div ref={loaderRef} className="mayo-infinite-loader">
+                                {loading && <div className="mayo-loader">Loading more events...</div>}
+                            </div>
+                        )
+                    }
                 </div>
             )}
         </div>
