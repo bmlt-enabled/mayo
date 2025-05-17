@@ -1286,7 +1286,8 @@
 }
 
 .mayo-event-category,
-.mayo-event-tag {
+.mayo-event-tag,
+.mayo-event-service-body {
     display: inline-block;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
@@ -1302,6 +1303,11 @@
     background-color: #e5f5e8;
     color: #1fa23d;
 }
+
+.mayo-event-service-body {
+    background-color: #fff0e0;
+    color: #ff8c00; 
+}   
 
 .mayo-upload-error {
     color: #dc3545;

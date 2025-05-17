@@ -113,6 +113,9 @@ const EventCard = ({ event, timeFormat }) => {
                                         {tag.name}
                                     </span>
                                 ))}
+                                <span key={event.meta.service_body} className="mayo-event-service-body mayo-event-service-body-small">
+                                    {getServiceBodyName(event.meta.service_body, sourceId)}
+                                </span>
                             </div>
                         )}
                     </div>
