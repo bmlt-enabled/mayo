@@ -133,6 +133,9 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.3.2 =
+* Added autoexpand option to event list shortcode with querystring support [#119]
+
 = 1.3.1 =
 * Adding better documentation around infinite scroll and handling of querystring parameters
 * Showing year in date badge as superscript
