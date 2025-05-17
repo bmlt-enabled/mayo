@@ -208,7 +208,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                         )}
 
                         {event.meta.service_body && (
-                            <div className="mayo-event-service-body">
+                            <div>
                                 <h4>Service Body</h4>
                                 <p>{getServiceBodyName(event.meta.service_body, sourceId)}</p>
                             </div>
