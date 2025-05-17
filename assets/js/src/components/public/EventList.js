@@ -225,6 +225,129 @@ const EventList = ({ widget = false, settings = {} }) => {
         containerRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const handlePrint = () => {
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+        
+        // Get the current page title
+        const pageTitle = document.title;
+        
+        // Create the print content
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${pageTitle} - Print View</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .mayo-print-header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        padding-bottom: 20px;
+                        border-bottom: 2px solid #eee;
+                    }
+                    .mayo-print-event {
+                        margin-bottom: 30px;
+                        padding-bottom: 20px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .mayo-print-event:last-child {
+                        border-bottom: none;
+                    }
+                    .mayo-print-event-title {
+                        font-size: 1.4em;
+                        margin: 0 0 10px 0;
+                        color: #0073aa;
+                    }
+                    .mayo-print-event-meta {
+                        margin-bottom: 15px;
+                        color: #666;
+                    }
+                    .mayo-print-event-description {
+                        margin-top: 15px;
+                    }
+                    .mayo-print-event-taxonomies {
+                        margin-top: 15px;
+                    }
+                    .mayo-print-event-taxonomy {
+                        display: inline-block;
+                        padding: 3px 8px;
+                        margin: 0 5px 5px 0;
+                        border-radius: 3px;
+                        font-size: 0.9em;
+                    }
+                    .mayo-print-event-category {
+                        background: #e9ecef;
+                        color: #495057;
+                    }
+                    .mayo-print-event-tag {
+                        background: #e5f5e8;
+                        color: #1fa23d;
+                    }
+                    @media print {
+                        body {
+                            padding: 0;
+                        }
+                        .mayo-print-header {
+                            margin-bottom: 20px;
+                        }
+                        .mayo-print-event {
+                            page-break-inside: avoid;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="mayo-print-header">
+                    <h1>${pageTitle}</h1>
+                    <p>Printed on ${new Date().toLocaleString()}</p>
+                </div>
+                ${events.map(event => `
+                    <div class="mayo-print-event">
+                        <h2 class="mayo-print-event-title">${event.title.rendered}</h2>
+                        <div class="mayo-print-event-meta">
+                            <p><strong>Date:</strong> ${event.meta.event_start_date}${event.meta.event_start_time ? ` at ${event.meta.event_start_time}` : ''}</p>
+                            ${event.meta.event_type ? `<p><strong>Type:</strong> ${event.meta.event_type}</p>` : ''}
+                            ${event.meta.location_name ? `<p><strong>Location:</strong> ${event.meta.location_name}</p>` : ''}
+                        </div>
+                        <div class="mayo-print-event-description">
+                            ${event.content.rendered}
+                        </div>
+                        ${(event.categories.length > 0 || event.tags.length > 0) ? `
+                            <div class="mayo-print-event-taxonomies">
+                                ${event.categories.map(cat => `
+                                    <span class="mayo-print-event-taxonomy mayo-print-event-category">${cat.name}</span>
+                                `).join('')}
+                                ${event.tags.map(tag => `
+                                    <span class="mayo-print-event-taxonomy mayo-print-event-tag">${tag.name}</span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            </body>
+            </html>
+        `;
+        
+        // Write the content to the new window
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        
+        // Wait for images to load before printing
+        printWindow.onload = () => {
+            printWindow.print();
+            // Close the window after printing (optional)
+            // printWindow.close();
+        };
+    };
+
     if (loading && events.length === 0) return <div>Loading events...</div>;
     if (error && events.length === 0) return <div className="mayo-error">{error}</div>;
     if (!events.length) {
@@ -250,6 +373,13 @@ const EventList = ({ widget = false, settings = {} }) => {
                         title={allExpanded ? "Collapse All" : "Expand All"}
                     >
                         <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
+                    </button>
+                    <button 
+                        className="mayo-print-button"
+                        onClick={handlePrint}
+                        title="Print Events"
+                    >
+                        <span className="dashicons dashicons-printer"></span>
                     </button>
                     <a 
                         href={getRssUrl()} 

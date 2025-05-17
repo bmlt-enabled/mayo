@@ -1245,7 +1245,8 @@
     align-items: center;
 }
 
-.mayo-expand-all-button {
+.mayo-expand-all-button,
+.mayo-print-button {
     background: none;
     border: none;
     cursor: pointer;
@@ -1254,11 +1255,14 @@
     transition: color 0.2s ease;
 }
 
-.mayo-expand-all-button:hover {
+.mayo-expand-all-button:hover,
+.mayo-print-button:hover {
     color: #333;
 }
 
-.mayo-expand-all-button .dashicons {
+.mayo-expand-all-button .dashicons,
+.mayo-print-button .dashicons,
+.mayo-rss-link .dashicons {
     font-size: 1.25rem;
     width: 1.25rem;
     height: 1.25rem;
@@ -1273,12 +1277,6 @@
 
 .mayo-rss-link:hover {
     color: #333;
-}
-
-.mayo-rss-link .dashicons {
-    font-size: 1.25rem;
-    width: 1.25rem;
-    height: 1.25rem;
 }
 
 .mayo-event-meta {
