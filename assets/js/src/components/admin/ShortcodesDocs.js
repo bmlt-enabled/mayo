@@ -28,6 +28,13 @@ const ShortcodesDocs = () => {
                             <td>Yes</td>
                         </tr>
                         <tr>
+                            <td>autoexpand</td>
+                            <td>Automatically expand all events when the page loads</td>
+                            <td>false</td>
+                            <td>true, false</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
                             <td>categories</td>
                             <td>Filter by category slugs (comma-separated)</td>
                             <td>empty (all categories)</td>

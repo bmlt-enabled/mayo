@@ -16,6 +16,11 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [hasMore, setHasMore] = useState(true);
     const [totalPages, setTotalPages] = useState(1);
     const [allExpanded, setAllExpanded] = useState(false);
+    const [expandedEvents, setExpandedEvents] = useState(new Set());
+    const [isPrinting, setIsPrinting] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [autoexpand, setAutoexpand] = useState(false);
     const { updateExternalServiceBodies } = useEventProvider();
     
     // Get user's current timezone
@@ -34,6 +39,23 @@ const EventList = ({ widget = false, settings = {} }) => {
         
         fetchEvents(1);
     }, [settings, widget]);
+
+    // Check for autoexpand in querystring or settings
+    useEffect(() => {
+        const querystringAutoexpand = getQueryStringValue('autoexpand');
+        const shouldAutoexpand = querystringAutoexpand !== null ? 
+            querystringAutoexpand === 'true' : 
+            (settings?.autoexpand || false);
+        setAutoexpand(shouldAutoexpand);
+    }, [settings?.autoexpand]);
+
+    // Autoexpand all events if autoexpand is true
+    useEffect(() => {
+        if (autoexpand && events.length > 0) {
+            setAllExpanded(true);
+            setExpandedEvents(new Set(events.map(event => event.id)));
+        }
+    }, [autoexpand, events]);
 
     // Process external service bodies when events are loaded
     const processServiceBodies = useCallback((events) => {
