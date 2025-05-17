@@ -126,6 +126,16 @@
     text-transform: uppercase;
     font-weight: 600;
     color: #444;
+    position: relative;
+}
+
+.mayo-event-year {
+    font-size: 0.6em;
+    color: #666;
+    position: relative;
+    top: -0.5em;
+    margin-left: 1px;
+    font-weight: normal;
 }
 
 .mayo-event-time {
