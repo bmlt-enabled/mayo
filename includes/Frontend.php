@@ -73,6 +73,7 @@ class Frontend {
             'time_format' => '12hour', // or '24hour'
             'per_page' => 10,
             'infinite_scroll' => 'true',
+            'autoexpand' => 'false',
             'categories' => '',  // Comma-separated category slugs
             'tags' => '',       // Comma-separated tag slugs
             'event_type' => '',  // Single event type (Service, Activity)
@@ -91,6 +92,7 @@ class Frontend {
             'timeFormat' => $atts['time_format'],
             'perPage' => intval($atts['per_page']),
             'infiniteScroll' => $atts['infinite_scroll'] === 'true',
+            'autoexpand' => $atts['autoexpand'] === 'true',
             'categories' => $atts['categories'],
             'tags' => $atts['tags'],
             'eventType' => $atts['event_type'],
