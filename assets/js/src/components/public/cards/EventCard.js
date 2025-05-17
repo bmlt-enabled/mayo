@@ -12,8 +12,13 @@ const convertToUnicode = (str) => {
         .join('');
 };
 
-const EventCard = ({ event, timeFormat }) => {
+const EventCard = ({ event, timeFormat, forceExpanded }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    
+    // Update expansion state when forceExpanded changes
+    useEffect(() => {
+        setIsExpanded(forceExpanded);
+    }, [forceExpanded]);
     
     // Check for valid date
     const hasValidDate = event.meta.event_start_date && 

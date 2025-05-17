@@ -15,6 +15,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [isWidget, setIsWidget] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [totalPages, setTotalPages] = useState(1);
+    const [allExpanded, setAllExpanded] = useState(false);
     const { updateExternalServiceBodies } = useEventProvider();
     
     // Get user's current timezone
@@ -242,15 +243,24 @@ const EventList = ({ widget = false, settings = {} }) => {
     return (
         <div className="mayo-event-list" ref={containerRef}>
             <div className="mayo-event-list-header">
-                <a 
-                    href={getRssUrl()} 
-                    className="mayo-rss-link" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    title="Calendar Feed"
-                >
-                    <span className="dashicons dashicons-calendar"></span>
-                </a>
+                <div className="mayo-event-list-actions">
+                    <button 
+                        className="mayo-expand-all-button"
+                        onClick={() => setAllExpanded(!allExpanded)}
+                        title={allExpanded ? "Collapse All" : "Expand All"}
+                    >
+                        <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
+                    </button>
+                    <a 
+                        href={getRssUrl()} 
+                        className="mayo-rss-link" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        title="Calendar Feed"
+                    >
+                        <span className="dashicons dashicons-calendar"></span>
+                    </a>
+                </div>
             </div>
             
             {isWidget ? (
@@ -270,6 +280,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                             key={`${event.id}-${event.meta.event_start_date}`}
                             event={event}
                             timeFormat={timeFormat}
+                            forceExpanded={allExpanded}
                         />
                     ))}
                     
