@@ -165,7 +165,7 @@ const EventForm = () => {
                 const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
                 
                 if (!allowedTypes.includes(formData.flyer.type) || !allowedExtensions.includes(fileExtension)) {
-                    throw new Error('Please select a valid image file (JPG, PNG, or GIF)');
+                    throw new Error('You did not attach a valid image file, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)');
                 }
             }
 
@@ -281,7 +281,7 @@ const EventForm = () => {
             if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
                 setMessage({ 
                     type: 'error', 
-                    text: 'Please select a valid image file (JPG, PNG, or GIF)' 
+                    text: 'The selected file is not a valid image, so one will not be submitted.  Please use a valid image file (JPG, PNG, or GIF)' 
                 });
                 e.target.value = ''; // Clear the file input
                 setFormData(prev => ({
@@ -309,7 +309,7 @@ const EventForm = () => {
                     // Not a valid image
                     setMessage({ 
                         type: 'error', 
-                        text: 'The selected file is not a valid image' 
+                        text: 'The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)' 
                     });
                     e.target.value = ''; // Clear the file input
                     setFormData(prev => ({
