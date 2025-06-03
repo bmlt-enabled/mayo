@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
+import { apiFetch } from '../../util';
 
 const EventForm = () => {
     // Get the settings from the data attribute
@@ -206,7 +207,7 @@ const EventForm = () => {
                          document.querySelector('#_wpnonce')?.value || 
                          window.wpApiSettings?.nonce;
 
-            const response = await fetch('/wp-json/event-manager/v1/submit-event', {
+            const result = await apiFetch('/submit-event', {
                 method: 'POST',
                 body: data,
                 credentials: 'same-origin',
@@ -215,9 +216,7 @@ const EventForm = () => {
                 }
             });
 
-            const result = await response.json();
-
-            if (response.ok && (result.id || result.success)) {
+            if (result.id || result.success) {
                 setMessage({ 
                     type: 'success', 
                     text: 'Event submitted successfully!' 

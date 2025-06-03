@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 import { useEventProvider } from '../providers/EventProvider';
+import { apiFetch } from '../../util';
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
@@ -121,7 +122,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     const getRssUrl = () => {
-        const baseUrl = '/';
+        const baseUrl = '';
         const params = new URLSearchParams();
 
         params.append('feed', 'mayo_events');
@@ -186,7 +187,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             let perPage = getQueryStringValue('per_page') !== null ? parseInt(getQueryStringValue('per_page')) : (settings?.perPage || 10);
 
             // Build the endpoint URL with query parameters
-            const endpoint = `/wp-json/event-manager/v1/events?status=${status}`
+            const endpoint = `/events?status=${status}`
                 + `&event_type=${eventType}`
                 + `&service_body=${serviceBody}`
                 + `&relation=${relation}`
@@ -198,16 +199,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&timezone=${encodeURIComponent(userTimezone)}`
                 + `&archive=${archive}`;
             
-            const response = await fetch(endpoint);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            
-            // Ensure we have the expected data structure
-            if (!data || typeof data !== 'object') {
-                throw new Error('Invalid API response format');
-            }
+            const data = await apiFetch(endpoint);
             
             // Handle both old and new response formats
             const events = Array.isArray(data) ? data : (data.events || []);

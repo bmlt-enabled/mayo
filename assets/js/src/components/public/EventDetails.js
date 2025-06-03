@@ -1,7 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
-import apiFetch from '@wordpress/api-fetch';
-import { formatRecurringPattern } from '../../util';
+import { formatRecurringPattern, apiFetch } from '../../util';
 
 const EventDetails = () => {
     const [event, setEvent] = useState(null);
@@ -15,9 +14,7 @@ const EventDetails = () => {
                 const pathParts = window.location.pathname.split('/');
                 const eventSlug = pathParts[pathParts.length - 2];
 
-                const response = await apiFetch({
-                    path: `/wp-json/event-manager/v1/event/${eventSlug}`
-                });
+                const response = await apiFetch(`/event/${eventSlug}`);
                 if (response) {
                     setEvent(response);
                 } else {

@@ -76,8 +76,8 @@ export const formatRecurringPattern = (pattern) => {
  * @returns {Promise} Fetch promise
  */
 export const apiFetch = async (endpoint, options = {}) => {
-    const baseUrl = '/wp-json/event-manager/v1';
-    const url = `${baseUrl}${endpoint}`;
+    const baseUrl = window.mayoApiSettings?.root || window.wpApiSettings?.root || '/wp-json';
+    const url = `${baseUrl}event-manager/v1${endpoint}`;
     
     // Check for nonce in various places
     let nonce = '';
