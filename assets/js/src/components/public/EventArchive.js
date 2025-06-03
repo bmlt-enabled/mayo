@@ -1,7 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
-import { formatTimezone } from '../../util'; // Import the helper function
+import { formatTimezone, apiFetch } from '../../util'; // Import the helper function
 import { useEventProvider } from '../providers/EventProvider';
-import apiFetch from '@wordpress/api-fetch';
 
 const EventArchive = () => {
     const [events, setEvents] = useState([]);
@@ -12,7 +11,7 @@ const EventArchive = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await apiFetch({ path: '/wp-json/event-manager/v1/events?archive=true' });
+                const response = await apiFetch('/events?archive=true');
                 
                 // Ensure we have a valid response and it's an array
                 if (response && Array.isArray(response)) {

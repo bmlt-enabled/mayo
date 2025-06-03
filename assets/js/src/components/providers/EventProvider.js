@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import apiFetch from '@wordpress/api-fetch';
+import { apiFetch } from '../../util';
 
 export const EventContext = createContext()
 export const useEventProvider = () => useContext(EventContext);
@@ -12,7 +12,7 @@ export const EventProvider = ({ children }) => {
         const fetchServiceBodies = async () => {
             try {
                 setLoading(true)
-                const settings = await apiFetch({ path: '/wp-json/event-manager/v1/settings' });
+                const settings = await apiFetch('/settings');
                 const bmltRootServer = settings.bmlt_root_server;
                 if (!bmltRootServer) {
                     throw new Error('BMLT root server URL not set');
