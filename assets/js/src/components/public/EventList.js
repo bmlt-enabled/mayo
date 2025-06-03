@@ -122,7 +122,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     const getRssUrl = () => {
-        const baseUrl = '/';
+        const baseUrl = '';
         const params = new URLSearchParams();
 
         params.append('feed', 'mayo_events');
