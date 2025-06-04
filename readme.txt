@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.8
-Stable tag: 1.4.0
+Stable tag: 1.3.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,11 +133,12 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
-= 1.4.0 =
-* Version bump for maintenance release
+= 1.3.5 =
+* Handle virtual directory paths.
+* Temporarily fix an issue with retrieving external sources by fetching 100 events. [#122]
 
 = 1.3.4 =
-* Change error messaging on event submission for when invalid file types are used.
+* Change error messaging on event submission for when invalid file types are used. [#64] [#79]
 
 = 1.3.3 =
 * Removed the styling around service body in expanded view of Event List.
