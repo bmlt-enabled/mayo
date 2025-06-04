@@ -573,7 +573,18 @@ class Rest {
             
             // If we have enabled sources, fetch events in parallel
             if (!empty($enabled_sources)) {
-                $external_events = self::fetch_external_events_parallel($enabled_sources);
+                foreach ($enabled_sources as $source) {
+                    try {    
+                        $source_events = self::fetch_external_events($source);
+                        
+                        if (!empty($source_events)) {
+                            error_log('Received ' . count($source_events) . ' events from source: ' . $source['url']);
+                            $events = array_merge($events, $source_events);
+                        }
+                    } catch (\Exception $e) {
+                        error_log('Error fetching events from source ' . $source['url'] . ': ' . $e->getMessage());
+                    }
+                }
 
                 if (!empty($external_events)) {
                     $events = array_merge($events, $external_events);
@@ -632,122 +643,6 @@ class Rest {
                 'total_pages' => $total_pages
             ]
         ]);
-    }
-    
-    /**
-     * Fetch events from multiple external sources in parallel
-     * 
-     * @param array $sources Array of external source configurations
-     * @return array Array of events from all sources
-     */
-    private static function fetch_external_events_parallel($sources) {
-        $all_events = [];
-        
-        // If no sources to fetch from, return empty array
-        if (empty($sources)) {
-            return [];
-        }
-        
-        // Use curl_multi for true parallel requests
-        if (function_exists('curl_multi_init')) {
-            $mh = curl_multi_init();
-            $curl_handles = [];
-            $source_map = [];
-            
-            // Prepare all curl handles
-            foreach ($sources as $index => $source) {
-                // Build query parameters
-                $params = [];
-                if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
-                if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
-                if (!empty($source['categories'])) $params['categories'] = $source['categories'];
-                if (!empty($source['tags'])) $params['tags'] = $source['tags'];
-                
-                // Pass archive and timezone parameters if they exist in the original request
-                if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
-                if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
-
-                // Build URL with parameters
-                $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
-                
-                // Create curl handle
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-                
-                // Add to multi handle
-                curl_multi_add_handle($mh, $ch);
-                
-                // Store handle and source mapping
-                $curl_handles[$index] = $ch;
-                $source_map[$index] = $source;
-            }
-            
-            // Execute the requests in parallel
-            $running = null;
-            do {
-                curl_multi_exec($mh, $running);
-                curl_multi_select($mh);
-            } while ($running > 0);
-            
-
-            foreach ($curl_handles as $index => $ch) {
-                $source = $source_map[$index];
-                $response = curl_multi_getcontent($ch);
-                
-                if (empty($response)) {
-                    error_log('External Events Error: Empty response from ' . $source['url']);
-                    curl_multi_remove_handle($mh, $ch);
-                    continue;
-                }
-                
-                $data = json_decode($response, true);
-                
-                // Handle both new (with pagination) and old response formats
-                $events = isset($data['events']) ? $data['events'] : $data;
-                
-                if (!is_array($events)) {
-                    error_log('External Events Error: Invalid JSON response from ' . $source['url']);
-                    curl_multi_remove_handle($mh, $ch);
-                    continue;
-                }
-                
-                $source_id = $source['id'];
-                $service_bodies[$source_id] = self::fetch_external_service_bodies($source);
-                
-                // Add source information to each event
-                foreach ($events as &$event) {
-                    $event['external_source'] = [
-                        'id' => $source['id'],
-                        'url' => parse_url($source['url'], PHP_URL_HOST),
-                        'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
-                        'service_bodies' => $service_bodies[$source_id]
-                    ];
-                }
-                
-                // Add events to the collection
-                $all_events = array_merge($all_events, $events);
-                
-                // Clean up
-                curl_multi_remove_handle($mh, $ch);
-            }
-            
-            // Close multi handle
-            curl_multi_close($mh);
-        } else {
-            // Fallback to sequential requests if curl_multi is not available
-            foreach ($sources as $source) {
-                $external_events = self::fetch_external_events($source);
-                if (!empty($external_events)) {
-                    $all_events = array_merge($all_events, $external_events);
-                }
-            }
-        }
-        
-        return $all_events;
     }
 
     /**
