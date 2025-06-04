@@ -44,22 +44,6 @@ class Rest {
                 'callback' => [__CLASS__, 'bmltenabled_mayo_get_event_details'],
                 'permission_callback' => '__return_true', // Adjust permissions as needed
             ]);
-
-            register_rest_route('event-manager/v1', '/cache', [
-                'methods' => 'POST',
-                'callback' => [__CLASS__, 'purge_external_events_cache'],
-                'permission_callback' => function() {
-                    return current_user_can('manage_options');
-                }
-            ]);
-
-            register_rest_route('event-manager/v1', '/cache', [
-                'methods' => 'GET',
-                'callback' => [__CLASS__, 'get_cache_status'],
-                'permission_callback' => function() {
-                    return current_user_can('manage_options');
-                }
-            ]);
         });
     }
 
@@ -446,6 +430,8 @@ class Rest {
             if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
             if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
 
+            $params['per_page'] = 100;
+
             // Build URL with parameters
             $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
 
@@ -589,25 +575,19 @@ class Rest {
             
             // If we have enabled sources, fetch events in parallel
             if (!empty($enabled_sources)) {
-                // Get cache duration from settings
-                $settings = get_option('mayo_settings', []);
-                $cache_duration = isset($settings['cache_duration']) ? intval($settings['cache_duration']) : 60; // Default 60 seconds
-                
-                // Check if we have cached results
-                $cache_key = 'mayo_external_events_' . md5(serialize($enabled_sources) . serialize($_GET));
-                $cached_events = get_transient($cache_key);
-                
-                if ($cached_events !== false) {
-                    // Use cached events
-                    $external_events = $cached_events;
-                } else {
-                    // Fetch fresh events
-                    $external_events = self::fetch_external_events_parallel($enabled_sources);
-                    
-                    // Cache the results for the configured duration
-                    set_transient($cache_key, $external_events, $cache_duration);
+                foreach ($enabled_sources as $source) {
+                    try {    
+                        $source_events = self::fetch_external_events($source);
+                        
+                        if (!empty($source_events)) {
+                            error_log('Received ' . count($source_events) . ' events from source: ' . $source['url']);
+                            $events = array_merge($events, $source_events);
+                        }
+                    } catch (\Exception $e) {
+                        error_log('Error fetching events from source ' . $source['url'] . ': ' . $e->getMessage());
+                    }
                 }
-                
+
                 if (!empty($external_events)) {
                     $events = array_merge($events, $external_events);
                 }
@@ -665,126 +645,6 @@ class Rest {
                 'total_pages' => $total_pages
             ]
         ]);
-    }
-    
-    /**
-     * Fetch events from multiple external sources in parallel
-     * 
-     * @param array $sources Array of external source configurations
-     * @return array Array of events from all sources
-     */
-    private static function fetch_external_events_parallel($sources) {
-        $all_events = [];
-        
-        // If no sources to fetch from, return empty array
-        if (empty($sources)) {
-            return [];
-        }
-        
-        // Use curl_multi for true parallel requests
-        if (function_exists('curl_multi_init')) {
-            $mh = curl_multi_init();
-            $curl_handles = [];
-            $source_map = [];
-            
-            // Prepare all curl handles
-            foreach ($sources as $index => $source) {
-                // Build query parameters
-                $params = [];
-                if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
-                if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
-                if (!empty($source['categories'])) $params['categories'] = $source['categories'];
-                if (!empty($source['tags'])) $params['tags'] = $source['tags'];
-                
-                // Pass archive and timezone parameters if they exist in the original request
-                if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
-                if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
-
-                // Build URL with parameters
-                $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
-                
-                // Create curl handle
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-                
-                // Add to multi handle
-                curl_multi_add_handle($mh, $ch);
-                
-                // Store handle and source mapping
-                $curl_handles[$index] = $ch;
-                $source_map[$index] = $source;
-            }
-            
-            // Execute the requests in parallel
-            $running = null;
-            do {
-                curl_multi_exec($mh, $running);
-                curl_multi_select($mh);
-            } while ($running > 0);
-            
-            // Process responses
-            $service_bodies_cache = [];
-            foreach ($curl_handles as $index => $ch) {
-                $source = $source_map[$index];
-                $response = curl_multi_getcontent($ch);
-                
-                if (empty($response)) {
-                    error_log('External Events Error: Empty response from ' . $source['url']);
-                    curl_multi_remove_handle($mh, $ch);
-                    continue;
-                }
-                
-                $data = json_decode($response, true);
-                
-                // Handle both new (with pagination) and old response formats
-                $events = isset($data['events']) ? $data['events'] : $data;
-                
-                if (!is_array($events)) {
-                    error_log('External Events Error: Invalid JSON response from ' . $source['url']);
-                    curl_multi_remove_handle($mh, $ch);
-                    continue;
-                }
-                
-                // Get service bodies for this source (or use cached version)
-                $source_id = $source['id'];
-                if (!isset($service_bodies_cache[$source_id])) {
-                    $service_bodies_cache[$source_id] = self::fetch_external_service_bodies($source);
-                }
-                
-                // Add source information to each event
-                foreach ($events as &$event) {
-                    $event['external_source'] = [
-                        'id' => $source['id'],
-                        'url' => parse_url($source['url'], PHP_URL_HOST),
-                        'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
-                        'service_bodies' => $service_bodies_cache[$source_id]
-                    ];
-                }
-                
-                // Add events to the collection
-                $all_events = array_merge($all_events, $events);
-                
-                // Clean up
-                curl_multi_remove_handle($mh, $ch);
-            }
-            
-            // Close multi handle
-            curl_multi_close($mh);
-        } else {
-            // Fallback to sequential requests if curl_multi is not available
-            foreach ($sources as $source) {
-                $external_events = self::fetch_external_events($source);
-                if (!empty($external_events)) {
-                    $all_events = array_merge($all_events, $external_events);
-                }
-            }
-        }
-        
-        return $all_events;
     }
 
     /**
@@ -993,14 +853,8 @@ class Rest {
         $settings = get_option('mayo_settings', []);
         $external_sources = get_option('mayo_external_sources', []);
         
-        // Ensure cache_duration is set with a default value
-        if (!isset($settings['cache_duration'])) {
-            $settings['cache_duration'] = 60; // Default 60 seconds (1 minute)
-        }
-        
         return new \WP_REST_Response([
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
-            'cache_duration' => $settings['cache_duration'],
             'notification_email' => $settings['notification_email'] ?? '',
             'external_sources' => $external_sources
         ]);
@@ -1021,16 +875,6 @@ class Rest {
         // Update BMLT root server
         if (isset($params['bmlt_root_server'])) {
             $settings['bmlt_root_server'] = sanitize_text_field($params['bmlt_root_server']);
-        }
-        
-        // Update cache duration
-        if (isset($params['cache_duration'])) {
-            $cache_duration = intval($params['cache_duration']);
-            // Ensure it's a positive number
-            if ($cache_duration < 0) {
-                $cache_duration = 60; // Default to 60 seconds if invalid
-            }
-            $settings['cache_duration'] = $cache_duration;
         }
         
         // Update notification email
@@ -1069,7 +913,6 @@ class Rest {
             'success' => true,
             'settings' => [
                 'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
-                'cache_duration' => $settings['cache_duration'],
                 'notification_email' => $settings['notification_email'] ?? '',
                 'external_sources' => get_option('mayo_external_sources', [])
             ]
@@ -1143,37 +986,6 @@ class Rest {
     }
 
     /**
-     * Purge the external events cache
-     * 
-     * @param WP_REST_Request $request The request object
-     * @return WP_REST_Response The response object
-     */
-    public static function purge_external_events_cache($request) {
-        global $wpdb;
-        
-        // Delete all transients that start with 'mayo_external_events_'
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-                $wpdb->esc_like('_transient_mayo_external_events_') . '%'
-            )
-        );
-        
-        // Also delete the timeout transients
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-                $wpdb->esc_like('_transient_timeout_mayo_external_events_') . '%'
-            )
-        );
-        
-        return new \WP_REST_Response([
-            'success' => true,
-            'message' => 'External events cache purged successfully'
-        ]);
-    }
-
-    /**
      * Sanitize external sources
      * 
      * @param array $sources Array of external sources
@@ -1201,54 +1013,6 @@ class Rest {
         }
         
         return $sanitized_sources;
-    }
-
-    /**
-     * Get cache status for external sources
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-     */
-    public static function get_cache_status($request) {
-        $settings = get_option('mayo_event_manager_settings', []);
-        $external_sources = isset($settings['external_sources']) ? $settings['external_sources'] : [];
-        $cache_status = [];
-
-        foreach ($external_sources as $source) {
-            $cache_key = 'mayo_external_events_' . md5($source['url']);
-            $cached_data = get_transient($cache_key);
-            
-            $cache_status[] = [
-                'id' => $source['id'],
-                'name' => $source['name'] ?? $source['url'],
-                'url' => $source['url'],
-                'enabled' => $source['enabled'] ?? false,
-                'is_cached' => $cached_data !== false,
-                'last_updated' => $cached_data ? get_transient($cache_key . '_time') : null,
-                'event_count' => $cached_data ? count($cached_data) : 0
-            ];
-        }
-
-        return rest_ensure_response($cache_status);
-    }
-
-    /**
-     * Purge the external events cache
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-     */
-    public static function purge_cache($request) {
-        $settings = get_option('mayo_event_manager_settings', []);
-        $external_sources = isset($settings['external_sources']) ? $settings['external_sources'] : [];
-        
-        foreach ($external_sources as $source) {
-            $cache_key = 'mayo_external_events_' . md5($source['url']);
-            delete_transient($cache_key);
-            delete_transient($cache_key . '_time');
-        }
-        
-        return rest_ensure_response(['success' => true]);
     }
 }
 
