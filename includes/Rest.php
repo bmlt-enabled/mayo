@@ -430,6 +430,8 @@ class Rest {
             if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
             if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
 
+            $params['per_page'] = 100;
+
             // Build URL with parameters
             $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
 
