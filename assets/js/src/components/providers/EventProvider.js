@@ -36,16 +36,16 @@ export const EventProvider = ({ children }) => {
         // If it's a local service body
         if (sourceId === 'local') {
             const serviceBody = serviceBodies.find(body => body.id === id);
-            return serviceBody?.name || 'Unaffiliated (0)';
+            return serviceBody?.name || 'Unaffiliated';
         }
         
         // If it's an external service body
         if (externalServiceBodies[sourceId]) {
             const serviceBody = externalServiceBodies[sourceId].find(body => body.id === id);
-            return serviceBody?.name || 'Unaffiliated (0)';
+            return serviceBody?.name || 'Unaffiliated';
         }
         
-        return 'Unaffiliated (0)';
+        return 'Unaffiliated';
     }
     
     const updateExternalServiceBodies = (sourceId, bodies) => {
