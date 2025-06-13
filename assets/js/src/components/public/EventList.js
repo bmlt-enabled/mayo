@@ -381,34 +381,6 @@ const EventList = ({ widget = false, settings = {} }) => {
 
     return (
         <div className="mayo-event-list" ref={containerRef}>
-            <div className="mayo-event-list-header">
-                <div className="mayo-event-list-actions">
-                    <button 
-                        className="mayo-expand-all-button"
-                        onClick={() => setAllExpanded(!allExpanded)}
-                        title={allExpanded ? "Collapse All" : "Expand All"}
-                    >
-                        <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
-                    </button>
-                    <button 
-                        className="mayo-print-button"
-                        onClick={handlePrint}
-                        title="Print Events"
-                    >
-                        <span className="dashicons dashicons-printer"></span>
-                    </button>
-                    <a 
-                        href={getRssUrl()} 
-                        className="mayo-rss-link" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        title="Calendar Feed"
-                    >
-                        <span className="dashicons dashicons-calendar"></span>
-                    </a>
-                </div>
-            </div>
-            
             {isWidget ? (
                 <div className="mayo-widget-events">
                     {events.map(event => (
@@ -420,30 +392,59 @@ const EventList = ({ widget = false, settings = {} }) => {
                     ))}
                 </div>
             ) : (
-                <div className="mayo-event-cards">
-                    {events.map(event => (
-                        <EventCard 
-                            key={`${event.id}-${event.meta.event_start_date}`}
-                            event={event}
-                            timeFormat={timeFormat}
-                            forceExpanded={allExpanded}
-                        />
-                    ))}
-                    
-                    {/* Infinite scroll loading indicator */}
-                    {getQueryStringValue('infinite_scroll') !== null ? 
-                        getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
-                            <div ref={loaderRef} className="mayo-infinite-loader">
-                                {loading && <div className="mayo-loader">Loading more events...</div>}
-                            </div>
-                        )
-                        : settings?.infiniteScroll && hasMore && (
-                            <div ref={loaderRef} className="mayo-infinite-loader">
-                                {loading && <div className="mayo-loader">Loading more events...</div>}
-                            </div>
-                        )
-                    }
-                </div>
+                <>
+                    <div className="mayo-event-list-header">
+                        <div className="mayo-event-list-actions">
+                            <button 
+                                className="mayo-expand-all-button"
+                                onClick={() => setAllExpanded(!allExpanded)}
+                                title={allExpanded ? "Collapse All" : "Expand All"}
+                            >
+                                <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
+                            </button>
+                            <button 
+                                className="mayo-print-button"
+                                onClick={handlePrint}
+                                title="Print Events"
+                            >
+                                <span className="dashicons dashicons-printer"></span>
+                            </button>
+                            <a 
+                                href={getRssUrl()} 
+                                className="mayo-rss-link" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                title="Calendar Feed"
+                            >
+                                <span className="dashicons dashicons-calendar"></span>
+                            </a>
+                        </div>
+                    </div>
+                    <div className="mayo-event-cards">
+                        {events.map(event => (
+                            <EventCard 
+                                key={`${event.id}-${event.meta.event_start_date}`}
+                                event={event}
+                                timeFormat={timeFormat}
+                                forceExpanded={allExpanded}
+                            />
+                        ))}
+                        
+                        {/* Infinite scroll loading indicator */}
+                        {getQueryStringValue('infinite_scroll') !== null ? 
+                            getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
+                                <div ref={loaderRef} className="mayo-infinite-loader">
+                                    {loading && <div className="mayo-loader">Loading more events...</div>}
+                                </div>
+                            )
+                            : settings?.infiniteScroll && hasMore && (
+                                <div ref={loaderRef} className="mayo-infinite-loader">
+                                    {loading && <div className="mayo-loader">Loading more events...</div>}
+                                </div>
+                            )
+                        }
+                    </div>
+                </>
             )}
         </div>
     );
