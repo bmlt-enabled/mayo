@@ -137,7 +137,8 @@ This project is licensed under the GPL v2 or later.
 
 = 1.3.6 =
 * Added a note on the settings page about required settings for permalinks.
-* 
+* Changed Unaffiliated to "Out of Area" for cases where an external server uses Unaffiliated for the service body.
+* Removed actions toolbar on widgets.
 
 = 1.3.5 =
 * Handle virtual directory paths. [#64] [#79]
