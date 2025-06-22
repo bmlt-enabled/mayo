@@ -113,10 +113,21 @@ class Frontend {
         $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list');
 
         $post = get_post();
+        $should_enqueue = false;
+        
+        // Check if we should enqueue scripts
         if ($post && (
             has_shortcode($post->post_content, 'mayo_event_form') || 
             has_shortcode($post->post_content, 'mayo_event_list')
-        ) || (is_post_type_archive($post->post_type) || is_singular('mayo_event')) || $shortcode_on_widgets) {
+        )) {
+            $should_enqueue = true;
+        } elseif (is_post_type_archive('mayo_event') || is_singular('mayo_event')) {
+            $should_enqueue = true;
+        } elseif ($shortcode_on_widgets) {
+            $should_enqueue = true;
+        }
+        
+        if ($should_enqueue) {
             wp_enqueue_script(
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',
