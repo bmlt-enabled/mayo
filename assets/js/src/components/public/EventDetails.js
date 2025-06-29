@@ -1,6 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
 import { formatRecurringPattern, apiFetch } from '../../util';
+import LocationAddress from './LocationAddress';
 
 const EventDetails = () => {
     const [event, setEvent] = useState(null);
@@ -91,13 +92,7 @@ const EventDetails = () => {
                                 )}
                                 {location_address && (
                                     <p className="mayo-location-address">
-                                        <a 
-                                            href={`https://maps.google.com?q=${encodeURIComponent(location_address)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {location_address}
-                                        </a>
+                                        <LocationAddress address={location_address} />
                                     </p>
                                 )}
                                 {location_details && (

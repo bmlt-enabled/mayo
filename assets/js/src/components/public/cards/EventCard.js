@@ -1,6 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../../providers/EventProvider';
 import { formatTime, formatTimezone, formatRecurringPattern, dayNames, monthNames } from '../../../util';
+import LocationAddress from '../LocationAddress';
 
 // Helper function to convert emoji and special characters to Unicode
 const convertToUnicode = (str) => {
@@ -191,14 +192,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                 )}
                                 {event.meta.location_address && (
                                     <p className="mayo-location-address">
-                                        <a 
-                                            href={`https://maps.google.com?q=${encodeURIComponent(event.meta.location_address)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            {event.meta.location_address}
-                                        </a>
+                                        <LocationAddress address={event.meta.location_address} />
                                     </p>
                                 )}
                                 {event.meta.location_details && (
