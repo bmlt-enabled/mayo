@@ -64,6 +64,7 @@ const EventBlockEditorSidebar = () => {
     
     const addSkippedOccurrence = () => {
         if (skipDate) {
+            // Ensure the date is stored in YYYY-MM-DD format without timezone issues
             const newSkipped = [...skippedOccurrences, skipDate];
             updateMetaValue('skipped_occurrences', newSkipped);
             setSkipDate('');
@@ -77,7 +78,10 @@ const EventBlockEditorSidebar = () => {
     };
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
+        // Parse the date string as local date to avoid timezone issues
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+        
         return date.toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
