@@ -436,4 +436,58 @@
     padding: 4px 8px;
     border-radius: 3px;
     border: 1px solid #c5d9ed;
+}
+
+/* Recurring Indicator Styles */
+.recurring-indicator {
+    color: #0073aa;
+    font-size: 11px;
+    font-weight: 500;
+    display: block;
+    margin-top: 2px;
+}
+
+/* Copy button styling */
+.row-actions .copy {
+    color: #0073aa;
+}
+
+.row-actions .copy:hover {
+    color: #005177;
+}
+
+/* Skipped Occurrences Management Styles */
+.mayo-skipped-occurrences-list {
+    margin-bottom: 16px;
+}
+
+.mayo-skipped-occurrence-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.mayo-skipped-occurrence-item span {
+    flex: 1;
+    margin-right: 8px;
+}
+
+.mayo-add-skip-form {
+    margin-top: 12px;
+}
+
+.mayo-add-skip-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.mayo-add-skip-actions .components-button {
+    flex: 1;
 } 

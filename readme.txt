@@ -135,8 +135,17 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.4.0 =
+* Added recurring event modifications functionality allowing admins to skip specific occurrences of recurring events. [#130]
+* Created reusable LocationAddress component for consistent URL detection across EventCard and EventDetails components.
+* Added copy functionality to admin event list for easy event duplication.
+* Improved admin interface with inline recurring indicators in date/time column.
+* Enhanced recurring event management with sidebar controls for skipped occurrences.
+* Updated recurring event generation to filter out skipped dates in API responses.
+
 = 1.3.9 =
 * Fixed location address handling to detect and link directly to URLs instead of Google Maps when URLs are embedded in location addresses. [#129]
+* Added recurring event modifications allowing admins to skip specific occurrences and copy events from the admin list. [#130]
 * Created reusable LocationAddress component for consistent URL detection across EventCard and EventDetails components.
 * Improved user experience for virtual meetings and hybrid events by linking directly to meeting URLs (e.g., Zoom links) instead of redirecting to Google Maps.
 

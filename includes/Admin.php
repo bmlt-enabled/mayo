@@ -17,6 +17,12 @@ class Admin {
         // Custom columns
         add_filter('manage_mayo_event_posts_columns', [__CLASS__, 'set_custom_columns']);
         add_action('manage_mayo_event_posts_custom_column', [__CLASS__, 'render_custom_columns'], 10, 2);
+        
+        // Row actions
+        add_filter('post_row_actions', [__CLASS__, 'add_row_actions'], 10, 2);
+        
+        // AJAX handlers
+        add_action('wp_ajax_copy_event', [__CLASS__, 'handle_copy_event']);
     }
 
     public static function register_post_type() {
@@ -87,7 +93,7 @@ class Admin {
     }
 
     public static function enqueue_scripts($hook) {
-        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes'])) {
+        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'edit.php'])) {
             return;
         }
 
@@ -126,12 +132,40 @@ class Admin {
             [
                 'root' => esc_url_raw(rest_url()),
                 'nonce' => wp_create_nonce('wp_rest'),
-                'namespace' => 'event-manager/v1'
+                'namespace' => 'event-manager/v1',
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'ajaxNonce' => wp_create_nonce('mayo_admin_nonce')
             ]
         );
         
         // Now enqueue the script after localization
         wp_enqueue_script('mayo-admin');
+        
+        // Add inline script for admin list functionality
+        if ($hook === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'mayo_event') {
+            wp_add_inline_script('mayo-admin', '
+                jQuery(document).ready(function($) {
+                    // Handle copy event links
+                    $(document).on("click", "a[href*=\'action=copy_event\']", function(e) {
+                        e.preventDefault();
+                        var href = $(this).attr("href");
+                        var postId = href.match(/post=(\d+)/)[1];
+                        
+                        if (confirm("Are you sure you want to copy this event?")) {
+                            $.post(mayoApiSettings.ajaxUrl, {
+                                action: "copy_event",
+                                post_id: postId,
+                                _ajax_nonce: mayoApiSettings.ajaxNonce
+                            }, function(response) {
+                                location.reload();
+                            }).fail(function() {
+                                alert("Failed to copy event. Please try again.");
+                            });
+                        }
+                    });
+                });
+            ');
+        }
     }
 
     public static function set_custom_columns($columns) {
@@ -196,6 +230,8 @@ class Admin {
                 $start_time = get_post_meta($post_id, 'event_start_time', true);
                 $end_time = get_post_meta($post_id, 'event_end_time', true);
                 $timezone = get_post_meta($post_id, 'timezone', true);
+                $recurring_pattern = get_post_meta($post_id, 'recurring_pattern', true);
+                $skipped_occurrences = get_post_meta($post_id, 'skipped_occurrences', true) ?: [];
                 
                 // Create a DateTimeZone object from the stored timezone
                 $tz = !empty($timezone) ? new \DateTimeZone($timezone) : wp_timezone();
@@ -245,7 +281,7 @@ class Admin {
                         echo esc_html($display);
                     } else {
                         $display = $start_formatted ?: $end_formatted;
-                        if (!empty($timezone_abbr)) {
+                        if (!empty($timezone_abbr) && !empty($display)) {
                             $display .= " ($timezone_abbr)";
                         }
                         echo esc_html($display);
@@ -256,6 +292,18 @@ class Admin {
                         $display .= " ($timezone_abbr)";
                     }
                     echo esc_html($display);
+                }
+                
+                // Add recurring information below the date/time
+                if ($recurring_pattern && $recurring_pattern['type'] !== 'none') {
+                    echo '<br><small class="recurring-indicator">';
+                    echo '🔄 Recurring';
+                    
+                    // Add skipped count if any
+                    if (!empty($skipped_occurrences)) {
+                        echo ' • ' . count($skipped_occurrences) . ' skipped';
+                    }
+                    echo '</small>';
                 }
                 break;
             case 'status':
@@ -424,6 +472,21 @@ class Admin {
             }
         ]);
 
+        register_post_meta('mayo_event', 'skipped_occurrences', [
+            'show_in_rest' => [
+                'schema' => [
+                    'type' => 'array',
+                    'items' => ['type' => 'string']
+                ]
+            ],
+            'single' => true,
+            'type' => 'array',
+            'default' => [],
+            'auth_callback' => function() { 
+                return current_user_can('edit_posts'); 
+            }
+        ]);
+
         register_post_meta('mayo_event', 'contact_name', [
             'show_in_rest' => true,
             'single' => true,
@@ -459,5 +522,90 @@ class Admin {
     public static function render_css_classes_page() {
         // Output a container div for React to render into
         echo '<div id="mayo-css-classes-root" class="wrap"></div>';
+    }
+
+    public static function add_row_actions($actions, $post) {
+        if ($post->post_type === 'mayo_event') {
+            $actions['copy'] = '<a href="' . esc_url(admin_url('admin-ajax.php?action=copy_event&post=' . $post->ID)) . '">Copy</a>';
+        }
+        return $actions;
+    }
+
+    public static function handle_copy_event() {
+        // Verify nonce
+        if (!wp_verify_nonce($_POST['_ajax_nonce'], 'mayo_admin_nonce')) {
+            wp_die('Security check failed');
+        }
+        
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        if ($post_id > 0 && current_user_can('edit_posts')) {
+            $original_post = get_post($post_id);
+            if (!$original_post || $original_post->post_type !== 'mayo_event') {
+                wp_send_json_error('Invalid event');
+                return;
+            }
+            
+            $new_post = [
+                'post_title' => $original_post->post_title . ' (Copy)',
+                'post_content' => $original_post->post_content,
+                'post_status' => 'draft',
+                'post_type' => 'mayo_event',
+                'post_author' => get_current_user_id(),
+            ];
+
+            $new_post_id = wp_insert_post($new_post);
+            if ($new_post_id && !is_wp_error($new_post_id)) {
+                // Copy all meta fields
+                $meta_fields = [
+                    'event_type',
+                    'service_body',
+                    'event_start_date',
+                    'event_end_date',
+                    'event_start_time',
+                    'event_end_time',
+                    'timezone',
+                    'location_name',
+                    'location_address',
+                    'location_details',
+                    'recurring_pattern',
+                    'contact_name',
+                    'email'
+                ];
+
+                foreach ($meta_fields as $meta_field) {
+                    $value = get_post_meta($post_id, $meta_field, true);
+                    if ($value !== '') {
+                        update_post_meta($new_post_id, $meta_field, $value);
+                    }
+                }
+                
+                // Copy featured image if exists
+                if (has_post_thumbnail($post_id)) {
+                    $thumbnail_id = get_post_thumbnail_id($post_id);
+                    set_post_thumbnail($new_post_id, $thumbnail_id);
+                }
+                
+                // Copy categories and tags
+                $categories = wp_get_post_categories($post_id);
+                if (!empty($categories)) {
+                    wp_set_post_categories($new_post_id, $categories);
+                }
+                
+                $tags = wp_get_post_tags($post_id);
+                if (!empty($tags)) {
+                    wp_set_post_tags($new_post_id, $tags);
+                }
+                
+                wp_send_json_success([
+                    'message' => 'Event copied successfully',
+                    'new_post_id' => $new_post_id,
+                    'edit_url' => get_edit_post_link($new_post_id, 'raw')
+                ]);
+            } else {
+                wp_send_json_error('Failed to create copy');
+            }
+        } else {
+            wp_send_json_error('Invalid post ID or insufficient permissions');
+        }
     }
 }
