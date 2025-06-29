@@ -11,9 +11,12 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
+import { useState } from '@wordpress/element';
 
 const EventBlockEditorSidebar = () => {
     const { serviceBodies } = useEventProvider();
+    const [isAddingSkip, setIsAddingSkip] = useState(false);
+    const [skipDate, setSkipDate] = useState('');
 
     const postType = useSelect(select => 
         select('core/editor').getCurrentPostType()
@@ -54,6 +57,33 @@ const EventBlockEditorSidebar = () => {
             weekdays: updates.weekdays || recurringPattern.weekdays || []
         };
         updateMetaValue('recurring_pattern', newPattern);
+    };
+
+    // Helper functions for skipped occurrences
+    const skippedOccurrences = meta.skipped_occurrences || [];
+    
+    const addSkippedOccurrence = () => {
+        if (skipDate) {
+            const newSkipped = [...skippedOccurrences, skipDate];
+            updateMetaValue('skipped_occurrences', newSkipped);
+            setSkipDate('');
+            setIsAddingSkip(false);
+        }
+    };
+
+    const removeSkippedOccurrence = (dateToRemove) => {
+        const newSkipped = skippedOccurrences.filter(date => date !== dateToRemove);
+        updateMetaValue('skipped_occurrences', newSkipped);
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
     };
 
     const weekdays = [
@@ -278,6 +308,73 @@ const EventBlockEditorSidebar = () => {
                         </div>
                     )}
                 </PanelBody>
+
+                {/* Skipped Occurrences Management */}
+                {recurringPattern.type !== 'none' && (
+                    <PanelBody title="Skipped Occurrences" initialOpen={false}>
+                        <p className="components-base-control__help">
+                            Manage specific dates when this recurring event should not occur.
+                        </p>
+                        
+                        {skippedOccurrences.length > 0 && (
+                            <div className="mayo-skipped-occurrences-list">
+                                <p className="components-base-control__label">Skipped Dates:</p>
+                                {skippedOccurrences.map((date, index) => (
+                                    <div key={index} className="mayo-skipped-occurrence-item">
+                                        <span>{formatDate(date)}</span>
+                                        <Button
+                                            isSmall
+                                            isDestructive
+                                            onClick={() => removeSkippedOccurrence(date)}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {isAddingSkip ? (
+                            <div className="mayo-add-skip-form">
+                                <TextControl
+                                    type="date"
+                                    label="Date to skip"
+                                    value={skipDate}
+                                    onChange={setSkipDate}
+                                    __nextHasNoMarginBottom={true}
+                                />
+                                <div className="mayo-add-skip-actions">
+                                    <Button
+                                        isPrimary
+                                        isSmall
+                                        onClick={addSkippedOccurrence}
+                                        disabled={!skipDate}
+                                    >
+                                        Add Skip
+                                    </Button>
+                                    <Button
+                                        isSecondary
+                                        isSmall
+                                        onClick={() => {
+                                            setIsAddingSkip(false);
+                                            setSkipDate('');
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <Button
+                                isSecondary
+                                isSmall
+                                onClick={() => setIsAddingSkip(true)}
+                            >
+                                Add Skipped Date
+                            </Button>
+                        )}
+                    </PanelBody>
+                )}
 
                 <PanelBody title="Service Body" initialOpen={true}>
                     <SelectControl

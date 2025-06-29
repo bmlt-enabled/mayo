@@ -668,6 +668,9 @@ class Rest {
         $start = new DateTime(get_post_meta($post->ID, 'event_start_date', true));
         $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : null;
         
+        // Get skipped occurrences
+        $skipped_occurrences = get_post_meta($post->ID, 'skipped_occurrences', true) ?: [];
+        
         // Set a reasonable limit to prevent infinite loops (5 years worth of events)
         $max_events = 0;
         if ($pattern['type'] === 'daily') {
@@ -723,12 +726,16 @@ class Rest {
                         }
                     } else {
                         // Last occurrence
-                        $current->modify('last ' . $weekdays[$weekday] . ' of this month');
+                        $current->modify('last ' . $weekdays[$weekday] . ' this month');
                     }
                 }
                 
                 if ($current <= $end || $end === null) {
-                    $events[] = self::format_recurring_event($post, $current);
+                    // Check if this date is not in skipped occurrences
+                    $current_date = $current->format('Y-m-d');
+                    if (!in_array($current_date, $skipped_occurrences)) {
+                        $events[] = self::format_recurring_event($post, $current);
+                    }
                 }
                 
                 // Move to next interval month
@@ -755,14 +762,22 @@ class Rest {
                         $current_day = $interval_start->format('w'); // 0 (Sunday) to 6 (Saturday)
                         
                         if (in_array($current_day, $pattern['weekdays'])) {
-                            $events[] = self::format_recurring_event($post, clone $interval_start);
+                            // Check if this date is not in skipped occurrences
+                            $current_date = $interval_start->format('Y-m-d');
+                            if (!in_array($current_date, $skipped_occurrences)) {
+                                $events[] = self::format_recurring_event($post, clone $interval_start);
+                            }
                         }
                         
                         $interval_start->modify('+1 day');
                     }
                 } else {
                     // For daily patterns, just add the event and move to next interval
-                    $events[] = self::format_recurring_event($post, $current);
+                    // Check if this date is not in skipped occurrences
+                    $current_date = $current->format('Y-m-d');
+                    if (!in_array($current_date, $skipped_occurrences)) {
+                        $events[] = self::format_recurring_event($post, $current);
+                    }
                 }
                 
                 $current->add($interval);
