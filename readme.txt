@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.8
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.3.9 =
+* Fixed service body information not displaying in unexpanded view of event listings when events have no categories or tags. [#132]
 
 = 1.3.8 =
 * Fixed location address handling to detect and link directly to URLs instead of Google Maps when URLs are embedded in location addresses. [#129]

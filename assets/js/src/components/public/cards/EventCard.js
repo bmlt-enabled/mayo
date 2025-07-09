@@ -110,6 +110,11 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                 Source: {event.external_source.url}
                             </span>
                         )}
+                        {event.meta.service_body && (
+                            <span className="mayo-event-service-body mayo-event-service-body-small">
+                                {getServiceBodyName(event.meta.service_body, sourceId)}
+                            </span>
+                        )}
                         {(event.categories.length > 0 || event.tags.length > 0) && (
                             <div className="mayo-event-brief-taxonomies">
                                 {event.categories.map(cat => (
@@ -122,9 +127,6 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                         {tag.name}
                                     </span>
                                 ))}
-                                <span key={event.meta.service_body} className="mayo-event-service-body mayo-event-service-body-small">
-                                    {getServiceBodyName(event.meta.service_body, sourceId)}
-                                </span>
                             </div>
                         )}
                     </div>
