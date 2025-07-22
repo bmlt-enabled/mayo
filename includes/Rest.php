@@ -219,13 +219,150 @@ class Rest {
             $to = get_option('admin_email');
         }
         
+        // Get service body name
+        $service_body_name = 'Unknown';
+        $service_body_id = sanitize_text_field($params['service_body']);
+        
+        if ($service_body_id === '0') {
+            $service_body_name = 'Unaffiliated';
+        } elseif (!empty($service_body_id)) {
+            $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+            if (!empty($bmlt_root_server)) {
+                $response = wp_remote_get($bmlt_root_server . '/client_interface/json/?switcher=GetServiceBodies');
+                if (!is_wp_error($response)) {
+                    $service_bodies = json_decode(wp_remote_retrieve_body($response), true);
+                    if (is_array($service_bodies)) {
+                        foreach ($service_bodies as $body) {
+                            if ($body['id'] == $service_body_id) {
+                                $service_body_name = $body['name'];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Format recurring pattern information
+        $recurring_info = '';
+        if (!empty($params['recurring_pattern'])) {
+            $recurring_pattern = is_string($params['recurring_pattern']) 
+                ? json_decode($params['recurring_pattern'], true) 
+                : $params['recurring_pattern'];
+            
+            if (is_array($recurring_pattern) && isset($recurring_pattern['type']) && $recurring_pattern['type'] !== 'none') {
+                $recurring_info = "\nRecurring Pattern: ";
+                switch ($recurring_pattern['type']) {
+                    case 'daily':
+                        $recurring_info .= "Daily";
+                        if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
+                            $recurring_info .= " (every " . $recurring_pattern['interval'] . " days)";
+                        }
+                        break;
+                    case 'weekly':
+                        $recurring_info .= "Weekly";
+                        if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
+                            $recurring_info .= " (every " . $recurring_pattern['interval'] . " weeks)";
+                        }
+                        if (!empty($recurring_pattern['weekdays'])) {
+                            $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            $selected_days = array_map(function($day) use ($weekdays) {
+                                return $weekdays[$day] ?? '';
+                            }, $recurring_pattern['weekdays']);
+                            $recurring_info .= " on " . implode(', ', array_filter($selected_days));
+                        }
+                        break;
+                    case 'monthly':
+                        $recurring_info .= "Monthly";
+                        if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
+                            $recurring_info .= " (every " . $recurring_pattern['interval'] . " months)";
+                        }
+                        if (isset($recurring_pattern['monthlyType']) && $recurring_pattern['monthlyType'] === 'date' && isset($recurring_pattern['monthlyDate'])) {
+                            $recurring_info .= " on day " . $recurring_pattern['monthlyDate'];
+                        } elseif (isset($recurring_pattern['monthlyWeekday'])) {
+                            $recurring_info .= " on " . $recurring_pattern['monthlyWeekday'];
+                        }
+                        break;
+                }
+                
+                if (!empty($recurring_pattern['endDate'])) {
+                    $recurring_info .= " until " . $recurring_pattern['endDate'];
+                }
+            }
+        }
+        
+        // Format location information
+        $location_info = '';
+        if (!empty($params['location_name']) || !empty($params['location_address']) || !empty($params['location_details'])) {
+            $location_info = "\nLocation:";
+            if (!empty($params['location_name'])) {
+                $location_info .= "\n  Name: " . sanitize_text_field($params['location_name']);
+            }
+            if (!empty($params['location_address'])) {
+                $location_info .= "\n  Address: " . sanitize_text_field($params['location_address']);
+            }
+            if (!empty($params['location_details'])) {
+                $location_info .= "\n  Details: " . sanitize_text_field($params['location_details']);
+            }
+        }
+        
+        // Format categories and tags
+        $categories_info = '';
+        if (!empty($params['categories'])) {
+            $categories_info = "\nCategories: " . sanitize_text_field($params['categories']);
+        }
+        
+        $tags_info = '';
+        if (!empty($params['tags'])) {
+            $tags_info = "\nTags: " . sanitize_text_field($params['tags']);
+        }
+        
+        // Check for file attachments
+        $attachments_info = '';
+        if (!empty($_FILES)) {
+            $file_names = [];
+            foreach ($_FILES as $file_key => $file) {
+                if (!empty($file['name'])) {
+                    $file_names[] = $file['name'];
+                }
+            }
+            if (!empty($file_names)) {
+                $attachments_info = "\nAttachments: " . implode(', ', $file_names);
+            }
+        }
+        
         $subject = 'New Event Submission: ' . sanitize_text_field($params['event_name']);
         $message = sprintf(
-            "A new event has been submitted:\n\nEvent Name: %s\nEvent Type: %s\nStart Date: %s\nEnd Date: %s\n\nView the event: %s",
+            "A new event has been submitted:\n\n" .
+            "Event Name: %s\n" .
+            "Event Type: %s\n" .
+            "Service Body: %s (ID: %s)\n" .
+            "Start Date: %s\n" .
+            "Start Time: %s\n" .
+            "End Date: %s\n" .
+            "End Time: %s\n" .
+            "Timezone: %s\n" .
+            "Contact Name: %s\n" .
+            "Contact Email: %s%s%s%s%s%s\n\n" .
+            "Description:\n%s\n\n" .
+            "View the event: %s",
             sanitize_text_field($params['event_name']),
             sanitize_text_field($params['event_type']),
+            $service_body_name,
+            $service_body_id,
             sanitize_text_field($params['event_start_date']),
+            sanitize_text_field($params['event_start_time']),
             sanitize_text_field($params['event_end_date']),
+            sanitize_text_field($params['event_end_time']),
+            sanitize_text_field($params['timezone']),
+            sanitize_text_field($params['contact_name']),
+            sanitize_email($params['email']),
+            $recurring_info,
+            $location_info,
+            $categories_info,
+            $tags_info,
+            $attachments_info,
+            sanitize_textarea_field($params['description'] ?? ''),
             admin_url('post.php?post=' . $post_id . '&action=edit')
         );
 

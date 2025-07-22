@@ -135,6 +135,9 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.3.10 =
+* Enhanced email notifications to include comprehensive event details including contact information, service body name, times, timezone, location, description, categories, tags, recurring patterns, and file attachments. [#134]
+
 = 1.3.9 =
 * Fixed service body information not displaying in unexpanded view of event listings when events have no categories or tags. [#132]
 
