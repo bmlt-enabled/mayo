@@ -85,6 +85,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                     <span className="mayo-event-day-number">{eventDate.getDate()}</span>
                                     <span className="mayo-event-month">
                                         {monthNames[eventDate.getMonth()]}
+                                        <span className="mayo-event-year">{eventDate.getFullYear()}</span>
                                     </span>
 
                                     <span className="mayo-event-day-name">{dayNames[endDate.getDay()]}</span>
