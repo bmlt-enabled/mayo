@@ -35,16 +35,13 @@ export const formatDateTimeDisplay = (event, timeFormat) => {
     const isMultiDay = event_end_date && event_start_date !== event_end_date;
     
     if (isMultiDay) {
-        // For multi-day events, show dates with times and day of week
-        const startDate = new Date(event_start_date + 'T00:00:00');
-        const endDate = new Date(event_end_date + 'T00:00:00');
-        
-        let display = `${dayNames[startDate.getDay()]}, ${event_start_date}`;
+        // For multi-day events, show dates with times
+        let display = `${event_start_date}`;
         if (event_start_time) {
             display += ` at ${formatTime(event_start_time, timeFormat)}`;
         }
         
-        display += ` - ${dayNames[endDate.getDay()]}, ${event_end_date}`;
+        display += ` - ${event_end_date}`;
         if (event_end_time) {
             display += ` at ${formatTime(event_end_time, timeFormat)}`;
         }
