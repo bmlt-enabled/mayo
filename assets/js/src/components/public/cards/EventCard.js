@@ -83,11 +83,16 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                 <>
                                     <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
                                     <span className="mayo-event-day-number">{eventDate.getDate()}</span>
-                                    <span className="mayo-event-month">{monthNames[eventDate.getMonth()]}</span>
-                                    <span className="mayo-event-range-separator">-</span>
+                                    <span className="mayo-event-month">
+                                        {monthNames[eventDate.getMonth()]}
+                                    </span>
+
                                     <span className="mayo-event-day-name">{dayNames[endDate.getDay()]}</span>
                                     <span className="mayo-event-day-number">{endDate.getDate()}</span>
-                                    <span className="mayo-event-month">{monthNames[endDate.getMonth()]}</span>
+                                    <span className="mayo-event-month">
+                                        {monthNames[endDate.getMonth()]}
+                                        <span className="mayo-event-year">{endDate.getFullYear()}</span>
+                                    </span>
                                 </>
                             ) : (
                                 // Single-day event - show single date
