@@ -29,6 +29,10 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
     // Create date object if valid
     const eventDate = hasValidDate ? new Date(event.meta.event_start_date + 'T00:00:00') : null;
     
+    // Check if this is a multi-day event
+    const isMultiDay = event.meta.event_end_date && event.meta.event_start_date !== event.meta.event_end_date;
+    const endDate = isMultiDay ? new Date(event.meta.event_end_date + 'T00:00:00') : null;
+    
     const { getServiceBodyName, updateExternalServiceBodies } = useEventProvider();
 
     // Update external service bodies if this is an external event
@@ -74,12 +78,28 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                 <div className="mayo-event-date-badge">
                     {hasValidDate ? (
                         <>
-                            <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
-                            <span className="mayo-event-day-number">{eventDate.getDate()}</span>
-                            <span className="mayo-event-month">
-                                {monthNames[eventDate.getMonth()]}
-                                <span className="mayo-event-year">{eventDate.getFullYear()}</span>
-                            </span>
+                            {isMultiDay ? (
+                                // Multi-day event - show range
+                                <>
+                                    <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
+                                    <span className="mayo-event-day-number">{eventDate.getDate()}</span>
+                                    <span className="mayo-event-month">{monthNames[eventDate.getMonth()]}</span>
+                                    <span className="mayo-event-range-separator">-</span>
+                                    <span className="mayo-event-day-name">{dayNames[endDate.getDay()]}</span>
+                                    <span className="mayo-event-day-number">{endDate.getDate()}</span>
+                                    <span className="mayo-event-month">{monthNames[endDate.getMonth()]}</span>
+                                </>
+                            ) : (
+                                // Single-day event - show single date
+                                <>
+                                    <span className="mayo-event-day-name">{dayNames[eventDate.getDay()]}</span>
+                                    <span className="mayo-event-day-number">{eventDate.getDate()}</span>
+                                    <span className="mayo-event-month">
+                                        {monthNames[eventDate.getMonth()]}
+                                        <span className="mayo-event-year">{eventDate.getFullYear()}</span>
+                                    </span>
+                                </>
+                            )}
                         </>
                     ) : (
                         <span className="mayo-event-date-error">No Date</span>

@@ -138,6 +138,20 @@
     font-weight: normal;
 }
 
+.mayo-event-range-separator {
+    font-size: 0.8em;
+    color: #666;
+    font-weight: 500;
+    margin: 0 4px;
+    align-self: center;
+}
+
+/* Adjust date badge for multi-day events */
+.mayo-event-date-badge:has(.mayo-event-range-separator) {
+    min-width: 120px;
+    padding: 4px 6px;
+}
+
 .mayo-event-time {
     color: #666;
     font-weight: 500;
