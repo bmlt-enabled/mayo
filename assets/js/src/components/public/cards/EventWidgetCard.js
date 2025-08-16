@@ -1,4 +1,4 @@
-import { formatTime, dayNames, monthNames } from '../../../util';
+import { formatTime, formatDateTimeDisplay, dayNames, monthNames } from '../../../util';
 
 const EventWidgetCard = ({ event, timeFormat }) => {
     // Check for valid date
@@ -28,10 +28,9 @@ const EventWidgetCard = ({ event, timeFormat }) => {
                     Event date not set
                 </div>
             )}
-            {event.meta.event_start_time && (
+            {formatDateTimeDisplay(event, timeFormat) && (
                 <div className="mayo-widget-event-time">
-                    {formatTime(event.meta.event_start_time, timeFormat)}
-                    {event.meta.event_end_time && ` - ${formatTime(event.meta.event_end_time, timeFormat)}`}
+                    {formatDateTimeDisplay(event, timeFormat)}
                 </div>
             )}
             <a href={event.link} className="mayo-widget-event-link">

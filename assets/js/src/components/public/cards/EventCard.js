@@ -1,6 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../../providers/EventProvider';
-import { formatTime, formatTimezone, formatRecurringPattern, dayNames, monthNames } from '../../../util';
+import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames } from '../../../util';
 import LocationAddress from '../LocationAddress';
 
 // Helper function to convert emoji and special characters to Unicode
@@ -94,15 +94,9 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                     )}
                     <div className="mayo-event-brief">
                         <span className="mayo-event-type">{event.meta.event_type}</span>
-                        {event.meta.event_start_time && (
+                        {formatDateTimeDisplay(event, timeFormat) && (
                             <span className="mayo-event-time">
-                                {formatTime(event.meta.event_start_time, timeFormat)} 
-                                {event.meta.event_end_time && ` - ${formatTime(event.meta.event_end_time, timeFormat)}`}
-                                {event.meta.timezone && (
-                                    <span className="mayo-event-timezone">
-                                        {' '}({formatTimezone(event.meta.timezone)})
-                                    </span>
-                                )}
+                                {formatDateTimeDisplay(event, timeFormat)}
                             </span>
                         )}
                         {event.external_source && (

@@ -26,6 +26,48 @@ export const formatTimezone = (timezone) => {
     }
 };
 
+export const formatDateTimeDisplay = (event, timeFormat) => {
+    const { event_start_date, event_end_date, event_start_time, event_end_time, timezone } = event.meta;
+    
+    if (!event_start_date) return '';
+    
+    // Check if this is a multi-day event
+    const isMultiDay = event_end_date && event_start_date !== event_end_date;
+    
+    if (isMultiDay) {
+        // For multi-day events, show dates with times
+        let display = `${event_start_date}`;
+        if (event_start_time) {
+            display += ` at ${formatTime(event_start_time, timeFormat)}`;
+        }
+        
+        display += ` - ${event_end_date}`;
+        if (event_end_time) {
+            display += ` at ${formatTime(event_end_time, timeFormat)}`;
+        }
+        
+        if (timezone) {
+            display += ` (${formatTimezone(timezone)})`;
+        }
+        
+        return display;
+    } else {
+        // For single-day events, show just the time range
+        if (!event_start_time) return '';
+        
+        let display = formatTime(event_start_time, timeFormat);
+        if (event_end_time) {
+            display += ` - ${formatTime(event_end_time, timeFormat)}`;
+        }
+        
+        if (timezone) {
+            display += ` (${formatTimezone(timezone)})`;
+        }
+        
+        return display;
+    }
+};
+
 export const formatRecurringPattern = (pattern) => {
     if (!pattern || pattern.type === 'none') return '';
     
