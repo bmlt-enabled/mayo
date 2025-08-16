@@ -23,6 +23,9 @@ class Admin {
         
         // AJAX handlers
         add_action('wp_ajax_copy_event', [__CLASS__, 'handle_copy_event']);
+        
+        // Post status transition hook for event publish notifications
+        add_action('transition_post_status', [__CLASS__, 'handle_event_status_transition'], 10, 3);
     }
 
     public static function register_post_type() {
@@ -606,6 +609,95 @@ class Admin {
             }
         } else {
             wp_send_json_error('Invalid post ID or insufficient permissions');
+        }
+    }
+    
+    /**
+     * Handle post status transitions for mayo_event posts
+     * Sends notification emails to event submitters when their events are published
+     * 
+     * @param string $new_status The new post status
+     * @param string $old_status The old post status
+     * @param WP_Post $post The post object
+     */
+    public static function handle_event_status_transition($new_status, $old_status, $post) {
+        // Only handle mayo_event post type
+        if ($post->post_type !== 'mayo_event') {
+            return;
+        }
+        
+        // Only send notification when status changes from pending to publish
+        if ($old_status === 'pending' && $new_status === 'publish') {
+            self::send_event_published_notification($post);
+        }
+    }
+    
+    /**
+     * Send notification email to event submitter when their event is published
+     * 
+     * @param WP_Post $post The published event post
+     */
+    private static function send_event_published_notification($post) {
+        // Get submitter email from post meta
+        $submitter_email = get_post_meta($post->ID, 'email', true);
+        $contact_name = get_post_meta($post->ID, 'contact_name', true);
+        
+        // If no email found, don't send notification
+        if (empty($submitter_email) || !is_email($submitter_email)) {
+            error_log('Mayo Events: No valid submitter email found for event ID ' . $post->ID);
+            return;
+        }
+        
+        // Get event metadata
+        $event_type = get_post_meta($post->ID, 'event_type', true);
+        $event_start_date = get_post_meta($post->ID, 'event_start_date', true);
+        $event_end_date = get_post_meta($post->ID, 'event_end_date', true);
+        $event_start_time = get_post_meta($post->ID, 'event_start_time', true);
+        $event_end_time = get_post_meta($post->ID, 'event_end_time', true);
+        $timezone = get_post_meta($post->ID, 'timezone', true);
+        $service_body = get_post_meta($post->ID, 'service_body', true);
+        $location_name = get_post_meta($post->ID, 'location_name', true);
+        $location_address = get_post_meta($post->ID, 'location_address', true);
+        $location_details = get_post_meta($post->ID, 'location_details', true);
+        $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+        
+        // Get categories and tags
+        $categories = wp_get_post_categories($post->ID, ['fields' => 'names']);
+        $tags = wp_get_post_tags($post->ID, ['fields' => 'names']);
+        
+        // Build params array for email content
+        $params = [
+            'event_name' => get_the_title($post),
+            'event_type' => $event_type,
+            'event_start_date' => $event_start_date,
+            'event_end_date' => $event_end_date,
+            'event_start_time' => $event_start_time,
+            'event_end_time' => $event_end_time,
+            'timezone' => $timezone,
+            'service_body' => $service_body,
+            'contact_name' => $contact_name,
+            'email' => $submitter_email,
+            'description' => $post->post_content,
+            'location_name' => $location_name,
+            'location_address' => $location_address,
+            'location_details' => $location_details,
+            'recurring_pattern' => $recurring_pattern,
+            'categories' => !empty($categories) ? implode(', ', $categories) : '',
+            'tags' => !empty($tags) ? implode(', ', $tags) : ''
+        ];
+        
+        // Build email content using shared method from Rest class
+        $subject_template = 'Your Event Has Been Published: %s';
+        $view_url = get_permalink($post->ID);
+        
+        $email_content = \BmltEnabled\Mayo\Rest::build_event_email_content($params, $subject_template, $view_url);
+        
+        // Send email
+        $headers = ['Content-Type: text/plain; charset=UTF-8'];
+        $sent = wp_mail($submitter_email, $email_content['subject'], $email_content['message'], $headers);
+        
+        if (!$sent) {
+            error_log('Mayo Events: Failed to send event published notification to ' . $submitter_email . ' for event ID ' . $post->ID);
         }
     }
 }

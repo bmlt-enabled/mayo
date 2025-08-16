@@ -191,33 +191,17 @@ class Rest {
         return new \WP_REST_Response($formatted_event, 200);
     }
 
-    private static function send_event_submission_email($post_id, $params) {
-        // Get notification email from settings
+    /**
+     * Build email content for event notifications
+     * 
+     * @param array $params Event parameters
+     * @param int $post_id Post ID
+     * @param string $subject_template Subject template with %s placeholders
+     * @param string $view_url URL for viewing the event
+     * @return array Array with 'subject' and 'message' keys
+     */
+    public static function build_event_email_content($params, $subject_template, $view_url) {
         $settings = get_option('mayo_settings', []);
-        $notification_email = isset($settings['notification_email']) && !empty($settings['notification_email']) 
-            ? $settings['notification_email'] 
-            : get_option('admin_email'); // Fallback to admin email if not set
-        
-        // Process multiple email addresses
-        $to = [];
-        if (strpos($notification_email, ',') !== false || strpos($notification_email, ';') !== false) {
-            // Split by comma or semicolon and trim each email
-            $emails = preg_split('/[,;]/', $notification_email);
-            foreach ($emails as $email) {
-                $email = trim($email);
-                if (is_email($email)) {
-                    $to[] = $email;
-                }
-            }
-        } else {
-            // Single email
-            $to = $notification_email;
-        }
-        
-        // If no valid emails found, use admin email
-        if (empty($to)) {
-            $to = get_option('admin_email');
-        }
         
         // Get service body name
         $service_body_name = 'Unknown';
@@ -331,21 +315,24 @@ class Rest {
             }
         }
         
-        $subject = 'New Event Submission: ' . sanitize_text_field($params['event_name']);
+        // Build subject and message using provided templates
+        $subject = sprintf($subject_template, sanitize_text_field($params['event_name']));
+
+        $message_template = "Event Name: %s\n" .
+        "Event Type: %s\n" .
+        "Service Body: %s (ID: %s)\n" .
+        "Start Date: %s\n" .
+        "Start Time: %s\n" .
+        "End Date: %s\n" .
+        "End Time: %s\n" .
+        "Timezone: %s\n" .
+        "Contact Name: %s\n" .
+        "Contact Email: %s%s%s%s%s%s\n\n" .
+        "Description:\n%s\n\n" .
+        "View the event: %s";
+
         $message = sprintf(
-            "A new event has been submitted:\n\n" .
-            "Event Name: %s\n" .
-            "Event Type: %s\n" .
-            "Service Body: %s (ID: %s)\n" .
-            "Start Date: %s\n" .
-            "Start Time: %s\n" .
-            "End Date: %s\n" .
-            "End Time: %s\n" .
-            "Timezone: %s\n" .
-            "Contact Name: %s\n" .
-            "Contact Email: %s%s%s%s%s%s\n\n" .
-            "Description:\n%s\n\n" .
-            "View the event: %s",
+            $message_template,
             sanitize_text_field($params['event_name']),
             sanitize_text_field($params['event_type']),
             $service_body_name,
@@ -363,11 +350,51 @@ class Rest {
             $tags_info,
             $attachments_info,
             sanitize_textarea_field($params['description'] ?? ''),
-            admin_url('post.php?post=' . $post_id . '&action=edit')
+            $view_url
         );
+        
+        return [
+            'subject' => $subject,
+            'message' => $message
+        ];
+    }
 
-        wp_mail($to, $subject, $message);
-    }   
+    private static function send_event_submission_email($post_id, $params) {
+        // Get notification email from settings
+        $settings = get_option('mayo_settings', []);
+        $notification_email = isset($settings['notification_email']) && !empty($settings['notification_email']) 
+            ? $settings['notification_email'] 
+            : get_option('admin_email'); // Fallback to admin email if not set
+        
+        // Process multiple email addresses
+        $to = [];
+        if (strpos($notification_email, ',') !== false || strpos($notification_email, ';') !== false) {
+            // Split by comma or semicolon and trim each email
+            $emails = preg_split('/[,;]/', $notification_email);
+            foreach ($emails as $email) {
+                $email = trim($email);
+                if (is_email($email)) {
+                    $to[] = $email;
+                }
+            }
+        } else {
+            // Single email
+            $to = $notification_email;
+        }
+        
+        // If no valid emails found, use admin email
+        if (empty($to)) {
+            $to = get_option('admin_email');
+        }
+        
+        // Build email content using shared method
+        $subject_template = 'New Event Submission: %s';
+        $view_url = admin_url('post.php?post=' . $post_id . '&action=edit');
+        
+        $email_content = self::build_event_email_content($params, $subject_template, $view_url);
+        
+        wp_mail($to, $email_content['subject'], $email_content['message']);
+    }
 
     private static function get_local_events($params) {
         $is_archive = false;
