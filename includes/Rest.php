@@ -412,11 +412,13 @@ class Rest {
         $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
-        $timezone = isset($params['timezone']) ? sanitize_text_field(wp_unslash($params['timezone'])) : 'America/New_York';
+        $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : 'America/New_York';
 
         $today = new DateTime('now', new \DateTimeZone($timezone));
         $today->setTime(0, 0, 0); // Start of today
         $current_date = $today->format('Y-m-d');
+        
+
         
         $events = [];
         
@@ -426,10 +428,10 @@ class Rest {
         } else {
             // In normal mode, we'll fetch events in two steps:
             
-            // 1. Get direct future events (non-recurring or with future start dates)
-            $future_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $current_date);
+            // 1. Get all non-recurring events (we'll filter them later)
+            $non_recurring_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
             
-            $events = array_merge($events, $future_events);
+            $events = array_merge($events, $non_recurring_events);
             
             // 2. Get all events with recurring patterns, regardless of start date
             $recurring_meta_query = [
@@ -489,17 +491,31 @@ class Rest {
                     
                     $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
                     
-                    // Filter to keep only future events
+                    // Filter to keep only future events (considering both start and end dates)
                     $future_recurring_events = array_filter($recurring_events, function($event) use ($today) {
                         if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                             return false;
                         }
                         
                         try {
-                            $event_date_str = $event['meta']['event_start_date'];
-                            $event_date = new DateTime($event_date_str);
-                            $event_date->setTime(0, 0, 0); // Set to beginning of day for comparison
-                            return $event_date >= $today;
+                            $start_date_str = $event['meta']['event_start_date'];
+                            $start_date = new DateTime($start_date_str);
+                            $start_date->setTime(0, 0, 0); // Set to beginning of day for comparison
+                            
+                            // Check if start date is in the future
+                            if ($start_date >= $today) {
+                                return true;
+                            }
+                            
+                            // If start date is in the past, check if end date is in the future
+                            if (isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])) {
+                                $end_date_str = $event['meta']['event_end_date'];
+                                $end_date = new DateTime($end_date_str);
+                                $end_date->setTime(23, 59, 59); // Set to end of day for comparison
+                                return $end_date >= $today;
+                            }
+                            
+                            return false;
                         } catch (\Exception $e) {
                             error_log('Mayo Events API: Error parsing recurring event date: ' . $e->getMessage());
                             return false;
@@ -513,6 +529,39 @@ class Rest {
                     error_log('Mayo Events API: Error processing recurring event: ' . $e->getMessage());
                 }
             }
+        }
+        
+        // Apply date filtering for all events if not in archive mode
+        if (!$is_archive) {
+            $events = array_filter($events, function($event) use ($today) {
+                if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
+                    return false;
+                }
+                
+                try {
+                    $start_date_str = $event['meta']['event_start_date'];
+                    $start_date = new DateTime($start_date_str);
+                    $start_date->setTime(0, 0, 0);
+                    
+                    // Check if start date is in the future
+                    if ($start_date >= $today) {
+                        return true;
+                    }
+                    
+                    // If start date is in the past, check if end date is in the future
+                    if (isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])) {
+                        $end_date_str = $event['meta']['event_end_date'];
+                        $end_date = new DateTime($end_date_str);
+                        $end_date->setTime(23, 59, 59);
+                        return $end_date >= $today;
+                    }
+                    
+                    return false;
+                } catch (\Exception $e) {
+                    error_log('Mayo Events API: Error parsing event date: ' . $e->getMessage());
+                    return false;
+                }
+            });
         }
 
         return $events;
@@ -576,6 +625,42 @@ class Rest {
             } catch (\Exception $e) {
                 error_log('Mayo Events API: Error formatting event: ' . $e->getMessage());
             }
+        }
+        
+        // Additional filtering for multi-day events that might be missed by the initial query
+        if (!is_null($min_date)) {
+            $today = new DateTime($min_date);
+            $today->setTime(0, 0, 0);
+            
+            $events = array_filter($events, function($event) use ($today) {
+                if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
+                    return false;
+                }
+                
+                try {
+                    $start_date_str = $event['meta']['event_start_date'];
+                    $start_date = new DateTime($start_date_str);
+                    $start_date->setTime(0, 0, 0);
+                    
+                    // Check if start date is in the future
+                    if ($start_date >= $today) {
+                        return true;
+                    }
+                    
+                    // If start date is in the past, check if end date is in the future
+                    if (isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])) {
+                        $end_date_str = $event['meta']['event_end_date'];
+                        $end_date = new DateTime($end_date_str);
+                        $end_date->setTime(23, 59, 59);
+                        return $end_date >= $today;
+                    }
+                    
+                    return false;
+                } catch (\Exception $e) {
+                    error_log('Mayo Events API: Error parsing event date: ' . $e->getMessage());
+                    return false;
+                }
+            });
         }
         
         return $events;
@@ -954,7 +1039,26 @@ class Rest {
     private static function format_recurring_event($post, $date) {
         $event = self::format_event($post);
         $event['meta']['event_start_date'] = $date->format('Y-m-d');
-        $event['meta']['event_end_date'] = $date->format('Y-m-d'); // Set end date to match start date
+        
+        // Calculate the proper end date based on the original event's duration
+        $original_start_date = get_post_meta($post->ID, 'event_start_date', true);
+        $original_end_date = get_post_meta($post->ID, 'event_end_date', true);
+        
+        if ($original_start_date && $original_end_date) {
+            // Calculate the duration between original start and end dates
+            $original_start = new DateTime($original_start_date);
+            $original_end = new DateTime($original_end_date);
+            $duration = $original_start->diff($original_end);
+            
+            // Apply the same duration to the new start date
+            $new_end_date = clone $date;
+            $new_end_date->add($duration);
+            $event['meta']['event_end_date'] = $new_end_date->format('Y-m-d');
+        } else {
+            // Fallback: if no end date is set, use the same date as start
+            $event['meta']['event_end_date'] = $date->format('Y-m-d');
+        }
+        
         $event['recurring'] = true;
         return $event;
     }

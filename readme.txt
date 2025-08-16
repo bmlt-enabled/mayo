@@ -138,6 +138,7 @@ This project is licensed under the GPL v2 or later.
 = 1.4.0 =
 * Enhanced email notifications to include comprehensive event details including contact information, service body name, times, timezone, location, description, categories, tags, recurring patterns, and file attachments. [#134]
 * Added email notifications to event submitters when their events are published, with comprehensive event details. [#135]
+* Fixed multi-day events disappearing from calendar before their end date by improving date filtering logic to consider both start and end dates. [#138]
 
 = 1.3.9 =
 * Fixed service body information not displaying in unexpanded view of event listings when events have no categories or tags. [#132]
