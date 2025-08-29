@@ -12,6 +12,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { useState } from '@wordpress/element';
+import { getTimezoneOptions, getUserTimezone } from '../../timezones';
 
 const EventBlockEditorSidebar = () => {
     const { serviceBodies } = useEventProvider();
@@ -183,15 +184,8 @@ const EventBlockEditorSidebar = () => {
                     </div>
                     <SelectControl
                         label="Timezone"
-                        value={meta.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
-                        options={[
-                            { label: 'Eastern Time', value: 'America/New_York' },
-                            { label: 'Central Time', value: 'America/Chicago' },
-                            { label: 'Mountain Time', value: 'America/Denver' },
-                            { label: 'Pacific Time', value: 'America/Los_Angeles' },
-                            { label: 'Alaska Time', value: 'America/Anchorage' },
-                            { label: 'Hawaii Time', value: 'Pacific/Honolulu' }
-                        ]}
+                        value={meta.timezone || getUserTimezone()}
+                        options={getTimezoneOptions()}
                         onChange={value => updateMetaValue('timezone', value)}
                         __nextHasNoMarginBottom={true}
                     />

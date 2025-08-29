@@ -137,6 +137,9 @@ This project is licensed under the GPL v2 or later.
 
 = 1.4.3 =
 * Fixed monthly recurring events bug where "last day of month" events would show repeatedly on the same day instead of advancing to next month. [#143]
+* Added comprehensive international timezone support with 60+ global timezones organized by region (North America, Europe, Asia, Australia/Oceania, Africa, South America). [#142]
+* Improved timezone detection to use browser's actual timezone instead of defaulting to Eastern Time.
+* Enhanced timezone display in both event submission forms and admin interface with grouped regional options.
 
 = 1.4.2 =
 * Fixing missing start year.
