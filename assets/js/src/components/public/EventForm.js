@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
+import { getTimezonesByRegion, getUserTimezone } from '../../timezones';
 
 const EventForm = () => {
     // Get the settings from the data attribute
@@ -65,7 +66,7 @@ const EventForm = () => {
         event_end_date: '',
         event_start_time: '',
         event_end_time: '',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezone: getUserTimezone(),
         description: '',
         flyer: null,
         location_name: '',
@@ -545,12 +546,15 @@ const EventForm = () => {
                         onChange={handleChange}
                         required={isFieldRequired('timezone')}
                     >
-                        <option value="America/New_York">Eastern Time</option>
-                        <option value="America/Chicago">Central Time</option>
-                        <option value="America/Denver">Mountain Time</option>
-                        <option value="America/Los_Angeles">Pacific Time</option>
-                        <option value="America/Anchorage">Alaska Time</option>
-                        <option value="Pacific/Honolulu">Hawaii Time</option>
+                        {Object.entries(getTimezonesByRegion()).map(([region, timezones]) => (
+                            <optgroup key={region} label={region}>
+                                {timezones.map(tz => (
+                                    <option key={tz.value} value={tz.value}>
+                                        {tz.label}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        ))}
                     </select>
                 </div>
 

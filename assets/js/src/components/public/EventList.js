@@ -3,6 +3,7 @@ import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
+import { getUserTimezone } from '../../timezones';
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
@@ -25,7 +26,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     const { updateExternalServiceBodies } = useEventProvider();
     
     // Get user's current timezone
-    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timezone || 'America/New_York';
+    const userTimezone = getUserTimezone();
 
     // Initialize component
     useEffect(() => {

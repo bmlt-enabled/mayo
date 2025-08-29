@@ -412,7 +412,7 @@ class Rest {
         $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
-        $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : 'America/New_York';
+        $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : wp_timezone_string();
 
         $today = new DateTime('now', new \DateTimeZone($timezone));
         $today->setTime(0, 0, 0); // Start of today
@@ -1095,7 +1095,7 @@ class Rest {
                 'event_end_date' => '',
                 'event_start_time' => '',
                 'event_end_time' => '',
-                'timezone' => 'America/New_York',
+                'timezone' => wp_timezone_string(),
                 'event_type' => '',
                 'service_body' => '',
                 'location_name' => '',
