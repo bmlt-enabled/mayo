@@ -937,6 +937,10 @@ class Rest {
             $current->modify('first day of +' . $interval . ' month');
             
             while (($end === null || $current <= $end) && count($events) < $max_events) {
+                // Store the year and month for this iteration
+                $current_year = (int)$current->format('Y');
+                $current_month = (int)$current->format('m');
+                
                 if (isset($pattern['monthlyType']) && $pattern['monthlyType'] === 'date') {
                     // Specific date of month
                     $day = (int)$pattern['monthlyDate'];
@@ -944,12 +948,13 @@ class Rest {
                     // Check if the day exists in current month
                     $days_in_month = (int)$current->format('t');
                     if ($day > $days_in_month) {
-                        // Move to next interval month
+                        // Move to next interval month and continue
                         $current->modify('first day of +' . $interval . ' month');
                         continue;
                     }
                     
-                    $current->setDate($current->format('Y'), $current->format('m'), $day);
+                    // Set to the specific day of the current month
+                    $current->setDate($current_year, $current_month, $day);
                 } else {
                     // Specific weekday (e.g., 2nd Thursday)
                     if (!isset($pattern['monthlyWeekday'])) {
@@ -962,8 +967,9 @@ class Rest {
                     $week = (int)$week;
                     $weekday = (int)$weekday;
                     
-                    // Calculate the date
-                    $current->modify('first day of this month');
+                    // Start from first day of current month for calculation
+                    $current->setDate($current_year, $current_month, 1);
+                    
                     if ($week > 0) {
                         // For nth weekday, we need to:
                         // 1. Go to the first day of the month
@@ -975,7 +981,7 @@ class Rest {
                         }
                     } else {
                         // Last occurrence
-                        $current->modify('last ' . $weekdays[$weekday] . ' this month');
+                        $current->modify('last ' . $weekdays[$weekday] . ' of this month');
                     }
                 }
                 
@@ -983,12 +989,13 @@ class Rest {
                     // Check if this date is not in skipped occurrences
                     $current_date = $current->format('Y-m-d');
                     if (!in_array($current_date, $skipped_occurrences)) {
-                        $events[] = self::format_recurring_event($post, $current);
+                        $events[] = self::format_recurring_event($post, clone $current);
                     }
                 }
                 
-                // Move to next interval month
-                $current->modify('first day of +' . $interval . ' month');
+                // Move to next interval month - reset to first day to ensure proper advancement
+                $current->setDate($current_year, $current_month, 1);
+                $current->modify('+' . $interval . ' month');
             }
         } else {
             $interval = new DateInterval('P' . $pattern['interval'] . 
