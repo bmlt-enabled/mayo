@@ -188,11 +188,27 @@ const ShortcodesDocs = () => {
                             <td>empty (all tags)</td>
                             <td>e.g., <pre>featured,ticketed</pre> to show only featured and ticketed tags, or <pre>-featured,-ticketed</pre> to show all tags except featured and ticketed</td>
                         </tr>
+                        <tr>
+                            <td>default_service_bodies</td>
+                            <td>Comma-separated list of service body IDs to restrict the form to specific service bodies. Perfect for multi-site setups where each site should only allow events for specific service bodies.</td>
+                            <td>empty (all service bodies)</td>
+                            <td>e.g., <pre>1,2,3</pre> to allow only service bodies 1, 2, and 3, or <pre>0</pre> for only Unaffiliated events. If only one service body is specified, the field will be hidden and auto-selected.</td>
+                        </tr>
                     </tbody>
                 </table>
                 
-                <h3>Example with Additional Required Fields, Categories, and Tags</h3>
+                <h3>Examples</h3>
+                
+                <h4>Standard Form with Additional Requirements</h4>
                 <pre><code>[mayo_event_form additional_required_fields="flyer,location_name,location_address" categories="meetings,workshops" tags="featured,-ticketed"]</code></pre>
+                
+                <h4>Multi-Site Configuration - Restrict to Specific Service Bodies</h4>
+                <pre><code>[mayo_event_form default_service_bodies="1,2,5" categories="meetings"]</code></pre>
+                <p><em>Perfect for multi-site setups where each subsite should only allow events for specific service bodies.</em></p>
+                
+                <h4>Single Service Body (Auto-Hidden)</h4>
+                <pre><code>[mayo_event_form default_service_bodies="3"]</code></pre>
+                <p><em>When only one service body is specified, the service body field is hidden and automatically selected.</em></p>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">

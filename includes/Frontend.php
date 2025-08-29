@@ -32,7 +32,8 @@ class Frontend {
         $defaults = [
             'additional_required_fields' => '',
             'categories' => '',
-            'tags' => ''
+            'tags' => '',
+            'default_service_bodies' => ''
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -42,7 +43,8 @@ class Frontend {
         
         $settings_key = "mayoEventFormSettings_$instance";
         wp_localize_script('mayo-public', $settings_key, [
-            'additionalRequiredFields' => $atts['additional_required_fields']
+            'additionalRequiredFields' => $atts['additional_required_fields'],
+            'defaultServiceBodies' => $atts['default_service_bodies']
         ]);
         
         return sprintf(
