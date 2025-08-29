@@ -1146,6 +1146,7 @@ class Rest {
         return new \WP_REST_Response([
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
             'notification_email' => $settings['notification_email'] ?? '',
+            'default_service_bodies' => $settings['default_service_bodies'] ?? '',
             'external_sources' => $external_sources
         ]);
     }
@@ -1191,6 +1192,12 @@ class Rest {
             }
         }
         
+        // Update default service bodies
+        if (isset($params['default_service_bodies'])) {
+            $service_bodies = sanitize_text_field($params['default_service_bodies']);
+            $settings['default_service_bodies'] = $service_bodies;
+        }
+        
         // Update external sources
         if (isset($params['external_sources']) && is_array($params['external_sources'])) {
             $external_sources = self::sanitize_sources($params['external_sources']);
@@ -1204,6 +1211,7 @@ class Rest {
             'settings' => [
                 'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
                 'notification_email' => $settings['notification_email'] ?? '',
+                'default_service_bodies' => $settings['default_service_bodies'] ?? '',
                 'external_sources' => get_option('mayo_external_sources', [])
             ]
         ]);

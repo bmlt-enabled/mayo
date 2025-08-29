@@ -59,6 +59,36 @@ const EventForm = () => {
     // Combine both arrays for all required fields
     const allRequiredFields = [...defaultRequiredFields, ...additionalRequiredFields];
 
+    // Filter service bodies based on configuration
+    const getFilteredServiceBodies = () => {
+        if (!serviceBodySettings.default_service_bodies) {
+            return serviceBodies;
+        }
+        
+        const allowedIds = serviceBodySettings.default_service_bodies
+            .split(',')
+            .map(id => id.trim())
+            .filter(id => id);
+        
+        return serviceBodies.filter(body => allowedIds.includes(body.id.toString()));
+    };
+
+    // Check if we should show the service body field at all
+    const shouldShowServiceBodyField = () => {
+        // If no service body restriction, always show
+        if (!serviceBodySettings.default_service_bodies) return true;
+        
+        // If only one service body is configured, hide the field (it will be auto-selected)
+        const allowedIds = serviceBodySettings.default_service_bodies?.split(',').map(id => id.trim()).filter(id => id);
+        return allowedIds.length > 1;
+    };
+
+    // Check if unaffiliated option should be shown
+    const shouldShowUnaffiliated = () => {
+        if (!serviceBodySettings.default_service_bodies) return true;
+        return serviceBodySettings.default_service_bodies.includes('0');
+    };
+
     const [formData, setFormData] = useState({
         event_name: '',
         event_type: '',
@@ -97,6 +127,44 @@ const EventForm = () => {
     const [uploadType, setUploadType] = useState(null);
     // Add state for recurring pattern UI
     const [showRecurringOptions, setShowRecurringOptions] = useState(false);
+    // Add state for service body settings
+    const [serviceBodySettings, setServiceBodySettings] = useState({
+        default_service_bodies: ''
+    });
+
+    // Load service body settings
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await apiFetch('/settings');
+                
+                // Start with global settings
+                let finalSettings = {
+                    default_service_bodies: response.default_service_bodies || ''
+                };
+                
+                // Override with shortcode parameters if provided
+                if (settings.defaultServiceBodies !== undefined && settings.defaultServiceBodies !== '') {
+                    finalSettings.default_service_bodies = settings.defaultServiceBodies;
+                }
+                
+                setServiceBodySettings(finalSettings);
+
+                // If there are default service bodies and only one, pre-select it
+                const defaultIds = finalSettings.default_service_bodies?.split(',').map(id => id.trim()).filter(id => id);
+                if (defaultIds && defaultIds.length === 1) {
+                    setFormData(prev => ({
+                        ...prev,
+                        service_body: defaultIds[0]
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching service body settings:', error);
+            }
+        };
+        
+        fetchSettings();
+    }, [settings]);
 
     useEffect(() => {
         const fetchTaxonomies = async () => {
@@ -445,24 +513,28 @@ const EventForm = () => {
                     </select>
                 </div>
 
-                <div className="mayo-form-field">
-                    <label htmlFor="service_body">Service Body *</label>
-                    <select
-                        id="service_body"
-                        name="service_body"
-                        value={formData.service_body}
-                        onChange={handleservice_bodyChange}
-                        required
-                    >
-                        <option value="">Select a service body</option>
-                        <option value="0">Unaffiliated (0)</option>
-                        {serviceBodies.map((body) => (
-                            <option key={body.id} value={body.id}>
-                                {body.name} ({body.id})
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                {shouldShowServiceBodyField() && (
+                    <div className="mayo-form-field">
+                        <label htmlFor="service_body">Service Body *</label>
+                        <select
+                            id="service_body"
+                            name="service_body"
+                            value={formData.service_body}
+                            onChange={handleservice_bodyChange}
+                            required
+                        >
+                            <option value="">Select a service body</option>
+                            {shouldShowUnaffiliated() && (
+                                <option value="0">Unaffiliated (0)</option>
+                            )}
+                            {getFilteredServiceBodies().map((body) => (
+                                <option key={body.id} value={body.id}>
+                                    {body.name} ({body.id})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div className="mayo-form-field">
                     <label htmlFor="contact_name">Point of Contact Name (Private) *</label>

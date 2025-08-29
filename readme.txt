@@ -140,6 +140,9 @@ This project is licensed under the GPL v2 or later.
 * Added comprehensive international timezone support with 60+ global timezones organized by region (North America, Europe, Asia, Australia/Oceania, Africa, South America). [#142]
 * Improved timezone detection to use browser's actual timezone instead of defaulting to Eastern Time.
 * Enhanced timezone display in both event submission forms and admin interface with grouped regional options.
+* Added service body restriction feature for multi-site configurations - allows pre-configuring specific service bodies in settings or via shortcode parameters. [#144]
+* Added `default_service_bodies` shortcode parameter for `[mayo_event_form]` to restrict event submissions to specific service bodies.
+* When only one service body is configured, the service body field is automatically hidden and pre-selected for streamlined user experience.
 
 = 1.4.2 =
 * Fixing missing start year.

@@ -33,7 +33,8 @@ const isValidEmailList = (emailList) => {
 const Settings = () => {
     const [settings, setSettings] = useState({
         bmlt_root_server: '',
-        notification_email: '' // Add notification email setting
+        notification_email: '', // Add notification email setting
+        default_service_bodies: '' // Add default service bodies setting
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +54,8 @@ const Settings = () => {
                 const response = await apiFetch('/settings');
                 setSettings({
                     bmlt_root_server: response.bmlt_root_server || '',
-                    notification_email: response.notification_email || '' // Add notification email
+                    notification_email: response.notification_email || '', // Add notification email
+                    default_service_bodies: response.default_service_bodies || '' // Add default service bodies
                 });
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
             } catch (err) {
@@ -185,6 +187,7 @@ const Settings = () => {
                 body: JSON.stringify({
                     bmlt_root_server: settings.bmlt_root_server,
                     notification_email: settings.notification_email,
+                    default_service_bodies: settings.default_service_bodies,
                     external_sources: externalSources
                 })
             });
@@ -261,6 +264,18 @@ const Settings = () => {
                                     ? 'mayo-invalid-email'
                                     : ''
                             }
+                        />
+                    </PanelRow>
+                </PanelBody>
+                
+                <PanelBody title="Service Body Configuration" initialOpen={true}>
+                    <PanelRow>
+                        <TextControl
+                            label="Restricted Service Bodies"
+                            value={settings.default_service_bodies}
+                            onChange={(value) => handleChange('default_service_bodies', value)}
+                            help="Comma-separated list of service body IDs (e.g., 1,2,3). When specified, only these service bodies will be available for event submission. Leave empty to allow all service bodies. Use '0' for Unaffiliated. Perfect for multi-site setups where each site should only show specific service bodies."
+                            placeholder="e.g., 1,2,3,0"
                         />
                     </PanelRow>
                     
