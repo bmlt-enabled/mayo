@@ -4,3 +4,4 @@ assets/js/dist
 *.zip
 .vscode
 .phpunit.result.cache
+settings.local.json

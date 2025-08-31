@@ -135,6 +135,12 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.4.4 =
+* Added RSS feed functionality for Mayo events that automatically activates on pages with Mayo event shortcodes or archives.
+* RSS feed accessible via standard /feed endpoint on any page containing Mayo events (inherits shortcode parameters).
+* RSS feed includes rich content in CDATA format with event details, location, contact info, and service body information.
+* RSS feed links directly to individual event permalinks instead of external systems.
+
 = 1.4.3 =
 * Fixed monthly recurring events bug where "last day of month" events would show repeatedly on the same day instead of advancing to next month. [#143]
 * Added comprehensive international timezone support with 60+ global timezones organized by region (North America, Europe, Asia, Australia/Oceania, Africa, South America). [#142]
