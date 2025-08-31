@@ -779,7 +779,7 @@ class Rest {
         }
     }
 
-    public static function bmltenabled_mayo_get_events($request) {
+    public static function bmltenabled_mayo_get_events() {
         // Prevent any output that might interfere with headers
         $previous_error_reporting = error_reporting();
         error_reporting(E_ERROR | E_PARSE); // Only report serious errors during API calls
@@ -894,21 +894,6 @@ class Rest {
                 'total_pages' => $total_pages
             ]
         ]);
-    }
-
-    /**
-     * Convert a number to its ordinal representation
-     * 
-     * @param int $number The number to convert
-     * @return string The ordinal representation (1st, 2nd, 3rd, etc.)
-     */
-    private static function ordinal($number) {
-        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
-        if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
-            return $number. 'th';
-        } else {
-            return $number. $ends[$number % 10];
-        }
     }
 
     private static function generate_recurring_events($post, $pattern) {
