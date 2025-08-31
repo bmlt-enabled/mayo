@@ -1277,6 +1277,9 @@
     padding: 0.25rem;
     color: #666;
     transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mayo-expand-all-button:hover,
@@ -1297,6 +1300,9 @@
     text-decoration: none;
     padding: 0.25rem;
     transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mayo-rss-link:hover {

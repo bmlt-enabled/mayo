@@ -123,12 +123,15 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     const getRssUrl = () => {
-        const baseUrl = '';
-        const params = new URLSearchParams();
+        // Use the new /feed endpoint that automatically inherits shortcode parameters from the current page
+        return `${window.location.pathname}feed/`;
+    };
 
+    const getIcsUrl = () => {
+        const params = new URLSearchParams();
         params.append('feed', 'mayo_events');
         
-        // Use the same parameter logic as fetchEvents
+        // Use the same parameter logic as fetchEvents for ICS feed
         let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
         let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
         let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
@@ -143,7 +146,7 @@ const EventList = ({ widget = false, settings = {} }) => {
         if (tags) params.append('tags', tags);
         
         const queryString = params.toString();
-        return `${baseUrl}${queryString ? '?' + queryString : ''}`;
+        return `${window.location.origin}${window.location.pathname}${queryString ? '?' + queryString : ''}`;
     };
 
     // Sort events properly on the client side as well to handle invalid dates
@@ -411,13 +414,22 @@ const EventList = ({ widget = false, settings = {} }) => {
                                 <span className="dashicons dashicons-printer"></span>
                             </button>
                             <a 
+                                href={getIcsUrl()} 
+                                className="mayo-rss-link" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                title="Calendar Feed (ICS)"
+                            >
+                                <span className="dashicons dashicons-calendar"></span>
+                            </a>
+                            <a 
                                 href={getRssUrl()} 
                                 className="mayo-rss-link" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                title="Calendar Feed"
+                                title="RSS Feed"
                             >
-                                <span className="dashicons dashicons-calendar"></span>
+                                <span className="dashicons dashicons-rss"></span>
                             </a>
                         </div>
                     </div>
