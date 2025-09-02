@@ -23,6 +23,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [autoexpand, setAutoexpand] = useState(false);
+    const [showShortcode, setShowShortcode] = useState(false);
     const { updateExternalServiceBodies } = useEventProvider();
     
     // Get user's current timezone
@@ -123,8 +124,8 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     const getRssUrl = () => {
-        // Use the new /feed endpoint that automatically inherits shortcode parameters from the current page
-        return `${window.location.pathname}feed/`;
+        // Simple RSS feed URL - parameters come from shortcode configuration, not URL
+        return `${window.location.pathname}?feed=mayo_rss`;
     };
 
     const getIcsUrl = () => {
@@ -147,6 +148,82 @@ const EventList = ({ widget = false, settings = {} }) => {
         
         const queryString = params.toString();
         return `${window.location.origin}${window.location.pathname}${queryString ? '?' + queryString : ''}`;
+    };
+
+    const generateShortcode = () => {
+        const params = [];
+        
+        // Get effective values (querystring takes priority over settings)
+        const effectiveValues = {
+            timeFormat: settings?.timeFormat || '12hour',
+            perPage: settings?.perPage || 10,
+            infiniteScroll: settings?.infiniteScroll ?? true,
+            autoexpand: settings?.autoexpand || false,
+            categories: settings?.categories || '',
+            tags: settings?.tags || '',
+            eventType: settings?.eventType || '',
+            status: settings?.status || 'publish',
+            serviceBody: settings?.serviceBody || '',
+            sourceIds: settings?.sourceIds || ''
+        };
+        
+        // Only include non-default values
+        if (effectiveValues.timeFormat !== '12hour') {
+            params.push(`time_format="${effectiveValues.timeFormat}"`);
+        }
+        if (effectiveValues.perPage !== 10) {
+            params.push(`per_page="${effectiveValues.perPage}"`);
+        }
+        if (effectiveValues.infiniteScroll !== true) {
+            params.push(`infinite_scroll="${effectiveValues.infiniteScroll ? 'true' : 'false'}"`);
+        }
+        if (effectiveValues.autoexpand !== false) {
+            params.push(`autoexpand="${effectiveValues.autoexpand ? 'true' : 'false'}"`);
+        }
+        if (effectiveValues.categories) {
+            params.push(`categories="${effectiveValues.categories}"`);
+        }
+        if (effectiveValues.tags) {
+            params.push(`tags="${effectiveValues.tags}"`);
+        }
+        if (effectiveValues.eventType) {
+            params.push(`event_type="${effectiveValues.eventType}"`);
+        }
+        if (effectiveValues.status !== 'publish') {
+            params.push(`status="${effectiveValues.status}"`);
+        }
+        if (effectiveValues.serviceBody) {
+            params.push(`service_body="${effectiveValues.serviceBody}"`);
+        }
+        if (effectiveValues.sourceIds) {
+            params.push(`source_ids="${effectiveValues.sourceIds}"`);
+        }
+        
+        return params.length > 0 ? `[mayo_event_list ${params.join(' ')}]` : '[mayo_event_list]';
+    };
+
+    const handleCopyShortcode = async () => {
+        const shortcode = generateShortcode();
+        try {
+            await navigator.clipboard.writeText(shortcode);
+            // You could add a toast notification here if desired
+            console.log('Shortcode copied to clipboard:', shortcode);
+        } catch (err) {
+            console.error('Failed to copy shortcode:', err);
+            // Fallback method
+            const textArea = document.createElement('textarea');
+            textArea.value = shortcode;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                console.log('Shortcode copied to clipboard (fallback):', shortcode);
+            } catch (fallbackErr) {
+                console.error('Fallback copy failed:', fallbackErr);
+            }
+            document.body.removeChild(textArea);
+        }
     };
 
     // Sort events properly on the client side as well to handle invalid dates
@@ -431,8 +508,33 @@ const EventList = ({ widget = false, settings = {} }) => {
                             >
                                 <span className="dashicons dashicons-rss"></span>
                             </a>
+                            <button 
+                                className="mayo-shortcode-button"
+                                onClick={() => setShowShortcode(!showShortcode)}
+                                title={showShortcode ? "Hide Shortcode" : "Show Shortcode"}
+                            >
+                                <span className="dashicons dashicons-editor-code"></span>
+                            </button>
                         </div>
                     </div>
+                    {showShortcode && (
+                        <div className="mayo-shortcode-display">
+                            <div className="mayo-shortcode-header">
+                                <strong>Shortcode for this event list:</strong>
+                                <button 
+                                    className="mayo-copy-shortcode"
+                                    onClick={handleCopyShortcode}
+                                    title="Copy to Clipboard"
+                                >
+                                    <span className="dashicons dashicons-clipboard"></span>
+                                    Copy
+                                </button>
+                            </div>
+                            <div className="mayo-shortcode-text">
+                                <code>{generateShortcode()}</code>
+                            </div>
+                        </div>
+                    )}
                     <div className="mayo-event-cards">
                         {events.map(event => (
                             <EventCard 
