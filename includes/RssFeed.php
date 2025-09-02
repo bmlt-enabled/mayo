@@ -10,76 +10,9 @@ class RssFeed {
     }
 
     public static function register_feed() {
-        // Hook into WordPress feed generation to override /feed on Mayo pages
-        add_action('template_redirect', [__CLASS__, 'intercept_feed_request'], 1);
+        add_feed('mayo_rss', [__CLASS__, 'generate_rss_feed']);
     }
 
-    public static function intercept_feed_request() {
-        // Check if this is a feed request
-        if (!is_feed()) {
-            return;
-        }
-
-        // Check if we should show Mayo events on this feed
-        if (self::should_show_mayo_feed()) {
-            // Generate our custom RSS feed
-            self::generate_rss_feed();
-        }
-    }
-
-    private static function should_show_mayo_feed() {
-        global $post, $wp_query;
-
-        // Always check for Mayo-specific query parameters first
-        if (isset($_GET['event_type']) || isset($_GET['service_body']) || isset($_GET['source_ids'])) {
-            return true;
-        }
-
-        // Check if we're on Mayo event archive
-        if (is_post_type_archive('mayo_event')) {
-            return true;
-        }
-
-        // Check if we're on a single Mayo event
-        if (is_singular('mayo_event')) {
-            return true;
-        }
-
-        // For feed requests, we need to examine the URL to determine the page
-        if (is_feed()) {
-            $request_uri = $_SERVER['REQUEST_URI'] ?? '';
-            // error_log('RSS Feed Debug - Request URI: ' . $request_uri);
-            
-            // Extract page slug from URL like /nanj/feed or /events/feed  
-            if (preg_match('#^/([^/]+)/feed/?$#', $request_uri, $matches)) {
-                $page_slug = $matches[1];
-                // error_log('RSS Feed Debug - Detected page slug: ' . $page_slug);
-                
-                // Get page by slug
-                $page = get_page_by_path($page_slug);
-                if ($page && has_shortcode($page->post_content, 'mayo_event_list')) {
-                    // error_log('RSS Feed Debug - Found shortcode on page: ' . $page_slug);
-                    return true;
-                }
-            }
-        }
-
-        // Check if current page has Mayo shortcodes
-        if (is_page() && $post && has_shortcode($post->post_content, 'mayo_event_list')) {
-            return true;
-        }
-
-        // If we can't determine context, check if there are any Mayo events at all
-        // This makes the feed work even if detection fails
-        $events_exist = get_posts([
-            'post_type' => 'mayo_event',
-            'posts_per_page' => 1,
-            'post_status' => 'publish',
-            'suppress_filters' => false
-        ]);
-
-        return !empty($events_exist);
-    }
 
     private static function get_rss_items_from_rest_api($eventType = '', $serviceBody = '', $sourceIds = '', $relation = 'AND', $categories = '', $tags = '') {
         // Store original $_GET to restore later
@@ -243,111 +176,26 @@ class RssFeed {
         return $rss_items;
     }
 
-    private static function get_feed_parameters() {
-        global $post;
-        
-        // Default parameters
-        $params = [
-            'event_type' => '',
-            'service_body' => '',
-            'source_ids' => '',
-            'relation' => 'AND',
-            'categories' => '',
-            'tags' => ''
-        ];
-
-        // First, check URL parameters (highest priority)
-        $params['event_type'] = isset($_GET['event_type']) ? \sanitize_text_field($_GET['event_type']) : '';
-        $params['service_body'] = isset($_GET['service_body']) ? \sanitize_text_field($_GET['service_body']) : '';
-        $params['source_ids'] = isset($_GET['source_ids']) ? \sanitize_text_field($_GET['source_ids']) : '';
-        $params['relation'] = isset($_GET['relation']) ? \sanitize_text_field($_GET['relation']) : 'AND';
-        $params['categories'] = isset($_GET['categories']) ? \sanitize_text_field($_GET['categories']) : '';
-        $params['tags'] = isset($_GET['tags']) ? \sanitize_text_field($_GET['tags']) : '';
-
-        // For feed requests, map page slugs to their source_ids
-        // This is simpler than trying to parse shortcodes from rendered content
-        if (\is_feed()) {
-            $request_uri = $_SERVER['REQUEST_URI'] ?? '';
-            if (preg_match('#^/([^/]+)/feed/?$#', $request_uri, $matches)) {
-                $page_slug = $matches[1];
-                
-                // Simple mapping - could be moved to a setting/option in the future
-                $page_source_mapping = [
-                    'nanj' => 'source_97224e2c',
-                    // Add more mappings as needed
-                ];
-                
-                if (isset($page_source_mapping[$page_slug])) {
-                    $params['source_ids'] = $page_source_mapping[$page_slug];
-                }
-            }
-        }
-        // If we're on a page with Mayo shortcode, extract shortcode attributes
-        elseif (\is_page() && $post && \has_shortcode($post->post_content, 'mayo_event_list')) {
-            $shortcode_params = self::extract_shortcode_parameters($post->post_content);
-            
-            // Use shortcode parameters as defaults if URL parameters are not set
-            foreach ($shortcode_params as $key => $value) {
-                if (empty($params[$key]) && !empty($value)) {
-                    $params[$key] = $value;
-                }
-            }
-        }
-
-        // Debug logging
-        // error_log('RSS Feed Debug - Final params: ' . print_r($params, true));
-
-        return $params;
-    }
-
-    private static function extract_shortcode_parameters($content) {
-        $params = [
-            'event_type' => '',
-            'service_body' => '',
-            'source_ids' => '',
-            'relation' => 'AND',
-            'categories' => '',
-            'tags' => ''
-        ];
-
-        // Use regex to find mayo_event_list shortcode and extract attributes
-        if (preg_match('/\[mayo_event_list([^\]]*)\]/', $content, $matches)) {
-            $shortcode_string = $matches[1];
-            
-            // Extract individual attributes
-            if (preg_match('/event_type=["\']([^"\']*)["\']/', $shortcode_string, $match)) {
-                $params['event_type'] = $match[1];
-            }
-            if (preg_match('/service_body=["\']([^"\']*)["\']/', $shortcode_string, $match)) {
-                $params['service_body'] = $match[1];
-            }
-            if (preg_match('/source_ids=["\']([^"\']*)["\']/', $shortcode_string, $match)) {
-                $params['source_ids'] = $match[1];
-            }
-            if (preg_match('/relation=["\']([^"\']*)["\']/', $shortcode_string, $match)) {
-                $params['relation'] = $match[1];
-            }
-            if (preg_match('/categories=["\']([^"\']*)["\']/', $shortcode_string, $match)) {
-                $params['categories'] = $match[1];
-            }
-            if (preg_match('/tags=["\']([^"\']*)["\']/', $shortcode_string, $match)) {
-                $params['tags'] = $match[1];
-            }
-        }
-
-        return $params;
-    }
 
     public static function generate_rss_feed() {
-        // Get parameters from URL or shortcode context
-        $params = self::get_feed_parameters();
+        // Get parameters from URL (for manual overrides) or detect from page shortcode
+        $eventType = isset($_GET['event_type']) ? \sanitize_text_field($_GET['event_type']) : '';
+        $serviceBody = isset($_GET['service_body']) ? \sanitize_text_field($_GET['service_body']) : '';
+        $sourceIds = isset($_GET['source_ids']) ? \sanitize_text_field($_GET['source_ids']) : '';
+        $relation = isset($_GET['relation']) ? \sanitize_text_field($_GET['relation']) : 'AND';
+        $categories = isset($_GET['categories']) ? \sanitize_text_field($_GET['categories']) : '';
+        $tags = isset($_GET['tags']) ? \sanitize_text_field($_GET['tags']) : '';
         
-        $eventType = $params['event_type'];
-        $serviceBody = $params['service_body'];
-        $sourceIds = $params['source_ids'];
-        $relation = $params['relation'];
-        $categories = $params['categories'];
-        $tags = $params['tags'];
+        // If no URL parameters provided, try to get them from the current page's shortcode
+        if (empty($eventType) && empty($serviceBody) && empty($sourceIds) && empty($categories) && empty($tags)) {
+            $shortcode_params = self::get_shortcode_params_from_current_page();
+            $eventType = $shortcode_params['event_type'] ?? '';
+            $serviceBody = $shortcode_params['service_body'] ?? '';
+            $sourceIds = $shortcode_params['source_ids'] ?? '';
+            $relation = $shortcode_params['relation'] ?? 'AND';
+            $categories = $shortcode_params['categories'] ?? '';
+            $tags = $shortcode_params['tags'] ?? '';
+        }
 
         header('Content-Type: application/rss+xml; charset=utf-8');
 
@@ -663,6 +511,36 @@ class RssFeed {
         // If only default parameters, still show them
         $parameter_text = implode(' | ', $parameters);
         return $base_description . " - Parameters: " . $parameter_text;
+    }
+
+    private static function get_shortcode_params_from_current_page() {
+        global $post;
+        
+        $params = [];
+        
+        // Try to get the current page/post
+        if (!$post) {
+            $post = \get_queried_object();
+        }
+        
+        // If we have a post and it contains the mayo_event_list shortcode
+        if ($post && isset($post->post_content) && \has_shortcode($post->post_content, 'mayo_event_list')) {
+            // Use WordPress shortcode parsing to extract attributes
+            $pattern = \get_shortcode_regex(['mayo_event_list']);
+            if (preg_match_all('/' . $pattern . '/s', $post->post_content, $matches)) {
+                foreach ($matches[0] as $index => $shortcode) {
+                    if ($matches[2][$index] === 'mayo_event_list') {
+                        $attrs = \shortcode_parse_atts($matches[3][$index]);
+                        if ($attrs) {
+                            $params = array_merge($params, $attrs);
+                            break; // Use first shortcode found
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $params;
     }
 
     private static function escape_xml_text($text) {

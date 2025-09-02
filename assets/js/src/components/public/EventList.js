@@ -124,8 +124,8 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     const getRssUrl = () => {
-        // Use the new /feed endpoint that automatically inherits shortcode parameters from the current page
-        return `${window.location.pathname}feed/`;
+        // Simple RSS feed URL - parameters come from shortcode configuration, not URL
+        return `${window.location.pathname}?feed=mayo_rss`;
     };
 
     const getIcsUrl = () => {
