@@ -140,6 +140,10 @@ This project is licensed under the GPL v2 or later.
 * RSS feed accessible via standard /feed endpoint on any page containing Mayo events (inherits shortcode parameters).
 * RSS feed includes rich content in CDATA format with event details, location, contact info, and service body information.
 * RSS feed links directly to individual event permalinks instead of external systems.
+* RSS feed descriptions now include all active parameters for transparency (status, per_page, event_type, service_body, source_ids, categories, tags, relation).
+* Added RSS icon next to calendar icon in event lists for easy access to RSS feeds.
+* Added "Show Shortcode" feature - click the code icon in event lists to view and copy the exact shortcode for that event list configuration.
+* Improved icon alignment in event list action buttons for consistent visual presentation.
 
 = 1.4.3 =
 * Fixed monthly recurring events bug where "last day of month" events would show repeatedly on the same day instead of advancing to next month. [#143]
