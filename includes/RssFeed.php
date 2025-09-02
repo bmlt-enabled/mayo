@@ -362,13 +362,16 @@ class RssFeed {
         $site_name = \get_bloginfo('name');
         $site_url = \home_url();
         $site_description = \get_bloginfo('description');
+        
+        // Build descriptive feed description with active filters
+        $feed_description = self::build_feed_description($site_name, $eventType, $serviceBody, $sourceIds, $relation, $categories, $tags);
 
         echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         echo '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
         echo '<channel>' . "\n";
         echo '<title>' . self::escape_xml_text($site_name . ' - Events') . '</title>' . "\n";
         echo '<link>' . self::escape_xml_text($site_url) . '</link>' . "\n";
-        echo '<description>' . self::escape_xml_text($site_description ?: 'Event listings from ' . $site_name) . '</description>' . "\n";
+        echo '<description>' . self::escape_xml_text($feed_description) . '</description>' . "\n";
         echo '<lastBuildDate>' . date('D, d M Y H:i:s O') . '</lastBuildDate>' . "\n";
         echo '<language>' . \get_locale() . '</language>' . "\n";
         echo '<generator>Mayo Events Manager</generator>' . "\n";
@@ -615,6 +618,52 @@ class RssFeed {
         return $rss_items;
     }
     */
+
+    private static function build_feed_description($site_name, $eventType = '', $serviceBody = '', $sourceIds = '', $relation = 'AND', $categories = '', $tags = '') {
+        $base_description = "Event listings from " . $site_name;
+        $parameters = [];
+        
+        // Include ALL parameters that are being passed to the function
+        // Default parameters (always included)
+        $parameters[] = "status=publish";
+        $parameters[] = "per_page=10";
+        $parameters[] = "page=1";
+        
+        // Optional parameters (include if not empty)
+        if (!empty($eventType)) {
+            $parameters[] = "event_type=" . $eventType;
+        }
+        
+        if (!empty($serviceBody)) {
+            $parameters[] = "service_body=" . $serviceBody;
+        }
+        
+        if (!empty($sourceIds)) {
+            $parameters[] = "source_ids=" . $sourceIds;
+        }
+        
+        if (!empty($relation) && $relation !== 'AND') {
+            $parameters[] = "relation=" . $relation;
+        }
+        
+        if (!empty($categories)) {
+            $parameters[] = "categories=" . $categories;
+        }
+        
+        if (!empty($tags)) {
+            $parameters[] = "tags=" . $tags;
+        }
+        
+        // Build the complete description with all parameters
+        if (count($parameters) > 3) { // More than just the default 3 parameters
+            $parameter_text = implode(' | ', $parameters);
+            return $base_description . " - Parameters: " . $parameter_text;
+        }
+        
+        // If only default parameters, still show them
+        $parameter_text = implode(' | ', $parameters);
+        return $base_description . " - Parameters: " . $parameter_text;
+    }
 
     private static function escape_xml_text($text) {
         return htmlspecialchars($text, ENT_QUOTES | ENT_XML1, 'UTF-8');
