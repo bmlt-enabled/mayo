@@ -17,6 +17,8 @@ class Admin {
         // Custom columns
         add_filter('manage_mayo_event_posts_columns', [__CLASS__, 'set_custom_columns']);
         add_action('manage_mayo_event_posts_custom_column', [__CLASS__, 'render_custom_columns'], 10, 2);
+        add_filter('manage_edit-mayo_event_sortable_columns', [__CLASS__, 'set_sortable_columns']);
+        add_filter('posts_orderby', [__CLASS__, 'handle_custom_orderby'], 10, 2);
         
         // Row actions
         add_filter('post_row_actions', [__CLASS__, 'add_row_actions'], 10, 2);
@@ -699,5 +701,41 @@ class Admin {
         if (!$sent) {
             error_log('Mayo Events: Failed to send event published notification to ' . $submitter_email . ' for event ID ' . $post->ID);
         }
+    }
+
+    public static function set_sortable_columns($columns) {
+        $columns['event_type'] = 'event_type';
+        $columns['event_datetime'] = 'event_start_date';
+        $columns['service_body'] = 'service_body';
+        $columns['status'] = 'post_status';
+        return $columns;
+    }
+
+    public static function handle_custom_orderby($orderby, $query) {
+        if (!is_admin() || !$query->is_main_query()) {
+            return $orderby;
+        }
+
+        $orderby_param = $query->get('orderby');
+        $order = $query->get('order', 'ASC');
+
+        global $wpdb;
+
+        switch ($orderby_param) {
+            case 'event_type':
+                $orderby = "(SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $wpdb->posts.ID AND meta_key = 'event_type') $order";
+                break;
+            case 'event_start_date':
+                $orderby = "(SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $wpdb->posts.ID AND meta_key = 'event_start_date') $order";
+                break;
+            case 'service_body':
+                $orderby = "(SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $wpdb->posts.ID AND meta_key = 'service_body') $order";
+                break;
+            case 'post_status':
+                $orderby = "$wpdb->posts.post_status $order";
+                break;
+        }
+
+        return $orderby;
     }
 }
