@@ -30,13 +30,28 @@ export const formatDateTimeDisplay = (event, timeFormat) => {
     const { event_start_date, event_end_date, event_start_time, event_end_time, timezone } = event.meta;
     
     if (!event_start_date) return '';
-
-        // For single-day events, show just the time range
     if (!event_start_time) return '';
     
-    let display = formatTime(event_start_time, timeFormat);
-    if (event_end_time) {
-        display += ` - ${formatTime(event_end_time, timeFormat)}`;
+    // Check if this is a multi-day event
+    const isMultiDay = event_end_date && event_start_date !== event_end_date;
+    
+    let display = '';
+    
+    if (isMultiDay) {
+        // Multi-day event: show full date range with times
+        const startDate = new Date(event_start_date + 'T00:00:00');
+        const endDate = new Date(event_end_date + 'T00:00:00');
+        
+        const startDateStr = `${monthNames[startDate.getMonth()]} ${startDate.getDate()}`;
+        const endDateStr = `${monthNames[endDate.getMonth()]} ${endDate.getDate()}`;
+        
+        display = `${startDateStr}, ${formatTime(event_start_time, timeFormat)} - ${endDateStr}, ${formatTime(event_end_time || event_start_time, timeFormat)}`;
+    } else {
+        // Single-day event: show just the time range
+        display = formatTime(event_start_time, timeFormat);
+        if (event_end_time) {
+            display += ` - ${formatTime(event_end_time, timeFormat)}`;
+        }
     }
     
     if (timezone) {
