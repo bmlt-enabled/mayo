@@ -137,6 +137,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.4.5 =
 * Added sortable columns (Event Type, Date & Time, Service Body, Status) in WordPress admin backend for easier event management. [#153]
+* Improved multi-day event display to show full date range (e.g., "Oct 31, 9:00 AM - Nov 2, 12:00 PM (EDT)") instead of just time. [#152]
 
 = 1.4.4 =
 * Added RSS feed functionality for Mayo events that automatically activates on pages with Mayo event shortcodes or archives.
