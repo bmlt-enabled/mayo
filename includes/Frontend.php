@@ -82,6 +82,7 @@ class Frontend {
             'status' => 'publish',  // Single event status (publish, pending)
             'service_body' => '',  // Comma-separated service body IDs
             'source_ids' => '',  // Comma-separated source IDs
+            'order' => 'ASC',  // Sort order: ASC (ascending, earliest first) or DESC (descending, latest first)
         ];
         $atts = shortcode_atts($defaults, $atts);
         
@@ -101,6 +102,7 @@ class Frontend {
             'status' => $atts['status'],
             'serviceBody' => $atts['service_body'],
             'sourceIds' => $atts['source_ids'],
+            'order' => strtoupper($atts['order']),
         ]);
 
         return sprintf(

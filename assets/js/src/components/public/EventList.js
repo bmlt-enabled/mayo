@@ -230,10 +230,10 @@ const EventList = ({ widget = false, settings = {} }) => {
     const processEvents = (eventList) => {
         return eventList.map(event => {
             // Add validation flag
-            const hasValidDate = event.meta.event_start_date && 
-                event.meta.event_start_date !== '' && 
+            const hasValidDate = event.meta.event_start_date &&
+                event.meta.event_start_date !== '' &&
                 !isNaN(new Date(event.meta.event_start_date).getTime());
-            
+
             return {
                 ...event,
                 hasValidDate,
@@ -244,11 +244,14 @@ const EventList = ({ widget = false, settings = {} }) => {
             if (!a.hasValidDate && !b.hasValidDate) return 0;
             if (!a.hasValidDate) return 1;
             if (!b.hasValidDate) return -1;
-            
+
             // Sort by date for valid dates
             const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}`);
             const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}`);
-            return dateA - dateB;
+
+            // Apply sort order based on settings (default to ASC for backwards compatibility)
+            const sortOrder = settings?.order || 'ASC';
+            return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
         });
     };
 
@@ -266,6 +269,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
             let infiniteScroll = getQueryStringValue('infinite_scroll') !== null ? getQueryStringValue('infinite_scroll') === 'true' : (settings?.infiniteScroll ?? true);
             let perPage = getQueryStringValue('per_page') !== null ? parseInt(getQueryStringValue('per_page')) : (settings?.perPage || 10);
+            let order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
 
             // Build the endpoint URL with query parameters
             const endpoint = `/events?status=${status}`
@@ -278,7 +282,8 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&page=${page}`
                 + `&per_page=${perPage}`
                 + `&timezone=${encodeURIComponent(userTimezone)}`
-                + `&archive=${archive}`;
+                + `&archive=${archive}`
+                + `&order=${order}`;
             
             const data = await apiFetch(endpoint);
             

@@ -92,9 +92,16 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>archive</td>
-                            <td>Show past events instead of only upcoming events</td>
+                            <td>Show only past events that have completely ended (excluding current and future events)</td>
                             <td>false</td>
                             <td>true, false</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>order</td>
+                            <td>Sort order for events by start date and time</td>
+                            <td>ASC</td>
+                            <td>ASC (earliest first), DESC (latest first)</td>
                             <td>Yes</td>
                         </tr>
                         <tr>
@@ -108,10 +115,10 @@ const ShortcodesDocs = () => {
                 </table>
                 
                 <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" timezone="America/New_York"]</code></pre>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" order="ASC" timezone="America/New_York"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&timezone=America/New_York&infinite_scroll=false&per_page=20</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&order=DESC&timezone=America/New_York&infinite_scroll=false&per_page=20</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
@@ -119,8 +126,10 @@ const ShortcodesDocs = () => {
                     <li>To include only local events, use <code>source_ids="local"</code></li>
                     <li>To exclude local events, specify only external source IDs (e.g., <code>source_ids="source_123,source_456"</code>)</li>
                     <li>To include all events (local and external), leave source_ids empty</li>
-                    <li>When <code>archive="true"</code>, both past and future events will be shown</li>
-                    <li>When <code>archive="false"</code> (default), only upcoming events will be shown</li>
+                    <li>When <code>archive="true"</code>, only past events that have completely ended will be shown (excludes current and future events)</li>
+                    <li>When <code>archive="false"</code> (default), only upcoming and ongoing events will be shown</li>
+                    <li>Use <code>order="DESC"</code> with <code>archive="true"</code> to show most recent past events first</li>
+                    <li>Use <code>order="ASC"</code> (default) to show events in chronological order (earliest first)</li>
                     <li>The <code>timezone</code> parameter ensures date filtering is accurate across different time zones</li>
                     <li>Events are loaded using infinite scroll automatically as the user scrolls down the page</li>
                 </ul>
