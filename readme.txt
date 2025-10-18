@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.8
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.4.6 =
+* Fix for events that have timezone set.  No longer selects default timezone in admin interface or shows a timezone. [#161]
 
 = 1.4.5 =
 * Added sortable columns (Event Type, Date & Time, Service Body, Status) in WordPress admin backend for easier event management. [#153]
