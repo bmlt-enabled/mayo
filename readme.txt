@@ -139,6 +139,7 @@ This project is licensed under the GPL v2 or later.
 * Fix for events that have timezone set.  No longer selects default timezone in admin interface or shows a timezone. [#161]
 * Added 'order' parameter to [mayo_event_list] shortcode allowing events to be sorted in ascending (ASC, earliest first) or descending (DESC, latest first) order.
 * Fixed archive mode (archive=true) to show ONLY past events that have ended, excluding current and future events.
+* Added event filtering dropdown in admin backend to filter events by Upcoming, Past, or Recurring status for easier event management.
 
 = 1.4.5 =
 * Added sortable columns (Event Type, Date & Time, Service Body, Status) in WordPress admin backend for easier event management. [#153]
