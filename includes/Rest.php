@@ -421,9 +421,10 @@ class Rest {
 
         
         $events = [];
-        
-        // If we're in archive mode, just get all events
+
+        // Get all events (filtering by date will happen later based on archive mode)
         if ($is_archive) {
+            // Archive mode: get all events, will filter to show only past events later
             $events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
         } else {
             // In normal mode, we'll fetch events in two steps:
@@ -490,40 +491,40 @@ class Rest {
                     }
                     
                     $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
-                    
-                    // Filter to keep only future events (considering both start and end dates)
-                    $future_recurring_events = array_filter($recurring_events, function($event) use ($today) {
+
+                    // Filter recurring events based on archive mode
+                    $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive) {
                         if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                             return false;
                         }
-                        
+
                         try {
                             $start_date_str = $event['meta']['event_start_date'];
                             $start_date = new DateTime($start_date_str);
-                            $start_date->setTime(0, 0, 0); // Set to beginning of day for comparison
-                            
-                            // Check if start date is in the future
-                            if ($start_date >= $today) {
-                                return true;
+                            $start_date->setTime(0, 0, 0);
+
+                            // Determine the event's end date
+                            $end_date_str = isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])
+                                ? $event['meta']['event_end_date']
+                                : $start_date_str;
+                            $end_date = new DateTime($end_date_str);
+                            $end_date->setTime(23, 59, 59);
+
+                            if ($is_archive) {
+                                // Archive mode: only show events that have completely ended
+                                return $end_date < $today;
+                            } else {
+                                // Normal mode: show events that are ongoing or in the future
+                                return $start_date >= $today || $end_date >= $today;
                             }
-                            
-                            // If start date is in the past, check if end date is in the future
-                            if (isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])) {
-                                $end_date_str = $event['meta']['event_end_date'];
-                                $end_date = new DateTime($end_date_str);
-                                $end_date->setTime(23, 59, 59); // Set to end of day for comparison
-                                return $end_date >= $today;
-                            }
-                            
-                            return false;
                         } catch (\Exception $e) {
                             error_log('Mayo Events API: Error parsing recurring event date: ' . $e->getMessage());
                             return false;
                         }
                     });
-                    
-                    if (count($future_recurring_events) > 0) {
-                        $events = array_merge($events, $future_recurring_events);
+
+                    if (count($filtered_recurring_events) > 0) {
+                        $events = array_merge($events, $filtered_recurring_events);
                     }
                 } catch (\Exception $e) {
                     error_log('Mayo Events API: Error processing recurring event: ' . $e->getMessage());
@@ -531,38 +532,37 @@ class Rest {
             }
         }
         
-        // Apply date filtering for all events if not in archive mode
-        if (!$is_archive) {
-            $events = array_filter($events, function($event) use ($today) {
-                if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
-                    return false;
+        // Apply date filtering based on archive mode
+        $events = array_filter($events, function($event) use ($today, $is_archive) {
+            if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
+                return false;
+            }
+
+            try {
+                $start_date_str = $event['meta']['event_start_date'];
+                $start_date = new DateTime($start_date_str);
+                $start_date->setTime(0, 0, 0);
+
+                // Determine the event's end date (use end_date if available, otherwise use start_date)
+                $end_date_str = isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])
+                    ? $event['meta']['event_end_date']
+                    : $start_date_str;
+                $end_date = new DateTime($end_date_str);
+                $end_date->setTime(23, 59, 59);
+
+                if ($is_archive) {
+                    // Archive mode: only show events that have completely ended (end date is in the past)
+                    return $end_date < $today;
+                } else {
+                    // Normal mode: show events that are ongoing or in the future
+                    // (start date is today or later, OR end date is today or later)
+                    return $start_date >= $today || $end_date >= $today;
                 }
-                
-                try {
-                    $start_date_str = $event['meta']['event_start_date'];
-                    $start_date = new DateTime($start_date_str);
-                    $start_date->setTime(0, 0, 0);
-                    
-                    // Check if start date is in the future
-                    if ($start_date >= $today) {
-                        return true;
-                    }
-                    
-                    // If start date is in the past, check if end date is in the future
-                    if (isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])) {
-                        $end_date_str = $event['meta']['event_end_date'];
-                        $end_date = new DateTime($end_date_str);
-                        $end_date->setTime(23, 59, 59);
-                        return $end_date >= $today;
-                    }
-                    
-                    return false;
-                } catch (\Exception $e) {
-                    error_log('Mayo Events API: Error parsing event date: ' . $e->getMessage());
-                    return false;
-                }
-            });
-        }
+            } catch (\Exception $e) {
+                error_log('Mayo Events API: Error parsing event date: ' . $e->getMessage());
+                return false;
+            }
+        });
 
         return $events;
     }
@@ -843,8 +843,14 @@ class Rest {
             }
         }
 
+        // Get sort order from request (default to ASC for backwards compatibility)
+        $order = isset($_GET['order']) ? strtoupper(sanitize_text_field($_GET['order'])) : 'ASC';
+        if ($order !== 'ASC' && $order !== 'DESC') {
+            $order = 'ASC'; // Fallback to ASC for invalid values
+        }
+
         // Sort all events by date
-        usort($events, function($a, $b) {
+        usort($events, function($a, $b) use ($order) {
             // Check if required meta fields exist
             if (!isset($a['meta']['event_start_date'])) {
                 return 1; // Move items with missing dates to the end
@@ -852,14 +858,14 @@ class Rest {
             if (!isset($b['meta']['event_start_date'])) {
                 return -1; // Move items with missing dates to the end
             }
-            
+
             $dateA = $a['meta']['event_start_date'] . ' ' . (isset($a['meta']['event_start_time']) ? $a['meta']['event_start_time'] : '00:00:00');
             $dateB = $b['meta']['event_start_date'] . ' ' . (isset($b['meta']['event_start_time']) ? $b['meta']['event_start_time'] : '00:00:00');
-            
+
             // Handle invalid dates
             $timeA = strtotime($dateA);
             $timeB = strtotime($dateB);
-            
+
             if ($timeA === false && $timeB === false) {
                 return 0;
             } elseif ($timeA === false) {
@@ -867,8 +873,12 @@ class Rest {
             } elseif ($timeB === false) {
                 return -1;
             }
-            
-            return $timeA - $timeB;
+
+            // Apply sort order
+            if ($order === 'DESC') {
+                return $timeB - $timeA; // Descending: latest first
+            }
+            return $timeA - $timeB; // Ascending: earliest first
         });
         
         // Apply pagination
