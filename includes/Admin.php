@@ -22,7 +22,11 @@ class Admin {
         
         // Row actions
         add_filter('post_row_actions', [__CLASS__, 'add_row_actions'], 10, 2);
-        
+
+        // Custom filters
+        add_action('restrict_manage_posts', [__CLASS__, 'add_event_date_filter']);
+        add_filter('pre_get_posts', [__CLASS__, 'filter_events_by_date']);
+
         // AJAX handlers
         add_action('wp_ajax_copy_event', [__CLASS__, 'handle_copy_event']);
         
@@ -737,5 +741,224 @@ class Admin {
         }
 
         return $orderby;
+    }
+
+    /**
+     * Add custom dropdown filter for event dates in admin list
+     *
+     * @param string $post_type The current post type
+     */
+    public static function add_event_date_filter($post_type) {
+        if ($post_type !== 'mayo_event') {
+            return;
+        }
+
+        $selected = isset($_GET['event_date_filter']) ? sanitize_text_field($_GET['event_date_filter']) : '';
+
+        ?>
+        <select name="event_date_filter">
+            <option value=""><?php echo esc_html__('All events', 'mayo-events-manager'); ?></option>
+            <option value="upcoming" <?php selected($selected, 'upcoming'); ?>><?php echo esc_html__('Upcoming events', 'mayo-events-manager'); ?></option>
+            <option value="past" <?php selected($selected, 'past'); ?>><?php echo esc_html__('Past events', 'mayo-events-manager'); ?></option>
+            <option value="recurring" <?php selected($selected, 'recurring'); ?>><?php echo esc_html__('Recurring events', 'mayo-events-manager'); ?></option>
+        </select>
+        <?php
+    }
+
+    /**
+     * Filter events by date based on the dropdown selection
+     *
+     * @param WP_Query $query The WordPress query object
+     */
+    public static function filter_events_by_date($query) {
+        global $pagenow;
+
+        // Only modify the query on the edit.php admin page for mayo_event post type
+        if (!is_admin() || $pagenow !== 'edit.php' || !$query->is_main_query()) {
+            return;
+        }
+
+        if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'mayo_event') {
+            return;
+        }
+
+        if (!isset($_GET['event_date_filter']) || empty($_GET['event_date_filter'])) {
+            return;
+        }
+
+        $filter = sanitize_text_field($_GET['event_date_filter']);
+        $today = current_time('Y-m-d');
+
+        // Get existing meta query or initialize empty array
+        $meta_query = $query->get('meta_query') ?: [];
+
+        switch ($filter) {
+            case 'upcoming':
+                // Upcoming non-recurring events only
+                // An event is upcoming if either:
+                // 1. It has an end_date that is >= today
+                // 2. It has no end_date but start_date >= today
+                // Recurring events are excluded from this filter
+
+                $meta_query['relation'] = 'AND';
+
+                // Exclude recurring events
+                add_filter('posts_where', function($where) {
+                    global $wpdb;
+
+                    // Exclude all recurring events from upcoming filter
+                    // WordPress stores recurring_pattern as serialized PHP array
+                    $exclude_recurring = " AND NOT EXISTS (
+                        SELECT 1 FROM {$wpdb->postmeta} pm1
+                        WHERE pm1.post_id = {$wpdb->posts}.ID
+                        AND pm1.meta_key = 'recurring_pattern'
+                        AND (
+                            pm1.meta_value LIKE '%s:4:\"type\";s:5:\"daily\"%'
+                            OR pm1.meta_value LIKE '%s:4:\"type\";s:6:\"weekly\"%'
+                            OR pm1.meta_value LIKE '%s:4:\"type\";s:7:\"monthly\"%'
+                        )
+                    )";
+
+                    return $where . $exclude_recurring;
+                }, 10, 1);
+
+                // Set up OR relation for the two conditions below
+                $meta_query[] = [
+                    'relation' => 'OR',
+                    // Non-recurring events with end_date >= today
+                    [
+                        'key' => 'event_end_date',
+                        'value' => $today,
+                        'compare' => '>=',
+                        'type' => 'DATE'
+                    ],
+                    // Non-recurring events with no end_date but start_date >= today
+                    [
+                        'relation' => 'AND',
+                        [
+                            'relation' => 'OR',
+                            [
+                                'key' => 'event_end_date',
+                                'compare' => 'NOT EXISTS'
+                            ],
+                            [
+                                'key' => 'event_end_date',
+                                'value' => '',
+                                'compare' => '='
+                            ]
+                        ],
+                        [
+                            'key' => 'event_start_date',
+                            'value' => $today,
+                            'compare' => '>=',
+                            'type' => 'DATE'
+                        ]
+                    ]
+                ];
+
+                break;
+
+            case 'past':
+                // Past non-recurring events only
+                // An event is past if:
+                // 1. It has an end_date that is < today
+                // 2. It has no end_date but start_date < today
+                // Recurring events are excluded from this filter
+
+                $meta_query['relation'] = 'AND';
+
+                // Exclude recurring events
+                add_filter('posts_where', function($where) {
+                    global $wpdb;
+
+                    // Exclude all recurring events from past filter
+                    // WordPress stores recurring_pattern as serialized PHP array
+                    $exclude_recurring = " AND NOT EXISTS (
+                        SELECT 1 FROM {$wpdb->postmeta} pm1
+                        WHERE pm1.post_id = {$wpdb->posts}.ID
+                        AND pm1.meta_key = 'recurring_pattern'
+                        AND (
+                            pm1.meta_value LIKE '%s:4:\"type\";s:5:\"daily\"%'
+                            OR pm1.meta_value LIKE '%s:4:\"type\";s:6:\"weekly\"%'
+                            OR pm1.meta_value LIKE '%s:4:\"type\";s:7:\"monthly\"%'
+                        )
+                    )";
+
+                    return $where . $exclude_recurring;
+                }, 10, 1);
+
+                // Set up OR relation for the two conditions below
+                $meta_query[] = [
+                    'relation' => 'OR',
+                    // Non-recurring events with end_date < today
+                    [
+                        'relation' => 'AND',
+                        [
+                            'key' => 'event_end_date',
+                            'value' => $today,
+                            'compare' => '<',
+                            'type' => 'DATE'
+                        ],
+                        [
+                            'key' => 'event_end_date',
+                            'compare' => 'EXISTS'
+                        ],
+                        [
+                            'key' => 'event_end_date',
+                            'value' => '',
+                            'compare' => '!='
+                        ]
+                    ],
+                    // Non-recurring events with no end_date but start_date < today
+                    [
+                        'relation' => 'AND',
+                        [
+                            'relation' => 'OR',
+                            [
+                                'key' => 'event_end_date',
+                                'compare' => 'NOT EXISTS'
+                            ],
+                            [
+                                'key' => 'event_end_date',
+                                'value' => '',
+                                'compare' => '='
+                            ]
+                        ],
+                        [
+                            'key' => 'event_start_date',
+                            'value' => $today,
+                            'compare' => '<',
+                            'type' => 'DATE'
+                        ]
+                    ]
+                ];
+
+                break;
+
+            case 'recurring':
+                // Show only recurring events
+                add_filter('posts_where', function($where) {
+                    global $wpdb;
+
+                    // Include only recurring events
+                    // WordPress stores recurring_pattern as serialized PHP array
+                    $include_recurring = " AND EXISTS (
+                        SELECT 1 FROM {$wpdb->postmeta} pm1
+                        WHERE pm1.post_id = {$wpdb->posts}.ID
+                        AND pm1.meta_key = 'recurring_pattern'
+                        AND (
+                            pm1.meta_value LIKE '%s:4:\"type\";s:5:\"daily\"%'
+                            OR pm1.meta_value LIKE '%s:4:\"type\";s:6:\"weekly\"%'
+                            OR pm1.meta_value LIKE '%s:4:\"type\";s:7:\"monthly\"%'
+                        )
+                    )";
+
+                    return $where . $include_recurring;
+                }, 10, 1);
+
+                break;
+        }
+
+        $query->set('meta_query', $meta_query);
     }
 }
