@@ -1080,7 +1080,7 @@ class Rest {
                 'event_end_date' => '',
                 'event_start_time' => '',
                 'event_end_time' => '',
-                'timezone' => wp_timezone_string(),
+                'timezone' => '',
                 'event_type' => '',
                 'service_body' => '',
                 'location_name' => '',
