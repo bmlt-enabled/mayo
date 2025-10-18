@@ -29,12 +29,15 @@ const EventBlockEditorSidebar = () => {
 
     const { editPost } = useDispatch('core/editor');
 
-    // Add this debug selector
-    const postData = useSelect(select => 
-        select('core/editor').getCurrentPost()
+    // Check if this is a new post (auto-draft status means it's new)
+    const postStatus = useSelect(select =>
+        select('core/editor').getEditedPostAttribute('status')
     );
 
     if (postType !== 'mayo_event') return null;
+
+    // Determine if this is a new event
+    const isNewEvent = postStatus === 'auto-draft';
 
     const updateMetaValue = (key, value) => {
         editPost({ meta: { ...meta, [key]: value } });
@@ -184,8 +187,11 @@ const EventBlockEditorSidebar = () => {
                     </div>
                     <SelectControl
                         label="Timezone"
-                        value={meta.timezone || getUserTimezone()}
-                        options={getTimezoneOptions()}
+                        value={meta.timezone || (isNewEvent ? getUserTimezone() : '')}
+                        options={[
+                            { label: '-- No timezone set --', value: '' },
+                            ...getTimezoneOptions()
+                        ]}
                         onChange={value => updateMetaValue('timezone', value)}
                         __nextHasNoMarginBottom={true}
                     />
