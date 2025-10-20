@@ -226,33 +226,33 @@ const EventList = ({ widget = false, settings = {} }) => {
         }
     };
 
-    // Sort events properly on the client side as well to handle invalid dates
+    // Process events to add validation flags and move invalid dates to the end
+    // Trust the order from the REST API - don't re-sort valid dates
     const processEvents = (eventList) => {
-        return eventList.map(event => {
+        const validEvents = [];
+        const invalidEvents = [];
+
+        eventList.forEach(event => {
             // Add validation flag
             const hasValidDate = event.meta.event_start_date &&
                 event.meta.event_start_date !== '' &&
                 !isNaN(new Date(event.meta.event_start_date).getTime());
 
-            return {
+            const processedEvent = {
                 ...event,
                 hasValidDate,
                 isInvalid: !hasValidDate
             };
-        }).sort((a, b) => {
-            // Move invalid dates to the end
-            if (!a.hasValidDate && !b.hasValidDate) return 0;
-            if (!a.hasValidDate) return 1;
-            if (!b.hasValidDate) return -1;
 
-            // Sort by date for valid dates
-            const dateA = new Date(`${a.meta.event_start_date}T${a.meta.event_start_time || '00:00:00'}`);
-            const dateB = new Date(`${b.meta.event_start_date}T${b.meta.event_start_time || '00:00:00'}`);
-
-            // Apply sort order based on settings (default to ASC for backwards compatibility)
-            const sortOrder = settings?.order || 'ASC';
-            return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
+            if (hasValidDate) {
+                validEvents.push(processedEvent);
+            } else {
+                invalidEvents.push(processedEvent);
+            }
         });
+
+        // Return valid events in the order received from API, followed by invalid events
+        return [...validEvents, ...invalidEvents];
     };
 
     // Update fetchEvents to use processEvents
