@@ -1,0 +1,33 @@
+/* Custom styles for Mayo Event Calendar */
+.mayo-event-calendar {
+    margin: 20px 0;
+}
+
+.mayo-calendar-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+/* Custom event styling */
+.fc-event-location {
+    font-size: 0.85em;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .mayo-event-calendar .fc-toolbar {
+        flex-direction: column;
+    }
+    
+    .mayo-event-calendar .fc-toolbar-chunk {
+        margin-bottom: 10px;
+    }
+}

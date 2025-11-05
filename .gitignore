@@ -5,3 +5,6 @@ assets/js/dist
 .vscode
 .phpunit.result.cache
 settings.local.json
+Dockerfile
+docker-compose.yml
+logs/

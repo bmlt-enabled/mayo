@@ -8,6 +8,7 @@ class Frontend {
     public static function init() {
         add_shortcode('mayo_event_form', [__CLASS__, 'render_event_form']);
         add_shortcode('mayo_event_list', [__CLASS__, 'render_event_list']);
+        add_shortcode('mayo_event_calendar', [__CLASS__, 'render_event_calendar']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
         
         // Register the script early
@@ -52,6 +53,48 @@ class Frontend {
             esc_attr($settings_key),
             esc_attr($atts['categories']),
             esc_attr($atts['tags'])
+        );
+    }
+
+    public static function render_event_calendar($atts = []) {
+        static $instance = 0;
+        $instance++;
+
+        $defaults = [
+            'initial_view' => 'dayGridMonth',  // dayGridMonth, timeGridWeek, listWeek
+            'height' => 'auto',
+            'timezone' => 'local',
+            'categories' => '',  // Comma-separated category slugs
+            'tags' => '',       // Comma-separated tag slugs
+            'event_type' => '',  // Single event type (Service, Activity)
+            'status' => 'publish',  // Single event status (publish, pending)
+            'service_body' => '',  // Comma-separated service body IDs
+            'source_ids' => '',  // Comma-separated source IDs
+        ];
+        $atts = shortcode_atts($defaults, $atts);
+
+        wp_enqueue_script('mayo-public');
+        wp_enqueue_style('mayo-public');
+        wp_enqueue_style('mayo-fullcalendar');
+
+        // Create unique settings for this instance
+        $settings_key = "mayoCalendarSettings_$instance";
+        wp_localize_script('mayo-public', $settings_key, [
+            'initialView' => $atts['initial_view'],
+            'height' => $atts['height'],
+            'timezone' => $atts['timezone'],
+            'categories' => $atts['categories'],
+            'tags' => $atts['tags'],
+            'eventType' => $atts['event_type'],
+            'status' => $atts['status'],
+            'serviceBody' => $atts['service_body'],
+            'sourceIds' => $atts['source_ids'],
+        ]);
+
+        return sprintf(
+            '<div id="mayo-event-calendar-%d" data-instance="%d"></div>',
+            $instance,
+            $instance
         );
     }
 
@@ -122,7 +165,8 @@ class Frontend {
         // Check if we should enqueue scripts
         if ($post && (
             has_shortcode($post->post_content, 'mayo_event_form') || 
-            has_shortcode($post->post_content, 'mayo_event_list')
+            has_shortcode($post->post_content, 'mayo_event_list') ||
+            has_shortcode($post->post_content, 'mayo_event_calendar')
         )) {
             $should_enqueue = true;
         } elseif (is_post_type_archive('mayo_event') || is_singular('mayo_event')) {
@@ -153,6 +197,14 @@ class Frontend {
                 '1.0'
             );
             wp_enqueue_style('dashicons');
+            
+            // Enqueue FullCalendar CSS
+            wp_register_style(
+                'mayo-fullcalendar',
+                plugin_dir_url(__FILE__) . '../assets/css/fullcalendar.css',
+                [],
+                '1.0'
+            );
         }
 
         wp_localize_script('mayo-public', 'mayoApiSettings', [
