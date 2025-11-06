@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback, createRoot } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 import { useEventProvider } from '../providers/EventProvider';
@@ -9,6 +9,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
     const loaderRef = useRef(null);
     const updateTimeout = useRef(null);
+    const calendarViewRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [events, setEvents] = useState([]);
@@ -24,10 +25,37 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [autoexpand, setAutoexpand] = useState(false);
     const [showShortcode, setShowShortcode] = useState(false);
+    const [currentView, setCurrentView] = useState('list');
     const { updateExternalServiceBodies } = useEventProvider();
+    
+    // Get available views from filters
+    const getAvailableViews = () => {
+        const defaultViews = { list: 'List' };
+        // Allow plugins to add views via PHP filter mayo_event_list_views
+        const additionalViews = window.mayoEventListViews || {};
+        return { ...defaultViews, ...additionalViews };
+    };
+    
+    const availableViews = getAvailableViews();
     
     // Get user's current timezone
     const userTimezone = getUserTimezone();
+    
+    // Handle custom view rendering
+    useEffect(() => {
+        if (currentView !== 'list' && calendarViewRef.current) {
+            // Trigger custom view rendering via WordPress action hook
+            const event = new CustomEvent('mayoRenderView', {
+                detail: {
+                    view: currentView,
+                    container: calendarViewRef.current,
+                    settings: settings,
+                    instance: containerRef.current?.dataset?.instance || 1
+                }
+            });
+            window.dispatchEvent(event);
+        }
+    }, [currentView, settings]);
 
     // Initialize component
     useEffect(() => {
@@ -479,6 +507,24 @@ const EventList = ({ widget = false, settings = {} }) => {
                 </div>
             ) : (
                 <>
+                    {/* View Switcher - only show if multiple views available */}
+                    {Object.keys(availableViews).length > 1 && (
+                        <div className="mayo-view-switcher">
+                            {Object.entries(availableViews).map(([key, label]) => (
+                                <button
+                                    key={key}
+                                    className={`mayo-view-button ${currentView === key ? 'active' : ''}`}
+                                    onClick={() => setCurrentView(key)}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    
+                    {/* List View Content */}
+                    {currentView === 'list' ? (
+                        <>
                     <div className="mayo-event-list-header">
                         <div className="mayo-event-list-actions">
                             <button 
@@ -564,10 +610,15 @@ const EventList = ({ widget = false, settings = {} }) => {
                             )
                         }
                     </div>
+                        </>
+                    ) : (
+                        /* Custom view from addon */
+                        <div ref={calendarViewRef} className="mayo-custom-view" data-view={currentView}></div>
+                    )}
                 </>
             )}
         </div>
     );
 };
 
-export default EventList; 
+export default EventList;

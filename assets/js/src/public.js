@@ -6,6 +6,20 @@ import EventArchive from './components/public/EventArchive';
 import EventDetails from './components/public/EventDetails';
 import { EventProvider } from './components/providers/EventProvider';
 
+// Listen for custom view rendering events from EventList
+window.addEventListener('mayoRenderView', (e) => {
+    if (e.detail.view === 'calendar') {
+        const container = e.detail.container;
+        const settings = e.detail.settings;
+        render(
+            <EventProvider>
+                <EventCalendar settings={settings} />
+            </EventProvider>,
+            container
+        );
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const formContainer = document.getElementById('mayo-event-form');
     const listContainers = document.querySelectorAll('[id^="mayo-event-list-"]');

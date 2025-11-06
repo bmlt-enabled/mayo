@@ -207,10 +207,16 @@ class Frontend {
             );
         }
 
+        // Allow plugins to register additional event list views
+        $default_views = ['calendar' => __('Calendar', 'mayo')];
+        $event_list_views = apply_filters('mayo_event_list_views', $default_views);
+        
         wp_localize_script('mayo-public', 'mayoApiSettings', [
             'root' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest')
         ]);
+        
+        wp_localize_script('mayo-public', 'mayoEventListViews', $event_list_views);
     }
 
     private static function is_shortcode_present_in_widgets($shortcode) {
