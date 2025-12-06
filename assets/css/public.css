@@ -425,20 +425,22 @@
 }
 
 .mayo-calendar-header button {
-    padding: 8px;
-    background: white;
-    border: 1px solid #ddd;
+    padding: 8px 12px;
+    background: #0073aa;
+    color: white;
+    border: 1px solid #006291;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .mayo-calendar-header button:hover {
-    background: #f0f0f1;
-    border-color: #c3c4c7;
+    background: #005a87;
+    border-color: #004a6e;
 }
 
 .mayo-calendar-header .dashicons {
@@ -448,6 +450,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: white;
 }
 
 .mayo-calendar-weekdays {
@@ -534,6 +537,273 @@
 
 .mayo-calendar-event:hover .event-title {
     text-decoration: underline;
+}
+
+/* Calendar header layout */
+.mayo-calendar-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mayo-calendar-today-button {
+    padding: 6px 12px !important;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+/* Today highlight */
+.mayo-calendar-day.today {
+    background: #fff8e5;
+}
+
+.mayo-calendar-day.today .mayo-calendar-date {
+    background: #0073aa;
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -4px auto 8px auto;
+    padding: 0;
+    border-bottom: none;
+}
+
+/* Has events indicator */
+.mayo-calendar-day.has-events {
+    background: #f0f7ff;
+}
+
+.mayo-calendar-day.today.has-events {
+    background: linear-gradient(to bottom, #fff8e5 30%, #f0f7ff 30%);
+}
+
+/* Event Modal */
+.mayo-event-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.mayo-event-modal {
+    background: white;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.mayo-event-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #f0f0f1;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.mayo-event-modal-close:hover {
+    background: #ddd;
+}
+
+.mayo-event-modal-close .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #666;
+}
+
+.mayo-event-modal-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.mayo-event-modal-date {
+    font-size: 0.9em;
+    color: #0073aa;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.mayo-event-modal-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.5em;
+    line-height: 1.3;
+    padding-right: 40px;
+}
+
+.mayo-event-modal-type {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.mayo-event-modal-body {
+    padding: 20px 24px;
+}
+
+.mayo-event-modal-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.mayo-event-modal-time,
+.mayo-event-modal-location,
+.mayo-event-modal-service-body,
+.mayo-event-modal-source,
+.mayo-event-modal-recurring {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #555;
+}
+
+.mayo-event-modal-time .dashicons,
+.mayo-event-modal-location .dashicons,
+.mayo-event-modal-service-body .dashicons,
+.mayo-event-modal-source .dashicons,
+.mayo-event-modal-recurring .dashicons {
+    color: #0073aa;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.mayo-event-modal-description {
+    padding: 16px 0;
+    border-top: 1px solid #eee;
+    line-height: 1.6;
+}
+
+.mayo-event-modal-description p {
+    margin: 0 0 1em 0;
+}
+
+.mayo-event-modal-description p:last-child {
+    margin-bottom: 0;
+}
+
+.mayo-event-modal-image {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.mayo-event-modal-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.mayo-event-modal-image .mayo-image-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+}
+
+.mayo-event-modal-image .mayo-image-download:hover {
+    background: #e5e5e5;
+}
+
+.mayo-event-modal-taxonomies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.mayo-event-modal-recurring {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.mayo-event-modal-footer {
+    padding: 16px 24px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    border-radius: 0 0 8px 8px;
+}
+
+.mayo-event-modal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0073aa;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.mayo-event-modal-link:hover {
+    color: #005a87;
+    text-decoration: underline;
+}
+
+.mayo-event-modal-link .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Modal responsive */
+@media (max-width: 600px) {
+    .mayo-event-modal-backdrop {
+        padding: 10px;
+    }
+
+    .mayo-event-modal-header {
+        padding: 20px 20px 14px;
+    }
+
+    .mayo-event-modal-header h2 {
+        font-size: 1.3em;
+    }
+
+    .mayo-event-modal-body {
+        padding: 16px 20px;
+    }
+
+    .mayo-event-modal-footer {
+        padding: 14px 20px;
+    }
 }
 
 /* Make calendar more compact on mobile */
@@ -1267,6 +1537,55 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+}
+
+/* View Toggle Buttons */
+.mayo-view-toggle-button {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    color: #666;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.mayo-view-toggle-button:first-child {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+}
+
+.mayo-view-toggle-button:nth-child(2) {
+    border-radius: 0 4px 4px 0;
+}
+
+.mayo-view-toggle-button:hover {
+    background: #e5e5e5;
+    color: #333;
+}
+
+.mayo-view-toggle-button.active {
+    background: #0073aa;
+    color: white;
+    border-color: #006291;
+}
+
+.mayo-view-toggle-button .dashicons {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.mayo-action-separator {
+    display: inline-block;
+    width: 1px;
+    height: 1.25rem;
+    background: #ddd;
+    margin: 0 0.5rem;
+    vertical-align: middle;
 }
 
 .mayo-expand-all-button,

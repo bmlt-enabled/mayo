@@ -83,9 +83,10 @@ class Frontend {
             'service_body' => '',  // Comma-separated service body IDs
             'source_ids' => '',  // Comma-separated source IDs
             'order' => 'ASC',  // Sort order: ASC (ascending, earliest first) or DESC (descending, latest first)
+            'view' => 'list',  // Default view: 'list' or 'calendar'
         ];
         $atts = shortcode_atts($defaults, $atts);
-        
+
         wp_enqueue_script('mayo-public');
         wp_enqueue_style('mayo-public');
 
@@ -103,6 +104,7 @@ class Frontend {
             'serviceBody' => $atts['service_body'],
             'sourceIds' => $atts['source_ids'],
             'order' => strtoupper($atts['order']),
+            'defaultView' => $atts['view'],
         ]);
 
         return sprintf(

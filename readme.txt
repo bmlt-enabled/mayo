@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.8
-Stable tag: 1.4.7
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,13 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.5.0 =
+* Added calendar view for event lists - toggle between list and calendar views using buttons in the header.
+* Added 'view' parameter to [mayo_event_list] shortcode to set default view mode (list or calendar).
+* Calendar view displays events in a monthly grid with navigation buttons for previous/next month and "Today".
+* Clicking an event in the calendar opens a modal popup with event details instead of navigating away from the page.
+* Calendar view supports querystring override (?view=calendar) for dynamic view switching.
 
 = 1.4.7 =
 * Fixed event list display order when using order=DESC parameter - frontend now correctly trusts the REST API sort order instead of re-sorting events.
