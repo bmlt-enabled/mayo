@@ -111,17 +111,25 @@ const ShortcodesDocs = () => {
                             <td>Any valid IANA timezone (e.g., "America/New_York", "Europe/London")</td>
                             <td>Yes</td>
                         </tr>
+                        <tr>
+                            <td>view</td>
+                            <td>Default view mode for displaying events</td>
+                            <td>list</td>
+                            <td>list, calendar</td>
+                            <td>Yes</td>
+                        </tr>
                     </tbody>
                 </table>
                 
                 <h3>Example with Parameters</h3>
-                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" order="ASC" timezone="America/New_York"]</code></pre>
+                <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" order="ASC" timezone="America/New_York" view="calendar"]</code></pre>
 
                 <h3>Example with Querystring Overrides</h3>
-                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&order=DESC&timezone=America/New_York&infinite_scroll=false&per_page=20</code></pre>
+                <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&order=DESC&timezone=America/New_York&infinite_scroll=false&per_page=20&view=calendar</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
+                    <li>The <code>view</code> parameter allows you to display events in either a list or calendar format. Users can toggle between views using the buttons in the header.</li>
                     <li>Local events are always included by default unless specifically excluded</li>
                     <li>To include only local events, use <code>source_ids="local"</code></li>
                     <li>To exclude local events, specify only external source IDs (e.g., <code>source_ids="source_123,source_456"</code>)</li>

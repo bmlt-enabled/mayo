@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
+import CalendarView from './CalendarView';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
 import { getUserTimezone } from '../../timezones';
@@ -24,6 +25,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [autoexpand, setAutoexpand] = useState(false);
     const [showShortcode, setShowShortcode] = useState(false);
+    const [viewMode, setViewMode] = useState(settings?.defaultView || 'list'); // 'list' or 'calendar'
     const { updateExternalServiceBodies } = useEventProvider();
     
     // Get user's current timezone
@@ -46,11 +48,22 @@ const EventList = ({ widget = false, settings = {} }) => {
     // Check for autoexpand in querystring or settings
     useEffect(() => {
         const querystringAutoexpand = getQueryStringValue('autoexpand');
-        const shouldAutoexpand = querystringAutoexpand !== null ? 
-            querystringAutoexpand === 'true' : 
+        const shouldAutoexpand = querystringAutoexpand !== null ?
+            querystringAutoexpand === 'true' :
             (settings?.autoexpand || false);
         setAutoexpand(shouldAutoexpand);
     }, [settings?.autoexpand]);
+
+    // Check for view in querystring or settings
+    useEffect(() => {
+        const querystringView = getQueryStringValue('view');
+        const defaultView = querystringView !== null ?
+            querystringView :
+            (settings?.defaultView || 'list');
+        if (defaultView === 'calendar' || defaultView === 'list') {
+            setViewMode(defaultView);
+        }
+    }, [settings?.defaultView]);
 
     // Autoexpand all events if autoexpand is true
     useEffect(() => {
@@ -481,13 +494,30 @@ const EventList = ({ widget = false, settings = {} }) => {
                 <>
                     <div className="mayo-event-list-header">
                         <div className="mayo-event-list-actions">
-                            <button 
-                                className="mayo-expand-all-button"
-                                onClick={() => setAllExpanded(!allExpanded)}
-                                title={allExpanded ? "Collapse All" : "Expand All"}
+                            <button
+                                className={`mayo-view-toggle-button ${viewMode === 'list' ? 'active' : ''}`}
+                                onClick={() => setViewMode('list')}
+                                title="List View"
                             >
-                                <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
+                                <span className="dashicons dashicons-list-view"></span>
                             </button>
+                            <button
+                                className={`mayo-view-toggle-button ${viewMode === 'calendar' ? 'active' : ''}`}
+                                onClick={() => setViewMode('calendar')}
+                                title="Calendar View"
+                            >
+                                <span className="dashicons dashicons-calendar-alt"></span>
+                            </button>
+                            <span className="mayo-action-separator"></span>
+                            {viewMode === 'list' && (
+                                <button
+                                    className="mayo-expand-all-button"
+                                    onClick={() => setAllExpanded(!allExpanded)}
+                                    title={allExpanded ? "Collapse All" : "Expand All"}
+                                >
+                                    <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
+                                </button>
+                            )}
                             <button 
                                 className="mayo-print-button"
                                 onClick={handlePrint}
@@ -540,30 +570,34 @@ const EventList = ({ widget = false, settings = {} }) => {
                             </div>
                         </div>
                     )}
-                    <div className="mayo-event-cards">
-                        {events.map(event => (
-                            <EventCard 
-                                key={`${event.id}-${event.meta.event_start_date}`}
-                                event={event}
-                                timeFormat={timeFormat}
-                                forceExpanded={allExpanded}
-                            />
-                        ))}
-                        
-                        {/* Infinite scroll loading indicator */}
-                        {getQueryStringValue('infinite_scroll') !== null ? 
-                            getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
-                                <div ref={loaderRef} className="mayo-infinite-loader">
-                                    {loading && <div className="mayo-loader">Loading more events...</div>}
-                                </div>
-                            )
-                            : settings?.infiniteScroll && hasMore && (
-                                <div ref={loaderRef} className="mayo-infinite-loader">
-                                    {loading && <div className="mayo-loader">Loading more events...</div>}
-                                </div>
-                            )
-                        }
-                    </div>
+                    {viewMode === 'calendar' ? (
+                        <CalendarView events={events} timeFormat={timeFormat} />
+                    ) : (
+                        <div className="mayo-event-cards">
+                            {events.map(event => (
+                                <EventCard
+                                    key={`${event.id}-${event.meta.event_start_date}`}
+                                    event={event}
+                                    timeFormat={timeFormat}
+                                    forceExpanded={allExpanded}
+                                />
+                            ))}
+
+                            {/* Infinite scroll loading indicator */}
+                            {getQueryStringValue('infinite_scroll') !== null ?
+                                getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
+                                    <div ref={loaderRef} className="mayo-infinite-loader">
+                                        {loading && <div className="mayo-loader">Loading more events...</div>}
+                                    </div>
+                                )
+                                : settings?.infiniteScroll && hasMore && (
+                                    <div ref={loaderRef} className="mayo-infinite-loader">
+                                        {loading && <div className="mayo-loader">Loading more events...</div>}
+                                    </div>
+                                )
+                            }
+                        </div>
+                    )}
                 </>
             )}
         </div>
