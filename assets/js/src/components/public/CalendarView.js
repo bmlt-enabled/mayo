@@ -1,9 +1,41 @@
 import { useState, useMemo } from '@wordpress/element';
 import EventModal from './EventModal';
+import { useEventProvider } from '../providers/EventProvider';
+import { convertToUnicode } from '../../util';
 
 const CalendarView = ({ events, timeFormat }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const { getServiceBodyName } = useEventProvider();
+
+    // Generate dynamic CSS classes for an event
+    const getEventClasses = (event) => {
+        const classes = ['mayo-calendar-event'];
+
+        // Category classes
+        event.categories.forEach(cat => {
+            classes.push(`mayo-event-category-${convertToUnicode(cat.name).toLowerCase().replace(/\s+/g, '-')}`);
+        });
+
+        // Tag classes
+        event.tags.forEach(tag => {
+            classes.push(`mayo-event-tag-${convertToUnicode(tag.name).toLowerCase().replace(/\s+/g, '-')}`);
+        });
+
+        // Event type class
+        if (event.meta.event_type) {
+            classes.push(`mayo-event-type-${convertToUnicode(event.meta.event_type).toLowerCase().replace(/\s+/g, '-')}`);
+        }
+
+        // Service body class
+        if (event.meta.service_body) {
+            const sourceId = event.external_source ? event.external_source.id : 'local';
+            const serviceBodyName = getServiceBodyName(event.meta.service_body, sourceId);
+            classes.push(`mayo-event-service-body-${convertToUnicode(serviceBodyName).toLowerCase().replace(/\s+/g, '-')}`);
+        }
+
+        return classes.join(' ');
+    };
 
     // Get the first and last day of the current month
     const year = currentDate.getFullYear();
@@ -110,7 +142,7 @@ const CalendarView = ({ events, timeFormat }) => {
                     {dayEvents.map((event, index) => (
                         <div
                             key={`${event.id}-${index}`}
-                            className="mayo-calendar-event"
+                            className={getEventClasses(event)}
                             onClick={() => handleEventClick(event)}
                             title={event.title.rendered}
                         >

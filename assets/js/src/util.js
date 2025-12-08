@@ -1,6 +1,16 @@
 export const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 export const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+// Helper function to convert emoji and special characters to Unicode for CSS class names
+export const convertToUnicode = (str) => {
+    return str.split('')
+        .map(char => {
+            const code = char.codePointAt(0);
+            return code > 127 ? `u${code}` : char;
+        })
+        .join('');
+};
+
 export const formatTime = (time, format) => {
     if (!time) return '';
     

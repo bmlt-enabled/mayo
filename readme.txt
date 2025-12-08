@@ -137,6 +137,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.5.1 =
 * Calendar view now uses full width instead of being constrained to 800px.
+* Added dynamic CSS classes to calendar view events for custom styling by category, tag, event type, and service body. [#174]
 
 = 1.5.0 =
 * Added calendar view for event lists - toggle between list and calendar views using buttons in the header.
