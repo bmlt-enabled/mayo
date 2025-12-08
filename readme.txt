@@ -141,6 +141,8 @@ This project is licensed under the GPL v2 or later.
 * Multi-day events now display on all days they span in calendar view, with visual styling to indicate start, middle, and end days. [#175]
 * Increased calendar day cell height to better accommodate multiple events.
 * Calendar view now loads events on-demand by month instead of using pagination, fixing issue where navigating months would not show events beyond the first page. [#173]
+* Moved list/calendar view toggle to the left side of the header for better visual hierarchy.
+* Fixed calendar view in archive mode not showing past events when navigating to previous months.
 
 = 1.5.0 =
 * Added calendar view for event lists - toggle between list and calendar views using buttons in the header.
