@@ -3,7 +3,7 @@ import EventModal from './EventModal';
 import { useEventProvider } from '../providers/EventProvider';
 import { convertToUnicode } from '../../util';
 
-const CalendarView = ({ events, timeFormat }) => {
+const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedEvent, setSelectedEvent] = useState(null);
     const { getServiceBodyName } = useEventProvider();
@@ -11,6 +11,18 @@ const CalendarView = ({ events, timeFormat }) => {
     // Generate dynamic CSS classes for an event
     const getEventClasses = (event) => {
         const classes = ['mayo-calendar-event'];
+
+        // Multi-day event classes
+        if (event._calendarMeta?.isMultiDay) {
+            classes.push('mayo-multi-day-event');
+            if (event._calendarMeta.isFirstDay) {
+                classes.push('mayo-multi-day-start');
+            } else if (event._calendarMeta.isLastDay) {
+                classes.push('mayo-multi-day-end');
+            } else {
+                classes.push('mayo-multi-day-middle');
+            }
+        }
 
         // Category classes
         event.categories.forEach(cat => {
@@ -53,20 +65,50 @@ const CalendarView = ({ events, timeFormat }) => {
 
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    // Group events by date
+    // Helper to generate date key
+    const getDateKey = (date) => {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    };
+
+    // Group events by date (including multi-day events on each day)
     const eventsByDate = useMemo(() => {
         const grouped = {};
 
         events.forEach(event => {
             if (!event.meta.event_start_date) return;
 
-            const eventDate = new Date(event.meta.event_start_date + 'T00:00:00');
-            const dateKey = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
+            const startDate = new Date(event.meta.event_start_date + 'T00:00:00');
+            const endDate = event.meta.event_end_date
+                ? new Date(event.meta.event_end_date + 'T00:00:00')
+                : startDate;
 
-            if (!grouped[dateKey]) {
-                grouped[dateKey] = [];
+            // Add event to each day it spans
+            const currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                const dateKey = getDateKey(currentDate);
+
+                if (!grouped[dateKey]) {
+                    grouped[dateKey] = [];
+                }
+
+                // Add event with info about which day of the multi-day event this is
+                const isFirstDay = currentDate.getTime() === startDate.getTime();
+                const isLastDay = currentDate.getTime() === endDate.getTime();
+                const isMultiDay = startDate.getTime() !== endDate.getTime();
+
+                grouped[dateKey].push({
+                    ...event,
+                    _calendarMeta: {
+                        isFirstDay,
+                        isLastDay,
+                        isMultiDay,
+                        displayDate: new Date(currentDate)
+                    }
+                });
+
+                // Move to next day
+                currentDate.setDate(currentDate.getDate() + 1);
             }
-            grouped[dateKey].push(event);
         });
 
         // Sort events within each day by start time
@@ -97,15 +139,27 @@ const CalendarView = ({ events, timeFormat }) => {
     };
 
     const goToPreviousMonth = () => {
-        setCurrentDate(new Date(year, month - 1, 1));
+        const newDate = new Date(year, month - 1, 1);
+        setCurrentDate(newDate);
+        if (onMonthChange) {
+            onMonthChange(newDate);
+        }
     };
 
     const goToNextMonth = () => {
-        setCurrentDate(new Date(year, month + 1, 1));
+        const newDate = new Date(year, month + 1, 1);
+        setCurrentDate(newDate);
+        if (onMonthChange) {
+            onMonthChange(newDate);
+        }
     };
 
     const goToToday = () => {
-        setCurrentDate(new Date());
+        const newDate = new Date();
+        setCurrentDate(newDate);
+        if (onMonthChange) {
+            onMonthChange(newDate);
+        }
     };
 
     const handleEventClick = (event) => {
@@ -146,7 +200,7 @@ const CalendarView = ({ events, timeFormat }) => {
                             onClick={() => handleEventClick(event)}
                             title={event.title.rendered}
                         >
-                            {event.meta.event_start_time && (
+                            {event.meta.event_start_time && (!event._calendarMeta?.isMultiDay || event._calendarMeta?.isFirstDay) && (
                                 <span className="event-time">
                                     {formatTime(event.meta.event_start_time)}
                                 </span>
@@ -189,7 +243,7 @@ const CalendarView = ({ events, timeFormat }) => {
                         </button>
                     </div>
                 </div>
-                <div className="mayo-calendar-grid">
+                <div className={`mayo-calendar-grid${loading ? ' loading' : ''}`}>
                     <div className="mayo-calendar-weekdays">
                         {weekDays.map(day => (
                             <div key={day} className="mayo-calendar-weekday">{day}</div>
@@ -198,6 +252,11 @@ const CalendarView = ({ events, timeFormat }) => {
                     <div className="mayo-calendar-days">
                         {calendarDays}
                     </div>
+                    {loading && (
+                        <div className="mayo-calendar-loading">
+                            <span>Loading events...</span>
+                        </div>
+                    )}
                 </div>
             </div>
             {selectedEvent && (

@@ -138,6 +138,9 @@ This project is licensed under the GPL v2 or later.
 = 1.5.1 =
 * Calendar view now uses full width instead of being constrained to 800px.
 * Added dynamic CSS classes to calendar view events for custom styling by category, tag, event type, and service body. [#174]
+* Multi-day events now display on all days they span in calendar view, with visual styling to indicate start, middle, and end days. [#175]
+* Increased calendar day cell height to better accommodate multiple events.
+* Calendar view now loads events on-demand by month instead of using pagination, fixing issue where navigating months would not show events beyond the first page. [#173]
 
 = 1.5.0 =
 * Added calendar view for event lists - toggle between list and calendar views using buttons in the header.

@@ -398,7 +398,7 @@ class Rest {
 
     private static function get_local_events($params) {
         $is_archive = false;
-    
+
         if (isset($params['archive'])) {
             $archive = sanitize_text_field(wp_unslash($params['archive']));
             if ($archive === 'true') {
@@ -413,6 +413,11 @@ class Rest {
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
         $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : wp_timezone_string();
+
+        // Date range parameters for calendar view
+        $range_start = isset($params['start_date']) ? sanitize_text_field(wp_unslash($params['start_date'])) : null;
+        $range_end = isset($params['end_date']) ? sanitize_text_field(wp_unslash($params['end_date'])) : null;
+        $has_date_range = !empty($range_start) && !empty($range_end);
 
         $today = new DateTime('now', new \DateTimeZone($timezone));
         $today->setTime(0, 0, 0); // Start of today
@@ -532,8 +537,13 @@ class Rest {
             }
         }
         
-        // Apply date filtering based on archive mode
-        $events = array_filter($events, function($event) use ($today, $is_archive) {
+        // Apply date filtering based on archive mode or date range
+        $range_start_dt = $has_date_range ? new DateTime($range_start) : null;
+        $range_end_dt = $has_date_range ? new DateTime($range_end) : null;
+        if ($range_start_dt) $range_start_dt->setTime(0, 0, 0);
+        if ($range_end_dt) $range_end_dt->setTime(23, 59, 59);
+
+        $events = array_filter($events, function($event) use ($today, $is_archive, $has_date_range, $range_start_dt, $range_end_dt) {
             if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                 return false;
             }
@@ -549,6 +559,13 @@ class Rest {
                     : $start_date_str;
                 $end_date = new DateTime($end_date_str);
                 $end_date->setTime(23, 59, 59);
+
+                // If date range is specified (calendar view), filter by that range
+                if ($has_date_range) {
+                    // Include event if it overlaps with the range at all
+                    // Event overlaps if: event_start <= range_end AND event_end >= range_start
+                    return $start_date <= $range_end_dt && $end_date >= $range_start_dt;
+                }
 
                 if ($is_archive) {
                     // Archive mode: only show events that have completely ended (end date is in the past)
@@ -790,7 +807,11 @@ class Rest {
         // Pagination parameters
         $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
         $per_page = isset($_GET['per_page']) ? max(1, intval($_GET['per_page'])) : 10;
-        
+
+        // Date range parameters for calendar view
+        $start_date = isset($_GET['start_date']) ? sanitize_text_field($_GET['start_date']) : null;
+        $end_date = isset($_GET['end_date']) ? sanitize_text_field($_GET['end_date']) : null;
+
         // Get source IDs from request
         $sourceIds = isset($_GET['source_ids']) ? 
             array_map('trim', array_filter(explode(',', $_GET['source_ids']))) : 
