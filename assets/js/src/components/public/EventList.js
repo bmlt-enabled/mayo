@@ -479,7 +479,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     }
 
     return (
-        <div className="mayo-event-list" ref={containerRef}>
+        <div className={`mayo-event-list${viewMode === 'calendar' ? ' mayo-calendar-view' : ''}`} ref={containerRef}>
             {isWidget ? (
                 <div className="mayo-widget-events">
                     {events.map(event => (

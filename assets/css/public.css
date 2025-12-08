@@ -63,6 +63,10 @@
     max-width: 800px;
 }
 
+.mayo-event-list.mayo-calendar-view {
+    max-width: 100%;
+}
+
 .mayo-event-cards {
     display: flex;
     flex-direction: column;

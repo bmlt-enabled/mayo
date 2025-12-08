@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.8
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.5.1 =
+* Calendar view now uses full width instead of being constrained to 800px.
 
 = 1.5.0 =
 * Added calendar view for event lists - toggle between list and calendar views using buttons in the header.
