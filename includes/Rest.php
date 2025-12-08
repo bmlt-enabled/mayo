@@ -398,7 +398,7 @@ class Rest {
 
     private static function get_local_events($params) {
         $is_archive = false;
-    
+
         if (isset($params['archive'])) {
             $archive = sanitize_text_field(wp_unslash($params['archive']));
             if ($archive === 'true') {
@@ -414,6 +414,11 @@ class Rest {
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
         $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : wp_timezone_string();
 
+        // Date range parameters for calendar view
+        $range_start = isset($params['start_date']) ? sanitize_text_field(wp_unslash($params['start_date'])) : null;
+        $range_end = isset($params['end_date']) ? sanitize_text_field(wp_unslash($params['end_date'])) : null;
+        $has_date_range = !empty($range_start) && !empty($range_end);
+
         $today = new DateTime('now', new \DateTimeZone($timezone));
         $today->setTime(0, 0, 0); // Start of today
         $current_date = $today->format('Y-m-d');
@@ -422,9 +427,10 @@ class Rest {
         
         $events = [];
 
-        // Get all events (filtering by date will happen later based on archive mode)
-        if ($is_archive) {
-            // Archive mode: get all events, will filter to show only past events later
+        // Get all events (filtering by date will happen later based on archive mode or date range)
+        // When date range is specified (calendar view), we need to expand recurring events regardless of archive mode
+        if ($is_archive && !$has_date_range) {
+            // Archive mode without date range: get all events, will filter to show only past events later
             $events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
         } else {
             // In normal mode, we'll fetch events in two steps:
@@ -492,8 +498,14 @@ class Rest {
                     
                     $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
 
-                    // Filter recurring events based on archive mode
-                    $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive) {
+                    // Filter recurring events based on date range or archive mode
+                    // Prepare date range objects for filtering if needed
+                    $filter_range_start = $has_date_range ? new DateTime($range_start) : null;
+                    $filter_range_end = $has_date_range ? new DateTime($range_end) : null;
+                    if ($filter_range_start) $filter_range_start->setTime(0, 0, 0);
+                    if ($filter_range_end) $filter_range_end->setTime(23, 59, 59);
+
+                    $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive, $has_date_range, $filter_range_start, $filter_range_end) {
                         if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                             return false;
                         }
@@ -509,6 +521,12 @@ class Rest {
                                 : $start_date_str;
                             $end_date = new DateTime($end_date_str);
                             $end_date->setTime(23, 59, 59);
+
+                            // If date range is specified (calendar view), filter by that range
+                            if ($has_date_range) {
+                                // Include event if it overlaps with the range at all
+                                return $start_date <= $filter_range_end && $end_date >= $filter_range_start;
+                            }
 
                             if ($is_archive) {
                                 // Archive mode: only show events that have completely ended
@@ -532,8 +550,13 @@ class Rest {
             }
         }
         
-        // Apply date filtering based on archive mode
-        $events = array_filter($events, function($event) use ($today, $is_archive) {
+        // Apply date filtering based on archive mode or date range
+        $range_start_dt = $has_date_range ? new DateTime($range_start) : null;
+        $range_end_dt = $has_date_range ? new DateTime($range_end) : null;
+        if ($range_start_dt) $range_start_dt->setTime(0, 0, 0);
+        if ($range_end_dt) $range_end_dt->setTime(23, 59, 59);
+
+        $events = array_filter($events, function($event) use ($today, $is_archive, $has_date_range, $range_start_dt, $range_end_dt) {
             if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                 return false;
             }
@@ -549,6 +572,13 @@ class Rest {
                     : $start_date_str;
                 $end_date = new DateTime($end_date_str);
                 $end_date->setTime(23, 59, 59);
+
+                // If date range is specified (calendar view), filter by that range
+                if ($has_date_range) {
+                    // Include event if it overlaps with the range at all
+                    // Event overlaps if: event_start <= range_end AND event_end >= range_start
+                    return $start_date <= $range_end_dt && $end_date >= $range_start_dt;
+                }
 
                 if ($is_archive) {
                     // Archive mode: only show events that have completely ended (end date is in the past)
@@ -790,7 +820,11 @@ class Rest {
         // Pagination parameters
         $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
         $per_page = isset($_GET['per_page']) ? max(1, intval($_GET['per_page'])) : 10;
-        
+
+        // Date range parameters for calendar view
+        $start_date = isset($_GET['start_date']) ? sanitize_text_field($_GET['start_date']) : null;
+        $end_date = isset($_GET['end_date']) ? sanitize_text_field($_GET['end_date']) : null;
+
         // Get source IDs from request
         $sourceIds = isset($_GET['source_ids']) ? 
             array_map('trim', array_filter(explode(',', $_GET['source_ids']))) : 

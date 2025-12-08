@@ -63,6 +63,10 @@
     max-width: 800px;
 }
 
+.mayo-event-list.mayo-calendar-view {
+    max-width: 100%;
+}
+
 .mayo-event-cards {
     display: flex;
     flex-direction: column;
@@ -407,6 +411,26 @@
 
 .mayo-calendar-grid {
     width: 100%;
+    position: relative;
+}
+
+.mayo-calendar-grid.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.mayo-calendar-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-weight: 500;
+    color: #333;
+    z-index: 10;
 }
 
 .mayo-calendar-header {
@@ -464,7 +488,6 @@
     padding: 10px;
     text-align: center;
     font-weight: 600;
-    aspect-ratio: 1; /* Make weekday headers square */
 }
 
 .mayo-calendar-days {
@@ -473,7 +496,7 @@
 }
 
 .mayo-calendar-day {
-    aspect-ratio: 1; /* Make days square */
+    min-height: 120px;
     padding: 8px;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
@@ -537,6 +560,28 @@
 
 .mayo-calendar-event:hover .event-title {
     text-decoration: underline;
+}
+
+/* Multi-day event styles */
+.mayo-multi-day-event {
+    background: #d4e6f7;
+    border-left: 3px solid #0073aa;
+}
+
+.mayo-multi-day-start {
+    border-radius: 3px 3px 0 0;
+    margin-bottom: 0;
+}
+
+.mayo-multi-day-middle {
+    border-radius: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.mayo-multi-day-end {
+    border-radius: 0 0 3px 3px;
+    margin-top: 0;
 }
 
 /* Calendar header layout */
@@ -815,6 +860,7 @@
 
     .mayo-calendar-day {
         padding: 4px;
+        min-height: 80px;
     }
 
     .mayo-calendar-date {
@@ -1529,8 +1575,13 @@
 
 .mayo-event-list-header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
+}
+
+.mayo-view-toggle {
+    display: flex;
 }
 
 .mayo-event-list-actions {

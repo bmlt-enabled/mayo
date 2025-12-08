@@ -1,17 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../../providers/EventProvider';
-import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames } from '../../../util';
+import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames, convertToUnicode } from '../../../util';
 import LocationAddress from '../LocationAddress';
-
-// Helper function to convert emoji and special characters to Unicode
-const convertToUnicode = (str) => {
-    return str.split('')
-        .map(char => {
-            const code = char.codePointAt(0);
-            return code > 127 ? `u${code}` : char;
-        })
-        .join('');
-};
 
 const EventCard = ({ event, timeFormat, forceExpanded }) => {
     const [isExpanded, setIsExpanded] = useState(false);

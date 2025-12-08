@@ -26,8 +26,11 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [autoexpand, setAutoexpand] = useState(false);
     const [showShortcode, setShowShortcode] = useState(false);
     const [viewMode, setViewMode] = useState(settings?.defaultView || 'list'); // 'list' or 'calendar'
+    const [calendarDate, setCalendarDate] = useState(new Date()); // Current month for calendar view
+    const [calendarEvents, setCalendarEvents] = useState([]); // Events for calendar view
+    const [calendarLoading, setCalendarLoading] = useState(false);
     const { updateExternalServiceBodies } = useEventProvider();
-    
+
     // Get user's current timezone
     const userTimezone = getUserTimezone();
 
@@ -333,12 +336,73 @@ const EventList = ({ widget = false, settings = {} }) => {
 
     const handlePageChange = (newPage) => {
         if (settings?.infiniteScroll) return;
-        
+
         setCurrentPage(newPage);
         fetchEvents(newPage);
         // Scroll to top of event list
         containerRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
+
+    // Fetch events for calendar view by date range
+    const fetchCalendarEvents = async (year, month) => {
+        setCalendarLoading(true);
+        try {
+            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
+            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
+            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
+            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
+            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
+            let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
+            let order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
+
+            // Calculate start and end dates for the month
+            const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+            // Build the endpoint URL with date range parameters
+            const endpoint = `/events?status=${status}`
+                + `&event_type=${eventType}`
+                + `&service_body=${serviceBody}`
+                + `&relation=${relation}`
+                + `&categories=${categories}`
+                + `&tags=${tags}`
+                + `&source_ids=${sourceIds}`
+                + `&timezone=${encodeURIComponent(userTimezone)}`
+                + `&order=${order}`
+                + `&start_date=${startDate}`
+                + `&end_date=${endDate}`
+                + `&per_page=100`; // Get all events for the month
+
+            const data = await apiFetch(endpoint);
+
+            // Handle both old and new response formats
+            const fetchedEvents = Array.isArray(data) ? data : (data.events || []);
+
+            // Process events to handle invalid dates
+            const processedEvents = processEvents(fetchedEvents);
+
+            setCalendarEvents(processedEvents);
+            setCalendarLoading(false);
+        } catch (err) {
+            console.error('Error in fetchCalendarEvents:', err);
+            setCalendarLoading(false);
+        }
+    };
+
+    // Handle calendar month change
+    const handleCalendarMonthChange = (newDate) => {
+        setCalendarDate(newDate);
+        fetchCalendarEvents(newDate.getFullYear(), newDate.getMonth());
+    };
+
+    // Fetch calendar events when switching to calendar view or on initial load
+    useEffect(() => {
+        if (viewMode === 'calendar' && !isWidget) {
+            fetchCalendarEvents(calendarDate.getFullYear(), calendarDate.getMonth());
+        }
+    }, [viewMode]);
 
     const handlePrint = () => {
         // Create a new window for printing
@@ -479,7 +543,7 @@ const EventList = ({ widget = false, settings = {} }) => {
     }
 
     return (
-        <div className="mayo-event-list" ref={containerRef}>
+        <div className={`mayo-event-list${viewMode === 'calendar' ? ' mayo-calendar-view' : ''}`} ref={containerRef}>
             {isWidget ? (
                 <div className="mayo-widget-events">
                     {events.map(event => (
@@ -493,7 +557,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             ) : (
                 <>
                     <div className="mayo-event-list-header">
-                        <div className="mayo-event-list-actions">
+                        <div className="mayo-view-toggle">
                             <button
                                 className={`mayo-view-toggle-button ${viewMode === 'list' ? 'active' : ''}`}
                                 onClick={() => setViewMode('list')}
@@ -508,7 +572,8 @@ const EventList = ({ widget = false, settings = {} }) => {
                             >
                                 <span className="dashicons dashicons-calendar-alt"></span>
                             </button>
-                            <span className="mayo-action-separator"></span>
+                        </div>
+                        <div className="mayo-event-list-actions">
                             {viewMode === 'list' && (
                                 <button
                                     className="mayo-expand-all-button"
@@ -518,32 +583,32 @@ const EventList = ({ widget = false, settings = {} }) => {
                                     <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
                                 </button>
                             )}
-                            <button 
+                            <button
                                 className="mayo-print-button"
                                 onClick={handlePrint}
                                 title="Print Events"
                             >
                                 <span className="dashicons dashicons-printer"></span>
                             </button>
-                            <a 
-                                href={getIcsUrl()} 
-                                className="mayo-rss-link" 
-                                target="_blank" 
+                            <a
+                                href={getIcsUrl()}
+                                className="mayo-rss-link"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 title="Calendar Feed (ICS)"
                             >
                                 <span className="dashicons dashicons-calendar"></span>
                             </a>
-                            <a 
-                                href={getRssUrl()} 
-                                className="mayo-rss-link" 
-                                target="_blank" 
+                            <a
+                                href={getRssUrl()}
+                                className="mayo-rss-link"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 title="RSS Feed"
                             >
                                 <span className="dashicons dashicons-rss"></span>
                             </a>
-                            <button 
+                            <button
                                 className="mayo-shortcode-button"
                                 onClick={() => setShowShortcode(!showShortcode)}
                                 title={showShortcode ? "Hide Shortcode" : "Show Shortcode"}
@@ -571,7 +636,12 @@ const EventList = ({ widget = false, settings = {} }) => {
                         </div>
                     )}
                     {viewMode === 'calendar' ? (
-                        <CalendarView events={events} timeFormat={timeFormat} />
+                        <CalendarView
+                            events={calendarEvents}
+                            timeFormat={timeFormat}
+                            onMonthChange={handleCalendarMonthChange}
+                            loading={calendarLoading}
+                        />
                     ) : (
                         <div className="mayo-event-cards">
                             {events.map(event => (
