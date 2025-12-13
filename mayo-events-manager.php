@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing and displaying events.
- * Version: 1.5.1
+ * Version: 1.5.2
  * Author: bmlt-enabled
  * License: GPLv2 or later
  * Author URI: https://bmlt.app
@@ -20,7 +20,7 @@ if (! defined('ABSPATH') ) {
     exit; // Exit if accessed directly
 }
 
-define('MAYO_VERSION', '1.5.1');
+define('MAYO_VERSION', '1.5.2');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
@@ -28,10 +28,12 @@ require_once __DIR__ . '/includes/Frontend.php';
 require_once __DIR__ . '/includes/Rest.php';
 require_once __DIR__ . '/includes/CalendarFeed.php';
 require_once __DIR__ . '/includes/RssFeed.php';
+require_once __DIR__ . '/includes/Widgets/AnnouncementWidget.php';
 
 use BmltEnabled\Mayo\Admin;
 use BmltEnabled\Mayo\Frontend;
 use BmltEnabled\Mayo\Rest;
+use BmltEnabled\Mayo\Widgets\AnnouncementWidget;
 
 // Initialize components
 add_action(
@@ -40,6 +42,14 @@ add_action(
         Admin::init();
         Frontend::init();
         Rest::init();
+    }
+);
+
+// Register widgets
+add_action(
+    'widgets_init',
+    function () {
+        register_widget(AnnouncementWidget::class);
     }
 );
 

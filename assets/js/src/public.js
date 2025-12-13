@@ -3,6 +3,7 @@ import EventForm from './components/public/EventForm';
 import EventList from './components/public/EventList';
 import EventArchive from './components/public/EventArchive';
 import EventDetails from './components/public/EventDetails';
+import EventAnnouncement from './components/public/EventAnnouncement';
 import { EventProvider } from './components/providers/EventProvider';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,4 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWithProvider(EventForm, formContainer);
     renderWithProvider(EventDetails, detailsContainer);
     renderWithProvider(EventArchive, archiveContainer);
+
+    // Initialize announcement containers (shortcode and widget)
+    const announcementContainers = document.querySelectorAll('.mayo-announcement-container');
+    announcementContainers.forEach(container => {
+        const instanceAttr = container.dataset.instance;
+        // Handle both shortcode (numeric) and widget (widget_X) instances
+        const settingsKey = instanceAttr.startsWith('widget_')
+            ? `mayoAnnouncementSettings_${instanceAttr}`
+            : `mayoAnnouncementSettings_${instanceAttr}`;
+        const settings = window[settingsKey] || {};
+        render(<EventProvider><EventAnnouncement settings={settings} /></EventProvider>, container);
+    });
 });

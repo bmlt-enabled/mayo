@@ -234,6 +234,96 @@ const ShortcodesDocs = () => {
                     <li>Form validation will ensure all required fields are filled</li>
                 </ul>
             </div>
+
+            <div className="card">
+                <h2>Event Announcement Shortcode</h2>
+                <p>Use this shortcode to display event-based announcements as banners or modals. This is useful for:</p>
+                <ul className="ul-disc">
+                    <li>Meeting closures or changes</li>
+                    <li>New meeting announcements</li>
+                    <li>Breaking news or important updates</li>
+                    <li>Promoting upcoming events</li>
+                </ul>
+                <pre><code>[mayo_announcement]</code></pre>
+
+                <h3>How It Works</h3>
+                <ul className="ul-disc">
+                    <li>Events appear as announcements when today's date is between the event's <code>start_date</code> (embargo) and <code>end_date</code> (expiration)</li>
+                    <li><strong>Banner mode:</strong> Shows a fixed bar at the top of the viewport with carousel navigation for multiple events</li>
+                    <li><strong>Modal mode:</strong> Shows a centered popup with a list of all matching events</li>
+                    <li>When dismissed, announcements stay hidden for 24 hours but can be re-opened via a bell icon in the bottom-right corner</li>
+                </ul>
+
+                <h3>Optional Parameters</h3>
+                <table className="widefat">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>mode</td>
+                            <td>Display mode for announcements</td>
+                            <td>banner</td>
+                            <td>banner (sticky top bar), modal (popup)</td>
+                        </tr>
+                        <tr>
+                            <td>categories</td>
+                            <td>Filter by category slugs (comma-separated)</td>
+                            <td>empty (all categories)</td>
+                            <td>e.g., <pre>announcements,alerts</pre></td>
+                        </tr>
+                        <tr>
+                            <td>tags</td>
+                            <td>Filter by tag slugs (comma-separated)</td>
+                            <td>empty (all tags)</td>
+                            <td>e.g., <pre>urgent,featured</pre></td>
+                        </tr>
+                        <tr>
+                            <td>time_format</td>
+                            <td>Format for displaying time</td>
+                            <td>12hour</td>
+                            <td>12hour, 24hour</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+
+                <h4>Default Banner Mode</h4>
+                <pre><code>[mayo_announcement]</code></pre>
+
+                <h4>Modal Popup</h4>
+                <pre><code>[mayo_announcement mode="modal"]</code></pre>
+
+                <h4>Filter by Category</h4>
+                <pre><code>[mayo_announcement categories="announcements,alerts"]</code></pre>
+
+                <h4>Combined Parameters</h4>
+                <pre><code>[mayo_announcement mode="banner" categories="announcements" tags="urgent" time_format="24hour"]</code></pre>
+
+                <h3>Widget Usage</h3>
+                <p>For site-wide announcements without editing templates, use the <strong>"Mayo Event Announcements"</strong> widget:</p>
+                <ol>
+                    <li>Go to <strong>Appearance → Widgets</strong></li>
+                    <li>Add the "Mayo Event Announcements" widget to any widget area (footer recommended for site-wide display)</li>
+                    <li>Configure the display mode, categories, tags, and time format</li>
+                </ol>
+
+                <h3>Notes</h3>
+                <ul className="ul-disc">
+                    <li>Create an event with the desired announcement text as the title</li>
+                    <li>Set the <code>start_date</code> to when you want the announcement to start showing (embargo)</li>
+                    <li>Set the <code>end_date</code> to when you want the announcement to stop showing (expiration)</li>
+                    <li>Use categories or tags to control which events appear as announcements</li>
+                    <li>The event title links to the full event page when clicked</li>
+                    <li>Multiple announcements are shown as a carousel in banner mode, or as a list in modal mode</li>
+                </ul>
+            </div>
         </div>
     );
 };
