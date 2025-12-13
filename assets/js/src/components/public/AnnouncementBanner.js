@@ -1,8 +1,14 @@
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { monthNames } from '../../util';
 
-const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, onClose }) => {
+const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, onClose, backgroundColor, textColor, autoRotateInterval = 5000 }) => {
     const bannerRef = useRef(null);
+    const [isPaused, setIsPaused] = useState(false);
+
+    // Build custom styles if colors are provided
+    const customStyle = {};
+    if (backgroundColor) customStyle.background = backgroundColor;
+    if (textColor) customStyle.color = textColor;
 
     // Adjust body padding when banner is shown
     useEffect(() => {
@@ -22,11 +28,30 @@ const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, 
         };
     }, [events]);
 
+    // Auto-rotate through announcements
+    useEffect(() => {
+        if (events.length <= 1 || isPaused) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            onNext();
+        }, autoRotateInterval);
+
+        return () => clearInterval(interval);
+    }, [events.length, isPaused, onNext, autoRotateInterval]);
+
     if (events.length === 0) {
         return null;
     }
 
     const currentEvent = events[currentIndex];
+
+    // Guard against undefined event (can happen during state transitions)
+    if (!currentEvent) {
+        return null;
+    }
+
     const hasMultiple = events.length > 1;
 
     // Format date for display
@@ -45,7 +70,13 @@ const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, 
     };
 
     return (
-        <div className="mayo-announcement-banner" ref={bannerRef}>
+        <div
+            className="mayo-announcement-banner"
+            ref={bannerRef}
+            style={customStyle}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+        >
             <div className="mayo-announcement-banner-content">
                 {hasMultiple && (
                     <button
@@ -57,23 +88,25 @@ const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, 
                     </button>
                 )}
 
-                <div className="mayo-announcement-item">
-                    <span className="mayo-announcement-icon">
-                        <span className="dashicons dashicons-megaphone"></span>
-                    </span>
-                    <span className="mayo-announcement-date">
-                        {formatEventDate(currentEvent)}
-                    </span>
-                    <a
-                        href={currentEvent.link}
-                        className="mayo-announcement-title"
-                        dangerouslySetInnerHTML={{ __html: currentEvent.title.rendered }}
-                    />
-                    {hasMultiple && (
-                        <span className="mayo-announcement-counter">
-                            {currentIndex + 1} / {events.length}
+                <div className="mayo-announcement-slider">
+                    <div key={currentIndex} className="mayo-announcement-item mayo-slide-enter-down">
+                        <span className="mayo-announcement-icon">
+                            <span className="dashicons dashicons-megaphone"></span>
                         </span>
-                    )}
+                        <span className="mayo-announcement-date">
+                            {formatEventDate(currentEvent)}
+                        </span>
+                        <a
+                            href={currentEvent.link}
+                            className="mayo-announcement-title"
+                            dangerouslySetInnerHTML={{ __html: currentEvent.title.rendered }}
+                        />
+                        {hasMultiple && (
+                            <span className="mayo-announcement-counter">
+                                {currentIndex + 1} / {events.length}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {hasMultiple && (

@@ -73,11 +73,17 @@ Shortcode Usage:
 
 `[mayo_announcement time_format="24hour"]` - Use 24-hour time format
 
+`[mayo_announcement background_color="#ff6600" text_color="#ffffff"]` - Custom colors
+
+`[mayo_announcement background_color="#dc3545" text_color="#fff" categories="alerts"]` - Red alert style
+
 Parameters:
 * mode - "banner" (sticky top bar) or "modal" (popup). Default: "banner"
 * categories - Comma-separated category slugs to filter events
 * tags - Comma-separated tag slugs to filter events
 * time_format - "12hour" or "24hour". Default: "12hour"
+* background_color - Custom background color (hex, e.g., "#ff6600"). Default: CSS default
+* text_color - Custom text color (hex, e.g., "#ffffff"). Default: CSS default
 
 Widget Usage:
 
@@ -183,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.5.2 =
 * Added announcement feature for displaying event-based announcements as banners or modals.
+* Added background_color and text_color parameters to [mayo_announcement] shortcode and widget for custom styling.
 * New [mayo_announcement] shortcode with support for mode (banner/modal), categories, tags, and time_format parameters.
 * Banner mode displays a fixed top bar with carousel navigation for multiple announcements.
 * Modal mode displays a popup with a list of all active announcements.

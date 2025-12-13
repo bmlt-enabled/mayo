@@ -289,6 +289,18 @@ const ShortcodesDocs = () => {
                             <td>12hour</td>
                             <td>12hour, 24hour</td>
                         </tr>
+                        <tr>
+                            <td>background_color</td>
+                            <td>Custom background color for the banner/modal header/bell icon</td>
+                            <td>empty (uses CSS default)</td>
+                            <td>Any hex color, e.g., <pre>#ff6600</pre></td>
+                        </tr>
+                        <tr>
+                            <td>text_color</td>
+                            <td>Custom text color for the banner/modal header/bell icon</td>
+                            <td>empty (uses CSS default)</td>
+                            <td>Any hex color, e.g., <pre>#ffffff</pre></td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -305,6 +317,12 @@ const ShortcodesDocs = () => {
 
                 <h4>Combined Parameters</h4>
                 <pre><code>[mayo_announcement mode="banner" categories="announcements" tags="urgent" time_format="24hour"]</code></pre>
+
+                <h4>Custom Colors</h4>
+                <pre><code>[mayo_announcement background_color="#ff6600" text_color="#ffffff"]</code></pre>
+
+                <h4>Red Alert Style</h4>
+                <pre><code>[mayo_announcement background_color="#dc3545" text_color="#fff" categories="alerts"]</code></pre>
 
                 <h3>Widget Usage</h3>
                 <p>For site-wide announcements without editing templates, use the <strong>"Mayo Event Announcements"</strong> widget:</p>
