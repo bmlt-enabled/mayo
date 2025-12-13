@@ -8,6 +8,7 @@ class Frontend {
     public static function init() {
         add_shortcode('mayo_event_form', [__CLASS__, 'render_event_form']);
         add_shortcode('mayo_event_list', [__CLASS__, 'render_event_list']);
+        add_shortcode('mayo_announcement', [__CLASS__, 'render_announcement']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
         
         // Register the script early
@@ -115,16 +116,48 @@ class Frontend {
         );
     }
 
+    public static function render_announcement($atts = []) {
+        static $instance = 0;
+        $instance++;
+
+        $defaults = [
+            'mode' => 'banner',      // 'banner' or 'modal'
+            'categories' => '',      // Comma-separated category slugs
+            'tags' => '',            // Comma-separated tag slugs
+            'time_format' => '12hour',
+        ];
+        $atts = shortcode_atts($defaults, $atts);
+
+        wp_enqueue_script('mayo-public');
+        wp_enqueue_style('mayo-public');
+
+        // Create unique settings for this instance
+        $settings_key = "mayoAnnouncementSettings_$instance";
+        wp_localize_script('mayo-public', $settings_key, [
+            'mode' => $atts['mode'],
+            'categories' => $atts['categories'],
+            'tags' => $atts['tags'],
+            'timeFormat' => $atts['time_format'],
+        ]);
+
+        return sprintf(
+            '<div class="mayo-announcement-container" data-instance="%d"></div>',
+            $instance
+        );
+    }
+
     public static function enqueue_scripts() {
-        $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list');
+        $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list') ||
+                                self::is_shortcode_present_in_widgets('mayo_announcement');
 
         $post = get_post();
         $should_enqueue = false;
-        
+
         // Check if we should enqueue scripts
         if ($post && (
-            has_shortcode($post->post_content, 'mayo_event_form') || 
-            has_shortcode($post->post_content, 'mayo_event_list')
+            has_shortcode($post->post_content, 'mayo_event_form') ||
+            has_shortcode($post->post_content, 'mayo_event_list') ||
+            has_shortcode($post->post_content, 'mayo_announcement')
         )) {
             $should_enqueue = true;
         } elseif (is_post_type_archive('mayo_event') || is_singular('mayo_event')) {

@@ -4,8 +4,8 @@ Contributors: bmltenabled, radius314
 Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
-Tested up to: 6.8
-Stable tag: 1.5.1
+Tested up to: 6.9
+Stable tag: 1.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,6 +45,52 @@ Dependency on Pretty Permalinks: The REST API utilizes the same URL rewriting fu
 7. User-Friendly Interface:
    - Intuitive form interface for event submission, including validation for required fields like email.
    - Admin interface for managing events, including viewing, editing, and approving submissions.
+
+8. Event Announcements:
+   - Display event-based announcements as banners or modals to highlight important information.
+   - Use events to announce meeting closures, moves, new meetings, or promote upcoming events.
+   - Events show as announcements when today's date falls between the event's start and end dates.
+   - Supports filtering by categories and tags to control which events appear as announcements.
+   - Dismissable with 24-hour persistence - users can re-open via a bell icon.
+
+== Announcement Feature ==
+
+The announcement feature allows you to display event-based announcements prominently on your site. This is useful for:
+* Meeting closures or changes
+* New meeting announcements
+* Breaking news or important updates
+* Promoting upcoming events
+
+Shortcode Usage:
+
+`[mayo_announcement]` - Display announcements with default settings (banner mode)
+
+`[mayo_announcement mode="modal"]` - Display as a modal popup instead of banner
+
+`[mayo_announcement categories="announcements,alerts"]` - Filter by category slugs
+
+`[mayo_announcement tags="urgent,featured"]` - Filter by tag slugs
+
+`[mayo_announcement time_format="24hour"]` - Use 24-hour time format
+
+Parameters:
+* mode - "banner" (sticky top bar) or "modal" (popup). Default: "banner"
+* categories - Comma-separated category slugs to filter events
+* tags - Comma-separated tag slugs to filter events
+* time_format - "12hour" or "24hour". Default: "12hour"
+
+Widget Usage:
+
+For site-wide announcements without editing templates, use the "Mayo Event Announcements" widget:
+1. Go to Appearance > Widgets
+2. Add the "Mayo Event Announcements" widget to any widget area (footer recommended for site-wide display)
+3. Configure the display mode, categories, tags, and time format
+
+How It Works:
+* Events appear as announcements when today's date is between the event's start_date and end_date
+* Banner mode shows a fixed bar at the top of the viewport with carousel navigation for multiple events
+* Modal mode shows a centered popup with a list of all matching events
+* When dismissed, announcements stay hidden for 24 hours but can be re-opened via a bell icon in the bottom-right corner
 
 == Additional Information == 
 
@@ -134,6 +180,15 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.5.2 =
+* Added announcement feature for displaying event-based announcements as banners or modals.
+* New [mayo_announcement] shortcode with support for mode (banner/modal), categories, tags, and time_format parameters.
+* Banner mode displays a fixed top bar with carousel navigation for multiple announcements.
+* Modal mode displays a popup with a list of all active announcements.
+* Announcements use event start_date as embargo (don't show until then) and end_date as expiration.
+* Added dismissal feature with 24-hour persistence - dismissed announcements show a bell icon with badge count to re-open.
+* New "Mayo Event Announcements" widget for displaying announcements site-wide without editing templates.
 
 = 1.5.1 =
 * Calendar view now uses full width instead of being constrained to 800px.

@@ -1799,4 +1799,397 @@
     white-space: pre-wrap;
     background: none;
     padding: 0;
-} 
+}
+
+/* =============================================
+   Announcement Banner Styles
+   ============================================= */
+
+.mayo-announcement-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.mayo-announcement-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 50px;
+    gap: 15px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.mayo-announcement-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    justify-content: center;
+}
+
+.mayo-announcement-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mayo-announcement-icon .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #ffd700;
+}
+
+.mayo-announcement-date {
+    font-size: 0.9em;
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.mayo-announcement-title {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    transition: opacity 0.2s ease;
+}
+
+.mayo-announcement-title:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+    color: white;
+}
+
+.mayo-announcement-counter {
+    font-size: 0.85em;
+    opacity: 0.8;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.mayo-announcement-nav {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.mayo-announcement-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mayo-announcement-nav .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.mayo-announcement-close {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    opacity: 0.7;
+}
+
+.mayo-announcement-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+
+.mayo-announcement-close .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* =============================================
+   Announcement Modal Styles
+   ============================================= */
+
+.mayo-announcement-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100001;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.mayo-announcement-modal {
+    background: white;
+    border-radius: 12px;
+    max-width: 550px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.mayo-announcement-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #f0f0f1;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.mayo-announcement-modal-close:hover {
+    background: #ddd;
+}
+
+.mayo-announcement-modal-close .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #666;
+}
+
+.mayo-announcement-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
+    color: white;
+    position: relative;
+}
+
+.mayo-announcement-modal-header .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #ffd700;
+}
+
+.mayo-announcement-modal-header h2 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.mayo-announcement-modal-body {
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.mayo-announcement-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mayo-announcement-list-item {
+    padding: 16px 24px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s ease;
+}
+
+.mayo-announcement-list-item:last-child {
+    border-bottom: none;
+}
+
+.mayo-announcement-list-item:hover {
+    background: #f8f9fa;
+}
+
+.mayo-announcement-list-date {
+    font-size: 0.85em;
+    color: #0073aa;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.mayo-announcement-list-title {
+    display: block;
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05em;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.mayo-announcement-list-title:hover {
+    color: #0073aa;
+    text-decoration: underline;
+}
+
+.mayo-announcement-list-excerpt {
+    font-size: 0.9em;
+    color: #666;
+    line-height: 1.5;
+}
+
+.mayo-announcement-modal-footer {
+    padding: 16px 24px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+}
+
+.mayo-announcement-dismiss-button {
+    padding: 10px 24px;
+    background: #0073aa;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.mayo-announcement-dismiss-button:hover {
+    background: #005a87;
+}
+
+/* =============================================
+   Announcement Bell Icon (Minimized State)
+   ============================================= */
+
+.mayo-announcement-bell {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99998;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 115, 170, 0.4);
+    transition: all 0.3s ease;
+}
+
+.mayo-announcement-bell:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 115, 170, 0.5);
+}
+
+.mayo-announcement-bell .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+}
+
+.mayo-announcement-bell-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #dc3545;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+}
+
+/* =============================================
+   Announcement Responsive Styles
+   ============================================= */
+
+@media (max-width: 768px) {
+    .mayo-announcement-banner-content {
+        padding: 10px 45px 10px 15px;
+        gap: 10px;
+    }
+
+    .mayo-announcement-item {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .mayo-announcement-date {
+        font-size: 0.8em;
+    }
+
+    .mayo-announcement-title {
+        font-size: 0.9em;
+    }
+
+    .mayo-announcement-nav {
+        padding: 6px;
+    }
+
+    .mayo-announcement-modal {
+        max-height: 90vh;
+        margin: 10px;
+    }
+
+    .mayo-announcement-modal-header {
+        padding: 16px 20px;
+    }
+
+    .mayo-announcement-list-item {
+        padding: 14px 20px;
+    }
+
+    .mayo-announcement-bell {
+        width: 50px;
+        height: 50px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .mayo-announcement-bell .dashicons {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+    }
+}
