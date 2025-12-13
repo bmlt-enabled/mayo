@@ -28,6 +28,8 @@ class AnnouncementWidget extends \WP_Widget {
         $categories = ! empty( $instance['categories'] ) ? $instance['categories'] : '';
         $tags = ! empty( $instance['tags'] ) ? $instance['tags'] : '';
         $time_format = ! empty( $instance['time_format'] ) ? $instance['time_format'] : '12hour';
+        $background_color = ! empty( $instance['background_color'] ) ? $instance['background_color'] : '';
+        $text_color = ! empty( $instance['text_color'] ) ? $instance['text_color'] : '';
 
         // Enqueue scripts and styles
         wp_enqueue_script('mayo-public');
@@ -40,6 +42,8 @@ class AnnouncementWidget extends \WP_Widget {
             'categories' => $categories,
             'tags' => $tags,
             'timeFormat' => $time_format,
+            'backgroundColor' => $background_color,
+            'textColor' => $text_color,
         ]);
 
         echo $args['before_widget'];
@@ -121,6 +125,32 @@ class AnnouncementWidget extends \WP_Widget {
                 </option>
             </select>
         </p>
+        <p>
+            <label for="<?php echo esc_attr( $this->get_field_id( 'background_color' ) ); ?>">
+                Background Color (hex):
+            </label>
+            <input
+                class="widefat"
+                id="<?php echo esc_attr( $this->get_field_id( 'background_color' ) ); ?>"
+                name="<?php echo esc_attr( $this->get_field_name( 'background_color' ) ); ?>"
+                type="text"
+                value="<?php echo esc_attr( ! empty( $instance['background_color'] ) ? $instance['background_color'] : '' ); ?>"
+                placeholder="#0073aa"
+            />
+        </p>
+        <p>
+            <label for="<?php echo esc_attr( $this->get_field_id( 'text_color' ) ); ?>">
+                Text Color (hex):
+            </label>
+            <input
+                class="widefat"
+                id="<?php echo esc_attr( $this->get_field_id( 'text_color' ) ); ?>"
+                name="<?php echo esc_attr( $this->get_field_name( 'text_color' ) ); ?>"
+                type="text"
+                value="<?php echo esc_attr( ! empty( $instance['text_color'] ) ? $instance['text_color'] : '' ); ?>"
+                placeholder="#ffffff"
+            />
+        </p>
         <p class="description">
             Events will show as announcements when today's date is between the event's start and end dates.
         </p>
@@ -136,6 +166,8 @@ class AnnouncementWidget extends \WP_Widget {
         $instance['categories'] = ( ! empty( $new_instance['categories'] ) ) ? sanitize_text_field( $new_instance['categories'] ) : '';
         $instance['tags'] = ( ! empty( $new_instance['tags'] ) ) ? sanitize_text_field( $new_instance['tags'] ) : '';
         $instance['time_format'] = ( ! empty( $new_instance['time_format'] ) ) ? sanitize_text_field( $new_instance['time_format'] ) : '12hour';
+        $instance['background_color'] = ( ! empty( $new_instance['background_color'] ) ) ? sanitize_hex_color( $new_instance['background_color'] ) : '';
+        $instance['text_color'] = ( ! empty( $new_instance['text_color'] ) ) ? sanitize_hex_color( $new_instance['text_color'] ) : '';
         return $instance;
     }
 }

@@ -125,6 +125,8 @@ class Frontend {
             'categories' => '',      // Comma-separated category slugs
             'tags' => '',            // Comma-separated tag slugs
             'time_format' => '12hour',
+            'background_color' => '', // Custom background color (hex)
+            'text_color' => '',       // Custom text color (hex)
         ];
         $atts = shortcode_atts($defaults, $atts);
 
@@ -138,6 +140,8 @@ class Frontend {
             'categories' => $atts['categories'],
             'tags' => $atts['tags'],
             'timeFormat' => $atts['time_format'],
+            'backgroundColor' => $atts['background_color'],
+            'textColor' => $atts['text_color'],
         ]);
 
         return sprintf(

@@ -1826,12 +1826,53 @@
     margin: 0 auto;
 }
 
+.mayo-announcement-slider {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
 .mayo-announcement-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex: 1;
     justify-content: center;
+}
+
+/* Slide up to exit (content slides up and out) */
+.mayo-announcement-item.mayo-slide-exit-up {
+    animation: slideExitUp 0.3s ease-in forwards;
+}
+
+/* Slide down to enter (new content drops in from above) */
+.mayo-announcement-item.mayo-slide-enter-down {
+    animation: slideEnterDown 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes slideExitUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100%) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes slideEnterDown {
+    0% {
+        transform: translateY(-150%) scale(0.8);
+        opacity: 0;
+    }
+    60% {
+        transform: translateY(5%) scale(1.02);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
 }
 
 .mayo-announcement-icon {

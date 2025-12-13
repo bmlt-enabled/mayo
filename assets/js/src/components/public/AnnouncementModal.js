@@ -1,7 +1,12 @@
 import { useEffect } from '@wordpress/element';
 import { monthNames } from '../../util';
 
-const AnnouncementModal = ({ events, timeFormat, onClose }) => {
+const AnnouncementModal = ({ events, timeFormat, onClose, backgroundColor, textColor }) => {
+    // Build custom styles for header if colors are provided
+    const headerStyle = {};
+    if (backgroundColor) headerStyle.background = backgroundColor;
+    if (textColor) headerStyle.color = textColor;
+
     // Close on escape key and prevent body scroll
     useEffect(() => {
         const handleEscape = (e) => {
@@ -51,7 +56,7 @@ const AnnouncementModal = ({ events, timeFormat, onClose }) => {
                     <span className="dashicons dashicons-no-alt"></span>
                 </button>
 
-                <div className="mayo-announcement-modal-header">
+                <div className="mayo-announcement-modal-header" style={headerStyle}>
                     <span className="dashicons dashicons-megaphone"></span>
                     <h2>Announcements</h2>
                 </div>

@@ -38,9 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     announcementContainers.forEach(container => {
         const instanceAttr = container.dataset.instance;
         // Handle both shortcode (numeric) and widget (widget_X) instances
-        const settingsKey = instanceAttr.startsWith('widget_')
-            ? `mayoAnnouncementSettings_${instanceAttr}`
-            : `mayoAnnouncementSettings_${instanceAttr}`;
+        const settingsKey = `mayoAnnouncementSettings_${instanceAttr}`;
         const settings = window[settingsKey] || {};
         render(<EventProvider><EventAnnouncement settings={settings} /></EventProvider>, container);
     });

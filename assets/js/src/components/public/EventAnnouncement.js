@@ -15,6 +15,8 @@ const EventAnnouncement = ({ settings = {} }) => {
     const categories = settings.categories || '';
     const tags = settings.tags || '';
     const timeFormat = settings.timeFormat || '12hour';
+    const backgroundColor = settings.backgroundColor || '';
+    const textColor = settings.textColor || '';
 
     // Generate a unique dismissal key based on event IDs
     const getDismissalKey = useCallback((eventIds) => {
@@ -59,7 +61,7 @@ const EventAnnouncement = ({ settings = {} }) => {
         const fetchAnnouncements = async () => {
             setLoading(true);
             try {
-                let endpoint = '/events?status=publish&per_page=20';
+                let endpoint = '/events?status=publish&per_page=20&archive=false';
 
                 if (categories) {
                     endpoint += `&categories=${encodeURIComponent(categories)}`;
@@ -114,12 +116,25 @@ const EventAnnouncement = ({ settings = {} }) => {
 
     // Carousel navigation
     const handlePrev = useCallback(() => {
-        setCurrentIndex(prev => (prev === 0 ? events.length - 1 : prev - 1));
+        setCurrentIndex(prev => {
+            const newIndex = prev === 0 ? events.length - 1 : prev - 1;
+            return newIndex;
+        });
     }, [events.length]);
 
     const handleNext = useCallback(() => {
-        setCurrentIndex(prev => (prev === events.length - 1 ? 0 : prev + 1));
+        setCurrentIndex(prev => {
+            const newIndex = prev >= events.length - 1 ? 0 : prev + 1;
+            return newIndex;
+        });
     }, [events.length]);
+
+    // Reset currentIndex if it's out of bounds when events change
+    useEffect(() => {
+        if (events.length > 0 && currentIndex >= events.length) {
+            setCurrentIndex(0);
+        }
+    }, [events.length, currentIndex]);
 
     // Don't render anything if loading or no events
     if (loading || events.length === 0) {
@@ -132,6 +147,8 @@ const EventAnnouncement = ({ settings = {} }) => {
             <AnnouncementBellIcon
                 count={events.length}
                 onClick={handleReopen}
+                backgroundColor={backgroundColor}
+                textColor={textColor}
             />
         );
     }
@@ -143,6 +160,8 @@ const EventAnnouncement = ({ settings = {} }) => {
                 events={events}
                 timeFormat={timeFormat}
                 onClose={handleDismiss}
+                backgroundColor={backgroundColor}
+                textColor={textColor}
             />
         );
     }
@@ -155,6 +174,8 @@ const EventAnnouncement = ({ settings = {} }) => {
             onPrev={handlePrev}
             onNext={handleNext}
             onClose={handleDismiss}
+            backgroundColor={backgroundColor}
+            textColor={textColor}
         />
     );
 };
