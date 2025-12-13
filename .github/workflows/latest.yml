@@ -11,7 +11,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     steps:
       - name: Check out code 🛒
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP 🐫
         uses: shivammathur/setup-php@v2
@@ -37,7 +37,7 @@ jobs:
     needs: [ lint ]
     steps:
       - name: Check out code 🛒
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         id: code-checkout
 
       - name: Prepare to deploy 🔧
