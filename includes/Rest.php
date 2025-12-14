@@ -480,10 +480,12 @@ class Rest {
                 'posts_per_page' => -1,
                 'post_status' => $status,
                 'meta_query' => $recurring_meta_query,
-                'category_name' => $categories,
-                'tag' => $tags
             ];
-            
+
+            // Merge in taxonomy args (handles both include and exclude with '-' prefix)
+            $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+            $args = array_merge($args, $taxonomy_args);
+
             $recurring_posts = get_posts($args);
             
             // Process these recurring posts and add only future instances
@@ -598,6 +600,107 @@ class Rest {
     }
     
     /**
+     * Helper method to parse categories/tags string and separate includes from excludes
+     * Items prefixed with '-' are excluded, others are included
+     */
+    private static function parse_taxonomy_filter($filter_string) {
+        if (empty($filter_string)) {
+            return ['include' => '', 'exclude' => ''];
+        }
+
+        $items = array_map('trim', explode(',', $filter_string));
+        $include = [];
+        $exclude = [];
+
+        foreach ($items as $item) {
+            if (empty($item)) {
+                continue;
+            }
+            if (strpos($item, '-') === 0) {
+                // Remove the leading '-' and add to exclude list
+                $exclude[] = substr($item, 1);
+            } else {
+                $include[] = $item;
+            }
+        }
+
+        return [
+            'include' => implode(',', $include),
+            'exclude' => implode(',', $exclude)
+        ];
+    }
+
+    /**
+     * Helper method to build taxonomy query args for categories and tags
+     * Handles both inclusion and exclusion (items prefixed with '-')
+     */
+    private static function build_taxonomy_args($categories, $tags) {
+        $cat_filter = self::parse_taxonomy_filter($categories);
+        $tag_filter = self::parse_taxonomy_filter($tags);
+
+        $args = [];
+        $tax_query = [];
+
+        // Handle category inclusion
+        if (!empty($cat_filter['include'])) {
+            $args['category_name'] = $cat_filter['include'];
+        }
+
+        // Handle category exclusion via tax_query
+        if (!empty($cat_filter['exclude'])) {
+            $exclude_cat_slugs = array_map('trim', explode(',', $cat_filter['exclude']));
+            $exclude_cat_ids = [];
+            foreach ($exclude_cat_slugs as $slug) {
+                $term = get_term_by('slug', $slug, 'category');
+                if ($term) {
+                    $exclude_cat_ids[] = $term->term_id;
+                }
+            }
+            if (!empty($exclude_cat_ids)) {
+                $tax_query[] = [
+                    'taxonomy' => 'category',
+                    'field' => 'term_id',
+                    'terms' => $exclude_cat_ids,
+                    'operator' => 'NOT IN'
+                ];
+            }
+        }
+
+        // Handle tag inclusion
+        if (!empty($tag_filter['include'])) {
+            $args['tag'] = $tag_filter['include'];
+        }
+
+        // Handle tag exclusion via tax_query
+        if (!empty($tag_filter['exclude'])) {
+            $exclude_tag_slugs = array_map('trim', explode(',', $tag_filter['exclude']));
+            $exclude_tag_ids = [];
+            foreach ($exclude_tag_slugs as $slug) {
+                $term = get_term_by('slug', $slug, 'post_tag');
+                if ($term) {
+                    $exclude_tag_ids[] = $term->term_id;
+                }
+            }
+            if (!empty($exclude_tag_ids)) {
+                $tax_query[] = [
+                    'taxonomy' => 'post_tag',
+                    'field' => 'term_id',
+                    'terms' => $exclude_tag_ids,
+                    'operator' => 'NOT IN'
+                ];
+            }
+        }
+
+        // Add tax_query if we have any exclusions
+        if (!empty($tax_query)) {
+            $tax_query['relation'] = 'AND';
+            $args['tax_query'] = $tax_query;
+        }
+
+        return $args;
+    }
+
+    /**
      * Helper method to query events with the given parameters
      */
     private static function query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $min_date = null) {
@@ -636,14 +739,17 @@ class Rest {
             $meta_query['relation'] = $relation;
         }
 
+        // Build base args
         $args = [
             'post_type' => 'mayo_event',
             'posts_per_page' => -1,
             'post_status' => $status,
             'meta_query' => $meta_query,
-            'category_name' => $categories,
-            'tag' => $tags
         ];
+
+        // Merge in taxonomy args (handles both include and exclude with '-' prefix)
+        $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+        $args = array_merge($args, $taxonomy_args);
 
         // Get posts with error handling
         $posts = get_posts($args);

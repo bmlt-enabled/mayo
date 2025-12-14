@@ -1,6 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useEventProvider } from '../providers/EventProvider';
-import { formatTime, timeFormat, formatTimezone, formatRecurringPattern, apiFetch } from '../../util';
+import { formatTime, formatTimezone, formatRecurringPattern, apiFetch } from '../../util';
 import LocationAddress from './LocationAddress';
 
 const EventDetails = () => {
@@ -119,12 +119,12 @@ const EventDetails = () => {
                         <div className="mayo-single-event-datetime">
                             <h3>Date & Time</h3>
                             <p>
-                                <strong>Start:</strong> {event.meta.event_start_date} at {formatTime(event.meta.event_start_time, timeFormat)}
+                                <strong>Start:</strong> {event.meta.event_start_date} at {formatTime(event.meta.event_start_time, '12hour')}
                                 {event.meta.timezone && ` (${formatTimezone(event.meta.timezone)})`}
                             </p>
                             {(event.meta.event_end_date || event.meta.event_end_time) && (
                                 <p>
-                                    <strong>End:</strong> {event.meta.event_end_date || event.meta.event_start_date} at {formatTime(event.meta.event_end_time, timeFormat)}
+                                    <strong>End:</strong> {event.meta.event_end_date || event.meta.event_start_date} at {formatTime(event.meta.event_end_time, '12hour')}
                                 </p>
                             )}
                         </div>

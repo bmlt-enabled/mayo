@@ -36,16 +36,16 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>categories</td>
-                            <td>Filter by category slugs (comma-separated)</td>
+                            <td>Filter by category slugs (comma-separated). Prefix a slug with a minus sign (-) to exclude it.</td>
                             <td>empty (all categories)</td>
-                            <td>e.g., <pre>meetings,workshops</pre> (is an or condition) or <pre>meetings+workshops</pre> (is an and condition).  For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#category-parameters">Category Parameters</a>.</td>
+                            <td>e.g., <pre>meetings,workshops</pre> (include only meetings or workshops), <pre>meetings+workshops</pre> (is an and condition), or <pre>-meetings,-workshops</pre> (exclude meetings and workshops). For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#category-parameters">Category Parameters</a>.</td>
                             <td>Yes</td>
                         </tr>
                         <tr>
                             <td>tags</td>
-                            <td>Filter by tag slugs (comma-separated)</td>
+                            <td>Filter by tag slugs (comma-separated). Prefix a slug with a minus sign (-) to exclude it.</td>
                             <td>empty (all tags)</td>
-                            <td>e.g., <pre>featured,ticketed</pre> (is an or condition) or <pre>featured+ticketed</pre> (is an and condition).  For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#tag-parameters">Tag Parameters</a>.</td>
+                            <td>e.g., <pre>featured,ticketed</pre> (include only featured or ticketed), <pre>featured+ticketed</pre> (is an and condition), or <pre>-featured,-ticketed</pre> (exclude featured and ticketed). For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#tag-parameters">Tag Parameters</a>.</td>
                             <td>Yes</td>
                         </tr>
                         <tr>
@@ -124,11 +124,17 @@ const ShortcodesDocs = () => {
                 <h3>Example with Parameters</h3>
                 <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" order="ASC" timezone="America/New_York" view="calendar"]</code></pre>
 
+                <h3>Example with Category/Tag Exclusions</h3>
+                <pre><code>[mayo_event_list categories="-announcements,-alerts" tags="-archived"]</code></pre>
+                <p><em>Shows all events except those with the "announcements" or "alerts" categories, and excludes the "archived" tag.</em></p>
+
                 <h3>Example with Querystring Overrides</h3>
                 <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&order=DESC&timezone=America/New_York&infinite_scroll=false&per_page=20&view=calendar</code></pre>
                 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
+                    <li>Prefix category or tag slugs with a minus sign (-) to exclude them from the event list</li>
+                    <li>You can mix inclusions and exclusions: <code>categories="meetings,-cancelled"</code> shows meetings but not cancelled ones</li>
                     <li>The <code>view</code> parameter allows you to display events in either a list or calendar format. Users can toggle between views using the buttons in the header.</li>
                     <li>Local events are always included by default unless specifically excluded</li>
                     <li>To include only local events, use <code>source_ids="local"</code></li>
