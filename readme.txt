@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.5.2
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,7 +187,7 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
-= 1.5.2 =
+= 1.6.0 =
 * Added announcement feature for displaying event-based announcements as banners or modals.
 * Added background_color and text_color parameters to [mayo_announcement] shortcode and widget for custom styling.
 * New [mayo_announcement] shortcode with support for mode (banner/modal), categories, tags, and time_format parameters.
@@ -196,6 +196,7 @@ This project is licensed under the GPL v2 or later.
 * Announcements use event start_date as embargo (don't show until then) and end_date as expiration.
 * Added dismissal feature with 24-hour persistence - dismissed announcements show a bell icon with badge count to re-open.
 * New "Mayo Event Announcements" widget for displaying announcements site-wide without editing templates.
+* You can now exclude categories and tags on [mayo_event_list] using the minus sign.
 
 = 1.5.1 =
 * Calendar view now uses full width instead of being constrained to 800px.
