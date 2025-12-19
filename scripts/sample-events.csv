@@ -1,0 +1,4 @@
+event_name,description,event_type,event_start_date,event_end_date,event_start_time,event_end_time,timezone,location_name,location_address,location_details,contact_name,email,service_body,categories,tags
+"Annual Convention 2025","Join us for our annual convention featuring speakers, workshops, and fellowship.","convention",2025-03-15,2025-03-17,09:00,17:00,America/New_York,"Marriott Downtown","123 Main Street, New York, NY 10001","Ballroom A on the 2nd floor",John Smith,john@example.com,1,,
+"Recovery Workshop","A workshop focused on the 12 steps of recovery.","workshop",2025-02-20,2025-02-20,18:00,21:00,America/Chicago,"Community Center","456 Oak Avenue, Chicago, IL 60601","Room 101",Jane Doe,jane@example.com,2,,
+"Spring Retreat","Weekend retreat in the mountains.","retreat",2025-04-10,2025-04-12,14:00,12:00,America/Denver,"Mountain Lodge","789 Pine Road, Denver, CO 80201",,Bob Wilson,bob@example.com,0,,
