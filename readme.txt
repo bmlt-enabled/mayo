@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.6.2 =
 * Fixed archive list not showing past occurrences of recurring events. [#168]
+* Fixed second event submission failing when single service body is configured. [#177]
 * Moved Mayo menu higher in admin sidebar (above Appearance) for easier access.
 
 = 1.6.1 =

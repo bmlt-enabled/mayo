@@ -291,7 +291,10 @@ const EventForm = () => {
                     text: 'Event submitted successfully!' 
                 });
 
-                // Reset form
+                // Reset form - preserve service_body if only one is configured
+                const defaultIds = serviceBodySettings.default_service_bodies?.split(',').map(id => id.trim()).filter(id => id);
+                const preservedServiceBody = (defaultIds && defaultIds.length === 1) ? defaultIds[0] : '';
+
                 setFormData({
                     event_name: '',
                     event_type: '',
@@ -307,7 +310,7 @@ const EventForm = () => {
                     location_details: '',
                     categories: [],
                     tags: [],
-                    service_body: '',
+                    service_body: preservedServiceBody,
                     email: '',
                     contact_name: '',
                     recurring_pattern: {
