@@ -66,7 +66,8 @@ class Admin {
             'manage_options',
             'mayo-events',
             [__CLASS__, 'render_admin_page'],
-            'dashicons-calendar'
+            'dashicons-calendar',
+            58 // Position above Appearance (60)
         );
 
         add_submenu_page(
