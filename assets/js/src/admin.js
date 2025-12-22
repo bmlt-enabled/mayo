@@ -5,6 +5,7 @@ import Settings from './components/admin/Settings';
 import CssClassesDocs from './components/admin/CssClassesDocs';
 import ApiDocs from './components/admin/ApiDocs';
 import './plugins/event-sidebar';
+import './plugins/announcement-sidebar';
 
 document.addEventListener('DOMContentLoaded', () => {
     const shortcodesContainer = document.getElementById('mayo-shortcode-root');

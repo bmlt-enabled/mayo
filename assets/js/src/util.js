@@ -121,7 +121,11 @@ export const formatRecurringPattern = (pattern) => {
  * @returns {Promise} Fetch promise
  */
 export const apiFetch = async (endpoint, options = {}) => {
-    const baseUrl = window.mayoApiSettings?.root || window.wpApiSettings?.root || '/wp-json';
+    let baseUrl = window.mayoApiSettings?.root || window.wpApiSettings?.root || '/wp-json/';
+    // Ensure baseUrl ends with a trailing slash
+    if (!baseUrl.endsWith('/')) {
+        baseUrl += '/';
+    }
     const url = `${baseUrl}event-manager/v1${endpoint}`;
     
     // Check for nonce in various places

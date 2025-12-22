@@ -44,6 +44,32 @@ class Rest {
                 'callback' => [__CLASS__, 'bmltenabled_mayo_get_event_details'],
                 'permission_callback' => '__return_true', // Adjust permissions as needed
             ]);
+
+            // Announcement endpoints
+            register_rest_route('event-manager/v1', '/announcements', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_announcements'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            register_rest_route('event-manager/v1', '/announcement/(?P<id>\d+)', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_announcement'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            register_rest_route('event-manager/v1', '/events/search', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'search_events'],
+                'permission_callback' => '__return_true', // Public read access to published events
+            ]);
+
+            // Get single event by ID
+            register_rest_route('event-manager/v1', '/events/(?P<id>\d+)', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_event_by_id'],
+                'permission_callback' => '__return_true',
+            ]);
         });
     }
 
@@ -1261,7 +1287,10 @@ class Rest {
         // Get categories and tags
         $data['categories'] = static::get_terms($post, 'category');
         $data['tags'] = static::get_terms($post, 'post_tag');
-        
+
+        // Get linked announcements (active only for public display)
+        $data['linked_announcements'] = Announcement::get_announcements_for_event($post->ID);
+
         return $data;
     }
 
@@ -1437,6 +1466,250 @@ class Rest {
         }
         
         return $sanitized_sources;
+    }
+
+    /**
+     * Get announcements with optional filtering
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_announcements($request) {
+        $params = $request->get_params();
+
+        $priority = isset($params['priority']) ? sanitize_text_field($params['priority']) : '';
+        $categories = isset($params['categories']) ? sanitize_text_field($params['categories']) : '';
+        $tags = isset($params['tags']) ? sanitize_text_field($params['tags']) : '';
+        $linked_event = isset($params['linked_event']) ? intval($params['linked_event']) : 0;
+        $active_only = !isset($params['active']) || $params['active'] !== 'false';
+
+        $today = current_time('Y-m-d');
+
+        $args = [
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+        ];
+
+        $meta_query = [];
+
+        // Filter by active display window
+        if ($active_only) {
+            $meta_query[] = [
+                'relation' => 'OR',
+                [
+                    'key' => 'display_start_date',
+                    'value' => $today,
+                    'compare' => '<=',
+                    'type' => 'DATE'
+                ],
+                [
+                    'key' => 'display_start_date',
+                    'compare' => 'NOT EXISTS'
+                ],
+                [
+                    'key' => 'display_start_date',
+                    'value' => '',
+                    'compare' => '='
+                ]
+            ];
+            $meta_query[] = [
+                'relation' => 'OR',
+                [
+                    'key' => 'display_end_date',
+                    'value' => $today,
+                    'compare' => '>=',
+                    'type' => 'DATE'
+                ],
+                [
+                    'key' => 'display_end_date',
+                    'compare' => 'NOT EXISTS'
+                ],
+                [
+                    'key' => 'display_end_date',
+                    'value' => '',
+                    'compare' => '='
+                ]
+            ];
+        }
+
+        // Filter by priority
+        if (!empty($priority)) {
+            $meta_query[] = [
+                'key' => 'priority',
+                'value' => $priority,
+                'compare' => '='
+            ];
+        }
+
+        // Filter by linked event
+        if ($linked_event > 0) {
+            $meta_query[] = [
+                'key' => 'linked_events',
+                'value' => 'i:' . intval($linked_event) . ';',
+                'compare' => 'LIKE'
+            ];
+        }
+
+        if (!empty($meta_query)) {
+            $meta_query['relation'] = 'AND';
+            $args['meta_query'] = $meta_query;
+        }
+
+        // Handle taxonomy filters
+        $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+        $args = array_merge($args, $taxonomy_args);
+
+        $posts = get_posts($args);
+
+        $announcements = [];
+        foreach ($posts as $post) {
+            $announcements[] = self::format_announcement($post);
+        }
+
+        // Sort by priority (urgent first, then high, normal, low)
+        usort($announcements, function($a, $b) {
+            $priority_order = ['urgent' => 0, 'high' => 1, 'normal' => 2, 'low' => 3];
+            return ($priority_order[$a['priority']] ?? 2) - ($priority_order[$b['priority']] ?? 2);
+        });
+
+        return new \WP_REST_Response([
+            'announcements' => $announcements,
+            'total' => count($announcements)
+        ]);
+    }
+
+    /**
+     * Get a single announcement by ID
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public static function get_announcement($request) {
+        $id = intval($request['id']);
+        $post = get_post($id);
+
+        if (!$post || $post->post_type !== 'mayo_announcement') {
+            return new \WP_Error('not_found', 'Announcement not found', ['status' => 404]);
+        }
+
+        return new \WP_REST_Response(self::format_announcement($post));
+    }
+
+    /**
+     * Search events for linking in announcement editor
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function search_events($request) {
+        $search = isset($request['search']) ? sanitize_text_field($request['search']) : '';
+        $limit = isset($request['limit']) ? intval($request['limit']) : 20;
+        $include = isset($request['include']) ? sanitize_text_field($request['include']) : '';
+
+        $args = [
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish',
+            'posts_per_page' => $limit,
+            'orderby' => 'meta_value',
+            'meta_key' => 'event_start_date',
+            'order' => 'ASC',
+        ];
+
+        // If include parameter is set, fetch specific event(s) by ID
+        if (!empty($include)) {
+            $ids = array_map('intval', explode(',', $include));
+            $args['post__in'] = $ids;
+            $args['posts_per_page'] = count($ids);
+        } elseif (!empty($search)) {
+            $args['s'] = $search;
+        }
+
+        $posts = get_posts($args);
+
+        $events = [];
+        foreach ($posts as $post) {
+            $events[] = [
+                'id' => $post->ID,
+                'title' => $post->post_title,
+                'start_date' => get_post_meta($post->ID, 'event_start_date', true),
+                'permalink' => get_permalink($post->ID),
+                'edit_link' => get_edit_post_link($post->ID, 'raw'),
+            ];
+        }
+
+        return new \WP_REST_Response([
+            'events' => $events
+        ]);
+    }
+
+    /**
+     * Get a single event by ID
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public static function get_event_by_id($request) {
+        $id = intval($request['id']);
+        $post = get_post($id);
+
+        if (!$post || $post->post_type !== 'mayo_event' || $post->post_status !== 'publish') {
+            return new \WP_Error('not_found', 'Event not found', ['status' => 404]);
+        }
+
+        return new \WP_REST_Response([
+            'id' => $post->ID,
+            'title' => $post->post_title,
+            'start_date' => get_post_meta($post->ID, 'event_start_date', true),
+            'end_date' => get_post_meta($post->ID, 'event_end_date', true),
+            'start_time' => get_post_meta($post->ID, 'event_start_time', true),
+            'end_time' => get_post_meta($post->ID, 'event_end_time', true),
+            'permalink' => get_permalink($post->ID),
+            'edit_link' => get_edit_post_link($post->ID, 'raw'),
+        ]);
+    }
+
+    /**
+     * Format announcement data for API response
+     *
+     * @param WP_Post $post
+     * @return array
+     */
+    private static function format_announcement($post) {
+        $linked_events = get_post_meta($post->ID, 'linked_events', true) ?: [];
+        $linked_event_data = [];
+
+        if (is_array($linked_events)) {
+            foreach ($linked_events as $event_id) {
+                $event = get_post($event_id);
+                if ($event && $event->post_type === 'mayo_event') {
+                    $linked_event_data[] = [
+                        'id' => $event_id,
+                        'title' => $event->post_title,
+                        'permalink' => get_permalink($event_id),
+                        'start_date' => get_post_meta($event_id, 'event_start_date', true),
+                    ];
+                }
+            }
+        }
+
+        $permalink = get_permalink($post->ID);
+        return [
+            'id' => $post->ID,
+            'title' => $post->post_title,
+            'content' => apply_filters('the_content', $post->post_content),
+            'excerpt' => get_the_excerpt($post),
+            'permalink' => $permalink,
+            'link' => $permalink,
+            'edit_link' => get_edit_post_link($post->ID, 'raw'),
+            'display_start_date' => get_post_meta($post->ID, 'display_start_date', true),
+            'display_end_date' => get_post_meta($post->ID, 'display_end_date', true),
+            'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
+            'linked_events' => $linked_event_data,
+            'featured_image' => get_the_post_thumbnail_url($post->ID, 'medium'),
+            'categories' => self::get_terms($post, 'category'),
+            'tags' => self::get_terms($post, 'post_tag'),
+        ];
     }
 }
 

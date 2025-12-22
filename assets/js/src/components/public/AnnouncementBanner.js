@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { monthNames } from '../../util';
 
-const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, onClose, backgroundColor, textColor, autoRotateInterval = 5000 }) => {
+const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClose, backgroundColor, textColor, autoRotateInterval = 5000 }) => {
     const bannerRef = useRef(null);
     const [isPaused, setIsPaused] = useState(false);
 
@@ -26,11 +25,11 @@ const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, 
             document.body.style.paddingTop = '';
             window.removeEventListener('resize', updateBodyPadding);
         };
-    }, [events]);
+    }, [announcements]);
 
     // Auto-rotate through announcements
     useEffect(() => {
-        if (events.length <= 1 || isPaused) {
+        if (announcements.length <= 1 || isPaused) {
             return;
         }
 
@@ -39,34 +38,45 @@ const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, 
         }, autoRotateInterval);
 
         return () => clearInterval(interval);
-    }, [events.length, isPaused, onNext, autoRotateInterval]);
+    }, [announcements.length, isPaused, onNext, autoRotateInterval]);
 
-    if (events.length === 0) {
+    if (announcements.length === 0) {
         return null;
     }
 
-    const currentEvent = events[currentIndex];
+    const currentAnnouncement = announcements[currentIndex];
 
-    // Guard against undefined event (can happen during state transitions)
-    if (!currentEvent) {
+    // Guard against undefined announcement (can happen during state transitions)
+    if (!currentAnnouncement) {
         return null;
     }
 
-    const hasMultiple = events.length > 1;
+    const hasMultiple = announcements.length > 1;
 
-    // Format date for display
-    const formatEventDate = (event) => {
-        if (!event.meta.event_start_date) return '';
-
-        const startDate = new Date(event.meta.event_start_date + 'T00:00:00');
-        const hasEndDate = event.meta.event_end_date && event.meta.event_end_date !== event.meta.event_start_date;
-
-        if (hasEndDate) {
-            const endDate = new Date(event.meta.event_end_date + 'T00:00:00');
-            return `${monthNames[startDate.getMonth()]} ${startDate.getDate()} - ${monthNames[endDate.getMonth()]} ${endDate.getDate()}`;
-        }
-
-        return `${monthNames[startDate.getMonth()]} ${startDate.getDate()}`;
+    // Get priority badge
+    const getPriorityBadge = (priority) => {
+        if (!priority || priority === 'normal') return null;
+        const colors = {
+            low: '#6c757d',
+            high: '#ff9800',
+            urgent: '#dc3545'
+        };
+        return (
+            <span
+                className="mayo-announcement-priority"
+                style={{
+                    backgroundColor: colors[priority] || colors.normal,
+                    color: '#fff',
+                    padding: '2px 6px',
+                    borderRadius: '3px',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    marginRight: '8px'
+                }}
+            >
+                {priority}
+            </span>
+        );
     };
 
     return (
@@ -93,17 +103,31 @@ const AnnouncementBanner = ({ events, currentIndex, timeFormat, onPrev, onNext, 
                         <span className="mayo-announcement-icon">
                             <span className="dashicons dashicons-megaphone"></span>
                         </span>
-                        <span className="mayo-announcement-date">
-                            {formatEventDate(currentEvent)}
-                        </span>
+                        {getPriorityBadge(currentAnnouncement.priority)}
                         <a
-                            href={currentEvent.link}
+                            href={currentAnnouncement.link}
                             className="mayo-announcement-title"
-                            dangerouslySetInnerHTML={{ __html: currentEvent.title.rendered }}
+                            dangerouslySetInnerHTML={{ __html: currentAnnouncement.title }}
                         />
+                        {currentAnnouncement.linked_events && currentAnnouncement.linked_events.length > 0 && (
+                            <span className="mayo-announcement-linked-events" style={{ marginLeft: '8px', fontSize: '12px', opacity: 0.9 }}>
+                                <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '12px', marginRight: '4px', verticalAlign: 'middle' }}></span>
+                                {currentAnnouncement.linked_events.map((event, index) => (
+                                    <span key={event.id}>
+                                        <a
+                                            href={event.permalink}
+                                            style={{ color: 'inherit', textDecoration: 'underline' }}
+                                        >
+                                            {event.title}
+                                        </a>
+                                        {index < currentAnnouncement.linked_events.length - 1 && ', '}
+                                    </span>
+                                ))}
+                            </span>
+                        )}
                         {hasMultiple && (
                             <span className="mayo-announcement-counter">
-                                {currentIndex + 1} / {events.length}
+                                {currentIndex + 1} / {announcements.length}
                             </span>
                         )}
                     </div>

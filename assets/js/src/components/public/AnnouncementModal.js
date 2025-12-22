@@ -1,7 +1,6 @@
 import { useEffect } from '@wordpress/element';
-import { monthNames } from '../../util';
 
-const AnnouncementModal = ({ events, timeFormat, onClose, backgroundColor, textColor }) => {
+const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor, textColor }) => {
     // Build custom styles for header if colors are provided
     const headerStyle = {};
     if (backgroundColor) headerStyle.background = backgroundColor;
@@ -30,22 +29,33 @@ const AnnouncementModal = ({ events, timeFormat, onClose, backgroundColor, textC
         }
     };
 
-    // Format date for display
-    const formatEventDate = (event) => {
-        if (!event.meta.event_start_date) return '';
-
-        const startDate = new Date(event.meta.event_start_date + 'T00:00:00');
-        const hasEndDate = event.meta.event_end_date && event.meta.event_end_date !== event.meta.event_start_date;
-
-        if (hasEndDate) {
-            const endDate = new Date(event.meta.event_end_date + 'T00:00:00');
-            return `${monthNames[startDate.getMonth()]} ${startDate.getDate()} - ${monthNames[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
-        }
-
-        return `${monthNames[startDate.getMonth()]} ${startDate.getDate()}, ${startDate.getFullYear()}`;
+    // Get priority badge
+    const getPriorityBadge = (priority) => {
+        if (!priority || priority === 'normal') return null;
+        const colors = {
+            low: '#6c757d',
+            high: '#ff9800',
+            urgent: '#dc3545'
+        };
+        return (
+            <span
+                className="mayo-announcement-priority"
+                style={{
+                    backgroundColor: colors[priority] || colors.normal,
+                    color: '#fff',
+                    padding: '2px 6px',
+                    borderRadius: '3px',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    marginRight: '8px'
+                }}
+            >
+                {priority}
+            </span>
+        );
     };
 
-    if (events.length === 0) {
+    if (announcements.length === 0) {
         return null;
     }
 
@@ -63,23 +73,40 @@ const AnnouncementModal = ({ events, timeFormat, onClose, backgroundColor, textC
 
                 <div className="mayo-announcement-modal-body">
                     <ul className="mayo-announcement-list">
-                        {events.map(event => (
-                            <li key={event.id} className="mayo-announcement-list-item">
-                                <div className="mayo-announcement-list-date">
-                                    {formatEventDate(event)}
+                        {announcements.map(announcement => (
+                            <li key={announcement.id} className="mayo-announcement-list-item">
+                                <div className="mayo-announcement-list-header">
+                                    {getPriorityBadge(announcement.priority)}
                                 </div>
                                 <a
-                                    href={event.link}
+                                    href={announcement.link}
                                     className="mayo-announcement-list-title"
-                                    dangerouslySetInnerHTML={{ __html: event.title.rendered }}
+                                    dangerouslySetInnerHTML={{ __html: announcement.title }}
                                 />
-                                {event.content.rendered && (
+                                {announcement.excerpt && (
                                     <div
                                         className="mayo-announcement-list-excerpt"
                                         dangerouslySetInnerHTML={{
-                                            __html: event.content.rendered.replace(/<[^>]+>/g, '').substring(0, 150) + '...'
+                                            __html: announcement.excerpt.replace(/<[^>]+>/g, '').substring(0, 150) + '...'
                                         }}
                                     />
+                                )}
+                                {announcement.linked_events && announcement.linked_events.length > 0 && (
+                                    <div className="mayo-announcement-linked-events" style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                                        <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '14px', marginRight: '4px', verticalAlign: 'middle' }}></span>
+                                        <span style={{ marginRight: '4px' }}>Related:</span>
+                                        {announcement.linked_events.map((event, index) => (
+                                            <span key={event.id}>
+                                                <a
+                                                    href={event.permalink}
+                                                    style={{ color: '#0073aa', textDecoration: 'none' }}
+                                                >
+                                                    {event.title}
+                                                </a>
+                                                {index < announcement.linked_events.length - 1 && ', '}
+                                            </span>
+                                        ))}
+                                    </div>
                                 )}
                             </li>
                         ))}

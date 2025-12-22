@@ -121,12 +121,14 @@ class Frontend {
         $instance++;
 
         $defaults = [
-            'mode' => 'banner',      // 'banner' or 'modal'
-            'categories' => '',      // Comma-separated category slugs
-            'tags' => '',            // Comma-separated tag slugs
+            'mode' => 'banner',           // 'banner' or 'modal'
+            'categories' => '',           // Comma-separated category slugs
+            'tags' => '',                 // Comma-separated tag slugs
+            'priority' => '',             // Filter by priority (low/normal/high/urgent)
+            'show_linked_events' => 'false', // Show linked event titles
             'time_format' => '12hour',
-            'background_color' => '', // Custom background color (hex)
-            'text_color' => '',       // Custom text color (hex)
+            'background_color' => '',     // Custom background color (hex)
+            'text_color' => '',           // Custom text color (hex)
         ];
         $atts = shortcode_atts($defaults, $atts);
 
@@ -139,6 +141,8 @@ class Frontend {
             'mode' => $atts['mode'],
             'categories' => $atts['categories'],
             'tags' => $atts['tags'],
+            'priority' => $atts['priority'],
+            'showLinkedEvents' => $atts['show_linked_events'] === 'true',
             'timeFormat' => $atts['time_format'],
             'backgroundColor' => $atts['background_color'],
             'textColor' => $atts['text_color'],

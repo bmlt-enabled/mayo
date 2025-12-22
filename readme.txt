@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.6.2
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,19 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.7.0 =
+* Added dedicated Announcements post type (mayo_announcement) for flexible announcement management. [#195]
+* Announcements now have independent display windows (display_start_date/display_end_date) separate from events.
+* Added priority levels (low/normal/high/urgent) for announcements with priority-based styling and sort order.
+* Announcements can optionally be linked to one or more events for event promotions or recaps.
+* Added bidirectional linking UI: link events from announcement editor, view linked announcements from event editor.
+* Added "Create Announcement" button in event editor to quickly create an announcement for a specific event.
+* New REST API endpoints: GET /announcements, GET /announcement/{id}, GET /announcements/for-event/{event_id}.
+* Updated [mayo_announcement] shortcode with new parameters: priority, show_linked_events.
+* Added admin columns for announcement display window, priority, status (active/scheduled/expired), and linked events.
+* Added admin filter dropdown to filter announcements by status.
+* Updated shortcode documentation with new announcement features.
 
 = 1.6.2 =
 * Fixed archive list not showing past occurrences of recurring events. [#168]

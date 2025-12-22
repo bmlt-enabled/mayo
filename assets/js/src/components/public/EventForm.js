@@ -295,6 +295,10 @@ const EventForm = () => {
                 const defaultIds = serviceBodySettings.default_service_bodies?.split(',').map(id => id.trim()).filter(id => id);
                 const preservedServiceBody = (defaultIds && defaultIds.length === 1) ? defaultIds[0] : '';
 
+                console.log('Form reset - serviceBodySettings:', serviceBodySettings);
+                console.log('Form reset - defaultIds:', defaultIds);
+                console.log('Form reset - preservedServiceBody:', preservedServiceBody);
+
                 setFormData({
                     event_name: '',
                     event_type: '',
