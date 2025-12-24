@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing and displaying events.
- * Version: 1.7.0
+ * Version: 1.8.0
  * Author: bmlt-enabled
  * License: GPLv2 or later
  * Author URI: https://bmlt.app
@@ -20,7 +20,7 @@ if (! defined('ABSPATH') ) {
     exit; // Exit if accessed directly
 }
 
-define('MAYO_VERSION', '1.7.0');
+define('MAYO_VERSION', '1.8.0');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
@@ -29,9 +29,11 @@ require_once __DIR__ . '/includes/Rest.php';
 require_once __DIR__ . '/includes/CalendarFeed.php';
 require_once __DIR__ . '/includes/RssFeed.php';
 require_once __DIR__ . '/includes/Announcement.php';
+require_once __DIR__ . '/includes/Subscriber.php';
 require_once __DIR__ . '/includes/Widgets/AnnouncementWidget.php';
 
 use BmltEnabled\Mayo\Admin;
+use BmltEnabled\Mayo\Subscriber;
 use BmltEnabled\Mayo\Frontend;
 use BmltEnabled\Mayo\Rest;
 use BmltEnabled\Mayo\Announcement;
@@ -78,6 +80,9 @@ function Bmltenabled_Mayo_activate()
         Admin::register_post_type();
         Announcement::register_post_type();
     }
+
+    // Create subscribers table
+    Subscriber::create_table();
 
     // Flush rewrite rules after post types are registered
     flush_rewrite_rules();
@@ -170,3 +175,125 @@ function Bmltenabled_Mayo_enqueueAdminScripts()
     );
 }
 add_action('enqueue_block_editor_assets', 'Bmltenabled_Mayo_enqueueAdminScripts');
+
+/**
+ * Handle subscription confirmation and unsubscribe requests
+ *
+ * @return void
+ */
+function Bmltenabled_Mayo_handleSubscriptionRequests()
+{
+    // Handle confirmation
+    if (isset($_GET['mayo_confirm'])) {
+        $token = sanitize_text_field($_GET['mayo_confirm']);
+        $result = Subscriber::confirm($token);
+
+        // Display result page
+        Bmltenabled_Mayo_displaySubscriptionMessage(
+            $result['success'] ? 'Subscription Confirmed' : 'Confirmation Error',
+            $result['message'],
+            $result['success']
+        );
+        exit;
+    }
+
+    // Handle unsubscribe
+    if (isset($_GET['mayo_unsubscribe'])) {
+        $token = sanitize_text_field($_GET['mayo_unsubscribe']);
+        $result = Subscriber::unsubscribe($token);
+
+        // Display result page
+        Bmltenabled_Mayo_displaySubscriptionMessage(
+            $result['success'] ? 'Unsubscribed' : 'Unsubscribe Error',
+            $result['message'],
+            $result['success']
+        );
+        exit;
+    }
+}
+add_action('template_redirect', 'Bmltenabled_Mayo_handleSubscriptionRequests');
+
+/**
+ * Display a subscription-related message page
+ *
+ * @param string $title   Page title
+ * @param string $message Message to display
+ * @param bool   $success Whether this is a success message
+ *
+ * @return void
+ */
+function Bmltenabled_Mayo_displaySubscriptionMessage($title, $message, $success)
+{
+    $site_name = get_bloginfo('name');
+    $home_url = home_url();
+    $bg_color = $success ? '#d4edda' : '#f8d7da';
+    $text_color = $success ? '#155724' : '#721c24';
+    $border_color = $success ? '#c3e6cb' : '#f5c6cb';
+
+    ?>
+    <!DOCTYPE html>
+    <html <?php language_attributes(); ?>>
+    <head>
+        <meta charset="<?php bloginfo('charset'); ?>">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title><?php echo esc_html($title) . ' - ' . esc_html($site_name); ?></title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
+                    sans-serif;
+                background: #f1f1f1;
+                margin: 0;
+                padding: 40px 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: calc(100vh - 80px);
+            }
+            .message-box {
+                background: #fff;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                max-width: 500px;
+                text-align: center;
+            }
+            .message-box h1 {
+                margin: 0 0 20px;
+                font-size: 24px;
+                color: #333;
+            }
+            .message-box .alert {
+                padding: 15px 20px;
+                border-radius: 4px;
+                margin-bottom: 20px;
+                background: <?php echo $bg_color; ?>;
+                color: <?php echo $text_color; ?>;
+                border: 1px solid <?php echo $border_color; ?>;
+            }
+            .message-box a {
+                display: inline-block;
+                padding: 10px 20px;
+                background: #0073aa;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 4px;
+                margin-top: 10px;
+            }
+            .message-box a:hover {
+                background: #005a87;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="message-box">
+            <h1><?php echo esc_html($title); ?></h1>
+            <div class="alert"><?php echo esc_html($message); ?></div>
+            <a href="<?php echo esc_url($home_url); ?>">
+                Return to <?php echo esc_html($site_name); ?>
+            </a>
+        </div>
+    </body>
+    </html>
+    <?php
+}

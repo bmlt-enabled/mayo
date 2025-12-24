@@ -4,6 +4,7 @@ import EventList from './components/public/EventList';
 import EventArchive from './components/public/EventArchive';
 import EventDetails from './components/public/EventDetails';
 import EventAnnouncement from './components/public/EventAnnouncement';
+import SubscribeForm from './components/public/SubscribeForm';
 import { EventProvider } from './components/providers/EventProvider';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,5 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const settingsKey = `mayoAnnouncementSettings_${instanceAttr}`;
         const settings = window[settingsKey] || {};
         render(<EventProvider><EventAnnouncement settings={settings} /></EventProvider>, container);
+    });
+
+    // Initialize subscribe form containers
+    const subscribeContainers = document.querySelectorAll('.mayo-subscribe-container');
+    subscribeContainers.forEach(container => {
+        render(<SubscribeForm />, container);
     });
 });

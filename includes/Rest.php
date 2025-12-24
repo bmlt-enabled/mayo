@@ -70,6 +70,13 @@ class Rest {
                 'callback' => [__CLASS__, 'get_event_by_id'],
                 'permission_callback' => '__return_true',
             ]);
+
+            // Subscription endpoint
+            register_rest_route('event-manager/v1', '/subscribe', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'subscribe'],
+                'permission_callback' => '__return_true',
+            ]);
         });
     }
 
@@ -1728,6 +1735,32 @@ class Rest {
             'categories' => self::get_terms($post, 'category'),
             'tags' => self::get_terms($post, 'post_tag'),
         ];
+    }
+
+    /**
+     * Handle subscription requests
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function subscribe($request) {
+        $params = $request->get_params();
+
+        $email = isset($params['email']) ? sanitize_email($params['email']) : '';
+
+        if (empty($email)) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'missing_email',
+                'message' => 'Email address is required.'
+            ], 400);
+        }
+
+        $result = Subscriber::subscribe($email);
+
+        $status_code = $result['success'] ? 200 : 400;
+
+        return new \WP_REST_Response($result, $status_code);
     }
 }
 

@@ -9,6 +9,7 @@ class Frontend {
         add_shortcode('mayo_event_form', [__CLASS__, 'render_event_form']);
         add_shortcode('mayo_event_list', [__CLASS__, 'render_event_list']);
         add_shortcode('mayo_announcement', [__CLASS__, 'render_announcement']);
+        add_shortcode('mayo_subscribe', [__CLASS__, 'render_subscribe_form']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
         
         // Register the script early
@@ -154,6 +155,19 @@ class Frontend {
         );
     }
 
+    public static function render_subscribe_form($atts = []) {
+        static $instance = 0;
+        $instance++;
+
+        wp_enqueue_script('mayo-public');
+        wp_enqueue_style('mayo-public');
+
+        return sprintf(
+            '<div class="mayo-subscribe-container" data-instance="%d"></div>',
+            $instance
+        );
+    }
+
     public static function enqueue_scripts() {
         $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list') ||
                                 self::is_shortcode_present_in_widgets('mayo_announcement');
@@ -165,7 +179,8 @@ class Frontend {
         if ($post && (
             has_shortcode($post->post_content, 'mayo_event_form') ||
             has_shortcode($post->post_content, 'mayo_event_list') ||
-            has_shortcode($post->post_content, 'mayo_announcement')
+            has_shortcode($post->post_content, 'mayo_announcement') ||
+            has_shortcode($post->post_content, 'mayo_subscribe')
         )) {
             $should_enqueue = true;
         } elseif (is_post_type_archive('mayo_event') || is_singular('mayo_event')) {
