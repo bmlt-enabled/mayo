@@ -573,7 +573,7 @@ const EventBlockEditorSidebar = () => {
                             href={`${window.location.origin}/wp-admin/post-new.php?post_type=mayo_announcement&linked_event=${postId}`}
                             target="_blank"
                         >
-                            Create Announcement for This Event
+                            Create Announcement
                         </Button>
                     </div>
                 </PluginDocumentSettingPanel>
