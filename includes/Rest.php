@@ -1693,7 +1693,24 @@ class Rest {
             }
         }
 
+        // Calculate is_active based on display dates
+        $today = current_time('Y-m-d');
+        $display_start_date = get_post_meta($post->ID, 'display_start_date', true);
+        $display_end_date = get_post_meta($post->ID, 'display_end_date', true);
+
+        $is_active = true;
+        if ($display_start_date && $display_start_date > $today) {
+            $is_active = false;
+        }
+        if ($display_end_date && $display_end_date < $today) {
+            $is_active = false;
+        }
+
         $permalink = get_permalink($post->ID);
+
+        // Build edit link manually since get_edit_post_link may return null in REST context
+        $edit_link = admin_url('post.php?post=' . $post->ID . '&action=edit');
+
         return [
             'id' => $post->ID,
             'title' => $post->post_title,
@@ -1701,10 +1718,11 @@ class Rest {
             'excerpt' => get_the_excerpt($post),
             'permalink' => $permalink,
             'link' => $permalink,
-            'edit_link' => get_edit_post_link($post->ID, 'raw'),
-            'display_start_date' => get_post_meta($post->ID, 'display_start_date', true),
-            'display_end_date' => get_post_meta($post->ID, 'display_end_date', true),
+            'edit_link' => $edit_link,
+            'display_start_date' => $display_start_date,
+            'display_end_date' => $display_end_date,
             'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
+            'is_active' => $is_active,
             'linked_events' => $linked_event_data,
             'featured_image' => get_the_post_thumbnail_url($post->ID, 'medium'),
             'categories' => self::get_terms($post, 'category'),

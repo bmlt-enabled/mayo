@@ -537,14 +537,30 @@ const EventBlockEditorSidebar = () => {
                                                 fontWeight: 600
                                             }}>{announcement.priority}</span>
                                         </div>
-                                        <Button
-                                            isLink
-                                            href={announcement.edit_link}
-                                            target="_blank"
-                                            style={{ marginTop: '4px', fontSize: '12px' }}
-                                        >
-                                            Edit Announcement
-                                        </Button>
+                                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                            {announcement.edit_link && (
+                                                <a
+                                                    href={announcement.edit_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        padding: '4px 8px',
+                                                        fontSize: '11px',
+                                                        backgroundColor: '#f0f0f0',
+                                                        border: '1px solid #c3c4c7',
+                                                        borderRadius: '3px',
+                                                        textDecoration: 'none',
+                                                        color: '#2271b1',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    <span className="dashicons dashicons-edit" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
+                                                    Edit
+                                                </a>
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}
