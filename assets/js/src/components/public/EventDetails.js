@@ -7,6 +7,7 @@ const EventDetails = () => {
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [linkedAnnouncements, setLinkedAnnouncements] = useState([]);
     const { getServiceBodyName } = useEventProvider();
 
     useEffect(() => {
@@ -18,6 +19,10 @@ const EventDetails = () => {
                 const response = await apiFetch(`/event/${eventSlug}`);
                 if (response) {
                     setEvent(response);
+                    // Linked announcements are now included in the event response
+                    if (response.linked_announcements) {
+                        setLinkedAnnouncements(response.linked_announcements);
+                    }
                 } else {
                     throw new Error('Event not found');
                 }
@@ -61,6 +66,61 @@ const EventDetails = () => {
                     <header className="mayo-single-event-header">
                         <h1 className="mayo-single-event-title" dangerouslySetInnerHTML={{ __html: title.rendered }} />
                     </header>
+
+                    {linkedAnnouncements.length > 0 && (
+                        <div className="mayo-event-announcements">
+                            {linkedAnnouncements.map(announcement => {
+                                const priorityColors = {
+                                    urgent: '#dc3545',
+                                    high: '#ff9800',
+                                    normal: '#0073aa',
+                                    low: '#6c757d'
+                                };
+                                const borderColor = priorityColors[announcement.priority] || priorityColors.normal;
+
+                                return (
+                                    <div
+                                        key={announcement.id}
+                                        className="mayo-event-announcement-notice"
+                                        style={{
+                                            padding: '12px 16px',
+                                            marginBottom: '16px',
+                                            backgroundColor: '#fff8e1',
+                                            borderLeft: `4px solid ${borderColor}`,
+                                            borderRadius: '4px',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                            <span className="dashicons dashicons-megaphone" style={{ color: borderColor, fontSize: '18px' }}></span>
+                                            <strong style={{ fontSize: '15px' }}>{announcement.title}</strong>
+                                            {announcement.priority && announcement.priority !== 'normal' && (
+                                                <span
+                                                    style={{
+                                                        backgroundColor: borderColor,
+                                                        color: '#fff',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '3px',
+                                                        fontSize: '10px',
+                                                        textTransform: 'uppercase',
+                                                    }}
+                                                >
+                                                    {announcement.priority}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {announcement.excerpt && (
+                                            <p
+                                                style={{ margin: '8px 0 0', fontSize: '14px', color: '#555' }}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: announcement.excerpt.replace(/<[^>]+>/g, '').substring(0, 200) + (announcement.excerpt.length > 200 ? '...' : '')
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {event.featured_image && (
                         <div className="mayo-single-event-image">

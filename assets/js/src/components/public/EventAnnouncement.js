@@ -5,7 +5,7 @@ import AnnouncementBellIcon from './AnnouncementBellIcon';
 import { apiFetch } from '../../util';
 
 const EventAnnouncement = ({ settings = {} }) => {
-    const [events, setEvents] = useState([]);
+    const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dismissed, setDismissed] = useState(false);
     const [minimized, setMinimized] = useState(false);
@@ -14,20 +14,21 @@ const EventAnnouncement = ({ settings = {} }) => {
     const mode = settings.mode || 'banner';
     const categories = settings.categories || '';
     const tags = settings.tags || '';
+    const priority = settings.priority || '';
     const timeFormat = settings.timeFormat || '12hour';
     const backgroundColor = settings.backgroundColor || '';
     const textColor = settings.textColor || '';
 
-    // Generate a unique dismissal key based on event IDs
-    const getDismissalKey = useCallback((eventIds) => {
-        const hash = eventIds.sort().join('-');
+    // Generate a unique dismissal key based on announcement IDs
+    const getDismissalKey = useCallback((announcementIds) => {
+        const hash = announcementIds.sort().join('-');
         return `mayo_announcement_dismissed_${hash}`;
     }, []);
 
     // Check if announcements have been dismissed within 24 hours
-    const checkDismissed = useCallback((eventIds) => {
-        if (eventIds.length === 0) return false;
-        const key = getDismissalKey(eventIds);
+    const checkDismissed = useCallback((announcementIds) => {
+        if (announcementIds.length === 0) return false;
+        const key = getDismissalKey(announcementIds);
         const dismissedTime = localStorage.getItem(key);
         if (!dismissedTime) return false;
 
@@ -36,32 +37,13 @@ const EventAnnouncement = ({ settings = {} }) => {
         return Date.now() - timestamp < twentyFourHours;
     }, [getDismissalKey]);
 
-    // Filter events by current date (between start_date and end_date)
-    const filterByDateRange = useCallback((eventList) => {
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-
-        return eventList.filter(event => {
-            if (!event.meta.event_start_date) return false;
-
-            const startDate = new Date(event.meta.event_start_date + 'T00:00:00');
-            startDate.setHours(0, 0, 0, 0);
-
-            const endDateStr = event.meta.event_end_date || event.meta.event_start_date;
-            const endDate = new Date(endDateStr + 'T00:00:00');
-            endDate.setHours(23, 59, 59, 999);
-
-            // Show if today is between start and end dates (inclusive)
-            return now >= startDate && now <= endDate;
-        });
-    }, []);
-
-    // Fetch announcements
+    // Fetch announcements from the new announcements API
     useEffect(() => {
         const fetchAnnouncements = async () => {
             setLoading(true);
             try {
-                let endpoint = '/events?status=publish&per_page=20&archive=false';
+                // Use the new announcements endpoint which handles date filtering server-side
+                let endpoint = '/announcements?per_page=20';
 
                 if (categories) {
                     endpoint += `&categories=${encodeURIComponent(categories)}`;
@@ -69,75 +51,75 @@ const EventAnnouncement = ({ settings = {} }) => {
                 if (tags) {
                     endpoint += `&tags=${encodeURIComponent(tags)}`;
                 }
+                if (priority) {
+                    endpoint += `&priority=${encodeURIComponent(priority)}`;
+                }
 
                 const data = await apiFetch(endpoint);
-                const fetchedEvents = Array.isArray(data) ? data : (data.events || []);
+                const fetchedAnnouncements = Array.isArray(data) ? data : (data.announcements || []);
 
-                // Filter to only show events within their date range
-                const activeEvents = filterByDateRange(fetchedEvents);
-
-                setEvents(activeEvents);
+                setAnnouncements(fetchedAnnouncements);
 
                 // Check if already dismissed
-                const eventIds = activeEvents.map(e => e.id);
-                if (checkDismissed(eventIds)) {
+                const announcementIds = fetchedAnnouncements.map(a => a.id);
+                if (checkDismissed(announcementIds)) {
                     setDismissed(true);
                     setMinimized(true);
                 }
             } catch (err) {
                 console.error('Error fetching announcements:', err);
-                setEvents([]);
+                setAnnouncements([]);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchAnnouncements();
-    }, [categories, tags, filterByDateRange, checkDismissed]);
+    }, [categories, tags, priority, checkDismissed]);
 
     // Handle dismiss
     const handleDismiss = useCallback(() => {
-        const eventIds = events.map(e => e.id);
-        const key = getDismissalKey(eventIds);
+        const announcementIds = announcements.map(a => a.id);
+        const key = getDismissalKey(announcementIds);
         localStorage.setItem(key, Date.now().toString());
         setDismissed(true);
         setMinimized(true);
-    }, [events, getDismissalKey]);
+    }, [announcements, getDismissalKey]);
 
     // Handle re-open from bell icon
     const handleReopen = useCallback(() => {
         setDismissed(false);
         setMinimized(false);
         // Clear the dismissal from localStorage
-        const eventIds = events.map(e => e.id);
-        const key = getDismissalKey(eventIds);
+        const announcementIds = announcements.map(a => a.id);
+        const key = getDismissalKey(announcementIds);
         localStorage.removeItem(key);
-    }, [events, getDismissalKey]);
+    }, [announcements, getDismissalKey]);
 
     // Carousel navigation
     const handlePrev = useCallback(() => {
         setCurrentIndex(prev => {
-            const newIndex = prev === 0 ? events.length - 1 : prev - 1;
+            const newIndex = prev === 0 ? announcements.length - 1 : prev - 1;
             return newIndex;
         });
-    }, [events.length]);
+    }, [announcements.length]);
 
     const handleNext = useCallback(() => {
         setCurrentIndex(prev => {
-            const newIndex = prev >= events.length - 1 ? 0 : prev + 1;
+            const newIndex = prev >= announcements.length - 1 ? 0 : prev + 1;
             return newIndex;
         });
-    }, [events.length]);
+    }, [announcements.length]);
 
-    // Reset currentIndex if it's out of bounds when events change
+    // Reset currentIndex if it's out of bounds when announcements change
     useEffect(() => {
-        if (events.length > 0 && currentIndex >= events.length) {
+        if (announcements.length > 0 && currentIndex >= announcements.length) {
             setCurrentIndex(0);
         }
-    }, [events.length, currentIndex]);
+    }, [announcements.length, currentIndex]);
 
-    // Don't render anything if loading or no events
-    if (loading || events.length === 0) {
+    // Don't render anything if loading or no announcements
+    if (loading || announcements.length === 0) {
         return null;
     }
 
@@ -145,7 +127,7 @@ const EventAnnouncement = ({ settings = {} }) => {
     if (minimized) {
         return (
             <AnnouncementBellIcon
-                count={events.length}
+                count={announcements.length}
                 onClick={handleReopen}
                 backgroundColor={backgroundColor}
                 textColor={textColor}
@@ -157,7 +139,7 @@ const EventAnnouncement = ({ settings = {} }) => {
     if (mode === 'modal') {
         return (
             <AnnouncementModal
-                events={events}
+                announcements={announcements}
                 timeFormat={timeFormat}
                 onClose={handleDismiss}
                 backgroundColor={backgroundColor}
@@ -168,9 +150,8 @@ const EventAnnouncement = ({ settings = {} }) => {
 
     return (
         <AnnouncementBanner
-            events={events}
+            announcements={announcements}
             currentIndex={currentIndex}
-            timeFormat={timeFormat}
             onPrev={handlePrev}
             onNext={handleNext}
             onClose={handleDismiss}

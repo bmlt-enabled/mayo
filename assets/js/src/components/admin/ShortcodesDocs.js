@@ -242,21 +242,24 @@ const ShortcodesDocs = () => {
             </div>
 
             <div className="card">
-                <h2>Event Announcement Shortcode</h2>
-                <p>Use this shortcode to display event-based announcements as banners or modals. This is useful for:</p>
+                <h2>Announcement Shortcode</h2>
+                <p>Use this shortcode to display announcements as banners or modals. Announcements are managed separately from events and are useful for:</p>
                 <ul className="ul-disc">
                     <li>Meeting closures or changes</li>
-                    <li>New meeting announcements</li>
+                    <li>Weather alerts</li>
                     <li>Breaking news or important updates</li>
-                    <li>Promoting upcoming events</li>
+                    <li>Promoting upcoming events (can be linked to events)</li>
+                    <li>Post-event thank you messages</li>
                 </ul>
                 <pre><code>[mayo_announcement]</code></pre>
 
                 <h3>How It Works</h3>
                 <ul className="ul-disc">
-                    <li>Events appear as announcements when today's date is between the event's <code>start_date</code> (embargo) and <code>end_date</code> (expiration)</li>
-                    <li><strong>Banner mode:</strong> Shows a fixed bar at the top of the viewport with carousel navigation for multiple events</li>
-                    <li><strong>Modal mode:</strong> Shows a centered popup with a list of all matching events</li>
+                    <li>Announcements have their own display window (<code>display_start_date</code> and <code>display_end_date</code>)</li>
+                    <li>Can optionally be linked to one or more events</li>
+                    <li>Priority levels (low/normal/high/urgent) affect display order and styling</li>
+                    <li><strong>Banner mode:</strong> Shows a fixed bar at the top of the viewport with carousel navigation for multiple announcements</li>
+                    <li><strong>Modal mode:</strong> Shows a centered popup with a list of all matching announcements</li>
                     <li>When dismissed, announcements stay hidden for 24 hours but can be re-opened via a bell icon in the bottom-right corner</li>
                 </ul>
 
@@ -290,6 +293,18 @@ const ShortcodesDocs = () => {
                             <td>e.g., <pre>urgent,featured</pre></td>
                         </tr>
                         <tr>
+                            <td>priority</td>
+                            <td>Filter by priority level</td>
+                            <td>empty (all priorities)</td>
+                            <td>low, normal, high, urgent</td>
+                        </tr>
+                        <tr>
+                            <td>show_linked_events</td>
+                            <td>Show linked event titles with the announcement</td>
+                            <td>false</td>
+                            <td>true, false</td>
+                        </tr>
+                        <tr>
                             <td>time_format</td>
                             <td>Format for displaying time</td>
                             <td>12hour</td>
@@ -321,30 +336,52 @@ const ShortcodesDocs = () => {
                 <h4>Filter by Category</h4>
                 <pre><code>[mayo_announcement categories="announcements,alerts"]</code></pre>
 
+                <h4>Show Only Urgent Announcements</h4>
+                <pre><code>[mayo_announcement priority="urgent"]</code></pre>
+
+                <h4>Show Linked Events</h4>
+                <pre><code>[mayo_announcement show_linked_events="true"]</code></pre>
+
                 <h4>Combined Parameters</h4>
-                <pre><code>[mayo_announcement mode="banner" categories="announcements" tags="urgent" time_format="24hour"]</code></pre>
+                <pre><code>[mayo_announcement mode="banner" categories="announcements" tags="urgent" priority="high" time_format="24hour"]</code></pre>
 
                 <h4>Custom Colors</h4>
                 <pre><code>[mayo_announcement background_color="#ff6600" text_color="#ffffff"]</code></pre>
 
                 <h4>Red Alert Style</h4>
-                <pre><code>[mayo_announcement background_color="#dc3545" text_color="#fff" categories="alerts"]</code></pre>
+                <pre><code>[mayo_announcement background_color="#dc3545" text_color="#fff" priority="urgent"]</code></pre>
 
                 <h3>Widget Usage</h3>
                 <p>For site-wide announcements without editing templates, use the <strong>"Mayo Event Announcements"</strong> widget:</p>
                 <ol>
                     <li>Go to <strong>Appearance → Widgets</strong></li>
                     <li>Add the "Mayo Event Announcements" widget to any widget area (footer recommended for site-wide display)</li>
-                    <li>Configure the display mode, categories, tags, and time format</li>
+                    <li>Configure the display mode, categories, tags, priority, and time format</li>
                 </ol>
+
+                <h3>Creating Announcements</h3>
+                <ul className="ul-disc">
+                    <li>Go to <strong>Mayo → Announcements → Add New</strong></li>
+                    <li>Enter the announcement title and content</li>
+                    <li>Set the <strong>Display Start Date</strong> to when you want the announcement to start showing</li>
+                    <li>Set the <strong>Display End Date</strong> to when you want the announcement to stop showing</li>
+                    <li>Choose a <strong>Priority Level</strong> (urgent announcements appear first)</li>
+                    <li>Optionally <strong>link to events</strong> if this announcement relates to specific events</li>
+                </ul>
+
+                <h3>Linking Events</h3>
+                <p>Announcements can be linked to events in two ways:</p>
+                <ul className="ul-disc">
+                    <li><strong>From the Announcement editor:</strong> Search and add events in the "Linked Events" panel</li>
+                    <li><strong>From the Event editor:</strong> Click "Create Announcement for This Event" in the "Linked Announcements" panel</li>
+                </ul>
 
                 <h3>Notes</h3>
                 <ul className="ul-disc">
-                    <li>Create an event with the desired announcement text as the title</li>
-                    <li>Set the <code>start_date</code> to when you want the announcement to start showing (embargo)</li>
-                    <li>Set the <code>end_date</code> to when you want the announcement to stop showing (expiration)</li>
-                    <li>Use categories or tags to control which events appear as announcements</li>
-                    <li>The event title links to the full event page when clicked</li>
+                    <li>Announcements have independent display windows from events</li>
+                    <li>Use announcements to promote events before they start, or recap after they end</li>
+                    <li>Priority levels: <strong>urgent</strong> (red), <strong>high</strong> (orange), <strong>normal</strong> (blue), <strong>low</strong> (gray)</li>
+                    <li>Use categories or tags to control which announcements appear</li>
                     <li>Multiple announcements are shown as a carousel in banner mode, or as a list in modal mode</li>
                 </ul>
             </div>

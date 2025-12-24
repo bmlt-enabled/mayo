@@ -112,7 +112,12 @@ class Admin {
     }
 
     public static function enqueue_scripts($hook) {
-        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'mayo_page_mayo-api-docs', 'edit.php'])) {
+        global $post_type;
+
+        // Check if we're on an announcement edit page
+        $is_announcement_edit = ($hook === 'post.php' || $hook === 'post-new.php') && $post_type === 'mayo_announcement';
+
+        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'mayo_page_mayo-api-docs', 'edit.php']) && !$is_announcement_edit) {
             return;
         }
 

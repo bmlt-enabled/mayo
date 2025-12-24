@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing and displaying events.
- * Version: 1.6.3
+ * Version: 1.7.0
  * Author: bmlt-enabled
  * License: GPLv2 or later
  * Author URI: https://bmlt.app
@@ -20,7 +20,7 @@ if (! defined('ABSPATH') ) {
     exit; // Exit if accessed directly
 }
 
-define('MAYO_VERSION', '1.6.3');
+define('MAYO_VERSION', '1.7.0');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
@@ -28,11 +28,13 @@ require_once __DIR__ . '/includes/Frontend.php';
 require_once __DIR__ . '/includes/Rest.php';
 require_once __DIR__ . '/includes/CalendarFeed.php';
 require_once __DIR__ . '/includes/RssFeed.php';
+require_once __DIR__ . '/includes/Announcement.php';
 require_once __DIR__ . '/includes/Widgets/AnnouncementWidget.php';
 
 use BmltEnabled\Mayo\Admin;
 use BmltEnabled\Mayo\Frontend;
 use BmltEnabled\Mayo\Rest;
+use BmltEnabled\Mayo\Announcement;
 use BmltEnabled\Mayo\Widgets\AnnouncementWidget;
 
 // Initialize components
@@ -42,6 +44,7 @@ add_action(
         Admin::init();
         Frontend::init();
         Rest::init();
+        Announcement::init();
     }
 );
 
@@ -66,15 +69,17 @@ add_filter('single_template', 'Bmltenabled_Mayo_loadDetailsTemplate');
  */
 function Bmltenabled_Mayo_activate()
 {
-    // If init hasn't fired, add an action to register post type
+    // If init hasn't fired, add an action to register post types
     if (!did_action('init')) {
         add_action('init', ['BmltEnabled\Mayo\Admin', 'register_post_type']);
+        add_action('init', ['BmltEnabled\Mayo\Announcement', 'register_post_type']);
     } else {
-        // If init has fired, register post type immediately
+        // If init has fired, register post types immediately
         Admin::register_post_type();
+        Announcement::register_post_type();
     }
 
-    // Flush rewrite rules after post type is registered
+    // Flush rewrite rules after post types are registered
     flush_rewrite_rules();
 }
 
@@ -85,9 +90,10 @@ function Bmltenabled_Mayo_activate()
  */
 function Bmltenabled_Mayo_deactivate()
 {
-    // Unregister the post type
+    // Unregister post types
     unregister_post_type('mayo_event');
-    
+    unregister_post_type('mayo_announcement');
+
     // Flush rewrite rules
     flush_rewrite_rules();
 }

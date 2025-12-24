@@ -1,29 +1,37 @@
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { 
-    TextControl, 
-    SelectControl, 
+import {
+    TextControl,
+    SelectControl,
     PanelBody,
     CheckboxControl,
     __experimentalNumberControl as NumberControl,
     RadioControl,
-    Button
+    Button,
+    Spinner
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { getTimezoneOptions, getUserTimezone } from '../../timezones';
+import apiFetch from '@wordpress/api-fetch';
 
 const EventBlockEditorSidebar = () => {
     const { serviceBodies } = useEventProvider();
     const [isAddingSkip, setIsAddingSkip] = useState(false);
     const [skipDate, setSkipDate] = useState('');
+    const [linkedAnnouncements, setLinkedAnnouncements] = useState([]);
+    const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(false);
 
-    const postType = useSelect(select => 
+    const postType = useSelect(select =>
         select('core/editor').getCurrentPostType()
     );
 
-    const meta = useSelect(select => 
+    const postId = useSelect(select =>
+        select('core/editor').getCurrentPostId()
+    );
+
+    const meta = useSelect(select =>
         select('core/editor').getEditedPostAttribute('meta') || {}
     );
 
@@ -33,6 +41,27 @@ const EventBlockEditorSidebar = () => {
     const postStatus = useSelect(select =>
         select('core/editor').getEditedPostAttribute('status')
     );
+
+    // Fetch linked announcements for this event
+    useEffect(() => {
+        if (postType !== 'mayo_event' || !postId || postStatus === 'auto-draft') return;
+
+        const fetchAnnouncements = async () => {
+            setIsLoadingAnnouncements(true);
+            try {
+                const response = await apiFetch({
+                    path: `/wp-json/event-manager/v1/announcements?linked_event=${postId}`,
+                });
+                setLinkedAnnouncements(response.announcements || []);
+            } catch (error) {
+                console.error('Error fetching linked announcements:', error);
+                setLinkedAnnouncements([]);
+            }
+            setIsLoadingAnnouncements(false);
+        };
+
+        fetchAnnouncements();
+    }, [postType, postId, postStatus]);
 
     if (postType !== 'mayo_event') return null;
 
@@ -451,6 +480,104 @@ const EventBlockEditorSidebar = () => {
                     />
                 </PanelBody>
             </PluginDocumentSettingPanel>
+
+            {/* Linked Announcements Panel */}
+            {!isNewEvent && (
+                <PluginDocumentSettingPanel
+                    name="mayo-linked-announcements"
+                    title="Linked Announcements"
+                    className="mayo-linked-announcements"
+                >
+                    <p className="components-base-control__help" style={{ marginTop: 0 }}>
+                        Announcements that reference this event.
+                    </p>
+
+                    {isLoadingAnnouncements && (
+                        <div style={{ textAlign: 'center', padding: '16px' }}>
+                            <Spinner />
+                        </div>
+                    )}
+
+                    {!isLoadingAnnouncements && linkedAnnouncements.length === 0 && (
+                        <p style={{ color: '#666', fontStyle: 'italic' }}>
+                            No announcements linked to this event.
+                        </p>
+                    )}
+
+                    {!isLoadingAnnouncements && linkedAnnouncements.length > 0 && (
+                        <div className="mayo-linked-announcements-list">
+                            {linkedAnnouncements.map(announcement => {
+                                const statusColor = announcement.is_active ? '#46b450' :
+                                    (announcement.display_start_date && announcement.display_start_date > new Date().toISOString().split('T')[0]) ? '#0073aa' : '#dc3545';
+                                const statusLabel = announcement.is_active ? 'Active' :
+                                    (announcement.display_start_date && announcement.display_start_date > new Date().toISOString().split('T')[0]) ? 'Scheduled' : 'Expired';
+
+                                return (
+                                    <div
+                                        key={announcement.id}
+                                        style={{
+                                            padding: '10px 12px',
+                                            backgroundColor: '#f9f9f9',
+                                            borderRadius: '4px',
+                                            marginBottom: '8px',
+                                            borderLeft: `3px solid ${statusColor}`,
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <strong>{announcement.title}</strong>
+                                            <span style={{ fontSize: '11px', color: statusColor, fontWeight: 600 }}>
+                                                {statusLabel}
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                            Priority: <span style={{
+                                                color: announcement.priority === 'urgent' ? '#dc3545' :
+                                                    announcement.priority === 'high' ? '#ff9800' :
+                                                    announcement.priority === 'low' ? '#6c757d' : '#0073aa',
+                                                fontWeight: 600
+                                            }}>{announcement.priority}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                            {announcement.edit_link && (
+                                                <a
+                                                    href={announcement.edit_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        padding: '4px 8px',
+                                                        fontSize: '11px',
+                                                        backgroundColor: '#f0f0f0',
+                                                        border: '1px solid #c3c4c7',
+                                                        borderRadius: '3px',
+                                                        textDecoration: 'none',
+                                                        color: '#2271b1',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    <span className="dashicons dashicons-edit" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
+                                                    Edit
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <div style={{ marginTop: '12px' }}>
+                        <Button
+                            isSecondary
+                            href={`${window.location.origin}/wp-admin/post-new.php?post_type=mayo_announcement&linked_event=${postId}`}
+                            target="_blank"
+                        >
+                            Create Announcement
+                        </Button>
+                    </div>
+                </PluginDocumentSettingPanel>
+            )}
         </>
     );
 };
