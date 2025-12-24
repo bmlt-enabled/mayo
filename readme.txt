@@ -199,8 +199,6 @@ This project is licensed under the GPL v2 or later.
 * Added admin columns for announcement display window, priority, status (active/scheduled/expired), and linked events.
 * Added admin filter dropdown to filter announcements by status.
 * Updated shortcode documentation with new announcement features.
-
-= 1.6.2 =
 * Fixed archive list not showing past occurrences of recurring events. [#168]
 * Fixed second event submission failing when single service body is configured. [#177]
 * Moved Mayo menu higher in admin sidebar (above Appearance) for easier access.
