@@ -66,7 +66,8 @@ class Admin {
             'manage_options',
             'mayo-events',
             [__CLASS__, 'render_admin_page'],
-            'dashicons-calendar'
+            'dashicons-calendar',
+            58 // Position above Appearance (60)
         );
 
         add_submenu_page(
@@ -95,6 +96,15 @@ class Admin {
             'mayo-css-classes',
             [__CLASS__, 'render_css_classes_page']
         );
+
+        add_submenu_page(
+            'mayo-events',
+            'API Documentation',
+            'API',
+            'manage_options',
+            'mayo-api-docs',
+            [__CLASS__, 'render_api_docs_page']
+        );
     }
 
     public static function render_admin_page() {
@@ -102,7 +112,7 @@ class Admin {
     }
 
     public static function enqueue_scripts($hook) {
-        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'edit.php'])) {
+        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'mayo_page_mayo-api-docs', 'edit.php'])) {
             return;
         }
 
@@ -531,6 +541,11 @@ class Admin {
     public static function render_css_classes_page() {
         // Output a container div for React to render into
         echo '<div id="mayo-css-classes-root" class="wrap"></div>';
+    }
+
+    public static function render_api_docs_page() {
+        // Output a container div for React to render into
+        echo '<div id="mayo-api-docs-root" class="wrap"></div>';
     }
 
     public static function add_row_actions($actions, $post) {

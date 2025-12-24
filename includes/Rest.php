@@ -427,128 +427,119 @@ class Rest {
         
         $events = [];
 
-        // Get all events (filtering by date will happen later based on archive mode or date range)
-        // When date range is specified (calendar view), we need to expand recurring events regardless of archive mode
-        if ($is_archive && !$has_date_range) {
-            // Archive mode without date range: get all events, will filter to show only past events later
-            $events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
-        } else {
-            // In normal mode, we'll fetch events in two steps:
-            
-            // 1. Get all non-recurring events (we'll filter them later)
-            $non_recurring_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
-            
-            $events = array_merge($events, $non_recurring_events);
-            
-            // 2. Get all events with recurring patterns, regardless of start date
-            $recurring_meta_query = [
-                [
-                    'key' => 'recurring_pattern',
-                    'compare' => 'EXISTS'
-                ],
-                [
-                    'key' => 'recurring_pattern',
-                    'value' => 'none',
-                    'compare' => '!='
-                ]
+        // 1. Get all non-recurring events (we'll filter them later based on archive mode)
+        $non_recurring_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
+
+        $events = array_merge($events, $non_recurring_events);
+
+        // 2. Get all events with recurring patterns, regardless of start date
+        $recurring_meta_query = [
+            [
+                'key' => 'recurring_pattern',
+                'compare' => 'EXISTS'
+            ],
+            [
+                'key' => 'recurring_pattern',
+                'value' => 'none',
+                'compare' => '!='
+            ]
+        ];
+
+        // Add event type filter if specified
+        if (!empty($eventType)) {
+            $recurring_meta_query[] = [
+                'key' => 'event_type',
+                'value' => $eventType,
+                'compare' => '='
             ];
-            
-            // Add event type filter if specified
-            if (!empty($eventType)) {
-                $recurring_meta_query[] = [
-                    'key' => 'event_type',
-                    'value' => $eventType,
-                    'compare' => '='
-                ];
-            }
+        }
 
-            // Add service body filter if specified
-            if (!empty($serviceBody)) {
-                $service_bodies = array_map('trim', explode(',', $serviceBody));
-                $recurring_meta_query[] = [
-                    'key' => 'service_body',
-                    'value' => $service_bodies,
-                    'compare' => 'IN'
-                ];
-            }
-            
-            // Always set AND relation for this query
-            $recurring_meta_query['relation'] = 'AND';
-            
-            $args = [
-                'post_type' => 'mayo_event',
-                'posts_per_page' => -1,
-                'post_status' => $status,
-                'meta_query' => $recurring_meta_query,
+        // Add service body filter if specified
+        if (!empty($serviceBody)) {
+            $service_bodies = array_map('trim', explode(',', $serviceBody));
+            $recurring_meta_query[] = [
+                'key' => 'service_body',
+                'value' => $service_bodies,
+                'compare' => 'IN'
             ];
+        }
 
-            // Merge in taxonomy args (handles both include and exclude with '-' prefix)
-            $taxonomy_args = self::build_taxonomy_args($categories, $tags);
-            $args = array_merge($args, $taxonomy_args);
+        // Always set AND relation for this query
+        $recurring_meta_query['relation'] = 'AND';
 
-            $recurring_posts = get_posts($args);
-            
-            // Process these recurring posts and add only future instances
-            foreach ($recurring_posts as $post) {
-                try {
-                    $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
-                    $start_date = get_post_meta($post->ID, 'event_start_date', true);
-                    
-                    if (!$recurring_pattern || !$start_date || $recurring_pattern['type'] === 'none') {
-                        continue;
-                    }
-                    
-                    $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
+        $args = [
+            'post_type' => 'mayo_event',
+            'posts_per_page' => -1,
+            'post_status' => $status,
+            'meta_query' => $recurring_meta_query,
+        ];
 
-                    // Filter recurring events based on date range or archive mode
-                    // Prepare date range objects for filtering if needed
-                    $filter_range_start = $has_date_range ? new DateTime($range_start) : null;
-                    $filter_range_end = $has_date_range ? new DateTime($range_end) : null;
-                    if ($filter_range_start) $filter_range_start->setTime(0, 0, 0);
-                    if ($filter_range_end) $filter_range_end->setTime(23, 59, 59);
+        // Merge in taxonomy args (handles both include and exclude with '-' prefix)
+        $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+        $args = array_merge($args, $taxonomy_args);
 
-                    $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive, $has_date_range, $filter_range_start, $filter_range_end) {
-                        if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
-                            return false;
-                        }
+        $recurring_posts = get_posts($args);
 
-                        try {
-                            $start_date_str = $event['meta']['event_start_date'];
-                            $start_date = new DateTime($start_date_str);
-                            $start_date->setTime(0, 0, 0);
+        // Process recurring posts and generate occurrences
+        foreach ($recurring_posts as $post) {
+            try {
+                $recurring_pattern = get_post_meta($post->ID, 'recurring_pattern', true);
+                $start_date = get_post_meta($post->ID, 'event_start_date', true);
 
-                            // Determine the event's end date
-                            $end_date_str = isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])
-                                ? $event['meta']['event_end_date']
-                                : $start_date_str;
-                            $end_date = new DateTime($end_date_str);
-                            $end_date->setTime(23, 59, 59);
-
-                            // If date range is specified (calendar view), filter by that range
-                            if ($has_date_range) {
-                                // Include event if it overlaps with the range at all
-                                return $start_date <= $filter_range_end && $end_date >= $filter_range_start;
-                            }
-
-                            if ($is_archive) {
-                                // Archive mode: only show events that have completely ended
-                                return $end_date < $today;
-                            } else {
-                                // Normal mode: show events that are ongoing or in the future
-                                return $start_date >= $today || $end_date >= $today;
-                            }
-                        } catch (\Exception $e) {
-                            error_log('Mayo Events API: Error parsing recurring event date: ' . $e->getMessage());
-                            return false;
-                        }
-                    });
-
-                    if (count($filtered_recurring_events) > 0) {
-                        $events = array_merge($events, $filtered_recurring_events);
-                    }
-                } catch (\Exception $e) {
-                    error_log('Mayo Events API: Error processing recurring event: ' . $e->getMessage());
+                if (!$recurring_pattern || !$start_date || $recurring_pattern['type'] === 'none') {
+                    continue;
                 }
+
+                $recurring_events = self::generate_recurring_events($post, $recurring_pattern);
+
+                // Filter recurring events based on date range or archive mode
+                // Prepare date range objects for filtering if needed
+                $filter_range_start = $has_date_range ? new DateTime($range_start) : null;
+                $filter_range_end = $has_date_range ? new DateTime($range_end) : null;
+                if ($filter_range_start) $filter_range_start->setTime(0, 0, 0);
+                if ($filter_range_end) $filter_range_end->setTime(23, 59, 59);
+
+                $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive, $has_date_range, $filter_range_start, $filter_range_end) {
+                    if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
+                        return false;
+                    }
+
+                    try {
+                        $start_date_str = $event['meta']['event_start_date'];
+                        $start_date = new DateTime($start_date_str);
+                        $start_date->setTime(0, 0, 0);
+
+                        // Determine the event's end date
+                        $end_date_str = isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])
+                            ? $event['meta']['event_end_date']
+                            : $start_date_str;
+                        $end_date = new DateTime($end_date_str);
+                        $end_date->setTime(23, 59, 59);
+
+                        // If date range is specified (calendar view), filter by that range
+                        if ($has_date_range) {
+                            // Include event if it overlaps with the range at all
+                            return $start_date <= $filter_range_end && $end_date >= $filter_range_start;
+                        }
+
+                        if ($is_archive) {
+                            // Archive mode: only show events that have completely ended
+                            return $end_date < $today;
+                        } else {
+                            // Normal mode: show events that are ongoing or in the future
+                            return $start_date >= $today || $end_date >= $today;
+                        }
+                    } catch (\Exception $e) {
+                        error_log('Mayo Events API: Error parsing recurring event date: ' . $e->getMessage());
+                        return false;
+                    }
+                });
+
+                if (count($filtered_recurring_events) > 0) {
+                    $events = array_merge($events, $filtered_recurring_events);
+                }
+            } catch (\Exception $e) {
+                error_log('Mayo Events API: Error processing recurring event: ' . $e->getMessage());
             }
         }
         

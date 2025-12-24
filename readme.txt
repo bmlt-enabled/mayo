@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.6.0
+Stable tag: 1.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,14 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.6.2 =
+* Fixed archive list not showing past occurrences of recurring events. [#168]
+* Fixed second event submission failing when single service body is configured. [#177]
+* Moved Mayo menu higher in admin sidebar (above Appearance) for easier access.
+
+= 1.6.1 =
+* Added API documentation page in the admin menu (Mayo > API) with comprehensive REST API reference.
 
 = 1.6.0 =
 * Added announcement feature for displaying event-based announcements as banners or modals.
