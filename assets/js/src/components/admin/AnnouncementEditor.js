@@ -10,8 +10,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
-import { apiFetch as customApiFetch } from '../../util';
+import { apiFetch } from '../../util';
 
 const AnnouncementEditor = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -70,9 +69,7 @@ const AnnouncementEditor = () => {
         const timer = setTimeout(async () => {
             setIsSearching(true);
             try {
-                const response = await apiFetch({
-                    path: `/event-manager/v1/events/search?search=${encodeURIComponent(searchTerm)}&limit=10`,
-                });
+                const response = await apiFetch(`/events/search?search=${encodeURIComponent(searchTerm)}&limit=10`);
                 // Filter out already linked events using current linkedEvents value
                 const currentLinked = meta.linked_events || [];
                 const filtered = (response.events || []).filter(
@@ -117,7 +114,7 @@ const AnnouncementEditor = () => {
             for (const eventId of eventsToFetch) {
                 try {
                     // Use our custom event endpoint to get event by ID
-                    const event = await customApiFetch(`/events/${eventId}`);
+                    const event = await apiFetch(`/events/${eventId}`);
 
                     if (event && !event.code) {
                         details[eventId] = {

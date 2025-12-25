@@ -19,6 +19,9 @@ class Announcement {
         // Custom filters
         add_action('restrict_manage_posts', [__CLASS__, 'add_announcement_status_filter']);
         add_filter('pre_get_posts', [__CLASS__, 'filter_announcements_by_status']);
+
+        // Send email to subscribers when announcement is published
+        add_action('transition_post_status', [__CLASS__, 'handle_post_status_transition'], 10, 3);
     }
 
     public static function register_post_type() {
@@ -506,5 +509,25 @@ class Announcement {
         }
 
         return $announcements;
+    }
+
+    /**
+     * Handle post status transitions for announcements
+     * Sends email to subscribers when an announcement is first published
+     *
+     * @param string  $new_status New post status
+     * @param string  $old_status Old post status
+     * @param WP_Post $post       Post object
+     */
+    public static function handle_post_status_transition($new_status, $old_status, $post) {
+        // Only handle mayo_announcement post type
+        if ($post->post_type !== 'mayo_announcement') {
+            return;
+        }
+
+        // Only send email when transitioning TO publish from a non-publish status
+        if ($new_status === 'publish' && $old_status !== 'publish') {
+            Subscriber::send_announcement_email($post->ID);
+        }
     }
 }

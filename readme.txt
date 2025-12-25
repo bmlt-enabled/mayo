@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,15 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.8.0 =
+* Added email subscription feature for announcements. Users can subscribe via [mayo_subscribe] shortcode.
+* Double opt-in subscription with confirmation email and spam folder reminder.
+* Subscribers receive full announcement content via email when announcements are published.
+* Token-based secure unsubscribe links (no login required).
+* New REST API endpoint: POST /subscribe for email subscriptions.
+* Database table for subscriber management with preferences column for future filtering.
+* Fixed a bug with linked even search on the announcement page.
 
 = 1.7.0 =
 * Added dedicated Announcements post type (mayo_announcement) for flexible announcement management. [#195]

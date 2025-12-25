@@ -2,8 +2,18 @@ const ShortcodesDocs = () => {
     return (
         <div className="wrap mayo-docs">
             <h1>Shortcodes</h1>
-            
-            <div className="card">
+
+            <div className="card" style={{ marginBottom: '20px' }}>
+                <h2>Table of Contents</h2>
+                <ul style={{ listStyle: 'disc', marginLeft: '20px', lineHeight: '2' }}>
+                    <li><a href="#event-list">[mayo_event_list] - Event List Shortcode</a></li>
+                    <li><a href="#event-form">[mayo_event_form] - Event Submission Form Shortcode</a></li>
+                    <li><a href="#announcement">[mayo_announcement] - Announcement Shortcode</a></li>
+                    <li><a href="#subscribe">[mayo_subscribe] - Email Subscription Form Shortcode</a></li>
+                </ul>
+            </div>
+
+            <div className="card" id="event-list">
                 <h2>Event List Shortcode</h2>
                 <p>Use this shortcode to display a list of upcoming events:</p>
                 <pre><code>[mayo_event_list]</code></pre>
@@ -149,7 +159,7 @@ const ShortcodesDocs = () => {
                 </ul>
             </div>
 
-            <div className="card">
+            <div className="card" id="event-form">
                 <h2>Event Submission Form Shortcode</h2>
                 <p>
                     The Event Submission Form Shortcode allows users to submit new events to your site. The form includes fields for event name, type, start date, end date, and more.
@@ -241,7 +251,7 @@ const ShortcodesDocs = () => {
                 </ul>
             </div>
 
-            <div className="card">
+            <div className="card" id="announcement">
                 <h2>Announcement Shortcode</h2>
                 <p>Use this shortcode to display announcements as banners or modals. Announcements are managed separately from events and are useful for:</p>
                 <ul className="ul-disc">
@@ -383,6 +393,60 @@ const ShortcodesDocs = () => {
                     <li>Priority levels: <strong>urgent</strong> (red), <strong>high</strong> (orange), <strong>normal</strong> (blue), <strong>low</strong> (gray)</li>
                     <li>Use categories or tags to control which announcements appear</li>
                     <li>Multiple announcements are shown as a carousel in banner mode, or as a list in modal mode</li>
+                </ul>
+            </div>
+
+            <div className="card" id="subscribe">
+                <h2>Email Subscription Form Shortcode</h2>
+                <p>Use this shortcode to display an email subscription form. Users can subscribe to receive announcement notifications via email:</p>
+                <pre><code>[mayo_subscribe]</code></pre>
+
+                <h3>How It Works</h3>
+                <ol style={{ marginLeft: '20px', lineHeight: '1.8' }}>
+                    <li><strong>User enters email:</strong> A simple form with an email input field</li>
+                    <li><strong>Confirmation email sent:</strong> User receives an email with a confirmation link (double opt-in)</li>
+                    <li><strong>User confirms:</strong> Clicking the link activates their subscription</li>
+                    <li><strong>Receive announcements:</strong> When announcements are published, subscribers get an email with the full content</li>
+                    <li><strong>Easy unsubscribe:</strong> Each email includes a one-click unsubscribe link</li>
+                </ol>
+
+                <h3>Features</h3>
+                <ul className="ul-disc">
+                    <li><strong>Double opt-in:</strong> Confirmation email ensures valid addresses and prevents spam</li>
+                    <li><strong>Full content delivery:</strong> Announcement emails include the complete content plus a link to view on site</li>
+                    <li><strong>Token-based security:</strong> Unsubscribe links use cryptographically secure tokens (no login required)</li>
+                    <li><strong>Spam folder reminder:</strong> Users are reminded to check spam/junk folders for the confirmation email</li>
+                    <li><strong>Re-subscription support:</strong> Previously unsubscribed users can re-subscribe</li>
+                </ul>
+
+                <h3>Example</h3>
+                <pre><code>[mayo_subscribe]</code></pre>
+
+                <h3>Email Flow</h3>
+                <h4>Confirmation Email</h4>
+                <p>Sent immediately when a user subscribes:</p>
+                <ul className="ul-disc">
+                    <li>Subject: "Please confirm your subscription to [Site Name] announcements"</li>
+                    <li>Contains a unique confirmation link</li>
+                    <li>Includes note about checking spam folder</li>
+                </ul>
+
+                <h4>Announcement Email</h4>
+                <p>Sent to all confirmed subscribers when an announcement is published:</p>
+                <ul className="ul-disc">
+                    <li>Subject: "[Site Name] [Announcement Title]"</li>
+                    <li>Full announcement content in plain text</li>
+                    <li>Link to view on site</li>
+                    <li>One-click unsubscribe link</li>
+                </ul>
+
+                <h3>Notes</h3>
+                <ul className="ul-disc">
+                    <li>Emails are sent using WordPress's <code>wp_mail()</code> function</li>
+                    <li>The "From" address uses your WordPress email settings</li>
+                    <li>Subscribers are stored in a custom database table (<code>wp_mayo_subscribers</code>)</li>
+                    <li>Emails are only sent when announcements are first published (not on updates)</li>
+                    <li>The preferences column is reserved for future filtering options</li>
                 </ul>
             </div>
         </div>

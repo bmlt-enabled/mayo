@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { useState, useEffect } from '@wordpress/element';
 import { getTimezoneOptions, getUserTimezone } from '../../timezones';
-import apiFetch from '@wordpress/api-fetch';
+import { apiFetch } from '../../util';
 
 const EventBlockEditorSidebar = () => {
     const { serviceBodies } = useEventProvider();
@@ -49,9 +49,7 @@ const EventBlockEditorSidebar = () => {
         const fetchAnnouncements = async () => {
             setIsLoadingAnnouncements(true);
             try {
-                const response = await apiFetch({
-                    path: `/wp-json/event-manager/v1/announcements?linked_event=${postId}`,
-                });
+                const response = await apiFetch(`/announcements?linked_event=${postId}`);
                 setLinkedAnnouncements(response.announcements || []);
             } catch (error) {
                 console.error('Error fetching linked announcements:', error);
