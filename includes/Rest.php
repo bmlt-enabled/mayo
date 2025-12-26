@@ -58,6 +58,12 @@ class Rest {
                 'permission_callback' => '__return_true',
             ]);
 
+            register_rest_route('event-manager/v1', '/announcement-by-slug/(?P<slug>[a-zA-Z0-9-]+)', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_announcement_by_slug'],
+                'permission_callback' => '__return_true',
+            ]);
+
             register_rest_route('event-manager/v1', '/events/search', [
                 'methods' => 'GET',
                 'callback' => [__CLASS__, 'search_events'],
@@ -1610,6 +1616,29 @@ class Rest {
         }
 
         return new \WP_REST_Response(self::format_announcement($post));
+    }
+
+    /**
+     * Get announcement by slug
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public static function get_announcement_by_slug($request) {
+        $slug = sanitize_title($request['slug']);
+
+        $posts = get_posts([
+            'post_type' => 'mayo_announcement',
+            'name' => $slug,
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+        ]);
+
+        if (empty($posts)) {
+            return new \WP_Error('not_found', 'Announcement not found', ['status' => 404]);
+        }
+
+        return new \WP_REST_Response(self::format_announcement($posts[0]));
     }
 
     /**
