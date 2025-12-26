@@ -6,16 +6,305 @@ import {
     PanelBody,
     Button,
     Spinner,
+    Modal,
     __experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { apiFetch } from '../../util';
 
-const AnnouncementEditor = () => {
+// Event Search Modal Component with infinite scroll
+const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linkedEventRefs, getRefKey }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
+    const [events, setEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [total, setTotal] = useState(0);
+    const listRef = useRef(null);
+    const searchTimeoutRef = useRef(null);
+
+    const PER_PAGE = 20;
+
+    // Format date helper
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        try {
+            const [year, month, day] = dateString.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return dateString;
+        }
+    };
+
+    // Check if event is already linked
+    const isEventLinked = (event) => {
+        return linkedEventRefs.some(ref => {
+            if (ref.type === 'local' && event.source.type === 'local') {
+                return ref.id === event.id;
+            }
+            if (ref.type === 'external' && event.source.type === 'external') {
+                return ref.id === event.id && ref.source_id === event.source.id;
+            }
+            return false;
+        });
+    };
+
+    // Fetch events
+    const fetchEvents = useCallback(async (searchQuery, pageNum, append = false) => {
+        if (pageNum === 1) {
+            setIsLoading(true);
+        } else {
+            setIsLoadingMore(true);
+        }
+
+        try {
+            const params = new URLSearchParams({
+                per_page: PER_PAGE,
+                page: pageNum,
+            });
+            if (searchQuery) {
+                params.append('search', searchQuery);
+            }
+
+            const response = await apiFetch(`/events/search-all?${params.toString()}`);
+            const newEvents = response.events || [];
+
+            if (append) {
+                setEvents(prev => [...prev, ...newEvents]);
+            } else {
+                setEvents(newEvents);
+            }
+
+            setTotal(response.total || 0);
+            setHasMore(pageNum < (response.total_pages || 1));
+            setPage(pageNum);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+            if (!append) {
+                setEvents([]);
+            }
+            setHasMore(false);
+        } finally {
+            setIsLoading(false);
+            setIsLoadingMore(false);
+        }
+    }, []);
+
+    // Initial load and search
+    useEffect(() => {
+        if (!isOpen) return;
+
+        // Clear previous timeout
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+
+        // Debounce search
+        searchTimeoutRef.current = setTimeout(() => {
+            fetchEvents(searchTerm, 1, false);
+        }, 300);
+
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
+    }, [isOpen, searchTerm, fetchEvents]);
+
+    // Reset when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setSearchTerm('');
+            setEvents([]);
+            setPage(1);
+            setHasMore(true);
+        }
+    }, [isOpen]);
+
+    // Infinite scroll handler
+    const handleScroll = useCallback(() => {
+        if (!listRef.current || isLoading || isLoadingMore || !hasMore) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+        // Load more when scrolled to bottom (with 100px threshold)
+        if (scrollHeight - scrollTop - clientHeight < 100) {
+            fetchEvents(searchTerm, page + 1, true);
+        }
+    }, [isLoading, isLoadingMore, hasMore, searchTerm, page, fetchEvents]);
+
+    // Handle event selection
+    const handleSelectEvent = (event) => {
+        if (!isEventLinked(event)) {
+            onSelectEvent(event);
+        }
+    };
+
+    // Handle event removal
+    const handleRemoveEvent = (event, e) => {
+        e.stopPropagation();
+        onRemoveEvent(event);
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <Modal
+            title="Link Events"
+            onRequestClose={onClose}
+            style={{ maxWidth: '600px', width: '100%' }}
+            className="mayo-event-search-modal"
+        >
+            <div style={{ marginBottom: '16px' }}>
+                <TextControl
+                    label="Search Events"
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    placeholder="Search by event name..."
+                    __nextHasNoMarginBottom={true}
+                />
+                {total > 0 && (
+                    <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#666' }}>
+                        {total} event{total !== 1 ? 's' : ''} found
+                    </p>
+                )}
+            </div>
+
+            <div
+                ref={listRef}
+                onScroll={handleScroll}
+                style={{
+                    maxHeight: '400px',
+                    overflowY: 'auto',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                }}
+            >
+                {isLoading && (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                        <Spinner />
+                        <p style={{ margin: '8px 0 0', color: '#666' }}>Loading events...</p>
+                    </div>
+                )}
+
+                {!isLoading && events.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                        {searchTerm ? `No events found matching "${searchTerm}"` : 'No events available'}
+                    </div>
+                )}
+
+                {!isLoading && events.map((event) => {
+                    const isExternal = event.source.type === 'external';
+                    const isLinked = isEventLinked(event);
+                    const uniqueKey = isExternal
+                        ? `external-${event.source.id}-${event.id}`
+                        : `local-${event.id}`;
+
+                    return (
+                        <div
+                            key={uniqueKey}
+                            style={{
+                                padding: '12px 16px',
+                                borderBottom: '1px solid #eee',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s',
+                                backgroundColor: isLinked ? '#e8f5e9' : 'transparent',
+                                borderLeft: `4px solid ${isLinked ? '#4caf50' : (isExternal ? '#ff9800' : '#0073aa')}`,
+                            }}
+                            onClick={() => isLinked ? null : handleSelectEvent(event)}
+                            onMouseEnter={e => {
+                                if (!isLinked) e.currentTarget.style.backgroundColor = '#f0f7ff';
+                            }}
+                            onMouseLeave={e => {
+                                if (!isLinked) e.currentTarget.style.backgroundColor = isLinked ? '#e8f5e9' : 'transparent';
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 600, marginBottom: '4px', display: 'flex', alignItems: 'center' }}>
+                                        {isLinked && (
+                                            <span className="dashicons dashicons-yes-alt" style={{
+                                                color: '#4caf50',
+                                                fontSize: '16px',
+                                                marginRight: '6px',
+                                                width: '16px',
+                                                height: '16px',
+                                            }}></span>
+                                        )}
+                                        {event.title}
+                                    </div>
+                                    {event.start_date && (
+                                        <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                                            <span className="dashicons dashicons-calendar-alt" style={{
+                                                fontSize: '12px',
+                                                marginRight: '4px',
+                                                verticalAlign: 'middle',
+                                                width: '12px',
+                                                height: '12px',
+                                            }}></span>
+                                            {formatDate(event.start_date)}
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{
+                                        fontSize: '10px',
+                                        backgroundColor: isExternal ? '#fff3e0' : '#e3f2fd',
+                                        color: isExternal ? '#e65100' : '#1565c0',
+                                        padding: '3px 8px',
+                                        borderRadius: '3px',
+                                        whiteSpace: 'nowrap',
+                                    }}>
+                                        {event.source.name}
+                                    </span>
+                                    {isLinked && (
+                                        <Button
+                                            isSmall
+                                            isDestructive
+                                            onClick={(e) => handleRemoveEvent(event, e)}
+                                            style={{ minWidth: 'auto' }}
+                                        >
+                                            Unlink
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {isLoadingMore && (
+                    <div style={{ textAlign: 'center', padding: '16px' }}>
+                        <Spinner />
+                        <span style={{ marginLeft: '8px', color: '#666', fontSize: '12px' }}>Loading more...</span>
+                    </div>
+                )}
+
+                {!isLoading && !isLoadingMore && !hasMore && events.length > 0 && (
+                    <div style={{ textAlign: 'center', padding: '12px', color: '#666', fontSize: '12px' }}>
+                        End of results
+                    </div>
+                )}
+            </div>
+
+            <div style={{ marginTop: '16px', textAlign: 'right' }}>
+                <Button variant="secondary" onClick={onClose}>
+                    Close
+                </Button>
+            </div>
+        </Modal>
+    );
+};
+
+const AnnouncementEditor = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasPrelinked, setHasPrelinked] = useState(false);
 
     const postType = useSelect(select =>
@@ -42,14 +331,17 @@ const AnnouncementEditor = () => {
         if (linkedEventId) {
             const eventId = parseInt(linkedEventId, 10);
             if (!isNaN(eventId) && eventId > 0) {
-                const currentLinked = meta.linked_events || [];
-                if (!currentLinked.includes(eventId)) {
-                    editPost({ meta: { ...meta, linked_events: [...currentLinked, eventId] } });
+                // Use new linked_event_refs format
+                const currentRefs = meta.linked_event_refs || [];
+                const alreadyLinked = currentRefs.some(ref => ref.type === 'local' && ref.id === eventId);
+                if (!alreadyLinked) {
+                    const newRef = { type: 'local', id: eventId };
+                    editPost({ meta: { ...meta, linked_event_refs: [...currentRefs, newRef] } });
                 }
             }
             setHasPrelinked(true);
         }
-    }, [postType, postStatus, hasPrelinked, meta.linked_events]);
+    }, [postType, postStatus, hasPrelinked, meta.linked_event_refs]);
 
     if (postType !== 'mayo_announcement') return null;
 
@@ -57,45 +349,70 @@ const AnnouncementEditor = () => {
         editPost({ meta: { ...meta, [key]: value } });
     };
 
-    const linkedEvents = meta.linked_events || [];
-
-    // Debounced search for events
-    useEffect(() => {
-        if (!searchTerm || searchTerm.length < 2) {
-            setSearchResults([]);
-            return;
+    // Get linked event refs - prefer new format, fall back to old
+    const getLinkedEventRefs = () => {
+        if (meta.linked_event_refs && Array.isArray(meta.linked_event_refs) && meta.linked_event_refs.length > 0) {
+            return meta.linked_event_refs;
         }
-
-        const timer = setTimeout(async () => {
-            setIsSearching(true);
-            try {
-                const response = await apiFetch(`/events/search?search=${encodeURIComponent(searchTerm)}&limit=10`);
-                // Filter out already linked events using current linkedEvents value
-                const currentLinked = meta.linked_events || [];
-                const filtered = (response.events || []).filter(
-                    event => !currentLinked.includes(event.id)
-                );
-                setSearchResults(filtered);
-            } catch (error) {
-                console.error('Error searching events:', error);
-                setSearchResults([]);
-            }
-            setIsSearching(false);
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [searchTerm, meta.linked_events]);
-
-    const addLinkedEvent = (eventId) => {
-        if (!linkedEvents.includes(eventId)) {
-            updateMetaValue('linked_events', [...linkedEvents, eventId]);
+        // Fall back to old linked_events format
+        if (meta.linked_events && Array.isArray(meta.linked_events)) {
+            return meta.linked_events.map(id => ({ type: 'local', id }));
         }
-        setSearchTerm('');
-        setSearchResults([]);
+        return [];
     };
 
-    const removeLinkedEvent = (eventId) => {
-        updateMetaValue('linked_events', linkedEvents.filter(id => id !== eventId));
+    const linkedEventRefs = getLinkedEventRefs();
+
+    // Create a unique key for each event ref
+    const getRefKey = (ref) => {
+        if (ref.type === 'local') {
+            return `local-${ref.id}`;
+        }
+        return `external-${ref.source_id}-${ref.id}`;
+    };
+
+    const addLinkedEvent = (event) => {
+        const currentRefs = getLinkedEventRefs();
+        let newRef;
+
+        if (event.source.type === 'local') {
+            newRef = { type: 'local', id: event.id };
+        } else {
+            newRef = {
+                type: 'external',
+                id: event.id,
+                source_id: event.source.id,
+            };
+        }
+
+        // Check if already linked
+        const alreadyLinked = currentRefs.some(ref => {
+            if (ref.type === 'local' && newRef.type === 'local') {
+                return ref.id === newRef.id;
+            }
+            if (ref.type === 'external' && newRef.type === 'external') {
+                return ref.id === newRef.id && ref.source_id === newRef.source_id;
+            }
+            return false;
+        });
+
+        if (!alreadyLinked) {
+            updateMetaValue('linked_event_refs', [...currentRefs, newRef]);
+        }
+    };
+
+    const removeLinkedEvent = (refToRemove) => {
+        const currentRefs = getLinkedEventRefs();
+        const filtered = currentRefs.filter(ref => {
+            if (ref.type === 'local' && refToRemove.type === 'local') {
+                return ref.id !== refToRemove.id;
+            }
+            if (ref.type === 'external' && refToRemove.type === 'external') {
+                return !(ref.id === refToRemove.id && ref.source_id === refToRemove.source_id);
+            }
+            return true;
+        });
+        updateMetaValue('linked_event_refs', filtered);
     };
 
     // Fetch linked event details
@@ -105,30 +422,87 @@ const AnnouncementEditor = () => {
     useEffect(() => {
         const fetchEventDetails = async () => {
             // Find events we don't have details for yet
-            const eventsToFetch = linkedEvents.filter(id => !linkedEventDetails[id]);
-            if (eventsToFetch.length === 0) return;
+            const refsToFetch = linkedEventRefs.filter(ref => !linkedEventDetails[getRefKey(ref)]);
+            if (refsToFetch.length === 0) return;
 
             setIsLoadingEventDetails(true);
             const details = {};
 
-            for (const eventId of eventsToFetch) {
+            for (const ref of refsToFetch) {
+                const key = getRefKey(ref);
                 try {
-                    // Use our custom event endpoint to get event by ID
-                    const event = await apiFetch(`/events/${eventId}`);
-
-                    if (event && !event.code) {
-                        details[eventId] = {
-                            title: event.title || 'Unknown Event',
-                            start_date: event.start_date || '',
-                            permalink: event.permalink || '',
-                            edit_link: event.edit_link || '',
-                        };
+                    if (ref.type === 'local') {
+                        // Fetch local event details
+                        const event = await apiFetch(`/events/${ref.id}`);
+                        if (event && !event.code) {
+                            details[key] = {
+                                title: event.title || 'Unknown Event',
+                                start_date: event.start_date || '',
+                                permalink: event.permalink || '',
+                                edit_link: event.edit_link || '',
+                                source: { type: 'local', id: 'local', name: 'Local' },
+                            };
+                        } else {
+                            details[key] = {
+                                title: `Event #${ref.id}`,
+                                start_date: '',
+                                permalink: '',
+                                edit_link: '',
+                                unavailable: true,
+                                source: { type: 'local', id: 'local', name: 'Local' },
+                            };
+                        }
                     } else {
-                        details[eventId] = { title: `Event #${eventId}`, start_date: '', permalink: '', edit_link: '' };
+                        // For external events, we need to fetch from the external source
+                        try {
+                            const response = await apiFetch(`/events/search-all?per_page=100`);
+                            const externalEvent = (response.events || []).find(
+                                e => e.source.type === 'external' &&
+                                    e.source.id === ref.source_id &&
+                                    e.id === ref.id
+                            );
+                            if (externalEvent) {
+                                details[key] = {
+                                    title: externalEvent.title || 'Unknown Event',
+                                    start_date: externalEvent.start_date || '',
+                                    permalink: externalEvent.permalink || '',
+                                    edit_link: '', // No edit link for external events
+                                    source: externalEvent.source,
+                                };
+                            } else {
+                                // Event not found in search results
+                                details[key] = {
+                                    title: `External Event #${ref.id}`,
+                                    start_date: '',
+                                    permalink: '',
+                                    edit_link: '',
+                                    unavailable: true,
+                                    source: { type: 'external', id: ref.source_id, name: ref.source_id },
+                                };
+                            }
+                        } catch (e) {
+                            details[key] = {
+                                title: `External Event #${ref.id}`,
+                                start_date: '',
+                                permalink: '',
+                                edit_link: '',
+                                unavailable: true,
+                                source: { type: 'external', id: ref.source_id, name: ref.source_id },
+                            };
+                        }
                     }
                 } catch (error) {
-                    console.error(`Error fetching event ${eventId}:`, error);
-                    details[eventId] = { title: `Event #${eventId}`, start_date: '', permalink: '', edit_link: '' };
+                    console.error(`Error fetching event details:`, error);
+                    details[key] = {
+                        title: ref.type === 'local' ? `Event #${ref.id}` : `External Event #${ref.id}`,
+                        start_date: '',
+                        permalink: '',
+                        edit_link: '',
+                        unavailable: true,
+                        source: ref.type === 'local'
+                            ? { type: 'local', id: 'local', name: 'Local' }
+                            : { type: 'external', id: ref.source_id, name: ref.source_id },
+                    };
                 }
             }
 
@@ -138,10 +512,10 @@ const AnnouncementEditor = () => {
             setIsLoadingEventDetails(false);
         };
 
-        if (linkedEvents.length > 0) {
+        if (linkedEventRefs.length > 0) {
             fetchEventDetails();
         }
-    }, [linkedEvents]);
+    }, [JSON.stringify(linkedEventRefs)]);
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -227,41 +601,57 @@ const AnnouncementEditor = () => {
                 className="mayo-linked-events"
             >
                 <p className="components-base-control__help" style={{ marginTop: 0 }}>
-                    Optionally link this announcement to one or more events.
+                    Link this announcement to local or external events.
                 </p>
 
                 {/* Linked Events List */}
-                {isLoadingEventDetails && linkedEvents.length > 0 && (
+                {isLoadingEventDetails && linkedEventRefs.length > 0 && (
                     <div style={{ textAlign: 'center', padding: '16px' }}>
                         <Spinner />
                         <p style={{ margin: '8px 0 0', color: '#666', fontSize: '12px' }}>Loading event details...</p>
                     </div>
                 )}
 
-                {!isLoadingEventDetails && linkedEvents.length > 0 && (
+                {!isLoadingEventDetails && linkedEventRefs.length > 0 && (
                     <div className="mayo-linked-events-list" style={{ marginBottom: '16px' }}>
-                        {linkedEvents.map(eventId => {
-                            const details = linkedEventDetails[eventId] || {};
-                            const hasDetails = details.title && details.title !== `Event #${eventId}`;
+                        {linkedEventRefs.map((ref, index) => {
+                            const key = getRefKey(ref);
+                            const details = linkedEventDetails[key] || {};
+                            const hasDetails = details.title && !details.title.startsWith('Event #') && !details.title.startsWith('External Event #');
+                            const isExternal = ref.type === 'external';
 
                             return (
                                 <div
-                                    key={eventId}
+                                    key={key}
                                     style={{
                                         padding: '12px',
                                         backgroundColor: '#f9f9f9',
                                         borderRadius: '4px',
                                         marginBottom: '8px',
-                                        borderLeft: '3px solid #0073aa',
+                                        borderLeft: `3px solid ${isExternal ? '#ff9800' : '#0073aa'}`,
                                     }}
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div style={{ flex: 1 }}>
-                                            {hasDetails ? (
+                                            {hasDetails || details.title ? (
                                                 <>
                                                     <strong style={{ display: 'block', marginBottom: '4px' }}>
-                                                        {details.title}
+                                                        {details.title || (isExternal ? `External Event #${ref.id}` : `Event #${ref.id}`)}
                                                     </strong>
+                                                    {/* Source badge for external events */}
+                                                    {isExternal && details.source && (
+                                                        <span style={{
+                                                            display: 'inline-block',
+                                                            fontSize: '11px',
+                                                            backgroundColor: '#fff3e0',
+                                                            color: '#e65100',
+                                                            padding: '2px 6px',
+                                                            borderRadius: '3px',
+                                                            marginBottom: '4px',
+                                                        }}>
+                                                            {details.source.name || details.source.id}
+                                                        </span>
+                                                    )}
                                                     {details.start_date && (
                                                         <div style={{ color: '#666', fontSize: '12px', marginBottom: '8px' }}>
                                                             <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '14px', marginRight: '4px', verticalAlign: 'middle' }}></span>
@@ -288,10 +678,10 @@ const AnnouncementEditor = () => {
                                                                 }}
                                                             >
                                                                 <span className="dashicons dashicons-external" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
-                                                                View
+                                                                {isExternal ? 'View on External Site' : 'View'}
                                                             </a>
                                                         )}
-                                                        {details.edit_link && (
+                                                        {!isExternal && details.edit_link && (
                                                             <a
                                                                 href={details.edit_link}
                                                                 target="_blank"
@@ -317,15 +707,15 @@ const AnnouncementEditor = () => {
                                                 </>
                                             ) : (
                                                 <span style={{ color: '#666' }}>
-                                                    Event #{eventId}
-                                                    <span style={{ fontSize: '12px', marginLeft: '8px' }}>(details not available)</span>
+                                                    {isExternal ? `External Event #${ref.id}` : `Event #${ref.id}`}
+                                                    <span style={{ fontSize: '12px', marginLeft: '8px' }}>(loading...)</span>
                                                 </span>
                                             )}
                                         </div>
                                         <Button
                                             isSmall
                                             isDestructive
-                                            onClick={() => removeLinkedEvent(eventId)}
+                                            onClick={() => removeLinkedEvent(ref)}
                                             style={{ marginLeft: '12px' }}
                                         >
                                             Remove
@@ -337,62 +727,34 @@ const AnnouncementEditor = () => {
                     </div>
                 )}
 
-                {/* Search Input */}
-                <TextControl
-                    label="Search Events"
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder="Type to search events..."
-                    __nextHasNoMarginBottom={true}
+                {/* Link Event Button */}
+                <Button
+                    variant="secondary"
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                >
+                    <span className="dashicons dashicons-plus-alt2" style={{ marginRight: '4px' }}></span>
+                    Link Event
+                </Button>
+
+                {/* Event Search Modal */}
+                <EventSearchModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSelectEvent={(event) => {
+                        addLinkedEvent(event);
+                        // Keep modal open to allow linking multiple events
+                    }}
+                    onRemoveEvent={(event) => {
+                        // Convert event object to ref format for removal
+                        const refToRemove = event.source.type === 'local'
+                            ? { type: 'local', id: event.id }
+                            : { type: 'external', id: event.id, source_id: event.source.id };
+                        removeLinkedEvent(refToRemove);
+                    }}
+                    linkedEventRefs={linkedEventRefs}
+                    getRefKey={getRefKey}
                 />
-
-                {/* Search Results */}
-                {isSearching && (
-                    <div style={{ textAlign: 'center', padding: '8px' }}>
-                        <Spinner />
-                    </div>
-                )}
-
-                {!isSearching && searchResults.length > 0 && (
-                    <div
-                        className="mayo-event-search-results"
-                        style={{
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            marginTop: '8px',
-                        }}
-                    >
-                        {searchResults.map(event => (
-                            <div
-                                key={event.id}
-                                style={{
-                                    padding: '8px 12px',
-                                    borderBottom: '1px solid #eee',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.2s',
-                                }}
-                                onClick={() => addLinkedEvent(event.id)}
-                                onMouseEnter={e => e.target.style.backgroundColor = '#f5f5f5'}
-                                onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}
-                            >
-                                <strong>{event.title}</strong>
-                                {event.start_date && (
-                                    <span style={{ color: '#666', marginLeft: '8px', fontSize: '12px' }}>
-                                        {formatDate(event.start_date)}
-                                    </span>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {!isSearching && searchTerm.length >= 2 && searchResults.length === 0 && (
-                    <p style={{ color: '#666', fontSize: '12px', marginTop: '8px' }}>
-                        No events found matching "{searchTerm}"
-                    </p>
-                )}
             </PluginDocumentSettingPanel>
         </>
     );

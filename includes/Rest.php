@@ -64,6 +64,15 @@ class Rest {
                 'permission_callback' => '__return_true', // Public read access to published events
             ]);
 
+            // Search both local and external events (for linking announcements)
+            register_rest_route('event-manager/v1', '/events/search-all', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'search_all_events'],
+                'permission_callback' => function() {
+                    return current_user_can('edit_posts');
+                },
+            ]);
+
             // Get single event by ID
             register_rest_route('event-manager/v1', '/events/(?P<id>\d+)', [
                 'methods' => 'GET',
@@ -1651,6 +1660,158 @@ class Rest {
     }
 
     /**
+     * Search both local and external events
+     * Used for linking events to announcements
+     * Supports pagination for infinite scroll
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function search_all_events($request) {
+        $search = isset($request['search']) ? sanitize_text_field($request['search']) : '';
+        $per_page = isset($request['per_page']) ? intval($request['per_page']) : 20;
+        $page = isset($request['page']) ? max(1, intval($request['page'])) : 1;
+        // Support legacy 'limit' parameter
+        if (isset($request['limit']) && !isset($request['per_page'])) {
+            $per_page = intval($request['limit']);
+        }
+
+        $all_events = [];
+
+        // 1. Search local events - fetch more than needed to allow for sorting with external
+        $local_args = [
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish',
+            'posts_per_page' => -1, // Get all for proper sorting with external events
+            'orderby' => 'meta_value',
+            'meta_key' => 'event_start_date',
+            'order' => 'ASC',
+        ];
+
+        if (!empty($search)) {
+            $local_args['s'] = $search;
+        }
+
+        $local_posts = get_posts($local_args);
+
+        foreach ($local_posts as $post) {
+            $all_events[] = [
+                'id' => $post->ID,
+                'title' => html_entity_decode($post->post_title, ENT_QUOTES, 'UTF-8'),
+                'slug' => $post->post_name,
+                'start_date' => get_post_meta($post->ID, 'event_start_date', true),
+                'permalink' => get_permalink($post->ID),
+                'source' => [
+                    'type' => 'local',
+                    'id' => 'local',
+                    'name' => 'Local',
+                ],
+            ];
+        }
+
+        // 2. Search external sources
+        $external_sources = get_option('mayo_external_sources', []);
+
+        foreach ($external_sources as $source) {
+            if (empty($source['enabled']) || empty($source['url'])) {
+                continue;
+            }
+
+            try {
+                // Build search URL for external source - get all for proper pagination
+                $params = ['per_page' => 100];
+                if (!empty($search)) {
+                    $params['search'] = $search;
+                }
+
+                $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
+
+                $response = wp_remote_get($url, [
+                    'timeout' => 10,
+                    'sslverify' => true
+                ]);
+
+                if (is_wp_error($response)) {
+                    continue;
+                }
+
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+
+                // Handle both paginated and direct array response formats
+                $events = isset($data['events']) ? $data['events'] : $data;
+
+                if (!is_array($events)) {
+                    continue;
+                }
+
+                $source_name = $source['name'] ?? parse_url($source['url'], PHP_URL_HOST);
+                $source_host = parse_url($source['url'], PHP_URL_HOST);
+
+                foreach ($events as $event) {
+                    // Handle title - may be string or {rendered: "..."} object from WP REST API
+                    $title = $event['title'] ?? 'Untitled Event';
+                    if (is_array($title) && isset($title['rendered'])) {
+                        $title = $title['rendered'];
+                    }
+                    // Decode HTML entities for proper display
+                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+
+                    // Filter by search term if the external API doesn't support search param
+                    if (!empty($search)) {
+                        if (stripos($title, $search) === false) {
+                            continue;
+                        }
+                    }
+
+                    // Use the link from the API response if available, otherwise construct it
+                    $permalink = $event['link'] ?? $event['permalink'] ?? (trailingslashit($source['url']) . 'event/' . ($event['slug'] ?? $event['id']));
+
+                    $all_events[] = [
+                        'id' => $event['id'] ?? 0,
+                        'title' => $title,
+                        'slug' => $event['slug'] ?? '',
+                        'start_date' => $event['meta']['event_start_date'] ?? ($event['start_date'] ?? ''),
+                        'permalink' => $permalink,
+                        'source' => [
+                            'type' => 'external',
+                            'id' => $source['id'],
+                            'name' => $source_name,
+                            'url' => $source_host,
+                        ],
+                    ];
+                }
+            } catch (\Exception $e) {
+                error_log('Error searching external source ' . $source['url'] . ': ' . $e->getMessage());
+                continue;
+            }
+        }
+
+        // Sort all events by start_date
+        usort($all_events, function($a, $b) {
+            $dateA = $a['start_date'] ?? '';
+            $dateB = $b['start_date'] ?? '';
+            return strcmp($dateA, $dateB);
+        });
+
+        // Calculate pagination
+        $total = count($all_events);
+        $total_pages = ceil($total / $per_page);
+        $offset = ($page - 1) * $per_page;
+
+        // Slice for current page
+        $paginated_events = array_slice($all_events, $offset, $per_page);
+
+        return new \WP_REST_Response([
+            'events' => $paginated_events,
+            'total' => $total,
+            'total_pages' => $total_pages,
+            'page' => $page,
+            'per_page' => $per_page,
+        ]);
+    }
+
+    /**
      * Get a single event by ID
      *
      * @param WP_REST_Request $request
@@ -1683,20 +1844,45 @@ class Rest {
      * @return array
      */
     private static function format_announcement($post) {
-        $linked_events = get_post_meta($post->ID, 'linked_events', true) ?: [];
+        $linked_refs = Announcement::get_linked_event_refs($post->ID);
         $linked_event_data = [];
 
-        if (is_array($linked_events)) {
-            foreach ($linked_events as $event_id) {
-                $event = get_post($event_id);
-                if ($event && $event->post_type === 'mayo_event') {
-                    $linked_event_data[] = [
-                        'id' => $event_id,
-                        'title' => $event->post_title,
-                        'permalink' => get_permalink($event_id),
-                        'start_date' => get_post_meta($event_id, 'event_start_date', true),
-                    ];
+        foreach ($linked_refs as $ref) {
+            $resolved = Announcement::resolve_event_ref($ref);
+            if ($resolved) {
+                // Handle both 'link' (from external API) and 'permalink' (from local)
+                $permalink = $resolved['permalink'] ?? $resolved['link'] ?? '#';
+                // Handle title - may be string or {rendered: "..."} object from WP REST API
+                $title = $resolved['title'] ?? 'Unknown Event';
+                if (is_array($title) && isset($title['rendered'])) {
+                    $title = $title['rendered'];
                 }
+                $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                // Handle start_date from meta object or direct field
+                $start_date = $resolved['start_date'] ?? ($resolved['meta']['event_start_date'] ?? '');
+                $linked_event_data[] = [
+                    'id' => $resolved['id'],
+                    'title' => $title,
+                    'permalink' => $permalink,
+                    'start_date' => $start_date,
+                    'source' => $resolved['source'] ?? ['type' => 'local', 'id' => 'local', 'name' => 'Local'],
+                ];
+            } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
+                // External event unavailable - include placeholder with source info
+                $source = Announcement::get_external_source($ref['source_id']);
+                $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
+                $linked_event_data[] = [
+                    'id' => $ref['id'],
+                    'title' => 'Event details unavailable',
+                    'permalink' => '#',
+                    'start_date' => '',
+                    'unavailable' => true,
+                    'source' => [
+                        'type' => 'external',
+                        'id' => $ref['source_id'],
+                        'name' => $source_name,
+                    ],
+                ];
             }
         }
 

@@ -112,17 +112,34 @@ const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClo
                         {currentAnnouncement.linked_events && currentAnnouncement.linked_events.length > 0 && (
                             <span className="mayo-announcement-linked-events" style={{ marginLeft: '8px', fontSize: '12px', opacity: 0.9 }}>
                                 <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '12px', marginRight: '4px', verticalAlign: 'middle' }}></span>
-                                {currentAnnouncement.linked_events.map((event, index) => (
-                                    <span key={event.id}>
-                                        <a
-                                            href={event.permalink}
-                                            style={{ color: 'inherit', textDecoration: 'underline' }}
-                                        >
-                                            {event.title}
-                                        </a>
-                                        {index < currentAnnouncement.linked_events.length - 1 && ', '}
-                                    </span>
-                                ))}
+                                {currentAnnouncement.linked_events.map((event, index) => {
+                                    const isExternal = event.source && event.source.type === 'external';
+                                    const isUnavailable = event.unavailable;
+                                    return (
+                                        <span key={`${event.source?.type || 'local'}-${event.source?.id || 'local'}-${event.id}`}>
+                                            {isUnavailable ? (
+                                                <span style={{ opacity: 0.7, fontStyle: 'italic' }}>
+                                                    {event.title}
+                                                </span>
+                                            ) : (
+                                                <a
+                                                    href={event.permalink}
+                                                    target={isExternal ? '_blank' : '_self'}
+                                                    rel={isExternal ? 'noopener noreferrer' : undefined}
+                                                    style={{ color: 'inherit', textDecoration: 'underline' }}
+                                                >
+                                                    {event.title}
+                                                    {isExternal && event.source?.name && (
+                                                        <span style={{ opacity: 0.8, marginLeft: '2px' }}>
+                                                            ({event.source.name})
+                                                        </span>
+                                                    )}
+                                                </a>
+                                            )}
+                                            {index < currentAnnouncement.linked_events.length - 1 && ', '}
+                                        </span>
+                                    );
+                                })}
                             </span>
                         )}
                         {hasMultiple && (
