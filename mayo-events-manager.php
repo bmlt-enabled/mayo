@@ -202,7 +202,8 @@ function Bmltenabled_Mayo_handleSubscriptionRequests()
         $token = sanitize_text_field($_GET['mayo_unsubscribe']);
 
         // Check if form was submitted (POST request with confirmation)
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unsubscribe'])) {
+        $is_post = $_SERVER['REQUEST_METHOD'] === 'POST';
+        if ($is_post && isset($_POST['confirm_unsubscribe'])) {
             // Verify nonce
             if (!wp_verify_nonce($_POST['_wpnonce'], 'mayo_unsubscribe_' . $token)) {
                 Bmltenabled_Mayo_displaySubscriptionMessage(
@@ -413,8 +414,8 @@ function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
                 <button type="submit" class="btn btn-danger">
                     Yes, Unsubscribe
                 </button>
-                <a href="<?php echo esc_url($home_url); ?>" class="btn btn-secondary">
-                    Cancel
+                <a href="<?php echo esc_url($home_url); ?>"
+                    class="btn btn-secondary">Cancel
                 </a>
             </form>
         </div>
