@@ -200,14 +200,31 @@ function Bmltenabled_Mayo_handleSubscriptionRequests()
     // Handle unsubscribe
     if (isset($_GET['mayo_unsubscribe'])) {
         $token = sanitize_text_field($_GET['mayo_unsubscribe']);
-        $result = Subscriber::unsubscribe($token);
 
-        // Display result page
-        Bmltenabled_Mayo_displaySubscriptionMessage(
-            $result['success'] ? 'Unsubscribed' : 'Unsubscribe Error',
-            $result['message'],
-            $result['success']
-        );
+        // Check if form was submitted (POST request with confirmation)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_unsubscribe'])) {
+            // Verify nonce
+            if (!wp_verify_nonce($_POST['_wpnonce'], 'mayo_unsubscribe_' . $token)) {
+                Bmltenabled_Mayo_displaySubscriptionMessage(
+                    'Error',
+                    'Invalid request. Please try again.',
+                    false
+                );
+                exit;
+            }
+
+            $result = Subscriber::unsubscribe($token);
+
+            Bmltenabled_Mayo_displaySubscriptionMessage(
+                $result['success'] ? 'Unsubscribed' : 'Unsubscribe Error',
+                $result['message'],
+                $result['success']
+            );
+            exit;
+        }
+
+        // Show confirmation page
+        Bmltenabled_Mayo_displayUnsubscribeConfirmation($token);
         exit;
     }
 }
@@ -292,6 +309,114 @@ function Bmltenabled_Mayo_displaySubscriptionMessage($title, $message, $success)
             <a href="<?php echo esc_url($home_url); ?>">
                 Return to <?php echo esc_html($site_name); ?>
             </a>
+        </div>
+    </body>
+    </html>
+    <?php
+}
+
+/**
+ * Display unsubscribe confirmation page
+ *
+ * @param string $token Subscriber token
+ *
+ * @return void
+ */
+function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
+{
+    $site_name = get_bloginfo('name');
+    $home_url = home_url();
+    $nonce = wp_create_nonce('mayo_unsubscribe_' . $token);
+
+    ?>
+    <!DOCTYPE html>
+    <html <?php language_attributes(); ?>>
+    <head>
+        <meta charset="<?php bloginfo('charset'); ?>">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Unsubscribe - <?php echo esc_html($site_name); ?></title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
+                    sans-serif;
+                background: #f1f1f1;
+                margin: 0;
+                padding: 40px 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: calc(100vh - 80px);
+            }
+            .message-box {
+                background: #fff;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                max-width: 500px;
+                text-align: center;
+            }
+            .message-box h1 {
+                margin: 0 0 20px;
+                font-size: 24px;
+                color: #333;
+            }
+            .message-box p {
+                color: #666;
+                margin-bottom: 24px;
+                line-height: 1.6;
+            }
+            .button-group {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .btn {
+                display: inline-block;
+                padding: 12px 24px;
+                text-decoration: none;
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                border: none;
+            }
+            .btn-danger {
+                background: #dc3545;
+                color: #fff;
+            }
+            .btn-danger:hover {
+                background: #c82333;
+            }
+            .btn-secondary {
+                background: #6c757d;
+                color: #fff;
+            }
+            .btn-secondary:hover {
+                background: #5a6268;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="message-box">
+            <h1>Unsubscribe from Announcements</h1>
+            <p>
+                Are you sure you want to unsubscribe from
+                <?php echo esc_html($site_name); ?> announcements?
+                You will no longer receive email notifications.
+            </p>
+            <form method="post" class="button-group">
+                <input type="hidden" name="_wpnonce"
+                    value="<?php echo esc_attr($nonce); ?>">
+                <input type="hidden" name="confirm_unsubscribe" value="1">
+                <button type="submit" class="btn btn-danger">
+                    Yes, Unsubscribe
+                </button>
+                <a href="<?php echo esc_url($home_url); ?>" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
         </div>
     </body>
     </html>
