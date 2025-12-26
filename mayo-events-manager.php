@@ -156,6 +156,13 @@ function Bmltenabled_Mayo_loadDetailsTemplate($template)
             return $custom_template;
         }
     }
+    if (is_singular('mayo_announcement')) {
+        $custom_template = plugin_dir_path(__FILE__) .
+        'templates/details-mayo-announcement.php';
+        if (file_exists($custom_template)) {
+            return $custom_template;
+        }
+    }
     return $template;
 }
 

@@ -404,63 +404,72 @@ class Subscriber
      */
     private static function get_linked_events_text($announcement_id)
     {
-        $linked_event_ids = get_post_meta($announcement_id, 'linked_events', true);
+        $linked_refs = Announcement::get_linked_event_refs($announcement_id);
 
-        if (empty($linked_event_ids) || !is_array($linked_event_ids)) {
+        if (empty($linked_refs)) {
             return '';
         }
 
         $events_text = "---\n";
-        $events_text .= "RELATED EVENT" . (count($linked_event_ids) > 1 ? "S" : "") . "\n";
+        $events_text .= "RELATED EVENT" . (count($linked_refs) > 1 ? "S" : "") . "\n";
         $events_text .= "---\n\n";
 
-        foreach ($linked_event_ids as $event_id) {
-            $event = get_post($event_id);
+        foreach ($linked_refs as $ref) {
+            $resolved = Announcement::resolve_event_ref($ref);
 
-            if (!$event || $event->post_type !== 'mayo_event' || $event->post_status !== 'publish') {
-                continue;
-            }
+            if ($resolved) {
+                $event_title = html_entity_decode($resolved['title'], ENT_QUOTES, 'UTF-8');
+                $event_permalink = $resolved['permalink'];
+                $is_external = isset($resolved['source']) && $resolved['source']['type'] === 'external';
 
-            $event_title = html_entity_decode(get_the_title($event_id), ENT_QUOTES, 'UTF-8');
-            $event_permalink = get_permalink($event_id);
+                $events_text .= "{$event_title}\n";
 
-            // Get event meta
-            $start_date = get_post_meta($event_id, 'event_start_date', true);
-            $end_date = get_post_meta($event_id, 'event_end_date', true);
-            $start_time = get_post_meta($event_id, 'event_start_time', true);
-            $end_time = get_post_meta($event_id, 'event_end_time', true);
-            $location_name = get_post_meta($event_id, 'location_name', true);
-            $location_address = get_post_meta($event_id, 'location_address', true);
-
-            $events_text .= "{$event_title}\n";
-
-            // Format date/time
-            if ($start_date) {
-                $date_str = self::format_date($start_date);
-                if ($end_date && $end_date !== $start_date) {
-                    $date_str .= ' - ' . self::format_date($end_date);
+                // Add source indicator for external events
+                if ($is_external && !empty($resolved['source']['name'])) {
+                    $events_text .= "Source: " . $resolved['source']['name'] . "\n";
                 }
-                $events_text .= "Date: {$date_str}\n";
-            }
 
-            if ($start_time) {
-                $time_str = self::format_time($start_time);
-                if ($end_time) {
-                    $time_str .= ' - ' . self::format_time($end_time);
+                // Get event meta (available for both local and external events from resolve_event_ref)
+                $start_date = $resolved['start_date'] ?? '';
+                $end_date = $resolved['end_date'] ?? '';
+                $start_time = $resolved['start_time'] ?? '';
+                $end_time = $resolved['end_time'] ?? '';
+                $location_name = $resolved['location_name'] ?? '';
+                $location_address = $resolved['location_address'] ?? '';
+
+                // Format date/time
+                if ($start_date) {
+                    $date_str = self::format_date($start_date);
+                    if ($end_date && $end_date !== $start_date) {
+                        $date_str .= ' - ' . self::format_date($end_date);
+                    }
+                    $events_text .= "Date: {$date_str}\n";
                 }
-                $events_text .= "Time: {$time_str}\n";
-            }
 
-            // Location
-            if ($location_name || $location_address) {
-                $location = $location_name ?: '';
-                if ($location_address) {
-                    $location .= $location ? "\n      {$location_address}" : $location_address;
+                if ($start_time) {
+                    $time_str = self::format_time($start_time);
+                    if ($end_time) {
+                        $time_str .= ' - ' . self::format_time($end_time);
+                    }
+                    $events_text .= "Time: {$time_str}\n";
                 }
-                $events_text .= "Location: {$location}\n";
-            }
 
-            $events_text .= "Details: {$event_permalink}\n\n";
+                // Location
+                if ($location_name || $location_address) {
+                    $location = $location_name ?: '';
+                    if ($location_address) {
+                        $location .= $location ? "\n       {$location_address}" : $location_address;
+                    }
+                    $events_text .= "Location: {$location}\n";
+                }
+
+                $events_text .= "Details: {$event_permalink}\n\n";
+            } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
+                // External event unavailable - include note
+                $source = Announcement::get_external_source($ref['source_id']);
+                $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
+                $events_text .= "Event details unavailable from {$source_name}\n\n";
+            }
         }
 
         return $events_text;

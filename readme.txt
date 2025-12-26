@@ -194,6 +194,10 @@ This project is licensed under the GPL v2 or later.
 * Token-based secure unsubscribe links (no login required).
 * New REST API endpoint: POST /subscribe for email subscriptions.
 * Database table for subscriber management with preferences column for future filtering.
+* Added support for linking announcements to external events (from external Mayo sites).
+* Admin announcement editor now shows combined search results from local and external sources with source labels.
+* External event links open in new tab and display source name indicator.
+* Email notifications include external event details with source information.
 * Fixed a bug with linked event search on the announcement page.
 
 = 1.7.0 =

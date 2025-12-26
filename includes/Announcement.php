@@ -105,6 +105,30 @@ class Announcement {
             }
         ]);
 
+        // New unified linked event refs that supports both local and external events
+        register_post_meta('mayo_announcement', 'linked_event_refs', [
+            'show_in_rest' => [
+                'schema' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'type' => ['type' => 'string', 'enum' => ['local', 'external']],
+                            'id' => ['type' => 'integer'],
+                            'source_id' => ['type' => 'string'],
+                        ],
+                        'required' => ['type', 'id']
+                    ]
+                ]
+            ],
+            'single' => true,
+            'type' => 'array',
+            'default' => [],
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ]);
+
         // Future: notification settings placeholder
         register_post_meta('mayo_announcement', 'notification_settings', [
             'show_in_rest' => [
@@ -190,13 +214,20 @@ class Announcement {
                 break;
 
             case 'linked_events':
-                $linked_events = get_post_meta($post_id, 'linked_events', true);
-                if (!empty($linked_events) && is_array($linked_events)) {
+                $linked_refs = self::get_linked_event_refs($post_id);
+                if (!empty($linked_refs)) {
                     $event_links = [];
-                    foreach ($linked_events as $event_id) {
-                        $event = get_post($event_id);
-                        if ($event && $event->post_type === 'mayo_event') {
-                            $event_links[] = '<a href="' . get_edit_post_link($event_id) . '">' . esc_html($event->post_title) . '</a>';
+                    foreach ($linked_refs as $ref) {
+                        if ($ref['type'] === 'local') {
+                            $event = get_post($ref['id']);
+                            if ($event && $event->post_type === 'mayo_event') {
+                                $event_links[] = '<a href="' . get_edit_post_link($ref['id']) . '">' . esc_html($event->post_title) . '</a>';
+                            }
+                        } else if ($ref['type'] === 'external' && !empty($ref['source_id'])) {
+                            // For external events, show source name badge
+                            $source = self::get_external_source($ref['source_id']);
+                            $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
+                            $event_links[] = '<span class="mayo-external-event-badge" style="display: inline-block; background: #fff3e0; color: #e65100; padding: 2px 6px; border-radius: 3px; font-size: 11px;">Event #' . intval($ref['id']) . ' <small>(' . esc_html($source_name) . ')</small></span>';
                         }
                     }
                     echo !empty($event_links) ? implode(', ', $event_links) : '—';
@@ -420,17 +451,44 @@ class Announcement {
 
         $announcements = [];
         foreach ($posts as $post) {
-            $linked_events = get_post_meta($post->ID, 'linked_events', true) ?: [];
+            $linked_refs = self::get_linked_event_refs($post->ID);
             $linked_event_data = [];
 
-            foreach ($linked_events as $event_id) {
-                $event = get_post($event_id);
-                if ($event && $event->post_type === 'mayo_event') {
+            foreach ($linked_refs as $ref) {
+                $resolved = self::resolve_event_ref($ref);
+                if ($resolved) {
+                    // Handle both 'link' (from external API) and 'permalink' (from local)
+                    $permalink = $resolved['permalink'] ?? $resolved['link'] ?? '#';
+                    // Handle title - may be string or {rendered: "..."} object from WP REST API
+                    $title = $resolved['title'] ?? 'Unknown Event';
+                    if (is_array($title) && isset($title['rendered'])) {
+                        $title = $title['rendered'];
+                    }
+                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                    // Handle start_date from meta object or direct field
+                    $start_date = $resolved['start_date'] ?? ($resolved['meta']['event_start_date'] ?? '');
                     $linked_event_data[] = [
-                        'id' => $event_id,
-                        'title' => $event->post_title,
-                        'permalink' => get_permalink($event_id),
-                        'start_date' => get_post_meta($event_id, 'event_start_date', true),
+                        'id' => $resolved['id'],
+                        'title' => $title,
+                        'permalink' => $permalink,
+                        'start_date' => $start_date,
+                        'source' => $resolved['source'] ?? ['type' => 'local', 'id' => 'local', 'name' => 'Local'],
+                    ];
+                } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
+                    // External event unavailable - include placeholder with source info
+                    $source = self::get_external_source($ref['source_id']);
+                    $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
+                    $linked_event_data[] = [
+                        'id' => $ref['id'],
+                        'title' => 'Event details unavailable',
+                        'permalink' => '#',
+                        'start_date' => '',
+                        'unavailable' => true,
+                        'source' => [
+                            'type' => 'external',
+                            'id' => $ref['source_id'],
+                            'name' => $source_name,
+                        ],
                     ];
                 }
             }
@@ -529,5 +587,144 @@ class Announcement {
         if ($new_status === 'publish' && $old_status !== 'publish') {
             Subscriber::send_announcement_email($post->ID);
         }
+    }
+
+    /**
+     * Get linked event refs for an announcement
+     * Supports new linked_event_refs format with fallback to old linked_events
+     *
+     * @param int $post_id The announcement post ID
+     * @return array Array of event reference objects
+     */
+    public static function get_linked_event_refs($post_id) {
+        // Try new format first
+        $refs = get_post_meta($post_id, 'linked_event_refs', true);
+        if (!empty($refs) && is_array($refs)) {
+            return $refs;
+        }
+
+        // Fall back to old format for backward compatibility
+        $old_ids = get_post_meta($post_id, 'linked_events', true);
+        if (!empty($old_ids) && is_array($old_ids)) {
+            return array_map(function($id) {
+                return ['type' => 'local', 'id' => intval($id)];
+            }, $old_ids);
+        }
+
+        return [];
+    }
+
+    /**
+     * Get external source configuration by ID
+     *
+     * @param string $source_id The external source ID
+     * @return array|null Source configuration or null if not found
+     */
+    public static function get_external_source($source_id) {
+        $sources = get_option('mayo_external_sources', []);
+        foreach ($sources as $source) {
+            if (isset($source['id']) && $source['id'] === $source_id) {
+                return $source;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Fetch external event details from remote source
+     *
+     * @param string $source_id The external source ID
+     * @param int    $event_id  The remote event ID
+     * @return array|null Event details or null if unavailable
+     */
+    public static function fetch_external_event($source_id, $event_id) {
+        $source = self::get_external_source($source_id);
+        if (!$source || empty($source['url'])) {
+            return null;
+        }
+
+        $url = trailingslashit($source['url']) . 'wp-json/event-manager/v1/events/' . intval($event_id);
+        $response = wp_remote_get($url, ['timeout' => 10, 'sslverify' => true]);
+
+        if (is_wp_error($response)) {
+            return null;
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            return null;
+        }
+
+        $event = json_decode(wp_remote_retrieve_body($response), true);
+        if (!$event || !is_array($event)) {
+            return null;
+        }
+
+        // Add source metadata
+        $event['source'] = [
+            'type' => 'external',
+            'id' => $source_id,
+            'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
+            'url' => parse_url($source['url'], PHP_URL_HOST),
+        ];
+
+        return $event;
+    }
+
+    /**
+     * Resolve an event reference to full event details
+     *
+     * @param array $ref Event reference object {type, id, source_id?}
+     * @return array|null Resolved event details or null if unavailable
+     */
+    public static function resolve_event_ref($ref) {
+        if (!is_array($ref) || !isset($ref['type']) || !isset($ref['id'])) {
+            return null;
+        }
+
+        if ($ref['type'] === 'local') {
+            $event = get_post($ref['id']);
+            if (!$event || $event->post_type !== 'mayo_event') {
+                return null;
+            }
+
+            return [
+                'id' => $event->ID,
+                'title' => $event->post_title,
+                'permalink' => get_permalink($event->ID),
+                'slug' => $event->post_name,
+                'start_date' => get_post_meta($event->ID, 'event_start_date', true),
+                'end_date' => get_post_meta($event->ID, 'event_end_date', true),
+                'start_time' => get_post_meta($event->ID, 'event_start_time', true),
+                'end_time' => get_post_meta($event->ID, 'event_end_time', true),
+                'location_name' => get_post_meta($event->ID, 'location_name', true),
+                'location_address' => get_post_meta($event->ID, 'location_address', true),
+                'source' => [
+                    'type' => 'local',
+                    'id' => 'local',
+                    'name' => 'Local',
+                ],
+            ];
+        }
+
+        if ($ref['type'] === 'external' && !empty($ref['source_id'])) {
+            return self::fetch_external_event($ref['source_id'], $ref['id']);
+        }
+
+        return null;
+    }
+
+    /**
+     * Build permalink for an external event
+     *
+     * @param array $source External source configuration
+     * @param string $slug Event slug
+     * @return string External event URL
+     */
+    public static function build_external_event_permalink($source, $slug) {
+        if (empty($source['url']) || empty($slug)) {
+            return '#';
+        }
+        return trailingslashit($source['url']) . 'event/' . $slug;
     }
 }

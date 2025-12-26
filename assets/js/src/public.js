@@ -4,6 +4,7 @@ import EventList from './components/public/EventList';
 import EventArchive from './components/public/EventArchive';
 import EventDetails from './components/public/EventDetails';
 import EventAnnouncement from './components/public/EventAnnouncement';
+import AnnouncementDetails from './components/public/AnnouncementDetails';
 import SubscribeForm from './components/public/SubscribeForm';
 import { EventProvider } from './components/providers/EventProvider';
 
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listContainers = document.querySelectorAll('[id^="mayo-event-list-"]');
     const detailsContainer = document.getElementById('mayo-details-root');
     const archiveContainer = document.getElementById('mayo-archive-root');
+    const announcementDetailsContainer = document.getElementById('mayo-announcement-details-root');
 
     const renderWithProvider = (Component, container) => {
         if (!container) return;
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWithProvider(EventForm, formContainer);
     renderWithProvider(EventDetails, detailsContainer);
     renderWithProvider(EventArchive, archiveContainer);
+    renderWithProvider(AnnouncementDetails, announcementDetailsContainer);
 
     // Initialize announcement containers (shortcode and widget)
     const announcementContainers = document.querySelectorAll('.mayo-announcement-container');

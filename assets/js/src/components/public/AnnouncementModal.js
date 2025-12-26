@@ -95,17 +95,43 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
                                     <div className="mayo-announcement-linked-events" style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
                                         <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '14px', marginRight: '4px', verticalAlign: 'middle' }}></span>
                                         <span style={{ marginRight: '4px' }}>Related:</span>
-                                        {announcement.linked_events.map((event, index) => (
-                                            <span key={event.id}>
-                                                <a
-                                                    href={event.permalink}
-                                                    style={{ color: '#0073aa', textDecoration: 'none' }}
-                                                >
-                                                    {event.title}
-                                                </a>
-                                                {index < announcement.linked_events.length - 1 && ', '}
-                                            </span>
-                                        ))}
+                                        {announcement.linked_events.map((event, index) => {
+                                            const isExternal = event.source && event.source.type === 'external';
+                                            const isUnavailable = event.unavailable;
+                                            return (
+                                                <span key={`${event.source?.type || 'local'}-${event.source?.id || 'local'}-${event.id}`}>
+                                                    {isUnavailable ? (
+                                                        <span style={{ color: '#999', fontStyle: 'italic' }}>
+                                                            {event.title}
+                                                            {isExternal && event.source?.name && (
+                                                                <span style={{ fontSize: '10px', marginLeft: '4px' }}>
+                                                                    ({event.source.name})
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        <a
+                                                            href={event.permalink}
+                                                            target={isExternal ? '_blank' : '_self'}
+                                                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                                                            style={{ color: '#0073aa', textDecoration: 'none' }}
+                                                        >
+                                                            {event.title}
+                                                            {isExternal && event.source?.name && (
+                                                                <span style={{
+                                                                    fontSize: '10px',
+                                                                    color: '#888',
+                                                                    marginLeft: '4px'
+                                                                }}>
+                                                                    ({event.source.name})
+                                                                </span>
+                                                            )}
+                                                        </a>
+                                                    )}
+                                                    {index < announcement.linked_events.length - 1 && ', '}
+                                                </span>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </li>
