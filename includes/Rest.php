@@ -1944,6 +1944,7 @@ class Rest {
             'display_start_date' => $display_start_date,
             'display_end_date' => $display_end_date,
             'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
+            'service_body' => get_post_meta($post->ID, 'service_body', true) ?: '',
             'is_active' => $is_active,
             'linked_events' => $linked_event_data,
             'featured_image' => get_the_post_thumbnail_url($post->ID, 'medium'),

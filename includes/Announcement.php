@@ -129,6 +129,18 @@ class Announcement {
             }
         ]);
 
+        // Service body association
+        register_post_meta('mayo_announcement', 'service_body', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ]);
+
         // Future: notification settings placeholder
         register_post_meta('mayo_announcement', 'notification_settings', [
             'show_in_rest' => [
@@ -157,6 +169,7 @@ class Announcement {
             'cb' => $columns['cb'],
             'title' => __('Title', 'mayo-events-manager'),
             'priority' => __('Priority', 'mayo-events-manager'),
+            'service_body' => __('Service Body', 'mayo-events-manager'),
             'display_window' => __('Display Window', 'mayo-events-manager'),
             'status_indicator' => __('Status', 'mayo-events-manager'),
             'linked_events' => __('Linked Events', 'mayo-events-manager'),
@@ -176,6 +189,43 @@ class Announcement {
                 ];
                 $color = $priority_colors[$priority] ?? '#0073aa';
                 echo '<span style="color: ' . esc_attr($color) . '; font-weight: 600;">' . esc_html(ucfirst($priority)) . '</span>';
+                break;
+
+            case 'service_body':
+                $service_body_id = get_post_meta($post_id, 'service_body', true);
+                if ($service_body_id === '0') {
+                    echo esc_html('Unaffiliated (0)');
+                } elseif (empty($service_body_id)) {
+                    echo '—';
+                } else {
+                    // Get the service body name from the BMLT root server
+                    $settings = get_option('mayo_settings', []);
+                    $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+                    $found = false;
+
+                    if (!empty($bmlt_root_server)) {
+                        $response = wp_remote_get($bmlt_root_server . '/client_interface/json/?switcher=GetServiceBodies');
+
+                        if (!is_wp_error($response)) {
+                            $service_bodies = json_decode(wp_remote_retrieve_body($response), true);
+
+                            if (is_array($service_bodies)) {
+                                foreach ($service_bodies as $body) {
+                                    if ($body['id'] == $service_body_id) {
+                                        echo esc_html($body['name'] . ' (' . $body['id'] . ')');
+                                        $found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Fallback if we couldn't get the name
+                    if (!$found) {
+                        echo esc_html('Service Body (' . $service_body_id . ')');
+                    }
+                }
                 break;
 
             case 'display_window':
