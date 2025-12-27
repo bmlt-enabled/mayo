@@ -193,6 +193,7 @@ This project is licensed under the GPL v2 or later.
 * Added service body tagging for announcements.
 * Added single announcement template page at /announcement/{slug}.
 * Fixed linked event search on the announcement page.
+* Improved calendar view to show more events per day with compact styling.
 
 = 1.7.0 =
 * Added dedicated Announcements post type (mayo_announcement) for flexible announcement management. [#195]
