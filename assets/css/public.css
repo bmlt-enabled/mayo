@@ -561,6 +561,42 @@
     padding-left: 4px;
 }
 
+/* Calendar tooltip */
+.mayo-calendar-tooltip {
+    z-index: 100001;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.9em;
+    max-width: 280px;
+    pointer-events: none;
+}
+
+.mayo-tooltip-title {
+    font-weight: 600;
+    color: #1e1e1e;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.mayo-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #555;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.mayo-tooltip-row .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #0073aa;
+}
+
 /* Calendar header layout */
 .mayo-calendar-header-right {
     display: flex;

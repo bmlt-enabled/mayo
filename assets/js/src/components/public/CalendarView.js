@@ -6,6 +6,8 @@ import { convertToUnicode } from '../../util';
 const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [hoveredEvent, setHoveredEvent] = useState(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const { getServiceBodyName } = useEventProvider();
 
     // Generate dynamic CSS classes for an event
@@ -145,31 +147,32 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
         return textarea.value;
     };
 
-    // Build a detailed tooltip for an event
-    const getEventTooltip = (event) => {
-        const lines = [];
-
-        // Title (strip HTML and decode entities)
-        const title = decodeHtmlEntities(event.title.rendered.replace(/<[^>]*>/g, ''));
-        lines.push(title);
+    // Build tooltip data for an event
+    const getEventTooltipData = (event) => {
+        const data = {
+            title: decodeHtmlEntities(event.title.rendered.replace(/<[^>]*>/g, '')),
+            time: null,
+            location: null,
+            eventType: null,
+            serviceBody: null
+        };
 
         // Time
         if (event.meta.event_start_time) {
-            let timeStr = formatTime(event.meta.event_start_time);
+            data.time = formatTime(event.meta.event_start_time);
             if (event.meta.event_end_time) {
-                timeStr += ' - ' + formatTime(event.meta.event_end_time);
+                data.time += ' - ' + formatTime(event.meta.event_end_time);
             }
-            lines.push(timeStr);
         }
 
         // Location
         if (event.meta.location_name) {
-            lines.push(event.meta.location_name);
+            data.location = event.meta.location_name;
         }
 
         // Event type
         if (event.meta.event_type) {
-            lines.push('Type: ' + event.meta.event_type);
+            data.eventType = event.meta.event_type;
         }
 
         // Service body
@@ -177,11 +180,11 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
             const sourceId = event.external_source ? event.external_source.id : 'local';
             const serviceBodyName = getServiceBodyName(event.meta.service_body, sourceId);
             if (serviceBodyName && serviceBodyName !== event.meta.service_body) {
-                lines.push(serviceBodyName);
+                data.serviceBody = serviceBodyName;
             }
         }
 
-        return lines.join('\n');
+        return data;
     };
 
     const goToPreviousMonth = () => {
@@ -216,6 +219,19 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
         setSelectedEvent(null);
     };
 
+    const handleMouseEnter = (event, e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setTooltipPosition({
+            x: rect.left + window.scrollX,
+            y: rect.bottom + window.scrollY + 4
+        });
+        setHoveredEvent(event);
+    };
+
+    const handleMouseLeave = () => {
+        setHoveredEvent(null);
+    };
+
     // Generate calendar days
     const calendarDays = [];
 
@@ -244,7 +260,8 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
                             key={`${event.id}-${index}`}
                             className={getEventClasses(event)}
                             onClick={() => handleEventClick(event)}
-                            title={getEventTooltip(event)}
+                            onMouseEnter={(e) => handleMouseEnter(event, e)}
+                            onMouseLeave={handleMouseLeave}
                         >
                             {event.meta.event_start_time && (!event._calendarMeta?.isMultiDay || event._calendarMeta?.isFirstDay) && (
                                 <span className="event-time">
@@ -311,6 +328,49 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
                     timeFormat={timeFormat}
                     onClose={handleCloseModal}
                 />
+            )}
+            {hoveredEvent && (
+                <div
+                    className="mayo-calendar-tooltip"
+                    style={{
+                        position: 'absolute',
+                        left: tooltipPosition.x,
+                        top: tooltipPosition.y
+                    }}
+                >
+                    {(() => {
+                        const data = getEventTooltipData(hoveredEvent);
+                        return (
+                            <>
+                                <div className="mayo-tooltip-title">{data.title}</div>
+                                {data.time && (
+                                    <div className="mayo-tooltip-row">
+                                        <span className="dashicons dashicons-clock"></span>
+                                        {data.time}
+                                    </div>
+                                )}
+                                {data.location && (
+                                    <div className="mayo-tooltip-row">
+                                        <span className="dashicons dashicons-location"></span>
+                                        {data.location}
+                                    </div>
+                                )}
+                                {data.eventType && (
+                                    <div className="mayo-tooltip-row">
+                                        <span className="dashicons dashicons-tag"></span>
+                                        {data.eventType}
+                                    </div>
+                                )}
+                                {data.serviceBody && (
+                                    <div className="mayo-tooltip-row">
+                                        <span className="dashicons dashicons-groups"></span>
+                                        {data.serviceBody}
+                                    </div>
+                                )}
+                            </>
+                        );
+                    })()}
+                </div>
             )}
         </>
     );
