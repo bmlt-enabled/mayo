@@ -176,8 +176,8 @@ function Bmltenabled_Mayo_enqueueAdminScripts()
     wp_enqueue_script(
         'admin-bundle',
         plugin_dir_url(__FILE__) . 'assets/js/dist/admin.bundle.js',
-        ['wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data'],
-        '1.0',
+        ['wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data'],
+        defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
         true
     );
 }

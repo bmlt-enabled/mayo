@@ -131,6 +131,7 @@ class Admin {
                 'wp-api-fetch',
                 'wp-plugins',
                 'wp-edit-post',
+                'wp-editor',
                 'wp-i18n',
                 'wp-data',
                 'wp-block-editor',
