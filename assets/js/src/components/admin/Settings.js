@@ -246,9 +246,10 @@ const Settings = () => {
                                     ? 'mayo-invalid-url'
                                     : ''
                             }
+                            __next40pxDefaultSize={true}
                         />
                     </PanelRow>
-                    
+
                     <PanelRow>
                         <TextControl
                             label="Notification Email"
@@ -264,10 +265,11 @@ const Settings = () => {
                                     ? 'mayo-invalid-email'
                                     : ''
                             }
+                            __next40pxDefaultSize={true}
                         />
                     </PanelRow>
                 </PanelBody>
-                
+
                 <PanelBody title="Service Body Configuration" initialOpen={true}>
                     <PanelRow>
                         <TextControl
@@ -276,6 +278,7 @@ const Settings = () => {
                             onChange={(value) => handleChange('default_service_bodies', value)}
                             help="Comma-separated list of service body IDs (e.g., 1,2,3). When specified, only these service bodies will be available for event submission. Leave empty to allow all service bodies. Use '0' for Unaffiliated. Perfect for multi-site setups where each site should only show specific service bodies."
                             placeholder="e.g., 1,2,3,0"
+                            __next40pxDefaultSize={true}
                         />
                     </PanelRow>
                     
@@ -346,12 +349,14 @@ const Settings = () => {
                                 value={currentSource.url}
                                 onChange={(value) => setCurrentSource({...currentSource, url: value})}
                                 help="Enter the URL of the WordPress site (e.g., https://example.com)"
+                                __next40pxDefaultSize={true}
                             />
                             <TextControl
                                 label="Source Name"
                                 value={currentSource.name}
                                 onChange={(value) => setCurrentSource({...currentSource, name: value})}
                                 help="Enter a friendly name for this source (e.g., District 5 Website)"
+                                __next40pxDefaultSize={true}
                             />
                             <SelectControl
                                 label="Event Type"
@@ -365,24 +370,28 @@ const Settings = () => {
                                     setCurrentSource({...currentSource, event_type: value});
                                 }}
                                 help="Select the event type"
+                                __next40pxDefaultSize={true}
                             />
                             <TextControl
                                 label="Service Body"
                                 value={currentSource.service_body}
                                 onChange={(value) => setCurrentSource({...currentSource, service_body: value})}
                                 help="Filter by service body (optional)"
+                                __next40pxDefaultSize={true}
                             />
                             <TextControl
                                 label="Categories"
                                 value={currentSource.categories}
                                 onChange={(value) => setCurrentSource({...currentSource, categories: value})}
                                 help="Filter by categories (comma-separated)"
+                                __next40pxDefaultSize={true}
                             />
                             <TextControl
                                 label="Tags"
                                 value={currentSource.tags}
                                 onChange={(value) => setCurrentSource({...currentSource, tags: value})}
                                 help="Filter by tags (comma-separated)"
+                                __next40pxDefaultSize={true}
                             />
                             <ToggleControl
                                 label="Enable Source"

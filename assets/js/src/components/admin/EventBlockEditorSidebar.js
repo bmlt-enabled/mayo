@@ -1,4 +1,4 @@
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
     TextControl,
@@ -176,6 +176,7 @@ const EventBlockEditorSidebar = () => {
                     ]}
                     onChange={value => updateMetaValue('event_type', value)}
                     __nextHasNoMarginBottom={true}
+                    __next40pxDefaultSize={true}
                 />
 
                 <PanelBody title="Event Date & Time" initialOpen={true}>
@@ -187,12 +188,14 @@ const EventBlockEditorSidebar = () => {
                                 value={meta.event_start_date}
                                 onChange={value => updateMetaValue('event_start_date', value)}
                                 __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
                             />
                             <TextControl
                                 type="time"
                                 value={meta.event_start_time}
                                 onChange={value => updateMetaValue('event_start_time', value)}
                                 __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
                             />
                         </div>
 
@@ -203,12 +206,14 @@ const EventBlockEditorSidebar = () => {
                                 value={meta.event_end_date}
                                 onChange={value => updateMetaValue('event_end_date', value)}
                                 __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
                             />
                             <TextControl
                                 type="time"
                                 value={meta.event_end_time}
                                 onChange={value => updateMetaValue('event_end_time', value)}
                                 __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
                             />
                         </div>
                     </div>
@@ -221,6 +226,7 @@ const EventBlockEditorSidebar = () => {
                         ]}
                         onChange={value => updateMetaValue('timezone', value)}
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                 </PanelBody>
 
@@ -236,6 +242,7 @@ const EventBlockEditorSidebar = () => {
                         ]}
                         onChange={value => updateRecurringPattern({ type: value })}
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
 
                     {recurringPattern.type !== 'none' && (
@@ -278,6 +285,7 @@ const EventBlockEditorSidebar = () => {
                                 value={recurringPattern.endDate}
                                 onChange={value => updateRecurringPattern({ endDate: value })}
                                 __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
                             />
                         </>
                     )}
@@ -316,11 +324,12 @@ const EventBlockEditorSidebar = () => {
                                         options={weekNumbers}
                                         onChange={value => {
                                             const currentDay = recurringPattern.monthlyWeekday?.split(',')[1] || '0';
-                                            updateRecurringPattern({ 
-                                                monthlyWeekday: `${value},${currentDay}` 
+                                            updateRecurringPattern({
+                                                monthlyWeekday: `${value},${currentDay}`
                                             });
                                         }}
                                         __nextHasNoMarginBottom={true}
+                                        __next40pxDefaultSize={true}
                                     />
                                     <SelectControl
                                         label="Day"
@@ -328,11 +337,12 @@ const EventBlockEditorSidebar = () => {
                                         options={weekdays}
                                         onChange={value => {
                                             const currentWeek = recurringPattern.monthlyWeekday?.split(',')[0] || '1';
-                                            updateRecurringPattern({ 
-                                                monthlyWeekday: `${currentWeek},${value}` 
+                                            updateRecurringPattern({
+                                                monthlyWeekday: `${currentWeek},${value}`
                                             });
                                         }}
                                         __nextHasNoMarginBottom={true}
+                                        __next40pxDefaultSize={true}
                                     />
                                 </div>
                             )}
@@ -373,6 +383,7 @@ const EventBlockEditorSidebar = () => {
                                     value={skipDate}
                                     onChange={setSkipDate}
                                     __nextHasNoMarginBottom={true}
+                                    __next40pxDefaultSize={true}
                                 />
                                 <div className="mayo-add-skip-actions">
                                     <Button
@@ -421,6 +432,7 @@ const EventBlockEditorSidebar = () => {
                         ]}
                         onChange={value => updateMetaValue('service_body', value)}
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                 </PanelBody>
 
@@ -434,6 +446,7 @@ const EventBlockEditorSidebar = () => {
                         onChange={(value) => updateMetaValue('location_name', value)}
                         placeholder="e.g., Community Center"
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                     <TextControl
                         label="Address"
@@ -441,6 +454,7 @@ const EventBlockEditorSidebar = () => {
                         onChange={(value) => updateMetaValue('location_address', value)}
                         placeholder="Full address"
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                     <TextControl
                         label="Location Details"
@@ -448,6 +462,7 @@ const EventBlockEditorSidebar = () => {
                         onChange={(value) => updateMetaValue('location_details', value)}
                         placeholder="Parking info, entrance details, etc."
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                 </PanelBody>
             </PluginDocumentSettingPanel>
@@ -467,6 +482,7 @@ const EventBlockEditorSidebar = () => {
                         onChange={(value) => updateMetaValue('contact_name', value)}
                         placeholder="Full name of the contact person"
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                     <TextControl
                         label="Contact Email"
@@ -475,6 +491,7 @@ const EventBlockEditorSidebar = () => {
                         placeholder="Email address"
                         type="email"
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                 </PanelBody>
             </PluginDocumentSettingPanel>
