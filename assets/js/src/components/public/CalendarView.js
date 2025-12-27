@@ -138,12 +138,19 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
         return `${hour12}:${minutes}${ampm}`;
     };
 
+    // Decode HTML entities for plain text display
+    const decodeHtmlEntities = (text) => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    };
+
     // Build a detailed tooltip for an event
     const getEventTooltip = (event) => {
         const lines = [];
 
-        // Title (strip HTML)
-        const title = event.title.rendered.replace(/<[^>]*>/g, '');
+        // Title (strip HTML and decode entities)
+        const title = decodeHtmlEntities(event.title.rendered.replace(/<[^>]*>/g, ''));
         lines.push(title);
 
         // Time
