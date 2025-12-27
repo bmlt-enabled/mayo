@@ -138,6 +138,45 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
         return `${hour12}:${minutes}${ampm}`;
     };
 
+    // Build a detailed tooltip for an event
+    const getEventTooltip = (event) => {
+        const lines = [];
+
+        // Title (strip HTML)
+        const title = event.title.rendered.replace(/<[^>]*>/g, '');
+        lines.push(title);
+
+        // Time
+        if (event.meta.event_start_time) {
+            let timeStr = formatTime(event.meta.event_start_time);
+            if (event.meta.event_end_time) {
+                timeStr += ' - ' + formatTime(event.meta.event_end_time);
+            }
+            lines.push(timeStr);
+        }
+
+        // Location
+        if (event.meta.location_name) {
+            lines.push(event.meta.location_name);
+        }
+
+        // Event type
+        if (event.meta.event_type) {
+            lines.push('Type: ' + event.meta.event_type);
+        }
+
+        // Service body
+        if (event.meta.service_body) {
+            const sourceId = event.external_source ? event.external_source.id : 'local';
+            const serviceBodyName = getServiceBodyName(event.meta.service_body, sourceId);
+            if (serviceBodyName && serviceBodyName !== event.meta.service_body) {
+                lines.push(serviceBodyName);
+            }
+        }
+
+        return lines.join('\n');
+    };
+
     const goToPreviousMonth = () => {
         const newDate = new Date(year, month - 1, 1);
         setCurrentDate(newDate);
@@ -198,7 +237,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
                             key={`${event.id}-${index}`}
                             className={getEventClasses(event)}
                             onClick={() => handleEventClick(event)}
-                            title={event.title.rendered}
+                            title={getEventTooltip(event)}
                         >
                             {event.meta.event_start_time && (!event._calendarMeta?.isMultiDay || event._calendarMeta?.isFirstDay) && (
                                 <span className="event-time">
