@@ -12,6 +12,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { apiFetch } from '../../util';
+import { useEventProvider } from '../providers/EventProvider';
 
 // Event Search Modal Component with infinite scroll
 const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linkedEventRefs, getRefKey }) => {
@@ -306,6 +307,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
 const AnnouncementEditor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasPrelinked, setHasPrelinked] = useState(false);
+    const { serviceBodies } = useEventProvider();
 
     const postType = useSelect(select =>
         select('core/editor').getCurrentPostType()
@@ -592,6 +594,23 @@ const AnnouncementEditor = () => {
                             {(meta.priority || 'normal').charAt(0).toUpperCase() + (meta.priority || 'normal').slice(1)}
                         </span>
                     </p>
+                </PanelBody>
+
+                <PanelBody title="Service Body" initialOpen={true}>
+                    <SelectControl
+                        label="Service Body"
+                        value={meta.service_body || ''}
+                        options={[
+                            { label: 'Select a service body', value: '' },
+                            { label: 'Unaffiliated (0)', value: '0' },
+                            ...serviceBodies.map(body => ({
+                                label: `${body.name} (${body.id})`,
+                                value: body.id
+                            }))
+                        ]}
+                        onChange={value => updateMetaValue('service_body', value)}
+                        __nextHasNoMarginBottom={true}
+                    />
                 </PanelBody>
             </PluginDocumentSettingPanel>
 

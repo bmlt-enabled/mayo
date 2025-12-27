@@ -1393,6 +1393,286 @@
     }
 }
 
+/* Single Announcement Page Styles */
+.mayo-single-announcement {
+    background: white;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.mayo-single-announcement-header {
+    position: relative;
+    text-align: center;
+    padding: 2em 2em 1.5em;
+    border-bottom: 2px solid #f0f0f1;
+}
+
+.mayo-announcement-priority-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.mayo-single-announcement-title {
+    font-size: 2em;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.mayo-priority-badge {
+    display: inline-block;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    margin-top: 12px;
+}
+
+.mayo-single-announcement-image {
+    margin: 0;
+    text-align: center;
+    background: #f8f9fa;
+    padding: 2em;
+}
+
+.mayo-single-announcement-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.mayo-single-announcement-body {
+    padding: 2em;
+    color: #444;
+    line-height: 1.7;
+    font-size: 1.1em;
+}
+
+.mayo-single-announcement-body p {
+    margin-bottom: 1em;
+}
+
+.mayo-single-announcement-events {
+    margin: 0 2em 2em;
+    padding: 1.5em;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border-left: 4px solid #0073aa;
+}
+
+.mayo-single-announcement-events h3 {
+    margin: 0 0 1em 0;
+    color: #333;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mayo-single-announcement-events h3 .dashicons {
+    color: #0073aa;
+}
+
+.mayo-single-announcement-events ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mayo-single-announcement-events li {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.mayo-single-announcement-events li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.mayo-single-announcement-events a {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #0073aa;
+    text-decoration: none;
+    font-size: 1em;
+    transition: color 0.2s ease;
+}
+
+.mayo-single-announcement-events a:hover {
+    color: #005177;
+}
+
+.mayo-single-announcement-events .mayo-event-title {
+    font-weight: 600;
+}
+
+.mayo-single-announcement-events .mayo-event-date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.mayo-single-announcement-events .mayo-event-source-badge {
+    font-size: 11px;
+    background: #fff3e0;
+    color: #e65100;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.mayo-single-announcement-events .mayo-event-unavailable {
+    color: #999;
+    font-style: italic;
+}
+
+.mayo-single-announcement-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5em;
+    margin: 0 2em 2em;
+    padding: 1.5em;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.mayo-announcement-service-body,
+.mayo-announcement-display-window {
+    background: white;
+    padding: 1.25em;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.mayo-single-announcement-meta h3 {
+    color: #333;
+    margin: 0 0 0.5em 0;
+    font-size: 1em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.mayo-single-announcement-meta h3::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 1em;
+    background: #0073aa;
+    border-radius: 2px;
+}
+
+.mayo-single-announcement-meta p {
+    margin: 0.4em 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.mayo-single-announcement-taxonomies {
+    margin: 0 2em 2em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+}
+
+.mayo-single-announcement-categories,
+.mayo-single-announcement-tags {
+    background: white;
+    padding: 1em 1.5em;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    min-width: 200px;
+    flex: 1;
+}
+
+.mayo-single-announcement-categories h3,
+.mayo-single-announcement-tags h3 {
+    margin: 0 0 0.75em 0;
+    font-size: 0.9em;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mayo-single-announcement-categories a,
+.mayo-single-announcement-tags a {
+    display: inline-block;
+    padding: 0.4em 0.9em;
+    margin: 0.2em;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.mayo-single-announcement-categories a {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.mayo-single-announcement-tags a {
+    background: #e7f5ff;
+    color: #1864ab;
+}
+
+.mayo-single-announcement-categories a:hover,
+.mayo-single-announcement-tags a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Priority-based border colors */
+.mayo-single-announcement.mayo-priority-urgent .mayo-announcement-priority-bar {
+    background: #dc3545;
+}
+
+.mayo-single-announcement.mayo-priority-high .mayo-announcement-priority-bar {
+    background: #ff9800;
+}
+
+.mayo-single-announcement.mayo-priority-normal .mayo-announcement-priority-bar {
+    background: #0073aa;
+}
+
+.mayo-single-announcement.mayo-priority-low .mayo-announcement-priority-bar {
+    background: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .mayo-single-announcement-header {
+        padding: 1.5em;
+    }
+
+    .mayo-single-announcement-title {
+        font-size: 1.6em;
+    }
+
+    .mayo-single-announcement-body {
+        padding: 1.5em;
+    }
+
+    .mayo-single-announcement-events,
+    .mayo-single-announcement-meta,
+    .mayo-single-announcement-taxonomies {
+        margin: 0 1em 1.5em;
+    }
+
+    .mayo-single-announcement-meta {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Widget Styles */
 .mayo-widget-list {
     max-width: 100%;

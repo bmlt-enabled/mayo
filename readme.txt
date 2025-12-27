@@ -188,17 +188,11 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.8.0 =
-* Added email subscription feature for announcements. Users can subscribe via [mayo_subscribe] shortcode.
-* Double opt-in subscription with confirmation email and spam folder reminder.
-* Subscribers receive full announcement content via email when announcements are published.
-* Token-based secure unsubscribe links (no login required).
-* New REST API endpoint: POST /subscribe for email subscriptions.
-* Database table for subscriber management with preferences column for future filtering.
-* Added support for linking announcements to external events (from external Mayo sites).
-* Admin announcement editor now shows combined search results from local and external sources with source labels.
-* External event links open in new tab and display source name indicator.
-* Email notifications include external event details with source information.
-* Fixed a bug with linked event search on the announcement page.
+* Added email subscription feature for announcements via [mayo_subscribe] shortcode with double opt-in.
+* Added support for linking announcements to external events from other Mayo sites.
+* Added service body tagging for announcements.
+* Added single announcement template page at /announcement/{slug}.
+* Fixed linked event search on the announcement page.
 
 = 1.7.0 =
 * Added dedicated Announcements post type (mayo_announcement) for flexible announcement management. [#195]
