@@ -1,12 +1,16 @@
-import { registerPlugin } from '@wordpress/plugins';
+import { registerPlugin, getPlugins } from '@wordpress/plugins';
 import { EventProvider } from '../components/providers/EventProvider';
 import EventBlockEditorSidebar from '../components/admin/EventBlockEditorSidebar';
 
-registerPlugin('mayo-event-details', {
-    render: () => (
-        <EventProvider>
-            <EventBlockEditorSidebar />
-        </EventProvider>
-    ),
-    icon: 'calendar'
-}); 
+// Only register if not already registered
+const existingPlugins = getPlugins();
+if (!existingPlugins.some(plugin => plugin.name === 'mayo-event-details')) {
+    registerPlugin('mayo-event-details', {
+        render: () => (
+            <EventProvider>
+                <EventBlockEditorSidebar />
+            </EventProvider>
+        ),
+        icon: 'calendar'
+    });
+} 

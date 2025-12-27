@@ -31,6 +31,7 @@ module.exports = {
         '@wordpress/data': 'wp.data',
         '@wordpress/plugins': 'wp.plugins',
         '@wordpress/edit-post': 'wp.editPost',
+        '@wordpress/editor': 'wp.editor',
         '@wordpress/i18n': 'wp.i18n'
     },
     resolve: {

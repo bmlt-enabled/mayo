@@ -1,4 +1,4 @@
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import {
     TextControl,
@@ -169,6 +169,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                     onChange={setSearchTerm}
                     placeholder="Search by event name..."
                     __nextHasNoMarginBottom={true}
+                    __next40pxDefaultSize={true}
                 />
                 {total > 0 && (
                     <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#666' }}>
@@ -559,6 +560,7 @@ const AnnouncementEditor = () => {
                         onChange={value => updateMetaValue('display_start_date', value)}
                         help="Leave empty to start showing immediately"
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                     <TextControl
                         label="End Date"
@@ -567,6 +569,7 @@ const AnnouncementEditor = () => {
                         onChange={value => updateMetaValue('display_end_date', value)}
                         help="Leave empty to show indefinitely"
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                 </PanelBody>
 
@@ -582,6 +585,7 @@ const AnnouncementEditor = () => {
                         ]}
                         onChange={value => updateMetaValue('priority', value)}
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                     <p className="components-base-control__help">
                         Priority affects display order and styling.
@@ -610,6 +614,7 @@ const AnnouncementEditor = () => {
                         ]}
                         onChange={value => updateMetaValue('service_body', value)}
                         __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
                     />
                 </PanelBody>
             </PluginDocumentSettingPanel>
