@@ -50,6 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize subscribe form containers
     const subscribeContainers = document.querySelectorAll('.mayo-subscribe-container');
     subscribeContainers.forEach(container => {
-        render(<SubscribeForm />, container);
+        render(<EventProvider><SubscribeForm /></EventProvider>, container);
     });
 });
