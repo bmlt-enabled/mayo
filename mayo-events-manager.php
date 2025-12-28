@@ -211,15 +211,15 @@ function Bmltenabled_Mayo_handleSubscriptionRequests()
         exit;
     }
 
-    // Handle unsubscribe
+    // Handle manage subscription / unsubscribe
     if (isset($_GET['mayo_unsubscribe'])) {
         $token = sanitize_text_field($_GET['mayo_unsubscribe']);
 
-        // Check if form was submitted (POST request with confirmation)
+        // Check if form was submitted (POST request)
         $is_post = $_SERVER['REQUEST_METHOD'] === 'POST';
-        if ($is_post && isset($_POST['confirm_unsubscribe'])) {
+        if ($is_post) {
             // Verify nonce
-            if (!wp_verify_nonce($_POST['_wpnonce'], 'mayo_unsubscribe_' . $token)) {
+            if (!wp_verify_nonce($_POST['_wpnonce'], 'mayo_manage_' . $token)) {
                 Bmltenabled_Mayo_displaySubscriptionMessage(
                     'Error',
                     'Invalid request. Please try again.',
@@ -228,18 +228,56 @@ function Bmltenabled_Mayo_handleSubscriptionRequests()
                 exit;
             }
 
-            $result = Subscriber::unsubscribe($token);
+            // Handle unsubscribe
+            if (isset($_POST['confirm_unsubscribe'])) {
+                $result = Subscriber::unsubscribe($token);
 
-            Bmltenabled_Mayo_displaySubscriptionMessage(
-                $result['success'] ? 'Unsubscribed' : 'Unsubscribe Error',
-                $result['message'],
-                $result['success']
-            );
-            exit;
+                Bmltenabled_Mayo_displaySubscriptionMessage(
+                    $result['success'] ? 'Unsubscribed' : 'Unsubscribe Error',
+                    $result['message'],
+                    $result['success']
+                );
+                exit;
+            }
+
+            // Handle save preferences
+            if (isset($_POST['save_preferences'])) {
+                $pref_cats = isset($_POST['pref_categories'])
+                    ? array_map('intval', $_POST['pref_categories'])
+                    : [];
+                $pref_tags = isset($_POST['pref_tags'])
+                    ? array_map('intval', $_POST['pref_tags'])
+                    : [];
+                $pref_sbs = isset($_POST['pref_service_bodies'])
+                    ? array_map('sanitize_text_field', $_POST['pref_service_bodies'])
+                    : [];
+                $preferences = [
+                    'categories' => $pref_cats,
+                    'tags' => $pref_tags,
+                    'service_bodies' => $pref_sbs,
+                ];
+
+                $result = Subscriber::update_preferences($token, $preferences);
+
+                if ($result) {
+                    Bmltenabled_Mayo_displaySubscriptionMessage(
+                        'Preferences Saved',
+                        'Your subscription preferences have been updated.',
+                        true
+                    );
+                } else {
+                    Bmltenabled_Mayo_displaySubscriptionMessage(
+                        'Error',
+                        'Failed to update preferences. Please try again.',
+                        false
+                    );
+                }
+                exit;
+            }
         }
 
-        // Show confirmation page
-        Bmltenabled_Mayo_displayUnsubscribeConfirmation($token);
+        // Show manage subscription page
+        Bmltenabled_Mayo_displayManageSubscription($token);
         exit;
     }
 }
@@ -331,17 +369,107 @@ function Bmltenabled_Mayo_displaySubscriptionMessage($title, $message, $success)
 }
 
 /**
- * Display unsubscribe confirmation page
+ * Display manage subscription page
  *
  * @param string $token Subscriber token
  *
  * @return void
  */
-function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
+function Bmltenabled_Mayo_displayManageSubscription($token)
 {
     $site_name = get_bloginfo('name');
     $home_url = home_url();
-    $nonce = wp_create_nonce('mayo_unsubscribe_' . $token);
+    $nonce = wp_create_nonce('mayo_manage_' . $token);
+
+    // Get subscriber data
+    $subscriber = Subscriber::get_by_token($token);
+    if (!$subscriber) {
+        Bmltenabled_Mayo_displaySubscriptionMessage(
+            'Error',
+            'Subscription not found.',
+            false
+        );
+        return;
+    }
+
+    // Get current preferences
+    $current_prefs = !empty($subscriber->preferences)
+        ? json_decode($subscriber->preferences, true)
+        : ['categories' => [], 'tags' => [], 'service_bodies' => []];
+
+    // Get available subscription options from settings
+    $settings = get_option('mayo_settings', []);
+    $enabled_categories = isset($settings['subscription_categories'])
+        ? $settings['subscription_categories'] : [];
+    $enabled_tags = isset($settings['subscription_tags'])
+        ? $settings['subscription_tags'] : [];
+    $enabled_service_bodies = isset($settings['subscription_service_bodies'])
+        ? $settings['subscription_service_bodies'] : [];
+
+    // Get category and tag details
+    $categories = [];
+    if (!empty($enabled_categories)) {
+        $cat_terms = get_terms(
+            [
+            'taxonomy' => 'category',
+            'include' => $enabled_categories,
+            'hide_empty' => false,
+            ]
+        );
+        if (!is_wp_error($cat_terms)) {
+            $categories = $cat_terms;
+        }
+    }
+
+    $tags = [];
+    if (!empty($enabled_tags)) {
+        $tag_terms = get_terms(
+            [
+            'taxonomy' => 'post_tag',
+            'include' => $enabled_tags,
+            'hide_empty' => false,
+            ]
+        );
+        if (!is_wp_error($tag_terms)) {
+            $tags = $tag_terms;
+        }
+    }
+
+    // Get service body names from BMLT
+    $service_bodies = [];
+    if (!empty($enabled_service_bodies)) {
+        $bmlt_root_server = isset($settings['bmlt_root_server'])
+            ? $settings['bmlt_root_server']
+            : '';
+
+        // Fetch service bodies from BMLT server
+        $bmlt_service_bodies = [];
+        if (!empty($bmlt_root_server)) {
+            $sb_url = rtrim($bmlt_root_server, '/')
+                . '/client_interface/json/?switcher=GetServiceBodies';
+            $response = wp_remote_get($sb_url, ['timeout' => 10]);
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data)) {
+                    foreach ($data as $sb) {
+                        if (isset($sb['id']) && isset($sb['name'])) {
+                            $bmlt_service_bodies[(string) $sb['id']] = $sb['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($enabled_service_bodies as $sb_id) {
+            $sb_name = isset($bmlt_service_bodies[(string) $sb_id])
+                ? $bmlt_service_bodies[(string) $sb_id]
+                : $sb_id;
+            $service_bodies[] = ['id' => $sb_id, 'name' => $sb_name];
+        }
+    }
+
+    $has_options = !empty($categories) || !empty($tags) || !empty($service_bodies);
 
     ?>
     <!DOCTYPE html>
@@ -349,7 +477,7 @@ function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
     <head>
         <meta charset="<?php bloginfo('charset'); ?>">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Unsubscribe - <?php echo esc_html($site_name); ?></title>
+        <title>Manage Subscription - <?php echo esc_html($site_name); ?></title>
         <style>
             body {
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -360,32 +488,76 @@ function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
                 padding: 40px 20px;
                 display: flex;
                 justify-content: center;
-                align-items: center;
+                align-items: flex-start;
                 min-height: calc(100vh - 80px);
             }
-            .message-box {
+            .manage-box {
                 background: #fff;
                 padding: 40px;
                 border-radius: 8px;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                max-width: 500px;
-                text-align: center;
+                max-width: 600px;
+                width: 100%;
             }
-            .message-box h1 {
-                margin: 0 0 20px;
+            .manage-box h1 {
+                margin: 0 0 10px;
                 font-size: 24px;
                 color: #333;
             }
-            .message-box p {
+            .manage-box .email-display {
                 color: #666;
                 margin-bottom: 24px;
-                line-height: 1.6;
+                font-size: 14px;
+            }
+            .preference-section {
+                margin-bottom: 24px;
+            }
+            .preference-section h3 {
+                margin: 0 0 12px;
+                font-size: 16px;
+                color: #333;
+            }
+            .preference-section p {
+                color: #666;
+                margin: 0 0 16px;
+                font-size: 14px;
+            }
+            .preference-group {
+                margin-bottom: 20px;
+            }
+            .preference-group-title {
+                font-weight: 600;
+                color: #444;
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+            .checkbox-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .checkbox-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .checkbox-item input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+            .checkbox-item label {
+                cursor: pointer;
+                font-size: 14px;
+                color: #333;
             }
             .button-group {
                 display: flex;
                 gap: 12px;
-                justify-content: center;
                 flex-wrap: wrap;
+                margin-top: 24px;
+                padding-top: 24px;
+                border-top: 1px solid #eee;
             }
             .btn {
                 display: inline-block;
@@ -396,6 +568,13 @@ function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
                 font-weight: 500;
                 cursor: pointer;
                 border: none;
+            }
+            .btn-primary {
+                background: #0073aa;
+                color: #fff;
+            }
+            .btn-primary:hover {
+                background: #005a87;
             }
             .btn-danger {
                 background: #dc3545;
@@ -411,27 +590,158 @@ function Bmltenabled_Mayo_displayUnsubscribeConfirmation($token)
             .btn-secondary:hover {
                 background: #5a6268;
             }
+            .unsubscribe-section {
+                margin-top: 32px;
+                padding-top: 24px;
+                border-top: 1px solid #eee;
+            }
+            .unsubscribe-section h3 {
+                margin: 0 0 12px;
+                font-size: 16px;
+                color: #333;
+            }
+            .unsubscribe-section p {
+                color: #666;
+                margin: 0 0 16px;
+                font-size: 14px;
+            }
         </style>
     </head>
     <body>
-        <div class="message-box">
-            <h1>Unsubscribe from Announcements</h1>
-            <p>
-                Are you sure you want to unsubscribe from
-                <?php echo esc_html($site_name); ?> announcements?
-                You will no longer receive email notifications.
-            </p>
-            <form method="post" class="button-group">
+        <div class="manage-box">
+            <h1>Manage Your Subscription</h1>
+            <div class="email-display">
+                Email: <?php echo esc_html($subscriber->email); ?>
+            </div>
+
+            <?php if ($has_options) : ?>
+            <form method="post">
                 <input type="hidden" name="_wpnonce"
                     value="<?php echo esc_attr($nonce); ?>">
-                <input type="hidden" name="confirm_unsubscribe" value="1">
-                <button type="submit" class="btn btn-danger">
-                    Yes, Unsubscribe
-                </button>
-                <a href="<?php echo esc_url($home_url); ?>"
-                    class="btn btn-secondary">Cancel
-                </a>
+
+                <div class="preference-section">
+                    <h3>Your Preferences</h3>
+                    <p>Select what you'd like to receive notifications about:</p>
+
+                    <?php if (!empty($categories)) : ?>
+                    <div class="preference-group">
+                        <div class="preference-group-title">Categories</div>
+                        <div class="checkbox-list">
+                            <?php foreach ($categories as $cat) : ?>
+                                <?php
+                                $cat_id = esc_attr($cat->term_id);
+                                $cats = $current_prefs['categories'] ?? [];
+                                $pref_cats = array_map('intval', $cats);
+                                $cat_checked = in_array(
+                                    (int) $cat->term_id,
+                                    $pref_cats,
+                                    true
+                                ) ? 'checked' : '';
+                                ?>
+                            <div class="checkbox-item">
+                                <input type="checkbox"
+                                    name="pref_categories[]"
+                                    value="<?php echo $cat_id; ?>"
+                                    id="cat-<?php echo $cat_id; ?>"
+                                    <?php echo $cat_checked; ?>
+                                >
+                                <label for="cat-<?php echo $cat_id; ?>">
+                                    <?php echo esc_html($cat->name); ?>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($tags)) : ?>
+                    <div class="preference-group">
+                        <div class="preference-group-title">Tags</div>
+                        <div class="checkbox-list">
+                            <?php foreach ($tags as $tag) : ?>
+                                <?php
+                                $tag_id = esc_attr($tag->term_id);
+                                $tgs = $current_prefs['tags'] ?? [];
+                                $pref_tags = array_map('intval', $tgs);
+                                $tag_checked = in_array(
+                                    (int) $tag->term_id,
+                                    $pref_tags,
+                                    true
+                                ) ? 'checked' : '';
+                                ?>
+                            <div class="checkbox-item">
+                                <input type="checkbox"
+                                    name="pref_tags[]"
+                                    value="<?php echo $tag_id; ?>"
+                                    id="tag-<?php echo $tag_id; ?>"
+                                    <?php echo $tag_checked; ?>
+                                >
+                                <label for="tag-<?php echo $tag_id; ?>">
+                                    <?php echo esc_html($tag->name); ?>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($service_bodies)) : ?>
+                    <div class="preference-group">
+                        <div class="preference-group-title">Service Bodies</div>
+                        <div class="checkbox-list">
+                            <?php foreach ($service_bodies as $sb) : ?>
+                                <?php
+                                $sb_id = esc_attr($sb['id']);
+                                $sb_checked = in_array(
+                                    $sb['id'],
+                                    $current_prefs['service_bodies'] ?? []
+                                ) ? 'checked' : '';
+                                ?>
+                            <div class="checkbox-item">
+                                <input type="checkbox"
+                                    name="pref_service_bodies[]"
+                                    value="<?php echo $sb_id; ?>"
+                                    id="sb-<?php echo $sb_id; ?>"
+                                    <?php echo $sb_checked; ?>
+                                >
+                                <label for="sb-<?php echo $sb_id; ?>">
+                                    <?php echo esc_html($sb['name']); ?>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit"
+                        name="save_preferences"
+                        class="btn btn-primary">
+                        Save Preferences
+                    </button>
+                    <a href="<?php echo esc_url($home_url); ?>"
+                        class="btn btn-secondary">Cancel
+                    </a>
+                </div>
             </form>
+            <?php endif; ?>
+
+            <div class="unsubscribe-section">
+                <h3>Unsubscribe</h3>
+                <p>
+                    If you no longer want to receive announcements from
+                    <?php echo esc_html($site_name); ?>, you can unsubscribe below.
+                </p>
+                <form method="post">
+                    <input type="hidden" name="_wpnonce"
+                        value="<?php echo esc_attr($nonce); ?>">
+                    <input type="hidden" name="confirm_unsubscribe" value="1">
+                    <button type="submit" class="btn btn-danger">
+                        Unsubscribe
+                    </button>
+                </form>
+            </div>
         </div>
     </body>
     </html>

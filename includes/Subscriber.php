@@ -64,9 +64,10 @@ class Subscriber
      * Creates a pending subscriber and sends confirmation email
      *
      * @param string $email Email address to subscribe
+     * @param array|null $preferences Optional subscription preferences
      * @return array Result with success status and message
      */
-    public static function subscribe($email)
+    public static function subscribe($email, $preferences = null)
     {
         global $wpdb;
 
@@ -81,6 +82,7 @@ class Subscriber
         }
 
         $table_name = self::get_table_name();
+        $preferences_json = $preferences ? wp_json_encode($preferences) : null;
 
         // Check if already subscribed
         $existing = $wpdb->get_row($wpdb->prepare(
@@ -96,7 +98,16 @@ class Subscriber
                     'message' => 'This email is already subscribed.'
                 ];
             } elseif ($existing->status === 'pending') {
-                // Resend confirmation email
+                // Update preferences and resend confirmation email
+                if ($preferences_json) {
+                    $wpdb->update(
+                        $table_name,
+                        ['preferences' => $preferences_json],
+                        ['id' => $existing->id],
+                        ['%s'],
+                        ['%d']
+                    );
+                }
                 self::send_confirmation_email($email, $existing->token);
                 return [
                     'success' => true,
@@ -106,15 +117,23 @@ class Subscriber
             } elseif ($existing->status === 'unsubscribed') {
                 // Re-subscribe: generate new token and set to pending
                 $token = self::generate_token();
+                $update_data = [
+                    'status' => 'pending',
+                    'token' => $token,
+                    'confirmed_at' => null
+                ];
+                $update_format = ['%s', '%s', null];
+
+                if ($preferences_json) {
+                    $update_data['preferences'] = $preferences_json;
+                    $update_format[] = '%s';
+                }
+
                 $wpdb->update(
                     $table_name,
-                    [
-                        'status' => 'pending',
-                        'token' => $token,
-                        'confirmed_at' => null
-                    ],
+                    $update_data,
                     ['id' => $existing->id],
-                    ['%s', '%s', null],
+                    $update_format,
                     ['%d']
                 );
                 self::send_confirmation_email($email, $token);
@@ -129,16 +148,20 @@ class Subscriber
         // Create new subscriber
         $token = self::generate_token();
 
-        $result = $wpdb->insert(
-            $table_name,
-            [
-                'email' => $email,
-                'status' => 'pending',
-                'token' => $token,
-                'created_at' => current_time('mysql')
-            ],
-            ['%s', '%s', '%s', '%s']
-        );
+        $insert_data = [
+            'email' => $email,
+            'status' => 'pending',
+            'token' => $token,
+            'created_at' => current_time('mysql')
+        ];
+        $insert_format = ['%s', '%s', '%s', '%s'];
+
+        if ($preferences_json) {
+            $insert_data['preferences'] = $preferences_json;
+            $insert_format[] = '%s';
+        }
+
+        $result = $wpdb->insert($table_name, $insert_data, $insert_format);
 
         if ($result === false) {
             return [
@@ -156,6 +179,50 @@ class Subscriber
             'code' => 'confirmation_sent',
             'message' => 'A confirmation email has been sent. Please check your inbox (and spam folder).'
         ];
+    }
+
+    /**
+     * Get subscriber by token
+     *
+     * @param string $token Subscriber token
+     * @return object|null Subscriber object or null if not found
+     */
+    public static function get_by_token($token)
+    {
+        global $wpdb;
+
+        $token = sanitize_text_field($token);
+        $table_name = self::get_table_name();
+
+        return $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE token = %s",
+            $token
+        ));
+    }
+
+    /**
+     * Update subscriber preferences
+     *
+     * @param string $token Subscriber token
+     * @param array $preferences New preferences
+     * @return bool Success status
+     */
+    public static function update_preferences($token, $preferences)
+    {
+        global $wpdb;
+
+        $token = sanitize_text_field($token);
+        $table_name = self::get_table_name();
+
+        $result = $wpdb->update(
+            $table_name,
+            ['preferences' => wp_json_encode($preferences)],
+            ['token' => $token],
+            ['%s'],
+            ['%s']
+        );
+
+        return $result !== false;
     }
 
     /**
@@ -279,6 +346,190 @@ class Subscriber
     }
 
     /**
+     * Get all subscribers (for admin view)
+     *
+     * @return array Array of subscriber objects
+     */
+    public static function get_all_subscribers()
+    {
+        global $wpdb;
+
+        $table_name = self::get_table_name();
+
+        return $wpdb->get_results(
+            "SELECT * FROM $table_name ORDER BY created_at DESC"
+        );
+    }
+
+    /**
+     * Get active subscribers matching given announcement criteria
+     *
+     * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
+     * @return array Array of matching subscriber objects
+     */
+    public static function get_matching($announcement_data)
+    {
+        $subscribers = self::get_active_subscribers();
+        $matching = [];
+
+        foreach ($subscribers as $subscriber) {
+            if (self::matches_preferences($subscriber, $announcement_data)) {
+                $matching[] = $subscriber;
+            }
+        }
+
+        return $matching;
+    }
+
+    /**
+     * Get active subscribers matching given announcement criteria with match reasons
+     *
+     * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
+     * @return array Array of ['subscriber' => object, 'reason' => string]
+     */
+    public static function get_matching_with_reasons($announcement_data)
+    {
+        $subscribers = self::get_active_subscribers();
+        $matching = [];
+
+        // Fetch service body names from BMLT once for all subscribers
+        $service_body_names = self::get_service_body_names();
+
+        foreach ($subscribers as $subscriber) {
+            $reason = self::get_match_reason($subscriber, $announcement_data, $service_body_names);
+            if ($reason !== false) {
+                $matching[] = [
+                    'subscriber' => $subscriber,
+                    'reason' => $reason
+                ];
+            }
+        }
+
+        return $matching;
+    }
+
+    /**
+     * Get service body names from BMLT
+     *
+     * @return array Associative array of service body ID => name
+     */
+    private static function get_service_body_names()
+    {
+        $settings = get_option('mayo_settings', []);
+        $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+        $service_body_names = [];
+
+        if (!empty($bmlt_root_server)) {
+            $sb_url = rtrim($bmlt_root_server, '/') . '/client_interface/json/?switcher=GetServiceBodies';
+            $response = wp_remote_get($sb_url, ['timeout' => 10]);
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data)) {
+                    foreach ($data as $sb) {
+                        if (isset($sb['id']) && isset($sb['name'])) {
+                            $service_body_names[(string) $sb['id']] = $sb['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $service_body_names;
+    }
+
+    /**
+     * Get the reason why a subscriber matches announcement criteria
+     *
+     * @param object $subscriber Subscriber object with preferences JSON
+     * @param array $announcement_data Announcement categories, tags, service_body
+     * @param array $service_body_names Optional lookup for service body names
+     * @return array|false Structured reason array if matches, false if no match
+     */
+    private static function get_match_reason($subscriber, $announcement_data, $service_body_names = [])
+    {
+        // If no preferences set (legacy subscriber), send all announcements
+        if (empty($subscriber->preferences)) {
+            return ['all' => true];
+        }
+
+        $prefs = json_decode($subscriber->preferences, true);
+
+        if (!is_array($prefs)) {
+            return ['all' => true];
+        }
+
+        // Check if all preference arrays are empty
+        $has_prefs = !empty($prefs['categories']) || !empty($prefs['tags']) || !empty($prefs['service_bodies']);
+        if (!$has_prefs) {
+            return ['all' => true];
+        }
+
+        $reasons = [
+            'categories' => [],
+            'tags' => [],
+            'service_body' => null
+        ];
+
+        // Check categories - cast to integers for consistent comparison
+        if (!empty($prefs['categories']) && !empty($announcement_data['categories'])) {
+            $pref_categories = array_map('intval', $prefs['categories']);
+            $announcement_categories = array_map('intval', $announcement_data['categories']);
+            $matching_categories = array_intersect($pref_categories, $announcement_categories);
+            if (!empty($matching_categories)) {
+                foreach ($matching_categories as $cat_id) {
+                    $term = get_term($cat_id, 'category');
+                    if ($term && !is_wp_error($term)) {
+                        $reasons['categories'][] = $term->name;
+                    }
+                }
+            }
+        }
+
+        // Check tags - cast to integers for consistent comparison
+        if (!empty($prefs['tags']) && !empty($announcement_data['tags'])) {
+            $pref_tags = array_map('intval', $prefs['tags']);
+            $announcement_tags = array_map('intval', $announcement_data['tags']);
+            $matching_tags = array_intersect($pref_tags, $announcement_tags);
+            if (!empty($matching_tags)) {
+                foreach ($matching_tags as $tag_id) {
+                    $term = get_term($tag_id, 'post_tag');
+                    if ($term && !is_wp_error($term)) {
+                        $reasons['tags'][] = $term->name;
+                    }
+                }
+            }
+        }
+
+        // Check service body - cast to string for consistent comparison
+        if (!empty($prefs['service_bodies']) && !empty($announcement_data['service_body'])) {
+            $pref_service_bodies = array_map('strval', $prefs['service_bodies']);
+            if (in_array((string) $announcement_data['service_body'], $pref_service_bodies, true)) {
+                $sb_id = $announcement_data['service_body'];
+                $reasons['service_body'] = $service_body_names[(string) $sb_id] ?? "Service Body $sb_id";
+            }
+        }
+
+        // Return false if no matches found
+        if (empty($reasons['categories']) && empty($reasons['tags']) && empty($reasons['service_body'])) {
+            return false;
+        }
+
+        return $reasons;
+    }
+
+    /**
+     * Count active subscribers matching given announcement criteria
+     *
+     * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
+     * @return int Number of matching active subscribers
+     */
+    public static function count_matching($announcement_data)
+    {
+        return count(self::get_matching($announcement_data));
+    }
+
+    /**
      * Send confirmation email
      *
      * @param string $email Email address
@@ -328,7 +579,7 @@ class Subscriber
         $message = "You're now subscribed to announcements from {$site_name}.\n\n";
         $message .= "You'll receive an email whenever a new announcement is published.\n\n";
         $message .= "---\n";
-        $message .= "Unsubscribe: {$unsubscribe_url}\n";
+        $message .= "Manage preferences / Unsubscribe: {$unsubscribe_url}\n";
 
         $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
@@ -358,6 +609,9 @@ class Subscriber
             return;
         }
 
+        // Get announcement metadata for preference matching
+        $announcement_data = self::get_announcement_data($announcement_id);
+
         $site_name = get_bloginfo('name');
         $title = html_entity_decode(get_the_title($announcement_id), ENT_QUOTES, 'UTF-8');
         $content = apply_filters('the_content', $announcement->post_content);
@@ -370,6 +624,11 @@ class Subscriber
         $subject = sprintf('[%s] %s', $site_name, $title);
 
         foreach ($subscribers as $subscriber) {
+            // Check if subscriber preferences match the announcement
+            if (!self::matches_preferences($subscriber, $announcement_data)) {
+                continue;
+            }
+
             $unsubscribe_url = add_query_arg([
                 'mayo_unsubscribe' => $subscriber->token
             ], home_url());
@@ -384,7 +643,7 @@ class Subscriber
 
             $message .= "View online: {$permalink}\n\n";
             $message .= "---\n";
-            $message .= "Unsubscribe: {$unsubscribe_url}\n";
+            $message .= "Manage preferences / Unsubscribe: {$unsubscribe_url}\n";
 
             $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
@@ -394,6 +653,96 @@ class Subscriber
                 error_log('Mayo Subscriber: Failed to send announcement email to ' . $subscriber->email);
             }
         }
+    }
+
+    /**
+     * Get announcement data for preference matching
+     *
+     * @param int $announcement_id Announcement post ID
+     * @return array Announcement data with categories, tags, service_body
+     */
+    private static function get_announcement_data($announcement_id)
+    {
+        // Get categories
+        $categories = wp_get_post_terms($announcement_id, 'category', ['fields' => 'ids']);
+        if (is_wp_error($categories)) {
+            $categories = [];
+        }
+
+        // Get tags
+        $tags = wp_get_post_terms($announcement_id, 'post_tag', ['fields' => 'ids']);
+        if (is_wp_error($tags)) {
+            $tags = [];
+        }
+
+        // Get service body
+        $service_body = get_post_meta($announcement_id, 'service_body', true);
+
+        return [
+            'categories' => $categories,
+            'tags' => $tags,
+            'service_body' => $service_body
+        ];
+    }
+
+    /**
+     * Check if subscriber preferences match announcement (OR logic)
+     *
+     * @param object $subscriber Subscriber object with preferences JSON
+     * @param array $announcement_data Announcement categories, tags, service_body
+     * @return bool True if should send email
+     */
+    private static function matches_preferences($subscriber, $announcement_data)
+    {
+        // If no preferences set (legacy subscriber), send all announcements
+        if (empty($subscriber->preferences)) {
+            return true;
+        }
+
+        $prefs = json_decode($subscriber->preferences, true);
+
+        if (!is_array($prefs)) {
+            return true; // Invalid preferences, treat as legacy
+        }
+
+        // Check if all preference arrays are empty (shouldn't happen, but treat as receive all)
+        $has_prefs = !empty($prefs['categories']) || !empty($prefs['tags']) || !empty($prefs['service_bodies']);
+        if (!$has_prefs) {
+            return true;
+        }
+
+        // OR logic: match if ANY preference matches
+
+        // Check categories - cast to integers for consistent comparison
+        if (!empty($prefs['categories']) && !empty($announcement_data['categories'])) {
+            $pref_categories = array_map('intval', $prefs['categories']);
+            $announcement_categories = array_map('intval', $announcement_data['categories']);
+            $matching_categories = array_intersect($pref_categories, $announcement_categories);
+            if (!empty($matching_categories)) {
+                return true;
+            }
+        }
+
+        // Check tags - cast to integers for consistent comparison
+        if (!empty($prefs['tags']) && !empty($announcement_data['tags'])) {
+            $pref_tags = array_map('intval', $prefs['tags']);
+            $announcement_tags = array_map('intval', $announcement_data['tags']);
+            $matching_tags = array_intersect($pref_tags, $announcement_tags);
+            if (!empty($matching_tags)) {
+                return true;
+            }
+        }
+
+        // Check service body - cast to string for consistent comparison
+        if (!empty($prefs['service_bodies']) && !empty($announcement_data['service_body'])) {
+            $pref_service_bodies = array_map('strval', $prefs['service_bodies']);
+            if (in_array((string) $announcement_data['service_body'], $pref_service_bodies, true)) {
+                return true;
+            }
+        }
+
+        // No match found
+        return false;
     }
 
     /**

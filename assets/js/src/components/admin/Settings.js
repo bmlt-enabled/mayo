@@ -1,5 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
-import { TextControl, Button, Panel, PanelBody, PanelRow, Spinner, Notice, ToggleControl, SelectControl } from '@wordpress/components';
+import { TextControl, Button, Panel, PanelBody, PanelRow, Spinner, Notice, ToggleControl, SelectControl, CheckboxControl, RadioControl } from '@wordpress/components';
 import { apiFetch } from '../../util';
 
 // Add URL validation function
@@ -22,12 +22,51 @@ const isValidEmail = (email) => {
 // Add function to validate multiple emails
 const isValidEmailList = (emailList) => {
     if (!emailList) return true; // Empty is valid (will use admin email)
-    
+
     // Split by comma or semicolon
     const emails = emailList.split(/[,;]/).map(email => email.trim()).filter(email => email);
-    
+
     // Check if all emails are valid
     return emails.every(email => isValidEmail(email));
+};
+
+// Build hierarchical tree structure from service bodies
+const buildServiceBodyTree = (serviceBodies) => {
+    // Sort alphabetically first
+    const sorted = [...serviceBodies].sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
+
+    // Build parent-child map
+    const childrenMap = {};
+    const roots = [];
+
+    sorted.forEach(sb => {
+        childrenMap[sb.id] = [];
+    });
+
+    sorted.forEach(sb => {
+        const parentId = String(sb.parent_id);
+        if (parentId === '0' || !childrenMap[parentId]) {
+            roots.push(sb);
+        } else {
+            childrenMap[parentId].push(sb);
+        }
+    });
+
+    // Flatten tree with depth info
+    const flatten = (items, depth = 0) => {
+        let result = [];
+        items.forEach(item => {
+            result.push({ ...item, depth });
+            if (childrenMap[item.id]?.length > 0) {
+                result = result.concat(flatten(childrenMap[item.id], depth + 1));
+            }
+        });
+        return result;
+    };
+
+    return flatten(roots);
 };
 
 const Settings = () => {
@@ -45,6 +84,17 @@ const Settings = () => {
     const [currentSource, setCurrentSource] = useState(null);
     const [isAddingNew, setIsAddingNew] = useState(false);
 
+    // Subscription settings
+    const [subscriptionSettings, setSubscriptionSettings] = useState({
+        subscription_categories: [],
+        subscription_tags: [],
+        subscription_service_bodies: [],
+        subscription_new_option_behavior: 'auto_include'
+    });
+    const [allCategories, setAllCategories] = useState([]);
+    const [allTags, setAllTags] = useState([]);
+    const [allServiceBodies, setAllServiceBodies] = useState([]);
+
     // Load settings when component mounts
     useEffect(() => {
         const loadSettings = async () => {
@@ -54,17 +104,64 @@ const Settings = () => {
                 const response = await apiFetch('/settings');
                 setSettings({
                     bmlt_root_server: response.bmlt_root_server || '',
-                    notification_email: response.notification_email || '', // Add notification email
-                    default_service_bodies: response.default_service_bodies || '' // Add default service bodies
+                    notification_email: response.notification_email || '',
+                    default_service_bodies: response.default_service_bodies || ''
                 });
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
+
+                // Load subscription settings
+                setSubscriptionSettings({
+                    subscription_categories: response.subscription_categories || [],
+                    subscription_tags: response.subscription_tags || [],
+                    subscription_service_bodies: response.subscription_service_bodies || [],
+                    subscription_new_option_behavior: response.subscription_new_option_behavior || 'opt_in'
+                });
+
+                // Fetch all categories
+                try {
+                    const catResponse = await fetch('/wp-json/wp/v2/categories?per_page=100');
+                    if (catResponse.ok) {
+                        const cats = await catResponse.json();
+                        setAllCategories(cats.map(c => ({ id: c.id, name: c.name })));
+                    }
+                } catch (e) {
+                    console.error('Failed to load categories:', e);
+                }
+
+                // Fetch all tags
+                try {
+                    const tagResponse = await fetch('/wp-json/wp/v2/tags?per_page=100');
+                    if (tagResponse.ok) {
+                        const tags = await tagResponse.json();
+                        setAllTags(tags.map(t => ({ id: t.id, name: t.name })));
+                    }
+                } catch (e) {
+                    console.error('Failed to load tags:', e);
+                }
+
+                // Fetch service bodies from BMLT
+                if (response.bmlt_root_server) {
+                    try {
+                        const sbResponse = await fetch(response.bmlt_root_server + '/client_interface/json/?switcher=GetServiceBodies');
+                        if (sbResponse.ok) {
+                            const bodies = await sbResponse.json();
+                            setAllServiceBodies(bodies.map(b => ({
+                                id: b.id,
+                                name: b.name,
+                                parent_id: b.parent_id || '0'
+                            })));
+                        }
+                    } catch (e) {
+                        console.error('Failed to load service bodies:', e);
+                    }
+                }
             } catch (err) {
                 setError('Failed to load settings. Please refresh the page and try again.');
             } finally {
                 setIsLoading(false);
             }
         };
-        
+
         loadSettings();
     }, []);
 
@@ -167,31 +264,56 @@ const Settings = () => {
         }
     };
 
+    // Handle subscription setting changes
+    const handleSubscriptionChange = (field, value) => {
+        setSubscriptionSettings(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const toggleSubscriptionOption = (field, id) => {
+        setSubscriptionSettings(prev => {
+            const current = prev[field] || [];
+            const exists = current.includes(id);
+            return {
+                ...prev,
+                [field]: exists
+                    ? current.filter(item => item !== id)
+                    : [...current, id]
+            };
+        });
+    };
+
     const handleSave = async () => {
         try {
             setIsSaving(true);
             setError(null);
-            
+
             // Validate HTTPS for BMLT root server
             if (!isValidHttpsUrl(settings.bmlt_root_server)) {
                 throw new Error('BMLT Root Server URL must use HTTPS protocol.');
             }
-            
+
             // Validate notification email if provided
             if (settings.notification_email && !isValidEmailList(settings.notification_email)) {
                 throw new Error('Please enter valid email addresses for notifications. Multiple emails can be separated by commas or semicolons.');
             }
-            
+
             const response = await apiFetch('/settings', {
                 method: 'POST',
                 body: JSON.stringify({
                     bmlt_root_server: settings.bmlt_root_server,
                     notification_email: settings.notification_email,
                     default_service_bodies: settings.default_service_bodies,
-                    external_sources: externalSources
+                    external_sources: externalSources,
+                    subscription_categories: subscriptionSettings.subscription_categories,
+                    subscription_tags: subscriptionSettings.subscription_tags,
+                    subscription_service_bodies: subscriptionSettings.subscription_service_bodies,
+                    subscription_new_option_behavior: subscriptionSettings.subscription_new_option_behavior
                 })
             });
-            
+
             setSuccessMessage('Settings saved successfully!');
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
@@ -419,6 +541,92 @@ const Settings = () => {
                             </div>
                         </div>
                     )}
+                </PanelBody>
+            </Panel>
+
+            <Panel>
+                <PanelBody title="Subscription Preferences" initialOpen={true}>
+                    <p className="mayo-settings-description">
+                        Configure which categories, tags, and service bodies are available for subscribers to choose from when signing up for announcement notifications.
+                    </p>
+
+                    {allCategories.length > 0 && (
+                        <div className="mayo-subscription-section">
+                            <h4>Categories available for subscription:</h4>
+                            <div className="mayo-checkbox-grid">
+                                {allCategories.map(cat => (
+                                    <CheckboxControl
+                                        key={cat.id}
+                                        label={cat.name}
+                                        checked={subscriptionSettings.subscription_categories.includes(cat.id)}
+                                        onChange={() => toggleSubscriptionOption('subscription_categories', cat.id)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {allTags.length > 0 && (
+                        <div className="mayo-subscription-section">
+                            <h4>Tags available for subscription:</h4>
+                            <div className="mayo-checkbox-grid">
+                                {allTags.map(tag => (
+                                    <CheckboxControl
+                                        key={tag.id}
+                                        label={tag.name}
+                                        checked={subscriptionSettings.subscription_tags.includes(tag.id)}
+                                        onChange={() => toggleSubscriptionOption('subscription_tags', tag.id)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {allServiceBodies.length > 0 && (
+                        <div className="mayo-subscription-section">
+                            <h4>Service Bodies available for subscription:</h4>
+                            <div className="mayo-service-body-tree">
+                                {buildServiceBodyTree(allServiceBodies).map(sb => (
+                                    <div
+                                        key={sb.id}
+                                        className="mayo-tree-item"
+                                        style={{ paddingLeft: `${sb.depth * 24}px` }}
+                                    >
+                                        <CheckboxControl
+                                            label={`${sb.name} (${sb.id})`}
+                                            checked={subscriptionSettings.subscription_service_bodies.includes(sb.id)}
+                                            onChange={() => toggleSubscriptionOption('subscription_service_bodies', sb.id)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mayo-subscription-section">
+                        <h4>When new options are added:</h4>
+                        <RadioControl
+                            selected={subscriptionSettings.subscription_new_option_behavior}
+                            options={[
+                                { label: 'Auto-include: Automatically add to existing subscribers', value: 'auto_include' },
+                                { label: 'Opt-in: Existing subscribers must manually add new options', value: 'opt_in' }
+                            ]}
+                            onChange={(value) => handleSubscriptionChange('subscription_new_option_behavior', value)}
+                        />
+                    </div>
+
+                    <PanelRow>
+                        <Button
+                            isPrimary
+                            onClick={handleSave}
+                            isBusy={isSaving}
+                            disabled={isSaving ||
+                                (settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)) ||
+                                (settings.notification_email && !isValidEmailList(settings.notification_email))}
+                        >
+                            {isSaving ? 'Saving...' : 'Save Settings'}
+                        </Button>
+                    </PanelRow>
                 </PanelBody>
             </Panel>
         </div>

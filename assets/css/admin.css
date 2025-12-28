@@ -490,4 +490,118 @@
 
 .mayo-add-skip-actions .components-button {
     flex: 1;
-} 
+}
+
+/* Subscription Preferences */
+.mayo-subscription-section {
+    margin-bottom: 24px;
+}
+
+.mayo-subscription-section h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mayo-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px 16px;
+    align-items: start;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    padding: 12px 16px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.mayo-checkbox-grid .components-base-control {
+    margin-bottom: 0 !important;
+}
+
+.mayo-checkbox-grid .components-base-control__field {
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+.mayo-checkbox-grid .components-checkbox-control__label {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Service Body Tree Styles */
+.mayo-service-body-tree {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.mayo-tree-item {
+    position: relative;
+    padding: 2px 12px 2px 16px;
+    transition: background-color 0.15s ease;
+}
+
+.mayo-tree-item:hover {
+    background-color: #f0f0f1;
+}
+
+.mayo-tree-item .components-checkbox-control__label {
+    font-size: 13px;
+}
+
+.mayo-tree-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+}
+
+.mayo-tree-item:hover::before {
+    background: #2271b1;
+}
+
+.mayo-settings-description {
+    color: #646970;
+    margin-bottom: 20px;
+}
+
+/* Subscribers Page Styles */
+.mayo-subscriber-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mayo-status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mayo-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.mayo-status-unsubscribed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.mayo-prefs-expanded-row td {
+    padding: 0 !important;
+}
+
+.mayo-prefs-expanded-row td > div:first-child {
+    padding-top: 0;
+}

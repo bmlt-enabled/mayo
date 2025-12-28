@@ -187,6 +187,12 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.9.0 =
+* Added subscription preferences - subscribers can now choose which categories, tags, and service bodies they want to receive announcements about.
+* Added admin settings to configure which categories, tags, and service bodies are available for subscription preferences.
+* Added "Manage Subscription" page where existing subscribers can update their preferences or unsubscribe.
+* Subscribers without preferences (legacy) continue to receive all announcements.
+
 = 1.8.0 =
 * Added email subscription feature for announcements via [mayo_subscribe] shortcode with double opt-in.
 * Added support for linking announcements to external events from other Mayo sites.

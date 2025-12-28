@@ -92,6 +92,45 @@ class Rest {
                 'callback' => [__CLASS__, 'subscribe'],
                 'permission_callback' => '__return_true',
             ]);
+
+            // Get subscription options (categories, tags, service bodies enabled by admin)
+            register_rest_route('event-manager/v1', '/subscription-options', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_subscription_options'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            // Get subscriber preferences by token
+            register_rest_route('event-manager/v1', '/subscriber/(?P<token>[a-fA-F0-9]+)', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_subscriber'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            // Update subscriber preferences
+            register_rest_route('event-manager/v1', '/subscriber/(?P<token>[a-fA-F0-9]+)', [
+                'methods' => 'PUT',
+                'callback' => [__CLASS__, 'update_subscriber'],
+                'permission_callback' => '__return_true',
+            ]);
+
+            // Get all subscribers (admin only)
+            register_rest_route('event-manager/v1', '/subscribers', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_all_subscribers'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ]);
+
+            // Count matching subscribers (for announcement editor)
+            register_rest_route('event-manager/v1', '/subscribers/count', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'count_matching_subscribers'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ]);
         });
     }
 
@@ -1319,12 +1358,16 @@ class Rest {
     public static function bmltenabled_mayo_get_settings() {
         $settings = get_option('mayo_settings', []);
         $external_sources = get_option('mayo_external_sources', []);
-        
+
         return new \WP_REST_Response([
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
             'notification_email' => $settings['notification_email'] ?? '',
             'default_service_bodies' => $settings['default_service_bodies'] ?? '',
-            'external_sources' => $external_sources
+            'external_sources' => $external_sources,
+            'subscription_categories' => $settings['subscription_categories'] ?? [],
+            'subscription_tags' => $settings['subscription_tags'] ?? [],
+            'subscription_service_bodies' => $settings['subscription_service_bodies'] ?? [],
+            'subscription_new_option_behavior' => $settings['subscription_new_option_behavior'] ?? 'opt_in'
         ]);
     }
 
@@ -1380,16 +1423,40 @@ class Rest {
             $external_sources = self::sanitize_sources($params['external_sources']);
             update_option('mayo_external_sources', $external_sources);
         }
-        
+
+        // Update subscription settings
+        if (isset($params['subscription_categories']) && is_array($params['subscription_categories'])) {
+            $settings['subscription_categories'] = array_map('intval', $params['subscription_categories']);
+        }
+
+        if (isset($params['subscription_tags']) && is_array($params['subscription_tags'])) {
+            $settings['subscription_tags'] = array_map('intval', $params['subscription_tags']);
+        }
+
+        if (isset($params['subscription_service_bodies']) && is_array($params['subscription_service_bodies'])) {
+            $settings['subscription_service_bodies'] = array_map('sanitize_text_field', $params['subscription_service_bodies']);
+        }
+
+        if (isset($params['subscription_new_option_behavior'])) {
+            $behavior = sanitize_text_field($params['subscription_new_option_behavior']);
+            if (in_array($behavior, ['opt_in', 'auto_include'])) {
+                $settings['subscription_new_option_behavior'] = $behavior;
+            }
+        }
+
         update_option('mayo_settings', $settings);
-        
+
         return new \WP_REST_Response([
             'success' => true,
             'settings' => [
                 'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
                 'notification_email' => $settings['notification_email'] ?? '',
                 'default_service_bodies' => $settings['default_service_bodies'] ?? '',
-                'external_sources' => get_option('mayo_external_sources', [])
+                'external_sources' => get_option('mayo_external_sources', []),
+                'subscription_categories' => $settings['subscription_categories'] ?? [],
+                'subscription_tags' => $settings['subscription_tags'] ?? [],
+                'subscription_service_bodies' => $settings['subscription_service_bodies'] ?? [],
+                'subscription_new_option_behavior' => $settings['subscription_new_option_behavior'] ?? 'opt_in'
             ]
         ]);
     }
@@ -1972,11 +2039,396 @@ class Rest {
             ], 400);
         }
 
-        $result = Subscriber::subscribe($email);
+        // Get preferences if provided
+        $preferences = isset($params['preferences']) ? $params['preferences'] : null;
+
+        // Validate preferences structure if provided
+        if ($preferences !== null) {
+            if (!is_array($preferences)) {
+                return new \WP_REST_Response([
+                    'success' => false,
+                    'code' => 'invalid_preferences',
+                    'message' => 'Preferences must be an object.'
+                ], 400);
+            }
+
+            // Sanitize preferences
+            $clean_preferences = [
+                'categories' => [],
+                'tags' => [],
+                'service_bodies' => []
+            ];
+
+            if (isset($preferences['categories']) && is_array($preferences['categories'])) {
+                $clean_preferences['categories'] = array_map('intval', $preferences['categories']);
+            }
+            if (isset($preferences['tags']) && is_array($preferences['tags'])) {
+                $clean_preferences['tags'] = array_map('intval', $preferences['tags']);
+            }
+            if (isset($preferences['service_bodies']) && is_array($preferences['service_bodies'])) {
+                $clean_preferences['service_bodies'] = array_map('sanitize_text_field', $preferences['service_bodies']);
+            }
+
+            // Check that at least one preference is selected
+            $total = count($clean_preferences['categories']) +
+                     count($clean_preferences['tags']) +
+                     count($clean_preferences['service_bodies']);
+
+            if ($total === 0) {
+                return new \WP_REST_Response([
+                    'success' => false,
+                    'code' => 'no_preferences',
+                    'message' => 'Please select at least one category, tag, or service body.'
+                ], 400);
+            }
+
+            $preferences = $clean_preferences;
+        }
+
+        $result = Subscriber::subscribe($email, $preferences);
 
         $status_code = $result['success'] ? 200 : 400;
 
         return new \WP_REST_Response($result, $status_code);
+    }
+
+    /**
+     * Get subscription options (categories, tags, service bodies enabled by admin)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_subscription_options($request) {
+        $settings = get_option('mayo_settings', []);
+
+        // Get enabled IDs from settings
+        $enabled_categories = $settings['subscription_categories'] ?? [];
+        $enabled_tags = $settings['subscription_tags'] ?? [];
+        $enabled_service_bodies = $settings['subscription_service_bodies'] ?? [];
+
+        // Fetch category details
+        $categories = [];
+        if (!empty($enabled_categories)) {
+            $terms = get_terms([
+                'taxonomy' => 'category',
+                'include' => $enabled_categories,
+                'hide_empty' => false
+            ]);
+            if (!is_wp_error($terms)) {
+                foreach ($terms as $term) {
+                    $categories[] = [
+                        'id' => $term->term_id,
+                        'name' => $term->name,
+                        'slug' => $term->slug
+                    ];
+                }
+            }
+        }
+
+        // Fetch tag details
+        $tags = [];
+        if (!empty($enabled_tags)) {
+            $terms = get_terms([
+                'taxonomy' => 'post_tag',
+                'include' => $enabled_tags,
+                'hide_empty' => false
+            ]);
+            if (!is_wp_error($terms)) {
+                foreach ($terms as $term) {
+                    $tags[] = [
+                        'id' => $term->term_id,
+                        'name' => $term->name,
+                        'slug' => $term->slug
+                    ];
+                }
+            }
+        }
+
+        // Fetch service body details from BMLT
+        $service_bodies = [];
+        $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+        if (!empty($enabled_service_bodies) && !empty($bmlt_root_server)) {
+            $response = wp_remote_get($bmlt_root_server . '/client_interface/json/?switcher=GetServiceBodies');
+            if (!is_wp_error($response)) {
+                $all_bodies = json_decode(wp_remote_retrieve_body($response), true);
+                if (is_array($all_bodies)) {
+                    foreach ($all_bodies as $body) {
+                        if (in_array($body['id'], $enabled_service_bodies)) {
+                            $service_bodies[] = [
+                                'id' => $body['id'],
+                                'name' => $body['name']
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        return new \WP_REST_Response([
+            'categories' => $categories,
+            'tags' => $tags,
+            'service_bodies' => $service_bodies
+        ], 200);
+    }
+
+    /**
+     * Get subscriber data by token
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_subscriber($request) {
+        $token = $request->get_param('token');
+
+        $subscriber = Subscriber::get_by_token($token);
+
+        if (!$subscriber) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'not_found',
+                'message' => 'Subscriber not found.'
+            ], 404);
+        }
+
+        // Parse preferences
+        $preferences = null;
+        if (!empty($subscriber->preferences)) {
+            $preferences = json_decode($subscriber->preferences, true);
+        }
+
+        return new \WP_REST_Response([
+            'email' => $subscriber->email,
+            'status' => $subscriber->status,
+            'preferences' => $preferences
+        ], 200);
+    }
+
+    /**
+     * Update subscriber preferences
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function update_subscriber($request) {
+        $token = $request->get_param('token');
+        $params = $request->get_params();
+
+        $subscriber = Subscriber::get_by_token($token);
+
+        if (!$subscriber) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'not_found',
+                'message' => 'Subscriber not found.'
+            ], 404);
+        }
+
+        if ($subscriber->status !== 'active') {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'not_active',
+                'message' => 'Subscription is not active.'
+            ], 400);
+        }
+
+        // Get and validate preferences
+        $preferences = isset($params['preferences']) ? $params['preferences'] : null;
+
+        if ($preferences === null || !is_array($preferences)) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'invalid_preferences',
+                'message' => 'Preferences must be provided.'
+            ], 400);
+        }
+
+        // Sanitize preferences
+        $clean_preferences = [
+            'categories' => [],
+            'tags' => [],
+            'service_bodies' => []
+        ];
+
+        if (isset($preferences['categories']) && is_array($preferences['categories'])) {
+            $clean_preferences['categories'] = array_map('intval', $preferences['categories']);
+        }
+        if (isset($preferences['tags']) && is_array($preferences['tags'])) {
+            $clean_preferences['tags'] = array_map('intval', $preferences['tags']);
+        }
+        if (isset($preferences['service_bodies']) && is_array($preferences['service_bodies'])) {
+            $clean_preferences['service_bodies'] = array_map('sanitize_text_field', $preferences['service_bodies']);
+        }
+
+        // Check that at least one preference is selected
+        $total = count($clean_preferences['categories']) +
+                 count($clean_preferences['tags']) +
+                 count($clean_preferences['service_bodies']);
+
+        if ($total === 0) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'no_preferences',
+                'message' => 'Please select at least one category, tag, or service body.'
+            ], 400);
+        }
+
+        $result = Subscriber::update_preferences($token, $clean_preferences);
+
+        if ($result) {
+            return new \WP_REST_Response([
+                'success' => true,
+                'message' => 'Preferences updated successfully.'
+            ], 200);
+        } else {
+            return new \WP_REST_Response([
+                'success' => false,
+                'code' => 'update_failed',
+                'message' => 'Failed to update preferences.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all subscribers (admin only)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_all_subscribers($request)
+    {
+        $subscribers = Subscriber::get_all_subscribers();
+
+        // Get settings for preference name lookups
+        $settings = get_option('mayo_settings', []);
+        $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+
+        // Cache for category/tag/service body name lookups
+        $category_names = [];
+        $tag_names = [];
+        $service_body_names = [];
+
+        // Fetch all categories and tags for lookups
+        $all_cats = get_terms(['taxonomy' => 'category', 'hide_empty' => false]);
+        if (!is_wp_error($all_cats)) {
+            foreach ($all_cats as $cat) {
+                $category_names[$cat->term_id] = $cat->name;
+            }
+        }
+
+        $all_tags = get_terms(['taxonomy' => 'post_tag', 'hide_empty' => false]);
+        if (!is_wp_error($all_tags)) {
+            foreach ($all_tags as $tag) {
+                $tag_names[$tag->term_id] = $tag->name;
+            }
+        }
+
+        // Fetch service bodies from BMLT
+        if (!empty($bmlt_root_server)) {
+            $sb_url = rtrim($bmlt_root_server, '/')
+                . '/client_interface/json/?switcher=GetServiceBodies';
+            $response = wp_remote_get($sb_url, ['timeout' => 10]);
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data)) {
+                    foreach ($data as $sb) {
+                        if (isset($sb['id']) && isset($sb['name'])) {
+                            $service_body_names[(string) $sb['id']] = $sb['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Format subscriber data
+        $formatted = [];
+        foreach ($subscribers as $subscriber) {
+            $prefs = null;
+            $prefs_display = [];
+
+            if (!empty($subscriber->preferences)) {
+                $prefs = json_decode($subscriber->preferences, true);
+
+                if (is_array($prefs)) {
+                    // Resolve category names
+                    if (!empty($prefs['categories'])) {
+                        $cat_names = [];
+                        foreach ($prefs['categories'] as $cat_id) {
+                            $cat_names[] = $category_names[$cat_id] ?? "Category $cat_id";
+                        }
+                        if (!empty($cat_names)) {
+                            $prefs_display['categories'] = $cat_names;
+                        }
+                    }
+
+                    // Resolve tag names
+                    if (!empty($prefs['tags'])) {
+                        $tg_names = [];
+                        foreach ($prefs['tags'] as $tag_id) {
+                            $tg_names[] = $tag_names[$tag_id] ?? "Tag $tag_id";
+                        }
+                        if (!empty($tg_names)) {
+                            $prefs_display['tags'] = $tg_names;
+                        }
+                    }
+
+                    // Resolve service body names
+                    if (!empty($prefs['service_bodies'])) {
+                        $sb_names = [];
+                        foreach ($prefs['service_bodies'] as $sb_id) {
+                            $sb_names[] = $service_body_names[(string) $sb_id]
+                                ?? "Service Body $sb_id";
+                        }
+                        if (!empty($sb_names)) {
+                            $prefs_display['service_bodies'] = $sb_names;
+                        }
+                    }
+                }
+            }
+
+            $formatted[] = [
+                'id' => $subscriber->id,
+                'email' => $subscriber->email,
+                'status' => $subscriber->status,
+                'created_at' => $subscriber->created_at,
+                'confirmed_at' => $subscriber->confirmed_at,
+                'preferences' => $prefs_display
+            ];
+        }
+
+        return new \WP_REST_Response($formatted, 200);
+    }
+
+    /**
+     * Count subscribers matching announcement criteria
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function count_matching_subscribers($request)
+    {
+        $params = $request->get_json_params();
+
+        $announcement_data = [
+            'categories' => $params['categories'] ?? [],
+            'tags' => $params['tags'] ?? [],
+            'service_body' => $params['service_body'] ?? null,
+        ];
+
+        $matching = Subscriber::get_matching_with_reasons($announcement_data);
+
+        // Return count and list of subscribers with reasons
+        $subscribers = array_map(function ($item) {
+            return [
+                'email' => $item['subscriber']->email,
+                'reason' => $item['reason']
+            ];
+        }, $matching);
+
+        return new \WP_REST_Response([
+            'count' => count($matching),
+            'subscribers' => $subscribers
+        ], 200);
     }
 }
 

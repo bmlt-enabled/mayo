@@ -20,7 +20,11 @@ class Announcement {
         add_action('restrict_manage_posts', [__CLASS__, 'add_announcement_status_filter']);
         add_filter('pre_get_posts', [__CLASS__, 'filter_announcements_by_status']);
 
-        // Send email to subscribers when announcement is published
+        // Send email to subscribers when announcement is published via REST API (Gutenberg)
+        // Using rest_after_insert ensures taxonomies are saved before we check preferences
+        add_action('rest_after_insert_mayo_announcement', [__CLASS__, 'handle_rest_insert'], 10, 3);
+
+        // Fallback for classic editor - uses transition_post_status
         add_action('transition_post_status', [__CLASS__, 'handle_post_status_transition'], 10, 3);
     }
 
@@ -620,7 +624,33 @@ class Announcement {
     }
 
     /**
-     * Handle post status transitions for announcements
+     * Handle REST API insert for announcements (Gutenberg editor)
+     * This fires AFTER taxonomies are saved, ensuring we have the latest data
+     *
+     * @param WP_Post         $post     Inserted or updated post object
+     * @param WP_REST_Request $request  Request object
+     * @param bool            $creating True when creating, false when updating
+     */
+    public static function handle_rest_insert($post, $request, $creating) {
+        // Check if status is being changed to publish
+        $new_status = $post->post_status;
+
+        // Get the previous status from post meta we set, or assume it wasn't published
+        $previous_status = get_post_meta($post->ID, '_mayo_previous_status', true);
+
+        // Only send email when transitioning TO publish from a non-publish status
+        if ($new_status === 'publish' && $previous_status !== 'publish') {
+            // Mark that we've sent the email via REST to prevent duplicate from transition_post_status
+            update_post_meta($post->ID, '_mayo_email_sent_via_rest', '1');
+            Subscriber::send_announcement_email($post->ID);
+        }
+
+        // Store current status for next comparison
+        update_post_meta($post->ID, '_mayo_previous_status', $new_status);
+    }
+
+    /**
+     * Handle post status transitions for announcements (Classic editor fallback)
      * Sends email to subscribers when an announcement is first published
      *
      * @param string  $new_status New post status
@@ -630,6 +660,11 @@ class Announcement {
     public static function handle_post_status_transition($new_status, $old_status, $post) {
         // Only handle mayo_announcement post type
         if ($post->post_type !== 'mayo_announcement') {
+            return;
+        }
+
+        // Skip if this is a REST request - handle_rest_insert will take care of it
+        if (defined('REST_REQUEST') && REST_REQUEST) {
             return;
         }
 
