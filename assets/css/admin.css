@@ -504,9 +504,19 @@
 }
 
 .mayo-checkbox-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 4px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    padding: 12px 16px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.mayo-checkbox-grid .components-checkbox-control__label {
+    font-size: 13px;
 }
 
 .mayo-checkbox-list {
