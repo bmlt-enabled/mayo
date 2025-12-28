@@ -521,37 +521,30 @@
 }
 
 .mayo-calendar-events {
-    font-size: 0.9em;
+    font-size: 0.85em;
     position: relative;
     height: calc(100% - 30px); /* Account for date header */
     overflow-y: auto;
+    line-height: 1.3;
 }
 
 .mayo-calendar-event {
-    margin: 4px 0;
-    padding: 4px 8px;
-    background: #e9ecef;
-    border-radius: 3px;
+    margin: 1px 0;
+    padding: 1px 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
 }
 
 .mayo-calendar-event:hover {
-    background: #dee2e6;
-    border-color: #c3c4c7;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: rgba(0, 115, 170, 0.1);
 }
 
 .event-time {
     color: #666;
-    margin-right: 8px;
-    font-size: 0.9em;
-    font-weight: 500;
+    margin-right: 4px;
+    font-size: 0.85em;
 }
 
 .event-title {
@@ -564,24 +557,44 @@
 
 /* Multi-day event styles */
 .mayo-multi-day-event {
-    background: #d4e6f7;
-    border-left: 3px solid #0073aa;
+    border-left: 2px solid #0073aa;
+    padding-left: 4px;
 }
 
-.mayo-multi-day-start {
-    border-radius: 3px 3px 0 0;
-    margin-bottom: 0;
+/* Calendar tooltip */
+.mayo-calendar-tooltip {
+    z-index: 100001;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.9em;
+    max-width: 280px;
+    pointer-events: none;
 }
 
-.mayo-multi-day-middle {
-    border-radius: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+.mayo-tooltip-title {
+    font-weight: 600;
+    color: #1e1e1e;
+    margin-bottom: 6px;
+    line-height: 1.3;
 }
 
-.mayo-multi-day-end {
-    border-radius: 0 0 3px 3px;
-    margin-top: 0;
+.mayo-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #555;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.mayo-tooltip-row .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #0073aa;
 }
 
 /* Calendar header layout */
@@ -870,9 +883,9 @@
     }
 
     .mayo-calendar-event {
-        font-size: 0.8em;
-        padding: 2px 4px;
-        margin: 2px 0;
+        font-size: 0.75em;
+        padding: 0 2px;
+        margin: 0;
     }
 }
 
