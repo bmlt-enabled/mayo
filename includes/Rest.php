@@ -1767,11 +1767,13 @@ class Rest {
         $search = isset($request['search']) ? sanitize_text_field($request['search']) : '';
         $per_page = isset($request['per_page']) ? intval($request['per_page']) : 20;
         $page = isset($request['page']) ? max(1, intval($request['page'])) : 1;
+        $hide_past = isset($request['hide_past']) ? filter_var($request['hide_past'], FILTER_VALIDATE_BOOLEAN) : true;
         // Support legacy 'limit' parameter
         if (isset($request['limit']) && !isset($request['per_page'])) {
             $per_page = intval($request['limit']);
         }
 
+        $today = wp_date('Y-m-d');
         $all_events = [];
 
         // 1. Search local events - fetch more than needed to allow for sorting with external
@@ -1786,6 +1788,18 @@ class Rest {
 
         if (!empty($search)) {
             $local_args['s'] = $search;
+        }
+
+        // Filter to only future events if hide_past is true
+        if ($hide_past) {
+            $local_args['meta_query'] = [
+                [
+                    'key' => 'event_start_date',
+                    'value' => $today,
+                    'compare' => '>=',
+                    'type' => 'DATE',
+                ],
+            ];
         }
 
         $local_posts = get_posts($local_args);
@@ -1860,6 +1874,14 @@ class Rest {
                         }
                     }
 
+                    // Get start date for filtering
+                    $start_date = $event['meta']['event_start_date'] ?? ($event['start_date'] ?? '');
+
+                    // Filter out past events if hide_past is true
+                    if ($hide_past && !empty($start_date) && $start_date < $today) {
+                        continue;
+                    }
+
                     // Use the link from the API response if available, otherwise construct it
                     $permalink = $event['link'] ?? $event['permalink'] ?? (trailingslashit($source['url']) . 'event/' . ($event['slug'] ?? $event['id']));
 
@@ -1867,7 +1889,7 @@ class Rest {
                         'id' => $event['id'] ?? 0,
                         'title' => $title,
                         'slug' => $event['slug'] ?? '',
-                        'start_date' => $event['meta']['event_start_date'] ?? ($event['start_date'] ?? ''),
+                        'start_date' => $start_date,
                         'permalink' => $permalink,
                         'source' => [
                             'type' => 'external',

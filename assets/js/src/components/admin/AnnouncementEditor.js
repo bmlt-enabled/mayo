@@ -7,6 +7,7 @@ import {
     Button,
     Spinner,
     Modal,
+    CheckboxControl,
     __experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -23,6 +24,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [total, setTotal] = useState(0);
+    const [hidePastEvents, setHidePastEvents] = useState(true);
     const listRef = useRef(null);
     const searchTimeoutRef = useRef(null);
 
@@ -58,7 +60,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
     };
 
     // Fetch events
-    const fetchEvents = useCallback(async (searchQuery, pageNum, append = false) => {
+    const fetchEvents = useCallback(async (searchQuery, pageNum, hidePast, append = false) => {
         if (pageNum === 1) {
             setIsLoading(true);
         } else {
@@ -69,6 +71,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
             const params = new URLSearchParams({
                 per_page: PER_PAGE,
                 page: pageNum,
+                hide_past: hidePast ? '1' : '0',
             });
             if (searchQuery) {
                 params.append('search', searchQuery);
@@ -109,7 +112,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
 
         // Debounce search
         searchTimeoutRef.current = setTimeout(() => {
-            fetchEvents(searchTerm, 1, false);
+            fetchEvents(searchTerm, 1, hidePastEvents, false);
         }, 300);
 
         return () => {
@@ -117,7 +120,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                 clearTimeout(searchTimeoutRef.current);
             }
         };
-    }, [isOpen, searchTerm, fetchEvents]);
+    }, [isOpen, searchTerm, hidePastEvents, fetchEvents]);
 
     // Reset when modal opens
     useEffect(() => {
@@ -126,6 +129,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
             setEvents([]);
             setPage(1);
             setHasMore(true);
+            setHidePastEvents(true);
         }
     }, [isOpen]);
 
@@ -136,9 +140,9 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
         const { scrollTop, scrollHeight, clientHeight } = listRef.current;
         // Load more when scrolled to bottom (with 100px threshold)
         if (scrollHeight - scrollTop - clientHeight < 100) {
-            fetchEvents(searchTerm, page + 1, true);
+            fetchEvents(searchTerm, page + 1, hidePastEvents, true);
         }
-    }, [isLoading, isLoadingMore, hasMore, searchTerm, page, fetchEvents]);
+    }, [isLoading, isLoadingMore, hasMore, searchTerm, page, hidePastEvents, fetchEvents]);
 
     // Handle event selection
     const handleSelectEvent = (event) => {
@@ -171,11 +175,19 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                     __nextHasNoMarginBottom={true}
                     __next40pxDefaultSize={true}
                 />
-                {total > 0 && (
-                    <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#666' }}>
-                        {total} event{total !== 1 ? 's' : ''} found
-                    </p>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                    <CheckboxControl
+                        label="Hide past events"
+                        checked={hidePastEvents}
+                        onChange={setHidePastEvents}
+                        __nextHasNoMarginBottom={true}
+                    />
+                    {total > 0 && (
+                        <span style={{ fontSize: '12px', color: '#666' }}>
+                            {total} event{total !== 1 ? 's' : ''} found
+                        </span>
+                    )}
+                </div>
             </div>
 
             <div
