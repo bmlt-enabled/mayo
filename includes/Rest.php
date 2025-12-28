@@ -2415,9 +2415,20 @@ class Rest {
             'service_body' => $params['service_body'] ?? null,
         ];
 
-        $count = Subscriber::count_matching($announcement_data);
+        $matching = Subscriber::get_matching_with_reasons($announcement_data);
 
-        return new \WP_REST_Response(['count' => $count], 200);
+        // Return count and list of subscribers with reasons
+        $subscribers = array_map(function ($item) {
+            return [
+                'email' => $item['subscriber']->email,
+                'reason' => $item['reason']
+            ];
+        }, $matching);
+
+        return new \WP_REST_Response([
+            'count' => count($matching),
+            'subscribers' => $subscribers
+        ], 200);
     }
 }
 

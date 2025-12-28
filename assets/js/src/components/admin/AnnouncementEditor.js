@@ -309,7 +309,9 @@ const AnnouncementEditor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasPrelinked, setHasPrelinked] = useState(false);
     const [subscriberCount, setSubscriberCount] = useState(null);
+    const [matchingSubscribers, setMatchingSubscribers] = useState([]);
     const [isLoadingCount, setIsLoadingCount] = useState(false);
+    const [showEmailList, setShowEmailList] = useState(false);
     const { serviceBodies } = useEventProvider();
 
     const postType = useSelect(select =>
@@ -349,9 +351,11 @@ const AnnouncementEditor = () => {
                     body: JSON.stringify({ categories, tags, service_body: serviceBody })
                 });
                 setSubscriberCount(result.count);
+                setMatchingSubscribers(result.subscribers || []);
             } catch (err) {
                 console.error('Error fetching subscriber count:', err);
                 setSubscriberCount(null);
+                setMatchingSubscribers([]);
             }
             setIsLoadingCount(false);
         };
@@ -822,7 +826,15 @@ const AnnouncementEditor = () => {
                 title="Email Recipients"
                 className="mayo-email-recipients"
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: subscriberCount > 0 ? 'pointer' : 'default',
+                    }}
+                    onClick={() => subscriberCount > 0 && setShowEmailList(true)}
+                >
                     {isLoadingCount ? (
                         <Spinner style={{ margin: 0 }} />
                     ) : (
@@ -831,15 +843,116 @@ const AnnouncementEditor = () => {
                                 className="dashicons dashicons-email-alt"
                                 style={{ color: '#2271b1', fontSize: '18px', width: '18px', height: '18px' }}
                             />
-                            <span>
+                            <span style={{ textDecoration: subscriberCount > 0 ? 'underline' : 'none' }}>
                                 <strong>{subscriberCount ?? 0}</strong> subscriber{subscriberCount !== 1 ? 's' : ''} will receive this announcement
                             </span>
                         </>
                     )}
                 </div>
+
                 <p className="components-base-control__help" style={{ marginTop: '8px' }}>
                     Based on selected categories, tags, and service body.
+                    {subscriberCount > 0 && ' Click to view recipients.'}
                 </p>
+
+                {showEmailList && (
+                    <Modal
+                        title={`Email Recipients (${matchingSubscribers.length})`}
+                        onRequestClose={() => setShowEmailList(false)}
+                        style={{ maxWidth: '600px', width: '100%' }}
+                    >
+                        <div style={{
+                            maxHeight: '400px',
+                            overflowY: 'auto',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                        }}>
+                            {matchingSubscribers.length > 0 ? (
+                                matchingSubscribers.map((sub, index) => (
+                                    <div
+                                        key={sub.email}
+                                        style={{
+                                            padding: '12px',
+                                            borderBottom: index < matchingSubscribers.length - 1 ? '1px solid #eee' : 'none',
+                                        }}
+                                    >
+                                        <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+                                            {sub.email}
+                                        </div>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                            {sub.reason.all ? (
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    padding: '3px 8px',
+                                                    fontSize: '11px',
+                                                    backgroundColor: '#f0f0f0',
+                                                    color: '#666',
+                                                    borderRadius: '3px',
+                                                }}>
+                                                    Receives all announcements
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    {sub.reason.categories?.map(cat => (
+                                                        <span
+                                                            key={cat}
+                                                            style={{
+                                                                display: 'inline-block',
+                                                                padding: '3px 8px',
+                                                                fontSize: '11px',
+                                                                backgroundColor: '#e3f2fd',
+                                                                color: '#1565c0',
+                                                                borderRadius: '3px',
+                                                            }}
+                                                        >
+                                                            {cat}
+                                                        </span>
+                                                    ))}
+                                                    {sub.reason.tags?.map(tag => (
+                                                        <span
+                                                            key={tag}
+                                                            style={{
+                                                                display: 'inline-block',
+                                                                padding: '3px 8px',
+                                                                fontSize: '11px',
+                                                                backgroundColor: '#fff3e0',
+                                                                color: '#e65100',
+                                                                borderRadius: '3px',
+                                                            }}
+                                                        >
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                    {sub.reason.service_body && (
+                                                        <span style={{
+                                                            display: 'inline-block',
+                                                            padding: '3px 8px',
+                                                            fontSize: '11px',
+                                                            backgroundColor: '#e8f5e9',
+                                                            color: '#2e7d32',
+                                                            borderRadius: '3px',
+                                                        }}>
+                                                            {sub.reason.service_body}
+                                                        </span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                                    No matching subscribers
+                                </div>
+                            )}
+                        </div>
+                        <div style={{ marginTop: '16px', textAlign: 'right' }}>
+                            <Button variant="secondary" onClick={() => setShowEmailList(false)}>
+                                Close
+                            </Button>
+                        </div>
+                    </Modal>
+                )}
             </PluginDocumentSettingPanel>
         </>
     );

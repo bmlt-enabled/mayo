@@ -362,6 +362,158 @@ class Subscriber
     }
 
     /**
+     * Get active subscribers matching given announcement criteria
+     *
+     * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
+     * @return array Array of matching subscriber objects
+     */
+    public static function get_matching($announcement_data)
+    {
+        $subscribers = self::get_active_subscribers();
+        $matching = [];
+
+        foreach ($subscribers as $subscriber) {
+            if (self::matches_preferences($subscriber, $announcement_data)) {
+                $matching[] = $subscriber;
+            }
+        }
+
+        return $matching;
+    }
+
+    /**
+     * Get active subscribers matching given announcement criteria with match reasons
+     *
+     * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
+     * @return array Array of ['subscriber' => object, 'reason' => string]
+     */
+    public static function get_matching_with_reasons($announcement_data)
+    {
+        $subscribers = self::get_active_subscribers();
+        $matching = [];
+
+        // Fetch service body names from BMLT once for all subscribers
+        $service_body_names = self::get_service_body_names();
+
+        foreach ($subscribers as $subscriber) {
+            $reason = self::get_match_reason($subscriber, $announcement_data, $service_body_names);
+            if ($reason !== false) {
+                $matching[] = [
+                    'subscriber' => $subscriber,
+                    'reason' => $reason
+                ];
+            }
+        }
+
+        return $matching;
+    }
+
+    /**
+     * Get service body names from BMLT
+     *
+     * @return array Associative array of service body ID => name
+     */
+    private static function get_service_body_names()
+    {
+        $settings = get_option('mayo_settings', []);
+        $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+        $service_body_names = [];
+
+        if (!empty($bmlt_root_server)) {
+            $sb_url = rtrim($bmlt_root_server, '/') . '/client_interface/json/?switcher=GetServiceBodies';
+            $response = wp_remote_get($sb_url, ['timeout' => 10]);
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data)) {
+                    foreach ($data as $sb) {
+                        if (isset($sb['id']) && isset($sb['name'])) {
+                            $service_body_names[(string) $sb['id']] = $sb['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $service_body_names;
+    }
+
+    /**
+     * Get the reason why a subscriber matches announcement criteria
+     *
+     * @param object $subscriber Subscriber object with preferences JSON
+     * @param array $announcement_data Announcement categories, tags, service_body
+     * @param array $service_body_names Optional lookup for service body names
+     * @return array|false Structured reason array if matches, false if no match
+     */
+    private static function get_match_reason($subscriber, $announcement_data, $service_body_names = [])
+    {
+        // If no preferences set (legacy subscriber), send all announcements
+        if (empty($subscriber->preferences)) {
+            return ['all' => true];
+        }
+
+        $prefs = json_decode($subscriber->preferences, true);
+
+        if (!is_array($prefs)) {
+            return ['all' => true];
+        }
+
+        // Check if all preference arrays are empty
+        $has_prefs = !empty($prefs['categories']) || !empty($prefs['tags']) || !empty($prefs['service_bodies']);
+        if (!$has_prefs) {
+            return ['all' => true];
+        }
+
+        $reasons = [
+            'categories' => [],
+            'tags' => [],
+            'service_body' => null
+        ];
+
+        // Check categories
+        if (!empty($prefs['categories']) && !empty($announcement_data['categories'])) {
+            $matching_categories = array_intersect($prefs['categories'], $announcement_data['categories']);
+            if (!empty($matching_categories)) {
+                foreach ($matching_categories as $cat_id) {
+                    $term = get_term($cat_id, 'category');
+                    if ($term && !is_wp_error($term)) {
+                        $reasons['categories'][] = $term->name;
+                    }
+                }
+            }
+        }
+
+        // Check tags
+        if (!empty($prefs['tags']) && !empty($announcement_data['tags'])) {
+            $matching_tags = array_intersect($prefs['tags'], $announcement_data['tags']);
+            if (!empty($matching_tags)) {
+                foreach ($matching_tags as $tag_id) {
+                    $term = get_term($tag_id, 'post_tag');
+                    if ($term && !is_wp_error($term)) {
+                        $reasons['tags'][] = $term->name;
+                    }
+                }
+            }
+        }
+
+        // Check service body
+        if (!empty($prefs['service_bodies']) && !empty($announcement_data['service_body'])) {
+            if (in_array($announcement_data['service_body'], $prefs['service_bodies'])) {
+                $sb_id = $announcement_data['service_body'];
+                $reasons['service_body'] = $service_body_names[(string) $sb_id] ?? "Service Body $sb_id";
+            }
+        }
+
+        // Return false if no matches found
+        if (empty($reasons['categories']) && empty($reasons['tags']) && empty($reasons['service_body'])) {
+            return false;
+        }
+
+        return $reasons;
+    }
+
+    /**
      * Count active subscribers matching given announcement criteria
      *
      * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
@@ -369,16 +521,7 @@ class Subscriber
      */
     public static function count_matching($announcement_data)
     {
-        $subscribers = self::get_active_subscribers();
-        $count = 0;
-
-        foreach ($subscribers as $subscriber) {
-            if (self::matches_preferences($subscriber, $announcement_data)) {
-                $count++;
-            }
-        }
-
-        return $count;
+        return count(self::get_matching($announcement_data));
     }
 
     /**
