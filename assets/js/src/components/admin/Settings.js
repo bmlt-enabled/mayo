@@ -22,12 +22,51 @@ const isValidEmail = (email) => {
 // Add function to validate multiple emails
 const isValidEmailList = (emailList) => {
     if (!emailList) return true; // Empty is valid (will use admin email)
-    
+
     // Split by comma or semicolon
     const emails = emailList.split(/[,;]/).map(email => email.trim()).filter(email => email);
-    
+
     // Check if all emails are valid
     return emails.every(email => isValidEmail(email));
+};
+
+// Build hierarchical tree structure from service bodies
+const buildServiceBodyTree = (serviceBodies) => {
+    // Sort alphabetically first
+    const sorted = [...serviceBodies].sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
+
+    // Build parent-child map
+    const childrenMap = {};
+    const roots = [];
+
+    sorted.forEach(sb => {
+        childrenMap[sb.id] = [];
+    });
+
+    sorted.forEach(sb => {
+        const parentId = String(sb.parent_id);
+        if (parentId === '0' || !childrenMap[parentId]) {
+            roots.push(sb);
+        } else {
+            childrenMap[parentId].push(sb);
+        }
+    });
+
+    // Flatten tree with depth info
+    const flatten = (items, depth = 0) => {
+        let result = [];
+        items.forEach(item => {
+            result.push({ ...item, depth });
+            if (childrenMap[item.id]?.length > 0) {
+                result = result.concat(flatten(childrenMap[item.id], depth + 1));
+            }
+        });
+        return result;
+    };
+
+    return flatten(roots);
 };
 
 const Settings = () => {
@@ -106,7 +145,11 @@ const Settings = () => {
                         const sbResponse = await fetch(response.bmlt_root_server + '/client_interface/json/?switcher=GetServiceBodies');
                         if (sbResponse.ok) {
                             const bodies = await sbResponse.json();
-                            setAllServiceBodies(bodies.map(b => ({ id: b.id, name: b.name })));
+                            setAllServiceBodies(bodies.map(b => ({
+                                id: b.id,
+                                name: b.name,
+                                parent_id: b.parent_id || '0'
+                            })));
                         }
                     } catch (e) {
                         console.error('Failed to load service bodies:', e);
@@ -542,11 +585,11 @@ const Settings = () => {
                     {allServiceBodies.length > 0 && (
                         <div className="mayo-subscription-section">
                             <h4>Service Bodies available for subscription:</h4>
-                            <div className="mayo-checkbox-grid">
-                                {allServiceBodies.map(sb => (
+                            <div className="mayo-checkbox-list">
+                                {buildServiceBodyTree(allServiceBodies).map(sb => (
                                     <CheckboxControl
                                         key={sb.id}
-                                        label={sb.name}
+                                        label={`${'— '.repeat(sb.depth)}${sb.name} (${sb.id})`}
                                         checked={subscriptionSettings.subscription_service_bodies.includes(sb.id)}
                                         onChange={() => toggleSubscriptionOption('subscription_service_bodies', sb.id)}
                                     />

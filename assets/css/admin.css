@@ -490,4 +490,36 @@
 
 .mayo-add-skip-actions .components-button {
     flex: 1;
+}
+
+/* Subscription Preferences */
+.mayo-subscription-section {
+    margin-bottom: 24px;
+}
+
+.mayo-subscription-section h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mayo-checkbox-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+}
+
+.mayo-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mayo-checkbox-list .components-checkbox-control__label {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.mayo-settings-description {
+    color: #646970;
+    margin-bottom: 20px;
 } 
