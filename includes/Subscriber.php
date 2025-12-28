@@ -471,9 +471,11 @@ class Subscriber
             'service_body' => null
         ];
 
-        // Check categories
+        // Check categories - cast to integers for consistent comparison
         if (!empty($prefs['categories']) && !empty($announcement_data['categories'])) {
-            $matching_categories = array_intersect($prefs['categories'], $announcement_data['categories']);
+            $pref_categories = array_map('intval', $prefs['categories']);
+            $announcement_categories = array_map('intval', $announcement_data['categories']);
+            $matching_categories = array_intersect($pref_categories, $announcement_categories);
             if (!empty($matching_categories)) {
                 foreach ($matching_categories as $cat_id) {
                     $term = get_term($cat_id, 'category');
@@ -484,9 +486,11 @@ class Subscriber
             }
         }
 
-        // Check tags
+        // Check tags - cast to integers for consistent comparison
         if (!empty($prefs['tags']) && !empty($announcement_data['tags'])) {
-            $matching_tags = array_intersect($prefs['tags'], $announcement_data['tags']);
+            $pref_tags = array_map('intval', $prefs['tags']);
+            $announcement_tags = array_map('intval', $announcement_data['tags']);
+            $matching_tags = array_intersect($pref_tags, $announcement_tags);
             if (!empty($matching_tags)) {
                 foreach ($matching_tags as $tag_id) {
                     $term = get_term($tag_id, 'post_tag');
@@ -497,9 +501,10 @@ class Subscriber
             }
         }
 
-        // Check service body
+        // Check service body - cast to string for consistent comparison
         if (!empty($prefs['service_bodies']) && !empty($announcement_data['service_body'])) {
-            if (in_array($announcement_data['service_body'], $prefs['service_bodies'])) {
+            $pref_service_bodies = array_map('strval', $prefs['service_bodies']);
+            if (in_array((string) $announcement_data['service_body'], $pref_service_bodies, true)) {
                 $sb_id = $announcement_data['service_body'];
                 $reasons['service_body'] = $service_body_names[(string) $sb_id] ?? "Service Body $sb_id";
             }
@@ -708,25 +713,30 @@ class Subscriber
 
         // OR logic: match if ANY preference matches
 
-        // Check categories
+        // Check categories - cast to integers for consistent comparison
         if (!empty($prefs['categories']) && !empty($announcement_data['categories'])) {
-            $matching_categories = array_intersect($prefs['categories'], $announcement_data['categories']);
+            $pref_categories = array_map('intval', $prefs['categories']);
+            $announcement_categories = array_map('intval', $announcement_data['categories']);
+            $matching_categories = array_intersect($pref_categories, $announcement_categories);
             if (!empty($matching_categories)) {
                 return true;
             }
         }
 
-        // Check tags
+        // Check tags - cast to integers for consistent comparison
         if (!empty($prefs['tags']) && !empty($announcement_data['tags'])) {
-            $matching_tags = array_intersect($prefs['tags'], $announcement_data['tags']);
+            $pref_tags = array_map('intval', $prefs['tags']);
+            $announcement_tags = array_map('intval', $announcement_data['tags']);
+            $matching_tags = array_intersect($pref_tags, $announcement_tags);
             if (!empty($matching_tags)) {
                 return true;
             }
         }
 
-        // Check service body
+        // Check service body - cast to string for consistent comparison
         if (!empty($prefs['service_bodies']) && !empty($announcement_data['service_body'])) {
-            if (in_array($announcement_data['service_body'], $prefs['service_bodies'])) {
+            $pref_service_bodies = array_map('strval', $prefs['service_bodies']);
+            if (in_array((string) $announcement_data['service_body'], $pref_service_bodies, true)) {
                 return true;
             }
         }
