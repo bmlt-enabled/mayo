@@ -54,18 +54,27 @@ const AnnouncementForm = () => {
     // Combine both arrays for all required fields
     const allRequiredFields = [...defaultRequiredFields, ...additionalRequiredFields];
 
-    // Filter service bodies based on configuration
+    // Filter service bodies based on subscription options and shortcode configuration
     const getFilteredServiceBodies = () => {
-        if (!serviceBodySettings.default_service_bodies) {
-            return serviceBodies;
+        let filtered = serviceBodies;
+
+        // First filter by subscription options (if any are configured)
+        const allowedSubscriptionIds = subscriptionOptions.service_bodies.map(sb => sb.id.toString());
+        if (allowedSubscriptionIds.length > 0) {
+            filtered = filtered.filter(body => allowedSubscriptionIds.includes(body.id.toString()));
         }
 
-        const allowedIds = serviceBodySettings.default_service_bodies
-            .split(',')
-            .map(id => id.trim())
-            .filter(id => id);
+        // Then filter by shortcode configuration
+        if (serviceBodySettings.default_service_bodies) {
+            const allowedIds = serviceBodySettings.default_service_bodies
+                .split(',')
+                .map(id => id.trim())
+                .filter(id => id);
 
-        return serviceBodies.filter(body => allowedIds.includes(body.id.toString()));
+            filtered = filtered.filter(body => allowedIds.includes(body.id.toString()));
+        }
+
+        return filtered;
     };
 
     // Check if we should show the service body field at all
@@ -80,6 +89,13 @@ const AnnouncementForm = () => {
 
     // Check if unaffiliated option should be shown
     const shouldShowUnaffiliated = () => {
+        // Check if subscription options restrict service bodies
+        const allowedSubscriptionIds = subscriptionOptions.service_bodies.map(sb => sb.id.toString());
+        if (allowedSubscriptionIds.length > 0 && !allowedSubscriptionIds.includes('0')) {
+            return false;
+        }
+
+        // Check shortcode settings
         if (!serviceBodySettings.default_service_bodies) return true;
         return serviceBodySettings.default_service_bodies.includes('0');
     };
@@ -109,16 +125,24 @@ const AnnouncementForm = () => {
     const [serviceBodySettings, setServiceBodySettings] = useState({
         default_service_bodies: ''
     });
+    const [subscriptionOptions, setSubscriptionOptions] = useState({
+        categories: [],
+        tags: [],
+        service_bodies: []
+    });
 
-    // Load service body settings
+    // Load service body settings and subscription options
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const response = await apiFetch('/settings');
+                const [settingsResponse, subscriptionResponse] = await Promise.all([
+                    apiFetch('/settings'),
+                    apiFetch('/subscription-options')
+                ]);
 
                 // Start with global settings
                 let finalSettings = {
-                    default_service_bodies: response.default_service_bodies || ''
+                    default_service_bodies: settingsResponse.default_service_bodies || ''
                 };
 
                 // Override with shortcode parameters if provided
@@ -127,6 +151,7 @@ const AnnouncementForm = () => {
                 }
 
                 setServiceBodySettings(finalSettings);
+                setSubscriptionOptions(subscriptionResponse || { categories: [], tags: [], service_bodies: [] });
 
                 // If there are default service bodies and only one, pre-select it
                 const defaultIds = finalSettings.default_service_bodies?.split(',').map(id => id.trim()).filter(id => id);
@@ -137,7 +162,7 @@ const AnnouncementForm = () => {
                     }));
                 }
             } catch (error) {
-                console.error('Error fetching service body settings:', error);
+                console.error('Error fetching settings:', error);
             }
         };
 
@@ -159,8 +184,18 @@ const AnnouncementForm = () => {
                 const categoriesData = await categoriesRes.json();
                 const tagsData = await tagsRes.json();
 
-                // Filter categories based on included and excluded categories
+                // Get allowed category and tag IDs from subscription options
+                const allowedCategoryIds = subscriptionOptions.categories.map(c => c.id);
+                const allowedTagIds = subscriptionOptions.tags.map(t => t.id);
+
+                // Filter categories: first by subscription options, then by shortcode filters
                 const filteredCategories = categoriesData.filter(cat => {
+                    // First check subscription options (if any are configured)
+                    if (allowedCategoryIds.length > 0 && !allowedCategoryIds.includes(cat.id)) {
+                        return false;
+                    }
+
+                    // Then apply shortcode filters
                     const catSlug = (cat.slug || '').toLowerCase();
                     if (includedCategories.length > 0) {
                         return includedCategories.includes(catSlug);
@@ -170,8 +205,14 @@ const AnnouncementForm = () => {
                     return true;
                 });
 
-                // Filter tags based on included and excluded tags
+                // Filter tags: first by subscription options, then by shortcode filters
                 const filteredTags = tagsData.filter(tag => {
+                    // First check subscription options (if any are configured)
+                    if (allowedTagIds.length > 0 && !allowedTagIds.includes(tag.id)) {
+                        return false;
+                    }
+
+                    // Then apply shortcode filters
                     const tagSlug = (tag.slug || '').toLowerCase();
                     if (includedTags.length > 0) {
                         return includedTags.includes(tagSlug);
@@ -191,7 +232,7 @@ const AnnouncementForm = () => {
         };
 
         fetchTaxonomies();
-    }, [includedCategories, excludedCategories, includedTags, excludedTags]);
+    }, [includedCategories, excludedCategories, includedTags, excludedTags, subscriptionOptions]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

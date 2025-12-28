@@ -324,6 +324,7 @@ const AnnouncementEditor = () => {
     const [matchingSubscribers, setMatchingSubscribers] = useState([]);
     const [isLoadingCount, setIsLoadingCount] = useState(false);
     const [showEmailList, setShowEmailList] = useState(false);
+    const [subscriptionSettings, setSubscriptionSettings] = useState(null);
     const { serviceBodies } = useEventProvider();
 
     const postType = useSelect(select =>
@@ -398,7 +399,46 @@ const AnnouncementEditor = () => {
         }
     }, [postType, postStatus, hasPrelinked, meta.linked_event_refs]);
 
+    // Fetch subscription settings to filter service bodies
+    useEffect(() => {
+        if (postType !== 'mayo_announcement') return;
+
+        const fetchSubscriptionSettings = async () => {
+            try {
+                const settings = await apiFetch('/settings');
+                setSubscriptionSettings({
+                    service_bodies: settings.subscription_service_bodies || []
+                });
+            } catch (err) {
+                console.error('Error fetching subscription settings:', err);
+                setSubscriptionSettings({ service_bodies: [] });
+            }
+        };
+
+        fetchSubscriptionSettings();
+    }, [postType]);
+
     if (postType !== 'mayo_announcement') return null;
+
+    // Filter service bodies by subscription settings
+    const getFilteredServiceBodies = () => {
+        if (!subscriptionSettings || subscriptionSettings.service_bodies.length === 0) {
+            return serviceBodies;
+        }
+
+        const allowedIds = subscriptionSettings.service_bodies.map(id => id.toString());
+        return serviceBodies.filter(body => allowedIds.includes(body.id.toString()));
+    };
+
+    // Check if unaffiliated (0) is allowed
+    const isUnaffiliatedAllowed = () => {
+        if (!subscriptionSettings || subscriptionSettings.service_bodies.length === 0) {
+            return true;
+        }
+        return subscriptionSettings.service_bodies.map(id => id.toString()).includes('0');
+    };
+
+    const filteredServiceBodies = getFilteredServiceBodies();
 
     const updateMetaValue = (key, value) => {
         editPost({ meta: { ...meta, [key]: value } });
@@ -658,8 +698,8 @@ const AnnouncementEditor = () => {
                         value={meta.service_body || ''}
                         options={[
                             { label: 'Select a service body', value: '' },
-                            { label: 'Unaffiliated (0)', value: '0' },
-                            ...serviceBodies.map(body => ({
+                            ...(isUnaffiliatedAllowed() ? [{ label: 'Unaffiliated (0)', value: '0' }] : []),
+                            ...filteredServiceBodies.map(body => ({
                                 label: `${body.name} (${body.id})`,
                                 value: body.id
                             }))
@@ -668,6 +708,15 @@ const AnnouncementEditor = () => {
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
+                    {subscriptionSettings && subscriptionSettings.service_bodies.length > 0 && (
+                        <p className="components-base-control__help" style={{ marginTop: '8px' }}>
+                            Only service bodies enabled in{' '}
+                            <a href="/wp-admin/admin.php?page=mayo-settings" target="_blank" rel="noopener noreferrer">
+                                subscription settings
+                            </a>
+                            {' '}are shown.
+                        </p>
+                    )}
                 </PanelBody>
             </PluginDocumentSettingPanel>
 
