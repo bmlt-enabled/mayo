@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing and displaying events.
- * Version: 1.9.0
+ * Version: 1.8.0
  * Author: bmlt-enabled
  * License: GPLv2 or later
  * Author URI: https://bmlt.app
@@ -20,7 +20,7 @@ if (! defined('ABSPATH') ) {
     exit; // Exit if accessed directly
 }
 
-define('MAYO_VERSION', '1.9.0');
+define('MAYO_VERSION', '1.8.0');
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/Admin.php';
@@ -438,24 +438,33 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
     // Get service body names from BMLT
     $service_bodies = [];
     if (!empty($enabled_service_bodies)) {
-        $bmlt_sources = isset($settings['bmlt_sources'])
-            ? $settings['bmlt_sources']
-            : [];
-        foreach ($enabled_service_bodies as $sb_id) {
-            $sb_name = $sb_id;
-            // Try to find the name from BMLT sources
-            foreach ($bmlt_sources as $source) {
-                if (!empty($source['service_bodies'])) {
-                    foreach ($source['service_bodies'] as $sb) {
-                        $sb_id_match = isset($sb['id'])
-                            && (string) $sb['id'] === (string) $sb_id;
-                        if ($sb_id_match) {
-                            $sb_name = $sb['name'];
-                            break 2;
+        $bmlt_root_server = isset($settings['bmlt_root_server'])
+            ? $settings['bmlt_root_server']
+            : '';
+
+        // Fetch service bodies from BMLT server
+        $bmlt_service_bodies = [];
+        if (!empty($bmlt_root_server)) {
+            $sb_url = rtrim($bmlt_root_server, '/')
+                . '/client_interface/json/?switcher=GetServiceBodies';
+            $response = wp_remote_get($sb_url, ['timeout' => 10]);
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data)) {
+                    foreach ($data as $sb) {
+                        if (isset($sb['id']) && isset($sb['name'])) {
+                            $bmlt_service_bodies[(string) $sb['id']] = $sb['name'];
                         }
                     }
                 }
             }
+        }
+
+        foreach ($enabled_service_bodies as $sb_id) {
+            $sb_name = isset($bmlt_service_bodies[(string) $sb_id])
+                ? $bmlt_service_bodies[(string) $sb_id]
+                : $sb_id;
             $service_bodies[] = ['id' => $sb_id, 'name' => $sb_name];
         }
     }
@@ -621,9 +630,12 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
                             <?php foreach ($categories as $cat) : ?>
                                 <?php
                                 $cat_id = esc_attr($cat->term_id);
+                                $cats = $current_prefs['categories'] ?? [];
+                                $pref_cats = array_map('intval', $cats);
                                 $cat_checked = in_array(
-                                    $cat->term_id,
-                                    $current_prefs['categories'] ?? []
+                                    (int) $cat->term_id,
+                                    $pref_cats,
+                                    true
                                 ) ? 'checked' : '';
                                 ?>
                             <div class="checkbox-item">
@@ -649,9 +661,12 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
                             <?php foreach ($tags as $tag) : ?>
                                 <?php
                                 $tag_id = esc_attr($tag->term_id);
+                                $tgs = $current_prefs['tags'] ?? [];
+                                $pref_tags = array_map('intval', $tgs);
                                 $tag_checked = in_array(
-                                    $tag->term_id,
-                                    $current_prefs['tags'] ?? []
+                                    (int) $tag->term_id,
+                                    $pref_tags,
+                                    true
                                 ) ? 'checked' : '';
                                 ?>
                             <div class="checkbox-item">

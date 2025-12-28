@@ -89,7 +89,7 @@ const Settings = () => {
         subscription_categories: [],
         subscription_tags: [],
         subscription_service_bodies: [],
-        subscription_new_option_behavior: 'opt_in'
+        subscription_new_option_behavior: 'auto_include'
     });
     const [allCategories, setAllCategories] = useState([]);
     const [allTags, setAllTags] = useState([]);
@@ -608,8 +608,8 @@ const Settings = () => {
                         <RadioControl
                             selected={subscriptionSettings.subscription_new_option_behavior}
                             options={[
-                                { label: 'Opt-in: Existing subscribers must manually add new options', value: 'opt_in' },
-                                { label: 'Auto-include: Automatically add to existing subscribers', value: 'auto_include' }
+                                { label: 'Auto-include: Automatically add to existing subscribers', value: 'auto_include' },
+                                { label: 'Opt-in: Existing subscribers must manually add new options', value: 'opt_in' }
                             ]}
                             onChange={(value) => handleSubscriptionChange('subscription_new_option_behavior', value)}
                         />

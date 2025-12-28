@@ -395,7 +395,7 @@ class Subscriber
         $message = "You're now subscribed to announcements from {$site_name}.\n\n";
         $message .= "You'll receive an email whenever a new announcement is published.\n\n";
         $message .= "---\n";
-        $message .= "Unsubscribe: {$unsubscribe_url}\n";
+        $message .= "Manage preferences / Unsubscribe: {$unsubscribe_url}\n";
 
         $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
@@ -459,7 +459,7 @@ class Subscriber
 
             $message .= "View online: {$permalink}\n\n";
             $message .= "---\n";
-            $message .= "Unsubscribe: {$unsubscribe_url}\n";
+            $message .= "Manage preferences / Unsubscribe: {$unsubscribe_url}\n";
 
             $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
