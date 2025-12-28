@@ -195,9 +195,11 @@ This project is licensed under the GPL v2 or later.
 
 = 1.8.0 =
 * Added email subscription feature for announcements via [mayo_subscribe] shortcode with double opt-in.
+* Added [mayo_announcement_form] shortcode for public announcement submissions with start/end date fields.
 * Added support for linking announcements to external events from other Mayo sites.
 * Added service body tagging for announcements.
 * Added single announcement template page at /announcement/{slug}.
+* Added "Hide past events" filter to linked events modal (checked by default).
 * Fixed linked event search on the announcement page.
 * Improved calendar view to show more events per day with compact styling.
 * Added instant hover tooltips on calendar events showing time, location, type, and service body.

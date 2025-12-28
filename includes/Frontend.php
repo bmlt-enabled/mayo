@@ -9,6 +9,7 @@ class Frontend {
         add_shortcode('mayo_event_form', [__CLASS__, 'render_event_form']);
         add_shortcode('mayo_event_list', [__CLASS__, 'render_event_list']);
         add_shortcode('mayo_announcement', [__CLASS__, 'render_announcement']);
+        add_shortcode('mayo_announcement_form', [__CLASS__, 'render_announcement_form']);
         add_shortcode('mayo_subscribe', [__CLASS__, 'render_subscribe_form']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_scripts']);
         
@@ -168,6 +169,35 @@ class Frontend {
         );
     }
 
+    public static function render_announcement_form($atts = []) {
+        $defaults = [
+            'additional_required_fields' => '',
+            'categories' => '',
+            'tags' => '',
+            'default_service_bodies' => '',
+            'show_flyer' => 'false'
+        ];
+        $atts = shortcode_atts($defaults, $atts);
+
+        // Create unique settings for this instance
+        static $instance = 0;
+        $instance++;
+
+        $settings_key = "mayoAnnouncementFormSettings_$instance";
+        wp_localize_script('mayo-public', $settings_key, [
+            'additionalRequiredFields' => $atts['additional_required_fields'],
+            'defaultServiceBodies' => $atts['default_service_bodies'],
+            'showFlyer' => $atts['show_flyer'] === 'true'
+        ]);
+
+        return sprintf(
+            '<div id="mayo-announcement-form" data-settings="%s" data-categories="%s" data-tags="%s"></div>',
+            esc_attr($settings_key),
+            esc_attr($atts['categories']),
+            esc_attr($atts['tags'])
+        );
+    }
+
     public static function enqueue_scripts() {
         $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list') ||
                                 self::is_shortcode_present_in_widgets('mayo_announcement');
@@ -180,6 +210,7 @@ class Frontend {
             has_shortcode($post->post_content, 'mayo_event_form') ||
             has_shortcode($post->post_content, 'mayo_event_list') ||
             has_shortcode($post->post_content, 'mayo_announcement') ||
+            has_shortcode($post->post_content, 'mayo_announcement_form') ||
             has_shortcode($post->post_content, 'mayo_subscribe')
         )) {
             $should_enqueue = true;
