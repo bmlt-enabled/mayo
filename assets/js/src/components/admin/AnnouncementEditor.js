@@ -653,27 +653,6 @@ const AnnouncementEditor = () => {
                         __next40pxDefaultSize={true}
                     />
                 </PanelBody>
-
-                <PanelBody title="Email Recipients" initialOpen={true}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {isLoadingCount ? (
-                            <Spinner style={{ margin: 0 }} />
-                        ) : (
-                            <>
-                                <span
-                                    className="dashicons dashicons-email-alt"
-                                    style={{ color: '#2271b1', fontSize: '18px', width: '18px', height: '18px' }}
-                                />
-                                <span>
-                                    <strong>{subscriberCount ?? 0}</strong> subscriber{subscriberCount !== 1 ? 's' : ''} will receive this announcement
-                                </span>
-                            </>
-                        )}
-                    </div>
-                    <p className="components-base-control__help" style={{ marginTop: '8px' }}>
-                        Based on selected categories, tags, and service body.
-                    </p>
-                </PanelBody>
             </PluginDocumentSettingPanel>
 
             <PluginDocumentSettingPanel
@@ -836,6 +815,31 @@ const AnnouncementEditor = () => {
                     linkedEventRefs={linkedEventRefs}
                     getRefKey={getRefKey}
                 />
+            </PluginDocumentSettingPanel>
+
+            <PluginDocumentSettingPanel
+                name="mayo-email-recipients"
+                title="Email Recipients"
+                className="mayo-email-recipients"
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isLoadingCount ? (
+                        <Spinner style={{ margin: 0 }} />
+                    ) : (
+                        <>
+                            <span
+                                className="dashicons dashicons-email-alt"
+                                style={{ color: '#2271b1', fontSize: '18px', width: '18px', height: '18px' }}
+                            />
+                            <span>
+                                <strong>{subscriberCount ?? 0}</strong> subscriber{subscriberCount !== 1 ? 's' : ''} will receive this announcement
+                            </span>
+                        </>
+                    )}
+                </div>
+                <p className="components-base-control__help" style={{ marginTop: '8px' }}>
+                    Based on selected categories, tags, and service body.
+                </p>
             </PluginDocumentSettingPanel>
         </>
     );
