@@ -506,7 +506,8 @@
 .mayo-checkbox-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 4px 16px;
+    gap: 8px 16px;
+    align-items: start;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
@@ -515,16 +516,19 @@
     overflow-y: auto;
 }
 
-.mayo-checkbox-grid .components-checkbox-control__label {
-    font-size: 13px;
-}
-
 .mayo-checkbox-grid .components-base-control {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
 }
 
 .mayo-checkbox-grid .components-base-control__field {
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+.mayo-checkbox-grid .components-checkbox-control__label {
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 /* Service Body Tree Styles */
