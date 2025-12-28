@@ -519,6 +519,14 @@
     font-size: 13px;
 }
 
+.mayo-checkbox-grid .components-base-control {
+    margin-bottom: 0;
+}
+
+.mayo-checkbox-grid .components-base-control__field {
+    margin-bottom: 0;
+}
+
 /* Service Body Tree Styles */
 .mayo-service-body-tree {
     border: 1px solid #ddd;
@@ -526,7 +534,7 @@
     background: #fff;
     max-height: 400px;
     overflow-y: auto;
-    padding: 8px 0;
+    padding: 8px;
 }
 
 .mayo-tree-item {
