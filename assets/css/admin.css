@@ -572,4 +572,36 @@
 .mayo-settings-description {
     color: #646970;
     margin-bottom: 20px;
-} 
+}
+
+/* Subscribers Page Styles */
+.mayo-subscriber-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mayo-status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mayo-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.mayo-status-unsubscribed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.mayo-prefs-expanded-row td {
+    padding: 0 !important;
+}
+
+.mayo-prefs-expanded-row td > div:first-child {
+    padding-top: 0;
+}

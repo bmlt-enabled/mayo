@@ -308,6 +308,8 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
 const AnnouncementEditor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasPrelinked, setHasPrelinked] = useState(false);
+    const [subscriberCount, setSubscriberCount] = useState(null);
+    const [isLoadingCount, setIsLoadingCount] = useState(false);
     const { serviceBodies } = useEventProvider();
 
     const postType = useSelect(select =>
@@ -322,7 +324,41 @@ const AnnouncementEditor = () => {
         select('core/editor').getEditedPostAttribute('meta') || {}
     );
 
+    // Get categories and tags from WordPress editor data store
+    const categories = useSelect(select =>
+        select('core/editor').getEditedPostAttribute('categories') || []
+    );
+
+    const tags = useSelect(select =>
+        select('core/editor').getEditedPostAttribute('tags') || []
+    );
+
     const { editPost } = useDispatch('core/editor');
+
+    const serviceBody = meta.service_body || '';
+
+    // Fetch subscriber count when categories, tags, or service body change
+    useEffect(() => {
+        if (postType !== 'mayo_announcement') return;
+
+        const fetchCount = async () => {
+            setIsLoadingCount(true);
+            try {
+                const result = await apiFetch('/subscribers/count', {
+                    method: 'POST',
+                    body: JSON.stringify({ categories, tags, service_body: serviceBody })
+                });
+                setSubscriberCount(result.count);
+            } catch (err) {
+                console.error('Error fetching subscriber count:', err);
+                setSubscriberCount(null);
+            }
+            setIsLoadingCount(false);
+        };
+
+        const timeout = setTimeout(fetchCount, 300);
+        return () => clearTimeout(timeout);
+    }, [postType, categories, tags, serviceBody]);
 
     // Handle pre-linking from URL parameter (when coming from event editor)
     useEffect(() => {
@@ -616,6 +652,27 @@ const AnnouncementEditor = () => {
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
+                </PanelBody>
+
+                <PanelBody title="Email Recipients" initialOpen={true}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {isLoadingCount ? (
+                            <Spinner style={{ margin: 0 }} />
+                        ) : (
+                            <>
+                                <span
+                                    className="dashicons dashicons-email-alt"
+                                    style={{ color: '#2271b1', fontSize: '18px', width: '18px', height: '18px' }}
+                                />
+                                <span>
+                                    <strong>{subscriberCount ?? 0}</strong> subscriber{subscriberCount !== 1 ? 's' : ''} will receive this announcement
+                                </span>
+                            </>
+                        )}
+                    </div>
+                    <p className="components-base-control__help" style={{ marginTop: '8px' }}>
+                        Based on selected categories, tags, and service body.
+                    </p>
                 </PanelBody>
             </PluginDocumentSettingPanel>
 

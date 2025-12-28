@@ -113,6 +113,24 @@ class Rest {
                 'callback' => [__CLASS__, 'update_subscriber'],
                 'permission_callback' => '__return_true',
             ]);
+
+            // Get all subscribers (admin only)
+            register_rest_route('event-manager/v1', '/subscribers', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'get_all_subscribers'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ]);
+
+            // Count matching subscribers (for announcement editor)
+            register_rest_route('event-manager/v1', '/subscribers/count', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'count_matching_subscribers'],
+                'permission_callback' => function () {
+                    return current_user_can('edit_posts');
+                },
+            ]);
         });
     }
 
@@ -2268,6 +2286,138 @@ class Rest {
                 'message' => 'Failed to update preferences.'
             ], 500);
         }
+    }
+
+    /**
+     * Get all subscribers (admin only)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function get_all_subscribers($request)
+    {
+        $subscribers = Subscriber::get_all_subscribers();
+
+        // Get settings for preference name lookups
+        $settings = get_option('mayo_settings', []);
+        $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+
+        // Cache for category/tag/service body name lookups
+        $category_names = [];
+        $tag_names = [];
+        $service_body_names = [];
+
+        // Fetch all categories and tags for lookups
+        $all_cats = get_terms(['taxonomy' => 'category', 'hide_empty' => false]);
+        if (!is_wp_error($all_cats)) {
+            foreach ($all_cats as $cat) {
+                $category_names[$cat->term_id] = $cat->name;
+            }
+        }
+
+        $all_tags = get_terms(['taxonomy' => 'post_tag', 'hide_empty' => false]);
+        if (!is_wp_error($all_tags)) {
+            foreach ($all_tags as $tag) {
+                $tag_names[$tag->term_id] = $tag->name;
+            }
+        }
+
+        // Fetch service bodies from BMLT
+        if (!empty($bmlt_root_server)) {
+            $sb_url = rtrim($bmlt_root_server, '/')
+                . '/client_interface/json/?switcher=GetServiceBodies';
+            $response = wp_remote_get($sb_url, ['timeout' => 10]);
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                if (is_array($data)) {
+                    foreach ($data as $sb) {
+                        if (isset($sb['id']) && isset($sb['name'])) {
+                            $service_body_names[(string) $sb['id']] = $sb['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Format subscriber data
+        $formatted = [];
+        foreach ($subscribers as $subscriber) {
+            $prefs = null;
+            $prefs_display = [];
+
+            if (!empty($subscriber->preferences)) {
+                $prefs = json_decode($subscriber->preferences, true);
+
+                if (is_array($prefs)) {
+                    // Resolve category names
+                    if (!empty($prefs['categories'])) {
+                        $cat_names = [];
+                        foreach ($prefs['categories'] as $cat_id) {
+                            $cat_names[] = $category_names[$cat_id] ?? "Category $cat_id";
+                        }
+                        if (!empty($cat_names)) {
+                            $prefs_display['categories'] = $cat_names;
+                        }
+                    }
+
+                    // Resolve tag names
+                    if (!empty($prefs['tags'])) {
+                        $tg_names = [];
+                        foreach ($prefs['tags'] as $tag_id) {
+                            $tg_names[] = $tag_names[$tag_id] ?? "Tag $tag_id";
+                        }
+                        if (!empty($tg_names)) {
+                            $prefs_display['tags'] = $tg_names;
+                        }
+                    }
+
+                    // Resolve service body names
+                    if (!empty($prefs['service_bodies'])) {
+                        $sb_names = [];
+                        foreach ($prefs['service_bodies'] as $sb_id) {
+                            $sb_names[] = $service_body_names[(string) $sb_id]
+                                ?? "Service Body $sb_id";
+                        }
+                        if (!empty($sb_names)) {
+                            $prefs_display['service_bodies'] = $sb_names;
+                        }
+                    }
+                }
+            }
+
+            $formatted[] = [
+                'id' => $subscriber->id,
+                'email' => $subscriber->email,
+                'status' => $subscriber->status,
+                'created_at' => $subscriber->created_at,
+                'confirmed_at' => $subscriber->confirmed_at,
+                'preferences' => $prefs_display
+            ];
+        }
+
+        return new \WP_REST_Response($formatted, 200);
+    }
+
+    /**
+     * Count subscribers matching announcement criteria
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function count_matching_subscribers($request)
+    {
+        $params = $request->get_json_params();
+
+        $announcement_data = [
+            'categories' => $params['categories'] ?? [],
+            'tags' => $params['tags'] ?? [],
+            'service_body' => $params['service_body'] ?? null,
+        ];
+
+        $count = Subscriber::count_matching($announcement_data);
+
+        return new \WP_REST_Response(['count' => $count], 200);
     }
 }
 

@@ -346,6 +346,42 @@ class Subscriber
     }
 
     /**
+     * Get all subscribers (for admin view)
+     *
+     * @return array Array of subscriber objects
+     */
+    public static function get_all_subscribers()
+    {
+        global $wpdb;
+
+        $table_name = self::get_table_name();
+
+        return $wpdb->get_results(
+            "SELECT * FROM $table_name ORDER BY created_at DESC"
+        );
+    }
+
+    /**
+     * Count active subscribers matching given announcement criteria
+     *
+     * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
+     * @return int Number of matching active subscribers
+     */
+    public static function count_matching($announcement_data)
+    {
+        $subscribers = self::get_active_subscribers();
+        $count = 0;
+
+        foreach ($subscribers as $subscriber) {
+            if (self::matches_preferences($subscriber, $announcement_data)) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * Send confirmation email
      *
      * @param string $email Email address

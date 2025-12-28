@@ -70,6 +70,17 @@ class Admin {
             58 // Position above Appearance (60)
         );
 
+        // Subscribers submenu - positioned right after Announcements post type
+        add_submenu_page(
+            'mayo-events',
+            'Subscribers',
+            'Subscribers',
+            'manage_options',
+            'mayo-subscribers',
+            [__CLASS__, 'render_subscribers_page'],
+            11 // Right after Announcements (which is around position 10)
+        );
+
         add_submenu_page(
             'mayo-events',
             'Shortcodes',
@@ -117,7 +128,7 @@ class Admin {
         // Check if we're on an announcement edit page
         $is_announcement_edit = ($hook === 'post.php' || $hook === 'post-new.php') && $post_type === 'mayo_announcement';
 
-        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'mayo_page_mayo-api-docs', 'edit.php']) && !$is_announcement_edit) {
+        if (!in_array($hook, ['toplevel_page_mayo-events', 'mayo_page_mayo-shortcodes', 'mayo_page_mayo-settings', 'mayo_page_mayo-css-classes', 'mayo_page_mayo-api-docs', 'mayo_page_mayo-subscribers', 'edit.php']) && !$is_announcement_edit) {
             return;
         }
 
@@ -552,6 +563,11 @@ class Admin {
     public static function render_api_docs_page() {
         // Output a container div for React to render into
         echo '<div id="mayo-api-docs-root" class="wrap"></div>';
+    }
+
+    public static function render_subscribers_page() {
+        // Output a container div for React to render into
+        echo '<div id="mayo-subscribers-root" class="wrap"></div>';
     }
 
     public static function add_row_actions($actions, $post) {
