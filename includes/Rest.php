@@ -64,6 +64,12 @@ class Rest {
                 'permission_callback' => '__return_true',
             ]);
 
+            register_rest_route('event-manager/v1', '/submit-announcement', [
+                'methods' => 'POST',
+                'callback' => [__CLASS__, 'submit_announcement'],
+                'permission_callback' => '__return_true',
+            ]);
+
             register_rest_route('event-manager/v1', '/events/search', [
                 'methods' => 'GET',
                 'callback' => [__CLASS__, 'search_events'],
@@ -1706,6 +1712,192 @@ class Rest {
         }
 
         return new \WP_REST_Response(self::format_announcement($posts[0]));
+    }
+
+    /**
+     * Submit a new announcement from the public form
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function submit_announcement($request) {
+        $params = $request->get_params();
+
+        // Create the post
+        $post_data = [
+            'post_title'   => sanitize_text_field($params['title']),
+            'post_content' => sanitize_textarea_field($params['description'] ?? ''),
+            'post_status'  => 'pending',
+            'post_type'    => 'mayo_announcement'
+        ];
+
+        $post_id = wp_insert_post($post_data);
+
+        if (is_wp_error($post_id)) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'message' => $post_id->get_error_message()
+            ], 400);
+        }
+
+        // Add metadata
+        if (!empty($params['service_body'])) {
+            add_post_meta($post_id, 'service_body', sanitize_text_field($params['service_body']));
+        }
+        if (!empty($params['email'])) {
+            add_post_meta($post_id, 'email', sanitize_email($params['email']));
+        }
+        if (!empty($params['contact_name'])) {
+            add_post_meta($post_id, 'contact_name', sanitize_text_field($params['contact_name']));
+        }
+        if (!empty($params['start_date'])) {
+            add_post_meta($post_id, 'display_start_date', sanitize_text_field($params['start_date']));
+        }
+        if (!empty($params['end_date'])) {
+            add_post_meta($post_id, 'display_end_date', sanitize_text_field($params['end_date']));
+        }
+
+        // Handle categories and tags
+        if (!empty($params['categories'])) {
+            $categories_array = array_map('intval', explode(',', $params['categories']));
+            wp_set_post_categories($post_id, $categories_array);
+        }
+        if (!empty($params['tags'])) {
+            wp_set_post_tags($post_id, $params['tags']);
+        }
+
+        // Handle file uploads
+        if (!empty($_FILES)) {
+            if (!function_exists('wp_handle_upload')) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+            }
+            if (!function_exists('wp_generate_attachment_metadata')) {
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+            }
+            if (!function_exists('wp_insert_attachment')) {
+                require_once(ABSPATH . 'wp-admin/includes/media.php');
+            }
+
+            foreach ($_FILES as $file_key => $file) {
+                // Skip empty files
+                if (empty($file['name']) || $file['size'] <= 0) {
+                    continue;
+                }
+
+                $uploaded_file = wp_handle_upload($file, array('test_form' => false));
+
+                if (isset($uploaded_file['error'])) {
+                    error_log('Upload error: ' . $uploaded_file['error']);
+                    continue;
+                }
+
+                // Prepare attachment data
+                $attachment = array(
+                    'guid'           => $uploaded_file['url'],
+                    'post_mime_type' => $uploaded_file['type'],
+                    'post_title'     => sanitize_file_name(basename($uploaded_file['file'])),
+                    'post_content'   => '',
+                    'post_status'    => 'inherit'
+                );
+
+                // Insert attachment
+                $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file'], $post_id);
+                if (!is_wp_error($attachment_id)) {
+                    $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
+                    wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+                    // Set as featured image if it's an image
+                    if (strpos($uploaded_file['type'], 'image/') === 0) {
+                        set_post_thumbnail($post_id, $attachment_id);
+                    }
+                }
+            }
+        }
+
+        // Send email notification
+        self::send_announcement_submission_email($post_id, $params);
+
+        return new \WP_REST_Response([
+            'success' => true,
+            'id' => $post_id,
+            'message' => 'Announcement submitted successfully'
+        ], 200);
+    }
+
+    /**
+     * Send email notification for announcement submission
+     *
+     * @param int $post_id Post ID
+     * @param array $params Submission parameters
+     */
+    private static function send_announcement_submission_email($post_id, $params) {
+        $settings = get_option('mayo_settings', []);
+        $notification_email = isset($settings['notification_email']) ? $settings['notification_email'] : get_option('admin_email');
+
+        // Support multiple emails (comma or semicolon separated)
+        $emails = preg_split('/[,;]\s*/', $notification_email);
+        $valid_emails = array_filter($emails, 'is_email');
+
+        if (empty($valid_emails)) {
+            return;
+        }
+
+        $site_name = get_bloginfo('name');
+        $subject = sprintf('[%s] New Announcement Submission: %s', $site_name, sanitize_text_field($params['title']));
+
+        $message = "A new announcement has been submitted and is pending review.\n\n";
+        $message .= "Title: " . sanitize_text_field($params['title']) . "\n\n";
+
+        // Dates
+        if (!empty($params['start_date']) || !empty($params['end_date'])) {
+            $start_date = !empty($params['start_date']) ? sanitize_text_field($params['start_date']) : 'Not set';
+            $end_date = !empty($params['end_date']) ? sanitize_text_field($params['end_date']) : 'Not set';
+            $message .= "Start Date: " . $start_date . "\n";
+            $message .= "End Date: " . $end_date . "\n\n";
+        }
+
+        $message .= "Description:\n" . sanitize_textarea_field($params['description'] ?? '') . "\n\n";
+
+        // Service body info
+        if (!empty($params['service_body'])) {
+            $service_body_id = sanitize_text_field($params['service_body']);
+            $message .= "Service Body ID: " . $service_body_id . "\n";
+        }
+
+        // Contact info
+        $message .= "\nSubmitted by:\n";
+        $message .= "Name: " . sanitize_text_field($params['contact_name'] ?? 'Not provided') . "\n";
+        $message .= "Email: " . sanitize_email($params['email'] ?? 'Not provided') . "\n\n";
+
+        // Categories
+        if (!empty($params['categories'])) {
+            $category_ids = array_map('intval', explode(',', $params['categories']));
+            $category_names = [];
+            foreach ($category_ids as $cat_id) {
+                $cat = get_category($cat_id);
+                if ($cat) {
+                    $category_names[] = $cat->name;
+                }
+            }
+            if (!empty($category_names)) {
+                $message .= "Categories: " . implode(', ', $category_names) . "\n";
+            }
+        }
+
+        // Tags
+        if (!empty($params['tags'])) {
+            $message .= "Tags: " . sanitize_text_field($params['tags']) . "\n";
+        }
+
+        // Edit link
+        $edit_link = admin_url('post.php?post=' . $post_id . '&action=edit');
+        $message .= "\nReview and edit this announcement:\n" . $edit_link . "\n";
+
+        $headers = ['Content-Type: text/plain; charset=UTF-8'];
+
+        foreach ($valid_emails as $email) {
+            wp_mail(trim($email), $subject, $message, $headers);
+        }
     }
 
     /**

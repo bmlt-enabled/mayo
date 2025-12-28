@@ -5,6 +5,7 @@ import EventArchive from './components/public/EventArchive';
 import EventDetails from './components/public/EventDetails';
 import EventAnnouncement from './components/public/EventAnnouncement';
 import AnnouncementDetails from './components/public/AnnouncementDetails';
+import AnnouncementForm from './components/public/AnnouncementForm';
 import SubscribeForm from './components/public/SubscribeForm';
 import { EventProvider } from './components/providers/EventProvider';
 
@@ -52,4 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
     subscribeContainers.forEach(container => {
         render(<EventProvider><SubscribeForm /></EventProvider>, container);
     });
+
+    // Initialize announcement form
+    const announcementFormContainer = document.getElementById('mayo-announcement-form');
+    if (announcementFormContainer) {
+        render(<EventProvider><AnnouncementForm /></EventProvider>, announcementFormContainer);
+    }
 });
