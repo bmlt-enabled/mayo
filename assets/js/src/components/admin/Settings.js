@@ -585,14 +585,19 @@ const Settings = () => {
                     {allServiceBodies.length > 0 && (
                         <div className="mayo-subscription-section">
                             <h4>Service Bodies available for subscription:</h4>
-                            <div className="mayo-checkbox-list">
+                            <div className="mayo-service-body-tree">
                                 {buildServiceBodyTree(allServiceBodies).map(sb => (
-                                    <CheckboxControl
+                                    <div
                                         key={sb.id}
-                                        label={`${'— '.repeat(sb.depth)}${sb.name} (${sb.id})`}
-                                        checked={subscriptionSettings.subscription_service_bodies.includes(sb.id)}
-                                        onChange={() => toggleSubscriptionOption('subscription_service_bodies', sb.id)}
-                                    />
+                                        className="mayo-tree-item"
+                                        style={{ paddingLeft: `${sb.depth * 24}px` }}
+                                    >
+                                        <CheckboxControl
+                                            label={`${sb.name} (${sb.id})`}
+                                            checked={subscriptionSettings.subscription_service_bodies.includes(sb.id)}
+                                            onChange={() => toggleSubscriptionOption('subscription_service_bodies', sb.id)}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         </div>

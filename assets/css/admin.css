@@ -515,6 +515,44 @@
     gap: 4px;
 }
 
+/* Service Body Tree Styles */
+.mayo-service-body-tree {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.mayo-tree-item {
+    position: relative;
+    padding: 2px 12px;
+    transition: background-color 0.15s ease;
+}
+
+.mayo-tree-item:hover {
+    background-color: #f0f0f1;
+}
+
+.mayo-tree-item .components-checkbox-control__label {
+    font-size: 13px;
+}
+
+.mayo-tree-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+}
+
+.mayo-tree-item:hover::before {
+    background: #2271b1;
+}
+
 .mayo-checkbox-list .components-checkbox-control__label {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
