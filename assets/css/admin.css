@@ -527,7 +527,7 @@
 
 .mayo-tree-item {
     position: relative;
-    padding: 2px 12px;
+    padding: 2px 12px 2px 16px;
     transition: background-color 0.15s ease;
 }
 
