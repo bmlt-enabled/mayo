@@ -64,9 +64,10 @@ class Subscriber
      * Creates a pending subscriber and sends confirmation email
      *
      * @param string $email Email address to subscribe
+     * @param array|null $preferences Optional subscription preferences
      * @return array Result with success status and message
      */
-    public static function subscribe($email)
+    public static function subscribe($email, $preferences = null)
     {
         global $wpdb;
 
@@ -81,6 +82,7 @@ class Subscriber
         }
 
         $table_name = self::get_table_name();
+        $preferences_json = $preferences ? wp_json_encode($preferences) : null;
 
         // Check if already subscribed
         $existing = $wpdb->get_row($wpdb->prepare(
@@ -96,7 +98,16 @@ class Subscriber
                     'message' => 'This email is already subscribed.'
                 ];
             } elseif ($existing->status === 'pending') {
-                // Resend confirmation email
+                // Update preferences and resend confirmation email
+                if ($preferences_json) {
+                    $wpdb->update(
+                        $table_name,
+                        ['preferences' => $preferences_json],
+                        ['id' => $existing->id],
+                        ['%s'],
+                        ['%d']
+                    );
+                }
                 self::send_confirmation_email($email, $existing->token);
                 return [
                     'success' => true,
@@ -106,15 +117,23 @@ class Subscriber
             } elseif ($existing->status === 'unsubscribed') {
                 // Re-subscribe: generate new token and set to pending
                 $token = self::generate_token();
+                $update_data = [
+                    'status' => 'pending',
+                    'token' => $token,
+                    'confirmed_at' => null
+                ];
+                $update_format = ['%s', '%s', null];
+
+                if ($preferences_json) {
+                    $update_data['preferences'] = $preferences_json;
+                    $update_format[] = '%s';
+                }
+
                 $wpdb->update(
                     $table_name,
-                    [
-                        'status' => 'pending',
-                        'token' => $token,
-                        'confirmed_at' => null
-                    ],
+                    $update_data,
                     ['id' => $existing->id],
-                    ['%s', '%s', null],
+                    $update_format,
                     ['%d']
                 );
                 self::send_confirmation_email($email, $token);
@@ -129,16 +148,20 @@ class Subscriber
         // Create new subscriber
         $token = self::generate_token();
 
-        $result = $wpdb->insert(
-            $table_name,
-            [
-                'email' => $email,
-                'status' => 'pending',
-                'token' => $token,
-                'created_at' => current_time('mysql')
-            ],
-            ['%s', '%s', '%s', '%s']
-        );
+        $insert_data = [
+            'email' => $email,
+            'status' => 'pending',
+            'token' => $token,
+            'created_at' => current_time('mysql')
+        ];
+        $insert_format = ['%s', '%s', '%s', '%s'];
+
+        if ($preferences_json) {
+            $insert_data['preferences'] = $preferences_json;
+            $insert_format[] = '%s';
+        }
+
+        $result = $wpdb->insert($table_name, $insert_data, $insert_format);
 
         if ($result === false) {
             return [
@@ -156,6 +179,50 @@ class Subscriber
             'code' => 'confirmation_sent',
             'message' => 'A confirmation email has been sent. Please check your inbox (and spam folder).'
         ];
+    }
+
+    /**
+     * Get subscriber by token
+     *
+     * @param string $token Subscriber token
+     * @return object|null Subscriber object or null if not found
+     */
+    public static function get_by_token($token)
+    {
+        global $wpdb;
+
+        $token = sanitize_text_field($token);
+        $table_name = self::get_table_name();
+
+        return $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE token = %s",
+            $token
+        ));
+    }
+
+    /**
+     * Update subscriber preferences
+     *
+     * @param string $token Subscriber token
+     * @param array $preferences New preferences
+     * @return bool Success status
+     */
+    public static function update_preferences($token, $preferences)
+    {
+        global $wpdb;
+
+        $token = sanitize_text_field($token);
+        $table_name = self::get_table_name();
+
+        $result = $wpdb->update(
+            $table_name,
+            ['preferences' => wp_json_encode($preferences)],
+            ['token' => $token],
+            ['%s'],
+            ['%s']
+        );
+
+        return $result !== false;
     }
 
     /**
@@ -358,6 +425,9 @@ class Subscriber
             return;
         }
 
+        // Get announcement metadata for preference matching
+        $announcement_data = self::get_announcement_data($announcement_id);
+
         $site_name = get_bloginfo('name');
         $title = html_entity_decode(get_the_title($announcement_id), ENT_QUOTES, 'UTF-8');
         $content = apply_filters('the_content', $announcement->post_content);
@@ -370,6 +440,11 @@ class Subscriber
         $subject = sprintf('[%s] %s', $site_name, $title);
 
         foreach ($subscribers as $subscriber) {
+            // Check if subscriber preferences match the announcement
+            if (!self::matches_preferences($subscriber, $announcement_data)) {
+                continue;
+            }
+
             $unsubscribe_url = add_query_arg([
                 'mayo_unsubscribe' => $subscriber->token
             ], home_url());
@@ -394,6 +469,91 @@ class Subscriber
                 error_log('Mayo Subscriber: Failed to send announcement email to ' . $subscriber->email);
             }
         }
+    }
+
+    /**
+     * Get announcement data for preference matching
+     *
+     * @param int $announcement_id Announcement post ID
+     * @return array Announcement data with categories, tags, service_body
+     */
+    private static function get_announcement_data($announcement_id)
+    {
+        // Get categories
+        $categories = wp_get_post_terms($announcement_id, 'category', ['fields' => 'ids']);
+        if (is_wp_error($categories)) {
+            $categories = [];
+        }
+
+        // Get tags
+        $tags = wp_get_post_terms($announcement_id, 'post_tag', ['fields' => 'ids']);
+        if (is_wp_error($tags)) {
+            $tags = [];
+        }
+
+        // Get service body
+        $service_body = get_post_meta($announcement_id, 'service_body', true);
+
+        return [
+            'categories' => $categories,
+            'tags' => $tags,
+            'service_body' => $service_body
+        ];
+    }
+
+    /**
+     * Check if subscriber preferences match announcement (OR logic)
+     *
+     * @param object $subscriber Subscriber object with preferences JSON
+     * @param array $announcement_data Announcement categories, tags, service_body
+     * @return bool True if should send email
+     */
+    private static function matches_preferences($subscriber, $announcement_data)
+    {
+        // If no preferences set (legacy subscriber), send all announcements
+        if (empty($subscriber->preferences)) {
+            return true;
+        }
+
+        $prefs = json_decode($subscriber->preferences, true);
+
+        if (!is_array($prefs)) {
+            return true; // Invalid preferences, treat as legacy
+        }
+
+        // Check if all preference arrays are empty (shouldn't happen, but treat as receive all)
+        $has_prefs = !empty($prefs['categories']) || !empty($prefs['tags']) || !empty($prefs['service_bodies']);
+        if (!$has_prefs) {
+            return true;
+        }
+
+        // OR logic: match if ANY preference matches
+
+        // Check categories
+        if (!empty($prefs['categories']) && !empty($announcement_data['categories'])) {
+            $matching_categories = array_intersect($prefs['categories'], $announcement_data['categories']);
+            if (!empty($matching_categories)) {
+                return true;
+            }
+        }
+
+        // Check tags
+        if (!empty($prefs['tags']) && !empty($announcement_data['tags'])) {
+            $matching_tags = array_intersect($prefs['tags'], $announcement_data['tags']);
+            if (!empty($matching_tags)) {
+                return true;
+            }
+        }
+
+        // Check service body
+        if (!empty($prefs['service_bodies']) && !empty($announcement_data['service_body'])) {
+            if (in_array($announcement_data['service_body'], $prefs['service_bodies'])) {
+                return true;
+            }
+        }
+
+        // No match found
+        return false;
     }
 
     /**
