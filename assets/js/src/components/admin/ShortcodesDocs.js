@@ -9,6 +9,7 @@ const ShortcodesDocs = () => {
                     <li><a href="#event-list">[mayo_event_list] - Event List Shortcode</a></li>
                     <li><a href="#event-form">[mayo_event_form] - Event Submission Form Shortcode</a></li>
                     <li><a href="#announcement">[mayo_announcement] - Announcement Shortcode</a></li>
+                    <li><a href="#announcement-form">[mayo_announcement_form] - Announcement Submission Form Shortcode</a></li>
                     <li><a href="#subscribe">[mayo_subscribe] - Email Subscription Form Shortcode</a></li>
                 </ul>
             </div>
@@ -393,6 +394,121 @@ const ShortcodesDocs = () => {
                     <li>Priority levels: <strong>urgent</strong> (red), <strong>high</strong> (orange), <strong>normal</strong> (blue), <strong>low</strong> (gray)</li>
                     <li>Use categories or tags to control which announcements appear</li>
                     <li>Multiple announcements are shown as a carousel in banner mode, or as a list in modal mode</li>
+                </ul>
+            </div>
+
+            <div className="card" id="announcement-form">
+                <h2>Announcement Submission Form Shortcode</h2>
+                <p>
+                    The Announcement Submission Form Shortcode allows users to submit new announcements to your site. This works similarly to the event form but for announcements.
+                </p>
+                <p>
+                    When a new announcement is submitted, an email notification will be sent to the email addresses configured in the plugin settings. The announcement will have a "pending" status until approved by an administrator.
+                </p>
+                <h3>Shortcode</h3>
+                <code>[mayo_announcement_form]</code>
+
+                <h3>Default Required Fields</h3>
+                <p>The following fields are always required:</p>
+                <ul className="ul-disc">
+                    <li>Announcement Title (title)</li>
+                    <li>Description (description)</li>
+                    <li>Service Body (service_body)</li>
+                    <li>Point of Contact Name (contact_name)</li>
+                    <li>Point of Contact Email (email)</li>
+                </ul>
+
+                <h3>Optional Fields</h3>
+                <ul className="ul-disc">
+                    <li>Start Date (start_date) - When the announcement should start displaying</li>
+                    <li>End Date (end_date) - When the announcement should stop displaying</li>
+                    <li>Image/Flyer (flyer) - An image attachment for the announcement</li>
+                    <li>Categories - Standard WordPress categories</li>
+                    <li>Tags - Standard WordPress tags</li>
+                </ul>
+
+                <h3>Optional Parameters</h3>
+                <table className="widefat">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>additional_required_fields</td>
+                            <td>Comma-separated list of additional fields that should be required</td>
+                            <td>empty (no additional required fields)</td>
+                            <td>
+                                <ul>
+                                    <li>start_date</li>
+                                    <li>end_date</li>
+                                    <li>flyer</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>categories</td>
+                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it.</td>
+                            <td>empty (uses subscription settings)</td>
+                            <td>e.g., <pre>announcements,alerts</pre> or <pre>-internal</pre></td>
+                        </tr>
+                        <tr>
+                            <td>tags</td>
+                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it.</td>
+                            <td>empty (uses subscription settings)</td>
+                            <td>e.g., <pre>urgent,featured</pre> or <pre>-archived</pre></td>
+                        </tr>
+                        <tr>
+                            <td>default_service_bodies</td>
+                            <td>Comma-separated list of service body IDs to restrict the form to specific service bodies.</td>
+                            <td>empty (uses subscription settings)</td>
+                            <td>e.g., <pre>1,2,3</pre> or <pre>0</pre> for Unaffiliated. If only one is specified, the field is hidden and auto-selected.</td>
+                        </tr>
+                        <tr>
+                            <td>show_flyer</td>
+                            <td>Show the image/flyer upload field</td>
+                            <td>false</td>
+                            <td>true, false</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+
+                <h4>Basic Form</h4>
+                <pre><code>[mayo_announcement_form]</code></pre>
+
+                <h4>With Flyer Upload</h4>
+                <pre><code>[mayo_announcement_form show_flyer="true"]</code></pre>
+
+                <h4>With Required Dates</h4>
+                <pre><code>[mayo_announcement_form additional_required_fields="start_date,end_date"]</code></pre>
+
+                <h4>Restricted to Specific Service Bodies</h4>
+                <pre><code>[mayo_announcement_form default_service_bodies="1,2,5"]</code></pre>
+
+                <h4>Single Service Body (Auto-Hidden)</h4>
+                <pre><code>[mayo_announcement_form default_service_bodies="3"]</code></pre>
+                <p><em>When only one service body is specified, the field is hidden and automatically selected.</em></p>
+
+                <h4>Filter Categories and Tags</h4>
+                <pre><code>[mayo_announcement_form categories="announcements,alerts" tags="urgent,featured"]</code></pre>
+
+                <h4>Full Configuration</h4>
+                <pre><code>[mayo_announcement_form show_flyer="true" additional_required_fields="start_date,end_date,flyer" default_service_bodies="1,2" categories="announcements"]</code></pre>
+
+                <h3>Notes</h3>
+                <ul className="ul-disc">
+                    <li>Categories, tags, and service bodies are filtered by subscription settings configured in <strong>Mayo → Settings → Subscription Preferences</strong></li>
+                    <li>Shortcode parameters further restrict the available options (intersection of both)</li>
+                    <li>Contact name and email are private fields used for admin communication only</li>
+                    <li>Submitted announcements are set to "pending" status and require admin approval</li>
+                    <li>Admin receives email notification when new announcements are submitted</li>
+                    <li>Start/end dates correspond to the announcement's display window</li>
                 </ul>
             </div>
 
