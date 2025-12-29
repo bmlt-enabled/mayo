@@ -407,7 +407,7 @@ const Subscribers = () => {
                                             <span className="edit">
                                                 <button
                                                     type="button"
-                                                    className="button button-small"
+                                                    className="button button-small button-primary"
                                                     onClick={() => setEditingSubscriber(sub)}
                                                     style={{ marginRight: '4px' }}
                                                 >
