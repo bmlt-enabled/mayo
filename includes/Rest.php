@@ -137,6 +137,24 @@ class Rest {
                     return current_user_can('edit_posts');
                 },
             ]);
+
+            // Update subscriber by ID (admin only)
+            register_rest_route('event-manager/v1', '/subscribers/(?P<id>\d+)', [
+                'methods' => 'PUT',
+                'callback' => [__CLASS__, 'admin_update_subscriber'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ]);
+
+            // Delete subscriber by ID (admin only)
+            register_rest_route('event-manager/v1', '/subscribers/(?P<id>\d+)', [
+                'methods' => 'DELETE',
+                'callback' => [__CLASS__, 'admin_delete_subscriber'],
+                'permission_callback' => function () {
+                    return current_user_can('manage_options');
+                },
+            ]);
         });
     }
 
@@ -2606,7 +2624,8 @@ class Rest {
                 'status' => $subscriber->status,
                 'created_at' => $subscriber->created_at,
                 'confirmed_at' => $subscriber->confirmed_at,
-                'preferences' => $prefs_display
+                'preferences' => $prefs,  // Raw IDs for editing
+                'preferences_display' => $prefs_display  // Names for display
             ];
         }
 
@@ -2642,6 +2661,62 @@ class Rest {
         return new \WP_REST_Response([
             'count' => count($matching),
             'subscribers' => $subscribers
+        ], 200);
+    }
+
+    /**
+     * Update subscriber by ID (admin only)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function admin_update_subscriber($request)
+    {
+        $id = intval($request->get_param('id'));
+        $params = $request->get_json_params();
+
+        $updated = false;
+
+        // Update status if provided
+        if (isset($params['status'])) {
+            $valid_statuses = ['active', 'pending', 'unsubscribed'];
+            if (in_array($params['status'], $valid_statuses, true)) {
+                $updated = Subscriber::update_status($id, $params['status']) || $updated;
+            }
+        }
+
+        // Update preferences if provided
+        if (isset($params['preferences'])) {
+            $updated = Subscriber::update_preferences_by_id($id, $params['preferences']) || $updated;
+        }
+
+        return new \WP_REST_Response([
+            'success' => true,
+            'updated' => $updated
+        ], 200);
+    }
+
+    /**
+     * Delete subscriber by ID (admin only)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public static function admin_delete_subscriber($request)
+    {
+        $id = intval($request->get_param('id'));
+
+        $deleted = Subscriber::delete($id);
+
+        if (!$deleted) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'message' => 'Subscriber not found or could not be deleted'
+            ], 404);
+        }
+
+        return new \WP_REST_Response([
+            'success' => true
         ], 200);
     }
 }

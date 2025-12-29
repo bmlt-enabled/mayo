@@ -362,6 +362,88 @@ class Subscriber
     }
 
     /**
+     * Update subscriber status by ID (admin only)
+     *
+     * @param int $id Subscriber ID
+     * @param string $status New status (active, pending, unsubscribed)
+     * @return bool Success status
+     */
+    public static function update_status($id, $status)
+    {
+        global $wpdb;
+
+        $id = intval($id);
+        $status = sanitize_text_field($status);
+        $table_name = self::get_table_name();
+
+        $data = ['status' => $status];
+        $format = ['%s'];
+
+        // Set confirmed_at when activating
+        if ($status === 'active') {
+            $data['confirmed_at'] = current_time('mysql');
+            $format[] = '%s';
+        }
+
+        $result = $wpdb->update(
+            $table_name,
+            $data,
+            ['id' => $id],
+            $format,
+            ['%d']
+        );
+
+        return $result !== false;
+    }
+
+    /**
+     * Update subscriber preferences by ID (admin only)
+     *
+     * @param int $id Subscriber ID
+     * @param array $preferences New preferences
+     * @return bool Success status
+     */
+    public static function update_preferences_by_id($id, $preferences)
+    {
+        global $wpdb;
+
+        $id = intval($id);
+        $table_name = self::get_table_name();
+
+        $result = $wpdb->update(
+            $table_name,
+            ['preferences' => wp_json_encode($preferences)],
+            ['id' => $id],
+            ['%s'],
+            ['%d']
+        );
+
+        return $result !== false;
+    }
+
+    /**
+     * Delete subscriber by ID (admin only)
+     *
+     * @param int $id Subscriber ID
+     * @return bool Success status
+     */
+    public static function delete($id)
+    {
+        global $wpdb;
+
+        $id = intval($id);
+        $table_name = self::get_table_name();
+
+        $result = $wpdb->delete(
+            $table_name,
+            ['id' => $id],
+            ['%d']
+        );
+
+        return $result !== false;
+    }
+
+    /**
      * Get active subscribers matching given announcement criteria
      *
      * @param array $announcement_data Array with 'categories', 'tags', 'service_body' keys
