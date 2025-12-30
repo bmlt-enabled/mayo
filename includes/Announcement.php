@@ -80,6 +80,28 @@ class Announcement {
             }
         ]);
 
+        register_post_meta('mayo_announcement', 'display_start_time', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ]);
+
+        register_post_meta('mayo_announcement', 'display_end_time', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ]);
+
         register_post_meta('mayo_announcement', 'priority', [
             'show_in_rest' => true,
             'single' => true,
@@ -234,11 +256,19 @@ class Announcement {
 
             case 'display_window':
                 $start_date = get_post_meta($post_id, 'display_start_date', true);
+                $start_time = get_post_meta($post_id, 'display_start_time', true);
                 $end_date = get_post_meta($post_id, 'display_end_date', true);
+                $end_time = get_post_meta($post_id, 'display_end_time', true);
 
                 if ($start_date || $end_date) {
                     $start_formatted = $start_date ? date_i18n('M j, Y', strtotime($start_date)) : 'Now';
+                    if ($start_date && $start_time) {
+                        $start_formatted .= ' ' . date_i18n('g:i A', strtotime($start_time));
+                    }
                     $end_formatted = $end_date ? date_i18n('M j, Y', strtotime($end_date)) : 'Indefinite';
+                    if ($end_date && $end_time) {
+                        $end_formatted .= ' ' . date_i18n('g:i A', strtotime($end_time));
+                    }
                     echo esc_html($start_formatted . ' - ' . $end_formatted);
                 } else {
                     echo '<em>Always visible</em>';
@@ -554,7 +584,9 @@ class Announcement {
                 'excerpt' => get_the_excerpt($post),
                 'permalink' => get_permalink($post->ID),
                 'display_start_date' => get_post_meta($post->ID, 'display_start_date', true),
+                'display_start_time' => get_post_meta($post->ID, 'display_start_time', true),
                 'display_end_date' => get_post_meta($post->ID, 'display_end_date', true),
+                'display_end_time' => get_post_meta($post->ID, 'display_end_time', true),
                 'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
                 'linked_events' => $linked_event_data,
                 'featured_image' => get_the_post_thumbnail_url($post->ID, 'medium'),
@@ -615,7 +647,9 @@ class Announcement {
                 'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
                 'is_active' => $is_active,
                 'display_start_date' => $start_date,
+                'display_start_time' => get_post_meta($post->ID, 'display_start_time', true),
                 'display_end_date' => $end_date,
+                'display_end_time' => get_post_meta($post->ID, 'display_end_time', true),
                 'edit_link' => get_edit_post_link($post->ID, 'raw'),
             ];
         }

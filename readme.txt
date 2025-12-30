@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -192,6 +192,10 @@ This project is licensed under the GPL v2 or later.
 * Added admin settings to configure which categories, tags, and service bodies are available for subscription preferences.
 * Added "Manage Subscription" page where existing subscribers can update their preferences or unsubscribe.
 * Subscribers without preferences (legacy) continue to receive all announcements.
+
+= 1.8.1 =
+* Added start and end time fields for announcements in addition to dates.
+* Added subscriber management with edit/delete functionality in admin Subscribers page.
 
 = 1.8.0 =
 * Added email subscription feature for announcements via [mayo_subscribe] shortcode with double opt-in.

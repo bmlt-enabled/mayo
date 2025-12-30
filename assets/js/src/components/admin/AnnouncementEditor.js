@@ -655,11 +655,27 @@ const AnnouncementEditor = () => {
                         __next40pxDefaultSize={true}
                     />
                     <TextControl
+                        label="Start Time"
+                        type="time"
+                        value={meta.display_start_time || ''}
+                        onChange={value => updateMetaValue('display_start_time', value)}
+                        __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
+                    />
+                    <TextControl
                         label="End Date"
                         type="date"
                         value={meta.display_end_date || ''}
                         onChange={value => updateMetaValue('display_end_date', value)}
                         help="Leave empty to show indefinitely"
+                        __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
+                    />
+                    <TextControl
+                        label="End Time"
+                        type="time"
+                        value={meta.display_end_time || ''}
+                        onChange={value => updateMetaValue('display_end_time', value)}
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />

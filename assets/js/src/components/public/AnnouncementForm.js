@@ -107,7 +107,9 @@ const AnnouncementForm = () => {
         title: '',
         description: '',
         start_date: '',
+        start_time: '',
         end_date: '',
+        end_time: '',
         flyer: null,
         categories: [],
         tags: [],
@@ -307,7 +309,9 @@ const AnnouncementForm = () => {
                     title: '',
                     description: '',
                     start_date: '',
+                    start_time: '',
                     end_date: '',
+                    end_time: '',
                     flyer: null,
                     categories: [],
                     tags: [],
@@ -502,6 +506,20 @@ const AnnouncementForm = () => {
                     </div>
 
                     <div className="mayo-form-field">
+                        <label htmlFor="start_time">
+                            Start Time {isFieldRequired('start_time') && '*'}
+                        </label>
+                        <input
+                            type="time"
+                            id="start_time"
+                            name="start_time"
+                            value={formData.start_time}
+                            onChange={handleChange}
+                            required={isFieldRequired('start_time')}
+                        />
+                    </div>
+
+                    <div className="mayo-form-field">
                         <label htmlFor="end_date">
                             End Date {isFieldRequired('end_date') && '*'}
                         </label>
@@ -512,6 +530,20 @@ const AnnouncementForm = () => {
                             value={formData.end_date}
                             onChange={handleChange}
                             required={isFieldRequired('end_date')}
+                        />
+                    </div>
+
+                    <div className="mayo-form-field">
+                        <label htmlFor="end_time">
+                            End Time {isFieldRequired('end_time') && '*'}
+                        </label>
+                        <input
+                            type="time"
+                            id="end_time"
+                            name="end_time"
+                            value={formData.end_time}
+                            onChange={handleChange}
+                            required={isFieldRequired('end_time')}
                         />
                     </div>
                 </div>

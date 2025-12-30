@@ -62,6 +62,30 @@ const AnnouncementDetails = () => {
 
     const priorityColor = priorityColors[announcement.priority] || priorityColors.normal;
 
+    // Format time from 24h to 12h format
+    const formatTime = (time) => {
+        if (!time) return '';
+        try {
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours, 10);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        } catch {
+            return time;
+        }
+    };
+
+    // Format date and time together
+    const formatDateTime = (date, time) => {
+        if (!date) return null;
+        let formatted = date;
+        if (time) {
+            formatted += ` at ${formatTime(time)}`;
+        }
+        return formatted;
+    };
+
     return (
         <div className="mayo-single-container">
             <article className={`mayo-single-announcement mayo-priority-${announcement.priority || 'normal'}`}>
@@ -145,10 +169,10 @@ const AnnouncementDetails = () => {
                         <div className="mayo-announcement-display-window">
                             <h3>Display Window</h3>
                             {announcement.display_start_date && (
-                                <p><strong>From:</strong> {announcement.display_start_date}</p>
+                                <p><strong>From:</strong> {formatDateTime(announcement.display_start_date, announcement.display_start_time)}</p>
                             )}
                             {announcement.display_end_date && (
-                                <p><strong>Until:</strong> {announcement.display_end_date}</p>
+                                <p><strong>Until:</strong> {formatDateTime(announcement.display_end_date, announcement.display_end_time)}</p>
                             )}
                         </div>
                     )}

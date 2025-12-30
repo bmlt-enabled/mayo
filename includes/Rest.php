@@ -1771,8 +1771,14 @@ class Rest {
         if (!empty($params['start_date'])) {
             add_post_meta($post_id, 'display_start_date', sanitize_text_field($params['start_date']));
         }
+        if (!empty($params['start_time'])) {
+            add_post_meta($post_id, 'display_start_time', sanitize_text_field($params['start_time']));
+        }
         if (!empty($params['end_date'])) {
             add_post_meta($post_id, 'display_end_date', sanitize_text_field($params['end_date']));
+        }
+        if (!empty($params['end_time'])) {
+            add_post_meta($post_id, 'display_end_time', sanitize_text_field($params['end_time']));
         }
 
         // Handle categories and tags
@@ -2241,7 +2247,9 @@ class Rest {
             'link' => $permalink,
             'edit_link' => $edit_link,
             'display_start_date' => $display_start_date,
+            'display_start_time' => get_post_meta($post->ID, 'display_start_time', true),
             'display_end_date' => $display_end_date,
+            'display_end_time' => get_post_meta($post->ID, 'display_end_time', true),
             'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
             'service_body' => get_post_meta($post->ID, 'service_body', true) ?: '',
             'is_active' => $is_active,
