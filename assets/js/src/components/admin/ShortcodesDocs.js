@@ -421,7 +421,9 @@ const ShortcodesDocs = () => {
                 <h3>Optional Fields</h3>
                 <ul className="ul-disc">
                     <li>Start Date (start_date) - When the announcement should start displaying</li>
+                    <li>Start Time (start_time) - Time of day the announcement should start</li>
                     <li>End Date (end_date) - When the announcement should stop displaying</li>
+                    <li>End Time (end_time) - Time of day the announcement should end</li>
                     <li>Image/Flyer (flyer) - An image attachment for the announcement</li>
                     <li>Categories - Standard WordPress categories</li>
                     <li>Tags - Standard WordPress tags</li>
@@ -445,7 +447,9 @@ const ShortcodesDocs = () => {
                             <td>
                                 <ul>
                                     <li>start_date</li>
+                                    <li>start_time</li>
                                     <li>end_date</li>
+                                    <li>end_time</li>
                                     <li>flyer</li>
                                 </ul>
                             </td>

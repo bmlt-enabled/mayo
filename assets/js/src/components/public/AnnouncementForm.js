@@ -107,7 +107,9 @@ const AnnouncementForm = () => {
         title: '',
         description: '',
         start_date: '',
+        start_time: '',
         end_date: '',
+        end_time: '',
         flyer: null,
         categories: [],
         tags: [],
@@ -307,7 +309,9 @@ const AnnouncementForm = () => {
                     title: '',
                     description: '',
                     start_date: '',
+                    start_time: '',
                     end_date: '',
+                    end_time: '',
                     flyer: null,
                     categories: [],
                     tags: [],
@@ -486,35 +490,76 @@ const AnnouncementForm = () => {
                     />
                 </div>
 
-                <div className="mayo-datetime-group">
-                    <div className="mayo-form-field">
-                        <label htmlFor="start_date">
-                            Start Date {isFieldRequired('start_date') && '*'}
-                        </label>
-                        <input
-                            type="date"
-                            id="start_date"
-                            name="start_date"
-                            value={formData.start_date}
-                            onChange={handleChange}
-                            required={isFieldRequired('start_date')}
-                        />
-                    </div>
+                <fieldset className="mayo-display-window-fieldset">
+                    <legend>Display Window</legend>
+                    <p className="mayo-fieldset-description">
+                        Control when this announcement is visible on the site.
+                    </p>
 
-                    <div className="mayo-form-field">
-                        <label htmlFor="end_date">
-                            End Date {isFieldRequired('end_date') && '*'}
-                        </label>
-                        <input
-                            type="date"
-                            id="end_date"
-                            name="end_date"
-                            value={formData.end_date}
-                            onChange={handleChange}
-                            required={isFieldRequired('end_date')}
-                        />
+                    <div className="mayo-datetime-group">
+                        <div className="mayo-datetime-row">
+                            <div className="mayo-form-field">
+                                <label htmlFor="start_date">
+                                    Start Date {isFieldRequired('start_date') && '*'}
+                                </label>
+                                <input
+                                    type="date"
+                                    id="start_date"
+                                    name="start_date"
+                                    value={formData.start_date}
+                                    onChange={handleChange}
+                                    required={isFieldRequired('start_date')}
+                                />
+                            </div>
+
+                            <div className="mayo-form-field">
+                                <label htmlFor="start_time">
+                                    Start Time {isFieldRequired('start_time') && '*'}
+                                </label>
+                                <input
+                                    type="time"
+                                    id="start_time"
+                                    name="start_time"
+                                    value={formData.start_time}
+                                    onChange={handleChange}
+                                    required={isFieldRequired('start_time')}
+                                />
+                            </div>
+                        </div>
+                        <p className="mayo-field-hint">Leave empty to start showing immediately</p>
+
+                        <div className="mayo-datetime-row">
+                            <div className="mayo-form-field">
+                                <label htmlFor="end_date">
+                                    End Date {isFieldRequired('end_date') && '*'}
+                                </label>
+                                <input
+                                    type="date"
+                                    id="end_date"
+                                    name="end_date"
+                                    value={formData.end_date}
+                                    onChange={handleChange}
+                                    required={isFieldRequired('end_date')}
+                                />
+                            </div>
+
+                            <div className="mayo-form-field">
+                                <label htmlFor="end_time">
+                                    End Time {isFieldRequired('end_time') && '*'}
+                                </label>
+                                <input
+                                    type="time"
+                                    id="end_time"
+                                    name="end_time"
+                                    value={formData.end_time}
+                                    onChange={handleChange}
+                                    required={isFieldRequired('end_time')}
+                                />
+                            </div>
+                        </div>
+                        <p className="mayo-field-hint">Leave empty to show indefinitely</p>
                     </div>
-                </div>
+                </fieldset>
 
                 <div className="mayo-form-field">
                     <label htmlFor="description">
