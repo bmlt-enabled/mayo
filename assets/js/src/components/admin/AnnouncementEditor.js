@@ -642,43 +642,72 @@ const AnnouncementEditor = () => {
                 className="mayo-announcement-details"
             >
                 <PanelBody title="Display Window" initialOpen={true}>
-                    <p className="components-base-control__help" style={{ marginTop: 0 }}>
+                    <p className="components-base-control__help" style={{ marginTop: 0, marginBottom: '12px' }}>
                         Control when this announcement is visible on the frontend.
                     </p>
-                    <TextControl
-                        label="Start Date"
-                        type="date"
-                        value={meta.display_start_date || ''}
-                        onChange={value => updateMetaValue('display_start_date', value)}
-                        help="Leave empty to start showing immediately"
-                        __nextHasNoMarginBottom={true}
-                        __next40pxDefaultSize={true}
-                    />
-                    <TextControl
-                        label="Start Time"
-                        type="time"
-                        value={meta.display_start_time || ''}
-                        onChange={value => updateMetaValue('display_start_time', value)}
-                        __nextHasNoMarginBottom={true}
-                        __next40pxDefaultSize={true}
-                    />
-                    <TextControl
-                        label="End Date"
-                        type="date"
-                        value={meta.display_end_date || ''}
-                        onChange={value => updateMetaValue('display_end_date', value)}
-                        help="Leave empty to show indefinitely"
-                        __nextHasNoMarginBottom={true}
-                        __next40pxDefaultSize={true}
-                    />
-                    <TextControl
-                        label="End Time"
-                        type="time"
-                        value={meta.display_end_time || ''}
-                        onChange={value => updateMetaValue('display_end_time', value)}
-                        __nextHasNoMarginBottom={true}
-                        __next40pxDefaultSize={true}
-                    />
+                    <div style={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '4px',
+                        padding: '12px',
+                        marginBottom: '12px',
+                        backgroundColor: '#fafafa'
+                    }}>
+                        <div style={{ marginBottom: '4px' }}>
+                            <strong style={{ fontSize: '12px', color: '#1e1e1e' }}>Start</strong>
+                        </div>
+                        <TextControl
+                            label="Date"
+                            type="date"
+                            value={meta.display_start_date || ''}
+                            onChange={value => updateMetaValue('display_start_date', value)}
+                            __nextHasNoMarginBottom={true}
+                            __next40pxDefaultSize={true}
+                        />
+                        <div style={{ marginTop: '8px' }}>
+                            <TextControl
+                                label="Time"
+                                type="time"
+                                value={meta.display_start_time || ''}
+                                onChange={value => updateMetaValue('display_start_time', value)}
+                                __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
+                            />
+                        </div>
+                        <p className="components-base-control__help" style={{ marginTop: '8px', marginBottom: 0 }}>
+                            Leave empty to start showing immediately
+                        </p>
+                    </div>
+                    <div style={{
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '4px',
+                        padding: '12px',
+                        backgroundColor: '#fafafa'
+                    }}>
+                        <div style={{ marginBottom: '4px' }}>
+                            <strong style={{ fontSize: '12px', color: '#1e1e1e' }}>End</strong>
+                        </div>
+                        <TextControl
+                            label="Date"
+                            type="date"
+                            value={meta.display_end_date || ''}
+                            onChange={value => updateMetaValue('display_end_date', value)}
+                            __nextHasNoMarginBottom={true}
+                            __next40pxDefaultSize={true}
+                        />
+                        <div style={{ marginTop: '8px' }}>
+                            <TextControl
+                                label="Time"
+                                type="time"
+                                value={meta.display_end_time || ''}
+                                onChange={value => updateMetaValue('display_end_time', value)}
+                                __nextHasNoMarginBottom={true}
+                                __next40pxDefaultSize={true}
+                            />
+                        </div>
+                        <p className="components-base-control__help" style={{ marginTop: '8px', marginBottom: 0 }}>
+                            Leave empty to show indefinitely
+                        </p>
+                    </div>
                 </PanelBody>
 
                 <PanelBody title="Priority" initialOpen={true}>

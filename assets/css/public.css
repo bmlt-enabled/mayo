@@ -2691,3 +2691,58 @@
         gap: 8px;
     }
 }
+
+/* Display Window Fieldset */
+.mayo-display-window-fieldset {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1.25em 1.5em;
+    margin-bottom: 1.5em;
+    background: #fafafa;
+}
+
+.mayo-display-window-fieldset legend {
+    font-weight: 600;
+    font-size: 1em;
+    padding: 0 0.5em;
+    color: #333;
+}
+
+.mayo-fieldset-description {
+    margin: 0 0 1em 0;
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.mayo-datetime-row {
+    display: flex;
+    gap: 20px;
+}
+
+.mayo-datetime-row .mayo-form-field {
+    flex: 1;
+    margin-bottom: 0.5em;
+}
+
+.mayo-field-hint {
+    margin: 0 0 1.25em 0;
+    color: #666;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+.mayo-field-hint:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .mayo-datetime-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .mayo-display-window-fieldset {
+        padding: 1em;
+    }
+}
