@@ -74,7 +74,7 @@ Namespace: `event-manager/v1`
 
 ### Development Notes
 - Uses PSR-4 autoloading with namespace `BmltEnabled\Mayo\`
-- Minimum PHP version: 7.4
+- Minimum PHP version: 8.2
 - WordPress Coding Standards compliance via PHPCS
 - All user inputs are properly sanitized for security
 - AJAX nonce verification for admin actions
