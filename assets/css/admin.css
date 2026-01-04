@@ -503,11 +503,7 @@
     font-weight: 600;
 }
 
-.mayo-checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px 16px;
-    align-items: start;
+.mayo-checkbox-list {
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
@@ -516,17 +512,15 @@
     overflow-y: auto;
 }
 
-.mayo-checkbox-grid .components-base-control {
+.mayo-checkbox-list .components-base-control {
+    margin-bottom: 4px !important;
+}
+
+.mayo-checkbox-list .components-base-control:last-child {
     margin-bottom: 0 !important;
 }
 
-.mayo-checkbox-grid .components-base-control__field {
-    margin-bottom: 0 !important;
-    display: flex;
-    align-items: center;
-}
-
-.mayo-checkbox-grid .components-checkbox-control__label {
+.mayo-checkbox-list .components-checkbox-control__label {
     font-size: 13px;
     line-height: 1.4;
 }

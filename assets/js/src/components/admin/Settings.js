@@ -553,7 +553,7 @@ const Settings = () => {
                     {allCategories.length > 0 && (
                         <div className="mayo-subscription-section">
                             <h4>Categories available for subscription:</h4>
-                            <div className="mayo-checkbox-grid">
+                            <div className="mayo-checkbox-list">
                                 {allCategories.map(cat => (
                                     <CheckboxControl
                                         key={cat.id}
@@ -569,7 +569,7 @@ const Settings = () => {
                     {allTags.length > 0 && (
                         <div className="mayo-subscription-section">
                             <h4>Tags available for subscription:</h4>
-                            <div className="mayo-checkbox-grid">
+                            <div className="mayo-checkbox-list">
                                 {allTags.map(tag => (
                                     <CheckboxControl
                                         key={tag.id}
