@@ -190,6 +190,7 @@ This project is licensed under the GPL v2 or later.
 = 1.8.1 =
 * Added start and end time fields for announcements in addition to dates.
 * Added announcement sort order options via shortcode attributes (orderby, order) and widget settings. Sort by date, title, or created date.
+* Some styling improvements
 
 = 1.8.0 =
 * Added email subscription feature for announcements via [mayo_subscribe] shortcode with double opt-in.
