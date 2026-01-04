@@ -30,6 +30,8 @@ class AnnouncementWidget extends \WP_Widget {
         $time_format = ! empty( $instance['time_format'] ) ? $instance['time_format'] : '12hour';
         $background_color = ! empty( $instance['background_color'] ) ? $instance['background_color'] : '';
         $text_color = ! empty( $instance['text_color'] ) ? $instance['text_color'] : '';
+        $orderby = ! empty( $instance['orderby'] ) ? $instance['orderby'] : 'date';
+        $order = ! empty( $instance['order'] ) ? $instance['order'] : '';
 
         // Enqueue scripts and styles
         wp_enqueue_script('mayo-public');
@@ -44,6 +46,8 @@ class AnnouncementWidget extends \WP_Widget {
             'timeFormat' => $time_format,
             'backgroundColor' => $background_color,
             'textColor' => $text_color,
+            'orderBy' => $orderby,
+            'order' => strtoupper($order),
         ]);
 
         echo $args['before_widget'];
@@ -64,6 +68,8 @@ class AnnouncementWidget extends \WP_Widget {
         $categories = ! empty( $instance['categories'] ) ? $instance['categories'] : '';
         $tags = ! empty( $instance['tags'] ) ? $instance['tags'] : '';
         $time_format = ! empty( $instance['time_format'] ) ? $instance['time_format'] : '12hour';
+        $orderby = ! empty( $instance['orderby'] ) ? $instance['orderby'] : 'date';
+        $order = ! empty( $instance['order'] ) ? $instance['order'] : '';
         ?>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'mode' ) ); ?>">
@@ -151,6 +157,46 @@ class AnnouncementWidget extends \WP_Widget {
                 placeholder="#ffffff"
             />
         </p>
+        <p>
+            <label for="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>">
+                Sort By:
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>"
+                name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>"
+            >
+                <option value="date" <?php selected( $orderby, 'date' ); ?>>
+                    Display Start Date
+                </option>
+                <option value="title" <?php selected( $orderby, 'title' ); ?>>
+                    Title
+                </option>
+                <option value="created" <?php selected( $orderby, 'created' ); ?>>
+                    Created Date
+                </option>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>">
+                Order:
+            </label>
+            <select
+                class="widefat"
+                id="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>"
+                name="<?php echo esc_attr( $this->get_field_name( 'order' ) ); ?>"
+            >
+                <option value="" <?php selected( $order, '' ); ?>>
+                    Default
+                </option>
+                <option value="ASC" <?php selected( $order, 'ASC' ); ?>>
+                    Ascending
+                </option>
+                <option value="DESC" <?php selected( $order, 'DESC' ); ?>>
+                    Descending
+                </option>
+            </select>
+        </p>
         <p class="description">
             Events will show as announcements when today's date is between the event's start and end dates.
         </p>
@@ -168,6 +214,8 @@ class AnnouncementWidget extends \WP_Widget {
         $instance['time_format'] = ( ! empty( $new_instance['time_format'] ) ) ? sanitize_text_field( $new_instance['time_format'] ) : '12hour';
         $instance['background_color'] = ( ! empty( $new_instance['background_color'] ) ) ? sanitize_hex_color( $new_instance['background_color'] ) : '';
         $instance['text_color'] = ( ! empty( $new_instance['text_color'] ) ) ? sanitize_hex_color( $new_instance['text_color'] ) : '';
+        $instance['orderby'] = ( ! empty( $new_instance['orderby'] ) ) ? sanitize_text_field( $new_instance['orderby'] ) : 'date';
+        $instance['order'] = ( ! empty( $new_instance['order'] ) ) ? sanitize_text_field( $new_instance['order'] ) : '';
         return $instance;
     }
 }

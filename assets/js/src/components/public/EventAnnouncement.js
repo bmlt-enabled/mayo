@@ -18,6 +18,8 @@ const EventAnnouncement = ({ settings = {} }) => {
     const timeFormat = settings.timeFormat || '12hour';
     const backgroundColor = settings.backgroundColor || '';
     const textColor = settings.textColor || '';
+    const orderBy = settings.orderBy || 'date';
+    const order = settings.order || '';
 
     // Generate a unique dismissal key based on announcement IDs
     const getDismissalKey = useCallback((announcementIds) => {
@@ -54,6 +56,12 @@ const EventAnnouncement = ({ settings = {} }) => {
                 if (priority) {
                     endpoint += `&priority=${encodeURIComponent(priority)}`;
                 }
+                if (orderBy) {
+                    endpoint += `&orderby=${encodeURIComponent(orderBy)}`;
+                }
+                if (order) {
+                    endpoint += `&order=${encodeURIComponent(order)}`;
+                }
 
                 const data = await apiFetch(endpoint);
                 const fetchedAnnouncements = Array.isArray(data) ? data : (data.announcements || []);
@@ -75,7 +83,7 @@ const EventAnnouncement = ({ settings = {} }) => {
         };
 
         fetchAnnouncements();
-    }, [categories, tags, priority, checkDismissed]);
+    }, [categories, tags, priority, orderBy, order, checkDismissed]);
 
     // Handle dismiss
     const handleDismiss = useCallback(() => {

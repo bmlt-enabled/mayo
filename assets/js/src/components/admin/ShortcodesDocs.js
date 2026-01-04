@@ -333,6 +333,18 @@ const ShortcodesDocs = () => {
                             <td>empty (uses CSS default)</td>
                             <td>Any hex color, e.g., <pre>#ffffff</pre></td>
                         </tr>
+                        <tr>
+                            <td>orderby</td>
+                            <td>Field to sort announcements by</td>
+                            <td>date</td>
+                            <td>date (display start date), title (alphabetical), created (post creation date)</td>
+                        </tr>
+                        <tr>
+                            <td>order</td>
+                            <td>Sort direction</td>
+                            <td>DESC for date/created, ASC for title</td>
+                            <td>ASC (ascending), DESC (descending)</td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -361,6 +373,12 @@ const ShortcodesDocs = () => {
 
                 <h4>Red Alert Style</h4>
                 <pre><code>[mayo_announcement background_color="#dc3545" text_color="#fff" priority="urgent"]</code></pre>
+
+                <h4>Sort by Title (Alphabetical)</h4>
+                <pre><code>[mayo_announcement orderby="title"]</code></pre>
+
+                <h4>Sort by Created Date (Newest First)</h4>
+                <pre><code>[mayo_announcement orderby="created" order="DESC"]</code></pre>
 
                 <h3>Widget Usage</h3>
                 <p>For site-wide announcements without editing templates, use the <strong>"Mayo Event Announcements"</strong> widget:</p>
