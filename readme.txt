@@ -192,6 +192,7 @@ This project is licensed under the GPL v2 or later.
 * Added admin settings to configure which categories, tags, and service bodies are available for subscription preferences.
 * Added "Manage Subscription" page where existing subscribers can update their preferences or unsubscribe.
 * Subscribers without preferences (legacy) continue to receive all announcements.
+* Added announcement sort order options via shortcode attributes (orderby, order) and widget settings. Sort by date, title, or created date.
 
 = 1.8.1 =
 * Added start and end time fields for announcements in addition to dates.

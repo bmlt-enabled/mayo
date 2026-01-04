@@ -131,6 +131,8 @@ class Frontend {
             'time_format' => '12hour',
             'background_color' => '',     // Custom background color (hex)
             'text_color' => '',           // Custom text color (hex)
+            'orderby' => 'date',          // Sort by: date, title, created
+            'order' => '',                // Sort order: ASC, DESC (empty = smart default)
         ];
         $atts = shortcode_atts($defaults, $atts);
 
@@ -148,6 +150,8 @@ class Frontend {
             'timeFormat' => $atts['time_format'],
             'backgroundColor' => $atts['background_color'],
             'textColor' => $atts['text_color'],
+            'orderBy' => $atts['orderby'],
+            'order' => strtoupper($atts['order']),
         ]);
 
         return sprintf(

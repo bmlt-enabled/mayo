@@ -1595,6 +1595,8 @@ class Rest {
         $tags = isset($params['tags']) ? sanitize_text_field($params['tags']) : '';
         $linked_event = isset($params['linked_event']) ? intval($params['linked_event']) : 0;
         $active_only = !isset($params['active']) || $params['active'] !== 'false';
+        $orderby = isset($params['orderby']) ? sanitize_text_field($params['orderby']) : 'date';
+        $order = isset($params['order']) ? strtoupper(sanitize_text_field($params['order'])) : '';
 
         $today = current_time('Y-m-d');
 
@@ -1680,16 +1682,46 @@ class Rest {
             $announcements[] = self::format_announcement($post);
         }
 
-        // Sort by priority (urgent first, then high, normal, low)
-        usort($announcements, function($a, $b) {
-            $priority_order = ['urgent' => 0, 'high' => 1, 'normal' => 2, 'low' => 3];
-            return ($priority_order[$a['priority']] ?? 2) - ($priority_order[$b['priority']] ?? 2);
-        });
+        // Sort announcements
+        $announcements = self::sort_announcements($announcements, $orderby, $order);
 
         return new \WP_REST_Response([
             'announcements' => $announcements,
             'total' => count($announcements)
         ]);
+    }
+
+    /**
+     * Sort announcements by specified field and order
+     *
+     * @param array $announcements Array of announcements
+     * @param string $orderby Sort field (date, title, created)
+     * @param string $order Sort direction (ASC, DESC)
+     * @return array Sorted announcements
+     */
+    private static function sort_announcements($announcements, $orderby, $order) {
+        // Set smart defaults for order direction
+        if (empty($order)) {
+            $order = ($orderby === 'title') ? 'ASC' : 'DESC';
+        }
+
+        usort($announcements, function ($a, $b) use ($orderby, $order) {
+            switch ($orderby) {
+                case 'title':
+                    $cmp = strcasecmp($a['title'], $b['title']);
+                    break;
+                case 'created':
+                    $cmp = strcmp($a['created_date'] ?? '', $b['created_date'] ?? '');
+                    break;
+                case 'date':
+                default:
+                    $cmp = strcmp($a['display_start_date'] ?: '', $b['display_start_date'] ?: '');
+                    break;
+            }
+            return $order === 'DESC' ? -$cmp : $cmp;
+        });
+
+        return $announcements;
     }
 
     /**
@@ -2257,6 +2289,7 @@ class Rest {
             'featured_image' => get_the_post_thumbnail_url($post->ID, 'medium'),
             'categories' => self::get_terms($post, 'category'),
             'tags' => self::get_terms($post, 'post_tag'),
+            'created_date' => $post->post_date,
         ];
     }
 

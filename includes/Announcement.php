@@ -593,10 +593,9 @@ class Announcement {
             ];
         }
 
-        // Sort by priority (urgent first, then high, normal, low)
-        usort($announcements, function($a, $b) {
-            $priority_order = ['urgent' => 0, 'high' => 1, 'normal' => 2, 'low' => 3];
-            return ($priority_order[$a['priority']] ?? 2) - ($priority_order[$b['priority']] ?? 2);
+        // Sort by display_start_date DESC by default (newest first)
+        usort($announcements, function ($a, $b) {
+            return strcmp($b['display_start_date'] ?: '', $a['display_start_date'] ?: '');
         });
 
         return $announcements;
