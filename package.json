@@ -19,7 +19,7 @@
     "@wordpress/plugins": "^7.18.0",
     "@wordpress/scripts": "^31.0.0",
     "bmlt-root-server-client": "^1.2.5",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
