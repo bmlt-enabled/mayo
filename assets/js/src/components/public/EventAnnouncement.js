@@ -13,6 +13,7 @@ const EventAnnouncement = ({ settings = {} }) => {
 
     const mode = settings.mode || 'banner';
     const categories = settings.categories || '';
+    const categoryRelation = settings.categoryRelation || 'OR';
     const tags = settings.tags || '';
     const priority = settings.priority || '';
     const timeFormat = settings.timeFormat || '12hour';
@@ -50,6 +51,9 @@ const EventAnnouncement = ({ settings = {} }) => {
                 if (categories) {
                     endpoint += `&categories=${encodeURIComponent(categories)}`;
                 }
+                if (categoryRelation && categoryRelation !== 'OR') {
+                    endpoint += `&category_relation=${encodeURIComponent(categoryRelation)}`;
+                }
                 if (tags) {
                     endpoint += `&tags=${encodeURIComponent(tags)}`;
                 }
@@ -83,7 +87,7 @@ const EventAnnouncement = ({ settings = {} }) => {
         };
 
         fetchAnnouncements();
-    }, [categories, tags, priority, orderBy, order, checkDismissed]);
+    }, [categories, categoryRelation, tags, priority, orderBy, order, checkDismissed]);
 
     // Handle dismiss
     const handleDismiss = useCallback(() => {

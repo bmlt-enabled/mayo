@@ -49,7 +49,14 @@ const ShortcodesDocs = () => {
                             <td>categories</td>
                             <td>Filter by category slugs (comma-separated). Prefix a slug with a minus sign (-) to exclude it.</td>
                             <td>empty (all categories)</td>
-                            <td>e.g., <pre>meetings,workshops</pre> (include only meetings or workshops), <pre>meetings+workshops</pre> (is an and condition), or <pre>-meetings,-workshops</pre> (exclude meetings and workshops). For more information see the Wordpress documentation on <a target="_blank" href="https://developer.wordpress.org/reference/classes/wp_query/#category-parameters">Category Parameters</a>.</td>
+                            <td>e.g., <pre>meetings,workshops</pre> or <pre>-meetings,-workshops</pre> (exclude meetings and workshops)</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>category_relation</td>
+                            <td>How to match multiple categories: AND (must have all) or OR (must have any)</td>
+                            <td>OR</td>
+                            <td>AND, OR</td>
                             <td>Yes</td>
                         </tr>
                         <tr>
@@ -296,6 +303,12 @@ const ShortcodesDocs = () => {
                             <td>Filter by category slugs (comma-separated)</td>
                             <td>empty (all categories)</td>
                             <td>e.g., <pre>announcements,alerts</pre></td>
+                        </tr>
+                        <tr>
+                            <td>category_relation</td>
+                            <td>How to match multiple categories: AND (must have all) or OR (must have any)</td>
+                            <td>OR</td>
+                            <td>AND, OR</td>
                         </tr>
                         <tr>
                             <td>tags</td>

@@ -80,6 +80,7 @@ class Frontend {
             'infinite_scroll' => 'true',
             'autoexpand' => 'false',
             'categories' => '',  // Comma-separated category slugs
+            'category_relation' => 'OR',  // AND or OR - how to match multiple categories
             'tags' => '',       // Comma-separated tag slugs
             'event_type' => '',  // Single event type (Service, Activity)
             'status' => 'publish',  // Single event status (publish, pending)
@@ -101,6 +102,7 @@ class Frontend {
             'infiniteScroll' => $atts['infinite_scroll'] === 'true',
             'autoexpand' => $atts['autoexpand'] === 'true',
             'categories' => $atts['categories'],
+            'categoryRelation' => strtoupper($atts['category_relation']),
             'tags' => $atts['tags'],
             'eventType' => $atts['event_type'],
             'status' => $atts['status'],
@@ -125,6 +127,7 @@ class Frontend {
         $defaults = [
             'mode' => 'banner',           // 'banner' or 'modal'
             'categories' => '',           // Comma-separated category slugs
+            'category_relation' => 'OR',  // AND or OR - how to match multiple categories
             'tags' => '',                 // Comma-separated tag slugs
             'priority' => '',             // Filter by priority (low/normal/high/urgent)
             'show_linked_events' => 'false', // Show linked event titles
@@ -144,6 +147,7 @@ class Frontend {
         wp_localize_script('mayo-public', $settings_key, [
             'mode' => $atts['mode'],
             'categories' => $atts['categories'],
+            'categoryRelation' => strtoupper($atts['category_relation']),
             'tags' => $atts['tags'],
             'priority' => $atts['priority'],
             'showLinkedEvents' => $atts['show_linked_events'] === 'true',
