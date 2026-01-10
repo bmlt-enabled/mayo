@@ -314,7 +314,7 @@ const ShortcodesDocs = () => {
                             <td>tags</td>
                             <td>Filter by tag slugs (comma-separated)</td>
                             <td>empty (all tags)</td>
-                            <td>e.g., <pre>urgent,featured</pre></td>
+                            <td>e.g., <pre>urgent,featured</pre> (include only urgent or featured), <pre>urgent+featured</pre> (is an and condition), or <pre>-urgent,-featured</pre> (exclude urgent and featured)</td>
                         </tr>
                         <tr>
                             <td>priority</td>
