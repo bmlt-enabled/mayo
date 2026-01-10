@@ -147,19 +147,21 @@ const EventList = ({ widget = false, settings = {} }) => {
     const getIcsUrl = () => {
         const params = new URLSearchParams();
         params.append('feed', 'mayo_events');
-        
+
         // Use the same parameter logic as fetchEvents for ICS feed
         let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
         let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
         let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
         let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+        let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
         let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
-        
+
         // Add parameters only if they have non-empty values
         if (eventType) params.append('event_type', eventType);
         if (serviceBody) params.append('service_body', serviceBody);
         if (relation !== 'AND') params.append('relation', relation);
         if (categories) params.append('categories', categories);
+        if (categoryRelation !== 'OR') params.append('category_relation', categoryRelation);
         if (tags) params.append('tags', tags);
         
         const queryString = params.toString();
@@ -176,13 +178,14 @@ const EventList = ({ widget = false, settings = {} }) => {
             infiniteScroll: settings?.infiniteScroll ?? true,
             autoexpand: settings?.autoexpand || false,
             categories: settings?.categories || '',
+            categoryRelation: settings?.categoryRelation || 'OR',
             tags: settings?.tags || '',
             eventType: settings?.eventType || '',
             status: settings?.status || 'publish',
             serviceBody: settings?.serviceBody || '',
             sourceIds: settings?.sourceIds || ''
         };
-        
+
         // Only include non-default values
         if (effectiveValues.timeFormat !== '12hour') {
             params.push(`time_format="${effectiveValues.timeFormat}"`);
@@ -198,6 +201,9 @@ const EventList = ({ widget = false, settings = {} }) => {
         }
         if (effectiveValues.categories) {
             params.push(`categories="${effectiveValues.categories}"`);
+        }
+        if (effectiveValues.categoryRelation !== 'OR') {
+            params.push(`category_relation="${effectiveValues.categoryRelation}"`);
         }
         if (effectiveValues.tags) {
             params.push(`tags="${effectiveValues.tags}"`);
@@ -280,6 +286,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+            let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
             let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
@@ -293,6 +300,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&service_body=${serviceBody}`
                 + `&relation=${relation}`
                 + `&categories=${categories}`
+                + `&category_relation=${categoryRelation}`
                 + `&tags=${tags}`
                 + `&source_ids=${sourceIds}`
                 + `&page=${page}`
@@ -352,6 +360,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
             let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+            let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
             let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
             let order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
@@ -367,6 +376,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&service_body=${serviceBody}`
                 + `&relation=${relation}`
                 + `&categories=${categories}`
+                + `&category_relation=${categoryRelation}`
                 + `&tags=${tags}`
                 + `&source_ids=${sourceIds}`
                 + `&timezone=${encodeURIComponent(userTimezone)}`

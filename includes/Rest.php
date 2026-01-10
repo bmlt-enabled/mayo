@@ -522,6 +522,7 @@ class Rest {
         $serviceBody = isset($params['service_body']) ? sanitize_text_field(wp_unslash($params['service_body'])) : '';
         $relation = isset($params['relation']) ? sanitize_text_field(wp_unslash($params['relation'])) : 'AND';
         $categories = isset($params['categories']) ? sanitize_text_field(wp_unslash($params['categories'])) : '';
+        $categoryRelation = isset($params['category_relation']) ? strtoupper(sanitize_text_field(wp_unslash($params['category_relation']))) : 'OR';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
         $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : wp_timezone_string();
 
@@ -539,7 +540,7 @@ class Rest {
         $events = [];
 
         // 1. Get all non-recurring events (we'll filter them later based on archive mode)
-        $non_recurring_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, null);
+        $non_recurring_events = self::query_events($status, $eventType, $serviceBody, $relation, $categories, $categoryRelation, $tags, null);
 
         $events = array_merge($events, $non_recurring_events);
 
@@ -586,7 +587,7 @@ class Rest {
         ];
 
         // Merge in taxonomy args (handles both include and exclude with '-' prefix)
-        $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+        $taxonomy_args = self::build_taxonomy_args($categories, $categoryRelation, $tags);
         $args = array_merge($args, $taxonomy_args);
 
         $recurring_posts = get_posts($args);
@@ -735,17 +736,39 @@ class Rest {
     /**
      * Helper method to build taxonomy query args for categories and tags
      * Handles both inclusion and exclusion (items prefixed with '-')
+     *
+     * @param string $categories Comma-separated category slugs (prefix with '-' to exclude)
+     * @param string $categoryRelation 'AND' or 'OR' - how to match multiple categories
+     * @param string $tags Comma-separated tag slugs (prefix with '-' to exclude)
      */
-    private static function build_taxonomy_args($categories, $tags) {
+    private static function build_taxonomy_args($categories, $categoryRelation = 'OR', $tags = '') {
         $cat_filter = self::parse_taxonomy_filter($categories);
         $tag_filter = self::parse_taxonomy_filter($tags);
 
         $args = [];
         $tax_query = [];
 
-        // Handle category inclusion
+        // Handle category inclusion via tax_query (supports AND/OR relation)
         if (!empty($cat_filter['include'])) {
-            $args['category_name'] = $cat_filter['include'];
+            $include_cat_slugs = array_map('trim', explode(',', $cat_filter['include']));
+            $include_cat_ids = [];
+            foreach ($include_cat_slugs as $slug) {
+                $term = get_term_by('slug', $slug, 'category');
+                if ($term) {
+                    $include_cat_ids[] = $term->term_id;
+                }
+            }
+            if (!empty($include_cat_ids)) {
+                // 'IN' = posts with ANY of these categories (OR)
+                // 'AND' = posts with ALL of these categories (AND)
+                $operator = strtoupper($categoryRelation) === 'AND' ? 'AND' : 'IN';
+                $tax_query[] = [
+                    'taxonomy' => 'category',
+                    'field' => 'term_id',
+                    'terms' => $include_cat_ids,
+                    'operator' => $operator
+                ];
+            }
         }
 
         // Handle category exclusion via tax_query
@@ -793,7 +816,7 @@ class Rest {
             }
         }
 
-        // Add tax_query if we have any exclusions
+        // Add tax_query if we have any taxonomy conditions
         if (!empty($tax_query)) {
             $tax_query['relation'] = 'AND';
             $args['tax_query'] = $tax_query;
@@ -805,7 +828,7 @@ class Rest {
     /**
      * Helper method to query events with the given parameters
      */
-    private static function query_events($status, $eventType, $serviceBody, $relation, $categories, $tags, $min_date = null) {
+    private static function query_events($status, $eventType, $serviceBody, $relation, $categories, $categoryRelation, $tags, $min_date = null) {
         $meta_query = [];
 
         // Handle event type
@@ -850,7 +873,7 @@ class Rest {
         ];
 
         // Merge in taxonomy args (handles both include and exclude with '-' prefix)
-        $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+        $taxonomy_args = self::build_taxonomy_args($categories, $categoryRelation, $tags);
         $args = array_merge($args, $taxonomy_args);
 
         // Get posts with error handling
@@ -1592,6 +1615,7 @@ class Rest {
 
         $priority = isset($params['priority']) ? sanitize_text_field($params['priority']) : '';
         $categories = isset($params['categories']) ? sanitize_text_field($params['categories']) : '';
+        $categoryRelation = isset($params['category_relation']) ? strtoupper(sanitize_text_field($params['category_relation'])) : 'OR';
         $tags = isset($params['tags']) ? sanitize_text_field($params['tags']) : '';
         $linked_event = isset($params['linked_event']) ? intval($params['linked_event']) : 0;
         $active_only = !isset($params['active']) || $params['active'] !== 'false';
@@ -1672,7 +1696,7 @@ class Rest {
         }
 
         // Handle taxonomy filters
-        $taxonomy_args = self::build_taxonomy_args($categories, $tags);
+        $taxonomy_args = self::build_taxonomy_args($categories, $categoryRelation, $tags);
         $args = array_merge($args, $taxonomy_args);
 
         $posts = get_posts($args);
