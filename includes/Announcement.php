@@ -579,7 +579,7 @@ class Announcement {
 
             $announcements[] = [
                 'id' => $post->ID,
-                'title' => $post->post_title,
+                'title' => html_entity_decode($post->post_title, ENT_QUOTES, 'UTF-8'),
                 'content' => apply_filters('the_content', $post->post_content),
                 'excerpt' => get_the_excerpt($post),
                 'permalink' => get_permalink($post->ID),
@@ -641,7 +641,7 @@ class Announcement {
 
             $announcements[] = [
                 'id' => $post->ID,
-                'title' => $post->post_title,
+                'title' => html_entity_decode($post->post_title, ENT_QUOTES, 'UTF-8'),
                 'content' => apply_filters('the_content', $post->post_content),
                 'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
                 'is_active' => $is_active,
@@ -808,7 +808,7 @@ class Announcement {
 
             return [
                 'id' => $event->ID,
-                'title' => $event->post_title,
+                'title' => html_entity_decode($event->post_title, ENT_QUOTES, 'UTF-8'),
                 'permalink' => get_permalink($event->ID),
                 'slug' => $event->post_name,
                 'start_date' => get_post_meta($event->ID, 'event_start_date', true),

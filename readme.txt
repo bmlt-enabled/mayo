@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.8.3 =
+* Fixed ampersand and other HTML entities not displaying properly in announcement sidebar widget titles. [#222]
 * Fixed multiple announcement shortcodes on same page having conflicting dismissal state and overlapping bell icons.
 * Added tag AND/exclusion syntax documentation to announcement shortcode.
 

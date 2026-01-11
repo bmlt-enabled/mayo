@@ -161,7 +161,7 @@ class CalendarFeed {
                     'dtstamp' => $now->format('Ymd\THis\Z'),
                     'dtstart' => $start_datetime->format('Ymd\THis\Z'),
                     'dtend' => $end_datetime->format('Ymd\THis\Z'),
-                    'summary' => $event->post_title,
+                    'summary' => html_entity_decode($event->post_title, ENT_QUOTES, 'UTF-8'),
                     'description' => $description,
                     'location' => $location,
                     'url' => get_permalink($event->ID)
