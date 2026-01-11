@@ -1343,7 +1343,7 @@ class Rest {
         $data = [
             'id' => $post->ID,
             'title' => [
-                'rendered' => get_the_title($post)
+                'rendered' => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8')
             ],
             'content' => [
                 'rendered' => apply_filters('the_content', $post->post_content)
@@ -2015,7 +2015,7 @@ class Rest {
         foreach ($posts as $post) {
             $events[] = [
                 'id' => $post->ID,
-                'title' => $post->post_title,
+                'title' => html_entity_decode($post->post_title, ENT_QUOTES, 'UTF-8'),
                 'start_date' => get_post_meta($post->ID, 'event_start_date', true),
                 'permalink' => get_permalink($post->ID),
                 'edit_link' => get_edit_post_link($post->ID, 'raw'),
@@ -2217,7 +2217,7 @@ class Rest {
 
         return new \WP_REST_Response([
             'id' => $post->ID,
-            'title' => $post->post_title,
+            'title' => html_entity_decode($post->post_title, ENT_QUOTES, 'UTF-8'),
             'start_date' => get_post_meta($post->ID, 'event_start_date', true),
             'end_date' => get_post_meta($post->ID, 'event_end_date', true),
             'start_time' => get_post_meta($post->ID, 'event_start_time', true),
@@ -2296,7 +2296,7 @@ class Rest {
 
         return [
             'id' => $post->ID,
-            'title' => $post->post_title,
+            'title' => html_entity_decode($post->post_title, ENT_QUOTES, 'UTF-8'),
             'content' => apply_filters('the_content', $post->post_content),
             'excerpt' => get_the_excerpt($post),
             'permalink' => $permalink,
