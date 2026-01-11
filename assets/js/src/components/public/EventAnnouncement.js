@@ -22,11 +22,11 @@ const EventAnnouncement = ({ settings = {} }) => {
     const orderBy = settings.orderBy || 'date';
     const order = settings.order || '';
 
-    // Generate a unique dismissal key based on announcement IDs
+    // Generate a unique dismissal key based on announcement IDs and mode
     const getDismissalKey = useCallback((announcementIds) => {
         const hash = announcementIds.sort().join('-');
-        return `mayo_announcement_dismissed_${hash}`;
-    }, []);
+        return `mayo_announcement_dismissed_${mode}_${hash}`;
+    }, [mode]);
 
     // Check if announcements have been dismissed within 24 hours
     const checkDismissed = useCallback((announcementIds) => {
@@ -138,12 +138,14 @@ const EventAnnouncement = ({ settings = {} }) => {
     // Show bell icon when minimized
     if (minimized) {
         return (
-            <AnnouncementBellIcon
-                count={announcements.length}
-                onClick={handleReopen}
-                backgroundColor={backgroundColor}
-                textColor={textColor}
-            />
+            <div className={`mayo-announcement-bell-wrapper mayo-announcement-bell-${mode}`}>
+                <AnnouncementBellIcon
+                    count={announcements.length}
+                    onClick={handleReopen}
+                    backgroundColor={backgroundColor}
+                    textColor={textColor}
+                />
+            </div>
         );
     }
 

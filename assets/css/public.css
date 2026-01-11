@@ -2474,6 +2474,11 @@
     box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
 }
 
+/* Offset modal bell icon when both banner and modal are on same page */
+.mayo-announcement-bell-modal .mayo-announcement-bell {
+    bottom: 90px;
+}
+
 /* =============================================
    Announcement Responsive Styles
    ============================================= */
@@ -2525,6 +2530,10 @@
         font-size: 24px;
         width: 24px;
         height: 24px;
+    }
+
+    .mayo-announcement-bell-modal .mayo-announcement-bell {
+        bottom: 80px;
     }
 }
 /* =============================================
