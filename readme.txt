@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,10 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.8.3 =
+* Fixed multiple announcement shortcodes on same page having conflicting dismissal state and overlapping bell icons.
+* Added tag AND/exclusion syntax documentation to announcement shortcode.
 
 = 1.8.2 =
 * Added category_relation parameter (AND/OR) for event list and announcement shortcodes to control multi-category filtering.
