@@ -172,6 +172,7 @@ class EventsController {
         error_reporting(E_ERROR | E_PARSE);
 
         $events = [];
+        $sources = [];
 
         // Pagination parameters
         $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -186,12 +187,15 @@ class EventsController {
         if (empty($sourceIds) || in_array('local', $sourceIds)) {
             $local_events = self::get_local_events($_GET);
 
+            // Add local source to sources array
+            $sources['local'] = [
+                'id' => 'local',
+                'name' => 'Local Events',
+                'url' => get_site_url()
+            ];
+
             $events = array_merge($events, array_map(function($event) {
-                $event['source'] = [
-                    'id' => 'local',
-                    'name' => 'Local Events',
-                    'url' => get_site_url()
-                ];
+                $event['source_id'] = 'local';
                 return $event;
             }, $local_events));
         }
@@ -210,10 +214,14 @@ class EventsController {
             if (!empty($enabled_sources)) {
                 foreach ($enabled_sources as $source) {
                     try {
-                        $source_events = self::fetch_external_events($source);
+                        $result = self::fetch_external_events($source);
 
-                        if (!empty($source_events)) {
-                            $events = array_merge($events, $source_events);
+                        if (!empty($result['events'])) {
+                            $events = array_merge($events, $result['events']);
+                        }
+
+                        if (!empty($result['source'])) {
+                            $sources[$source['id']] = $result['source'];
                         }
                     } catch (\Exception $e) {
                         error_log('Error fetching events from source ' . $source['url'] . ': ' . $e->getMessage());
@@ -268,6 +276,7 @@ class EventsController {
 
         return new \WP_REST_Response([
             'events' => $paginated_events,
+            'sources' => array_values($sources),
             'pagination' => [
                 'total' => $total_events,
                 'per_page' => $per_page,
@@ -1044,7 +1053,7 @@ class EventsController {
      * Fetch events from external source
      *
      * @param array $source External source configuration
-     * @return array
+     * @return array Array with 'events' and 'source' keys
      */
     private static function fetch_external_events($source) {
         try {
@@ -1068,7 +1077,7 @@ class EventsController {
 
             if (is_wp_error($response)) {
                 error_log('External Events Error: ' . $response->get_error_message());
-                return [];
+                return ['events' => [], 'source' => null];
             }
 
             $body = wp_remote_retrieve_body($response);
@@ -1076,23 +1085,31 @@ class EventsController {
 
             $events = isset($data['events']) ? $data['events'] : $data;
 
-            if (!is_array($events)) return [];
+            if (!is_array($events)) return ['events' => [], 'source' => null];
 
+            // Fetch service bodies once for this source
             $service_bodies = self::fetch_external_service_bodies($source);
 
+            // Build source info (with service bodies at source level, not per-event)
+            $source_info = [
+                'id' => $source['id'],
+                'url' => parse_url($source['url'], PHP_URL_HOST),
+                'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
+                'service_bodies' => $service_bodies
+            ];
+
+            // Events only reference source by ID (no duplication of service bodies)
             foreach ($events as &$event) {
-                $event['external_source'] = [
-                    'id' => $source['id'],
-                    'url' => parse_url($source['url'], PHP_URL_HOST),
-                    'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
-                    'service_bodies' => $service_bodies
-                ];
+                $event['source_id'] = $source['id'];
             }
 
-            return $events;
+            return [
+                'events' => $events,
+                'source' => $source_info
+            ];
         } catch (\Exception $e) {
             error_log('External Events Error: ' . $e->getMessage());
-            return [];
+            return ['events' => [], 'source' => null];
         }
     }
 
