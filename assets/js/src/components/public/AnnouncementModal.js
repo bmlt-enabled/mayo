@@ -1,5 +1,18 @@
 import { useEffect } from '@wordpress/element';
 
+// Map icon names to dashicon classes
+const getIconClass = (iconName) => {
+    const iconMap = {
+        'external': 'dashicons-external',
+        'hotel': 'dashicons-building',
+        'info': 'dashicons-info',
+        'calendar': 'dashicons-calendar-alt',
+        'location': 'dashicons-location',
+        'link': 'dashicons-admin-links',
+    };
+    return iconMap[iconName] || 'dashicons-external';
+};
+
 const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor, textColor }) => {
     // Build custom styles for header if colors are provided
     const headerStyle = {};
@@ -93,11 +106,15 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
                                 )}
                                 {announcement.linked_events && announcement.linked_events.length > 0 && (
                                     <div className="mayo-announcement-linked-events" style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-                                        <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '14px', marginRight: '4px', verticalAlign: 'middle' }}></span>
                                         <span style={{ marginRight: '4px' }}>Related:</span>
                                         {announcement.linked_events.map((event, index) => {
+                                            const isCustom = event.source && event.source.type === 'custom';
                                             const isExternal = event.source && event.source.type === 'external';
                                             const isUnavailable = event.unavailable;
+
+                                            // Custom links and external links open in new tab
+                                            const opensInNewTab = isCustom || isExternal;
+
                                             return (
                                                 <span key={`${event.source?.type || 'local'}-${event.source?.id || 'local'}-${event.id}`}>
                                                     {isUnavailable ? (
@@ -110,23 +127,34 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
                                                             )}
                                                         </span>
                                                     ) : (
-                                                        <a
-                                                            href={event.permalink}
-                                                            target={isExternal ? '_blank' : '_self'}
-                                                            rel={isExternal ? 'noopener noreferrer' : undefined}
-                                                            style={{ color: '#0073aa', textDecoration: 'none' }}
-                                                        >
-                                                            {event.title}
-                                                            {isExternal && event.source?.name && (
-                                                                <span style={{
-                                                                    fontSize: '10px',
-                                                                    color: '#888',
-                                                                    marginLeft: '4px'
-                                                                }}>
-                                                                    ({event.source.name})
-                                                                </span>
+                                                        <>
+                                                            {isCustom && event.icon && (
+                                                                <span
+                                                                    className={`dashicons ${getIconClass(event.icon)}`}
+                                                                    style={{ fontSize: '14px', marginRight: '2px', verticalAlign: 'middle', width: '14px', height: '14px' }}
+                                                                />
                                                             )}
-                                                        </a>
+                                                            {!isCustom && (
+                                                                <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '14px', marginRight: '2px', verticalAlign: 'middle' }}></span>
+                                                            )}
+                                                            <a
+                                                                href={event.permalink}
+                                                                target={opensInNewTab ? '_blank' : '_self'}
+                                                                rel={opensInNewTab ? 'noopener noreferrer' : undefined}
+                                                                style={{ color: '#0073aa', textDecoration: 'none' }}
+                                                            >
+                                                                {event.title}
+                                                                {isExternal && event.source?.name && (
+                                                                    <span style={{
+                                                                        fontSize: '10px',
+                                                                        color: '#888',
+                                                                        marginLeft: '4px'
+                                                                    }}>
+                                                                        ({event.source.name})
+                                                                    </span>
+                                                                )}
+                                                            </a>
+                                                        </>
                                                     )}
                                                     {index < announcement.linked_events.length - 1 && ', '}
                                                 </span>

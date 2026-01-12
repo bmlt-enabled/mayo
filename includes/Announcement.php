@@ -131,7 +131,7 @@ class Announcement {
             }
         ]);
 
-        // New unified linked event refs that supports both local and external events
+        // New unified linked event refs that supports local events, external events, and custom links
         register_post_meta('mayo_announcement', 'linked_event_refs', [
             'show_in_rest' => [
                 'schema' => [
@@ -139,11 +139,15 @@ class Announcement {
                     'items' => [
                         'type' => 'object',
                         'properties' => [
-                            'type' => ['type' => 'string', 'enum' => ['local', 'external']],
+                            'type' => ['type' => 'string', 'enum' => ['local', 'external', 'custom']],
                             'id' => ['type' => 'integer'],
                             'source_id' => ['type' => 'string'],
+                            // Custom link properties
+                            'url' => ['type' => 'string'],
+                            'title' => ['type' => 'string'],
+                            'icon' => ['type' => 'string', 'enum' => ['external', 'hotel', 'info', 'calendar', 'location', 'link']],
                         ],
-                        'required' => ['type', 'id']
+                        'required' => ['type']
                     ]
                 ]
             ],
@@ -538,6 +542,10 @@ class Announcement {
             $linked_refs = self::get_linked_event_refs($post->ID);
             $linked_event_data = [];
 
+            // Separate custom links from events for ordering (custom links appear first)
+            $custom_links = [];
+            $event_links = [];
+
             foreach ($linked_refs as $ref) {
                 $resolved = self::resolve_event_ref($ref);
                 if ($resolved) {
@@ -551,18 +559,31 @@ class Announcement {
                     $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
                     // Handle start_date from meta object or direct field
                     $start_date = $resolved['start_date'] ?? ($resolved['meta']['event_start_date'] ?? '');
-                    $linked_event_data[] = [
+
+                    $link_data = [
                         'id' => $resolved['id'],
                         'title' => $title,
                         'permalink' => $permalink,
                         'start_date' => $start_date,
                         'source' => $resolved['source'] ?? ['type' => 'local', 'id' => 'local', 'name' => 'Local'],
                     ];
+
+                    // Include icon for custom links
+                    if ($ref['type'] === 'custom' && isset($resolved['icon'])) {
+                        $link_data['icon'] = $resolved['icon'];
+                    }
+
+                    // Custom links go first, then events
+                    if ($ref['type'] === 'custom') {
+                        $custom_links[] = $link_data;
+                    } else {
+                        $event_links[] = $link_data;
+                    }
                 } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
                     // External event unavailable - include placeholder with source info
                     $source = self::get_external_source($ref['source_id']);
                     $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
-                    $linked_event_data[] = [
+                    $event_links[] = [
                         'id' => $ref['id'],
                         'title' => 'Event details unavailable',
                         'permalink' => '#',
@@ -576,6 +597,9 @@ class Announcement {
                     ];
                 }
             }
+
+            // Merge with custom links first, then events
+            $linked_event_data = array_merge($custom_links, $event_links);
 
             $announcements[] = [
                 'id' => $post->ID,
@@ -792,11 +816,35 @@ class Announcement {
     /**
      * Resolve an event reference to full event details
      *
-     * @param array $ref Event reference object {type, id, source_id?}
+     * @param array $ref Event reference object {type, id, source_id?, url?, title?, icon?}
      * @return array|null Resolved event details or null if unavailable
      */
     public static function resolve_event_ref($ref) {
-        if (!is_array($ref) || !isset($ref['type']) || !isset($ref['id'])) {
+        if (!is_array($ref) || !isset($ref['type'])) {
+            return null;
+        }
+
+        // Handle custom links
+        if ($ref['type'] === 'custom') {
+            if (empty($ref['url']) || empty($ref['title'])) {
+                return null;
+            }
+
+            return [
+                'id' => $ref['id'] ?? 0,
+                'title' => sanitize_text_field($ref['title']),
+                'permalink' => esc_url($ref['url']),
+                'icon' => isset($ref['icon']) ? sanitize_text_field($ref['icon']) : 'external',
+                'source' => [
+                    'type' => 'custom',
+                    'id' => 'custom',
+                    'name' => 'Custom Link',
+                ],
+            ];
+        }
+
+        // Local and external events require an id
+        if (!isset($ref['id'])) {
             return null;
         }
 

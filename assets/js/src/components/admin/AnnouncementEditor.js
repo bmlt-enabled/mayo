@@ -317,8 +317,165 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
     );
 };
 
+// Icon options for custom links
+const CUSTOM_LINK_ICONS = [
+    { value: 'external', label: 'External Link', dashicon: 'dashicons-external' },
+    { value: 'hotel', label: 'Hotel/Lodging', dashicon: 'dashicons-building' },
+    { value: 'info', label: 'Information', dashicon: 'dashicons-info' },
+    { value: 'calendar', label: 'Calendar', dashicon: 'dashicons-calendar-alt' },
+    { value: 'location', label: 'Location', dashicon: 'dashicons-location' },
+    { value: 'link', label: 'Generic Link', dashicon: 'dashicons-admin-links' },
+];
+
+// Custom Link Modal Component
+const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
+    const [url, setUrl] = useState('');
+    const [title, setTitle] = useState('');
+    const [icon, setIcon] = useState('external');
+    const [urlError, setUrlError] = useState('');
+
+    // Reset form when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setUrl('');
+            setTitle('');
+            setIcon('external');
+            setUrlError('');
+        }
+    }, [isOpen]);
+
+    const validateUrl = (value) => {
+        if (!value) {
+            setUrlError('URL is required');
+            return false;
+        }
+        try {
+            new URL(value);
+            setUrlError('');
+            return true;
+        } catch {
+            setUrlError('Please enter a valid URL (e.g., https://example.com)');
+            return false;
+        }
+    };
+
+    const handleSubmit = () => {
+        if (!validateUrl(url)) return;
+        if (!title.trim()) return;
+
+        onAddLink({
+            type: 'custom',
+            id: Date.now(), // Unique ID for React key
+            url: url.trim(),
+            title: title.trim(),
+            icon,
+        });
+        onClose();
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <Modal
+            title="Add Custom Link"
+            onRequestClose={onClose}
+            style={{ maxWidth: '500px', width: '100%' }}
+            className="mayo-custom-link-modal"
+        >
+            <div style={{ marginBottom: '16px' }}>
+                <TextControl
+                    label="Link Title"
+                    value={title}
+                    onChange={setTitle}
+                    placeholder="e.g., Hotel Reservations"
+                    __nextHasNoMarginBottom={true}
+                    __next40pxDefaultSize={true}
+                />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+                <TextControl
+                    label="URL"
+                    value={url}
+                    onChange={(value) => {
+                        setUrl(value);
+                        if (urlError) validateUrl(value);
+                    }}
+                    placeholder="https://example.com"
+                    type="url"
+                    __nextHasNoMarginBottom={true}
+                    __next40pxDefaultSize={true}
+                />
+                {urlError && (
+                    <p style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px', marginBottom: 0 }}>
+                        {urlError}
+                    </p>
+                )}
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+                    Icon
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {CUSTOM_LINK_ICONS.map((iconOption) => (
+                        <button
+                            key={iconOption.value}
+                            type="button"
+                            onClick={() => setIcon(iconOption.value)}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                padding: '12px 16px',
+                                border: `2px solid ${icon === iconOption.value ? '#0073aa' : '#ddd'}`,
+                                borderRadius: '4px',
+                                backgroundColor: icon === iconOption.value ? '#f0f7ff' : '#fff',
+                                cursor: 'pointer',
+                                minWidth: '80px',
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            <span
+                                className={`dashicons ${iconOption.dashicon}`}
+                                style={{
+                                    fontSize: '24px',
+                                    width: '24px',
+                                    height: '24px',
+                                    color: icon === iconOption.value ? '#0073aa' : '#666',
+                                    marginBottom: '4px',
+                                }}
+                            />
+                            <span style={{
+                                fontSize: '11px',
+                                color: icon === iconOption.value ? '#0073aa' : '#666',
+                            }}>
+                                {iconOption.label}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <Button variant="secondary" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button
+                    variant="primary"
+                    onClick={handleSubmit}
+                    disabled={!title.trim() || !url.trim()}
+                >
+                    Add Link
+                </Button>
+            </div>
+        </Modal>
+    );
+};
+
 const AnnouncementEditor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCustomLinkModalOpen, setIsCustomLinkModalOpen] = useState(false);
     const [hasPrelinked, setHasPrelinked] = useState(false);
     const [subscriberCount, setSubscriberCount] = useState(null);
     const [matchingSubscribers, setMatchingSubscribers] = useState([]);
@@ -463,6 +620,9 @@ const AnnouncementEditor = () => {
         if (ref.type === 'local') {
             return `local-${ref.id}`;
         }
+        if (ref.type === 'custom') {
+            return `custom-${ref.id}`;
+        }
         return `external-${ref.source_id}-${ref.id}`;
     };
 
@@ -505,9 +665,18 @@ const AnnouncementEditor = () => {
             if (ref.type === 'external' && refToRemove.type === 'external') {
                 return !(ref.id === refToRemove.id && ref.source_id === refToRemove.source_id);
             }
+            if (ref.type === 'custom' && refToRemove.type === 'custom') {
+                return ref.id !== refToRemove.id;
+            }
             return true;
         });
         updateMetaValue('linked_event_refs', filtered);
+    };
+
+    // Add a custom link
+    const addCustomLink = (customLink) => {
+        const currentRefs = getLinkedEventRefs();
+        updateMetaValue('linked_event_refs', [...currentRefs, customLink]);
     };
 
     // Fetch linked event details
@@ -516,8 +685,29 @@ const AnnouncementEditor = () => {
 
     useEffect(() => {
         const fetchEventDetails = async () => {
-            // Find events we don't have details for yet
-            const refsToFetch = linkedEventRefs.filter(ref => !linkedEventDetails[getRefKey(ref)]);
+            // Find events we don't have details for yet (custom links don't need fetching)
+            const refsToFetch = linkedEventRefs.filter(ref =>
+                ref.type !== 'custom' && !linkedEventDetails[getRefKey(ref)]
+            );
+
+            // Handle custom links immediately (no API call needed)
+            const customDetails = {};
+            linkedEventRefs.filter(ref => ref.type === 'custom').forEach(ref => {
+                const key = getRefKey(ref);
+                if (!linkedEventDetails[key]) {
+                    customDetails[key] = {
+                        title: ref.title || 'Custom Link',
+                        permalink: ref.url || '#',
+                        icon: ref.icon || 'external',
+                        source: { type: 'custom', id: 'custom', name: 'Custom Link' },
+                    };
+                }
+            });
+
+            if (Object.keys(customDetails).length > 0) {
+                setLinkedEventDetails(prev => ({ ...prev, ...customDetails }));
+            }
+
             if (refsToFetch.length === 0) return;
 
             setIsLoadingEventDetails(true);
@@ -547,7 +737,7 @@ const AnnouncementEditor = () => {
                                 source: { type: 'local', id: 'local', name: 'Local' },
                             };
                         }
-                    } else {
+                    } else if (ref.type === 'external') {
                         // For external events, we need to fetch from the external source
                         try {
                             const response = await apiFetch(`/events/search-all?per_page=100`);
@@ -767,18 +957,18 @@ const AnnouncementEditor = () => {
 
             <PluginDocumentSettingPanel
                 name="mayo-linked-events"
-                title="Linked Events"
+                title="Links & Events"
                 className="mayo-linked-events"
             >
                 <p className="components-base-control__help" style={{ marginTop: 0 }}>
-                    Link this announcement to local or external events.
+                    Add custom links or link to events. Custom links appear first.
                 </p>
 
                 {/* Linked Events List */}
                 {isLoadingEventDetails && linkedEventRefs.length > 0 && (
                     <div style={{ textAlign: 'center', padding: '16px' }}>
                         <Spinner />
-                        <p style={{ margin: '8px 0 0', color: '#666', fontSize: '12px' }}>Loading event details...</p>
+                        <p style={{ margin: '8px 0 0', color: '#666', fontSize: '12px' }}>Loading details...</p>
                     </div>
                 )}
 
@@ -789,6 +979,21 @@ const AnnouncementEditor = () => {
                             const details = linkedEventDetails[key] || {};
                             const hasDetails = details.title && !details.title.startsWith('Event #') && !details.title.startsWith('External Event #');
                             const isExternal = ref.type === 'external';
+                            const isCustom = ref.type === 'custom';
+
+                            // Get the appropriate icon for custom links
+                            const getCustomIcon = () => {
+                                const iconValue = ref.icon || details.icon || 'external';
+                                const iconOption = CUSTOM_LINK_ICONS.find(opt => opt.value === iconValue);
+                                return iconOption ? iconOption.dashicon : 'dashicons-external';
+                            };
+
+                            // Determine border color based on type
+                            const getBorderColor = () => {
+                                if (isCustom) return '#9c27b0'; // Purple for custom
+                                if (isExternal) return '#ff9800'; // Orange for external
+                                return '#0073aa'; // Blue for local
+                            };
 
                             return (
                                 <div
@@ -798,30 +1003,42 @@ const AnnouncementEditor = () => {
                                         backgroundColor: '#f9f9f9',
                                         borderRadius: '4px',
                                         marginBottom: '8px',
-                                        borderLeft: `3px solid ${isExternal ? '#ff9800' : '#0073aa'}`,
+                                        borderLeft: `3px solid ${getBorderColor()}`,
                                     }}
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div style={{ flex: 1 }}>
-                                            {hasDetails || details.title ? (
+                                            {hasDetails || details.title || isCustom ? (
                                                 <>
-                                                    <strong style={{ display: 'block', marginBottom: '4px' }}>
-                                                        {details.title || (isExternal ? `External Event #${ref.id}` : `Event #${ref.id}`)}
-                                                    </strong>
-                                                    {/* Source badge for external events */}
-                                                    {isExternal && details.source && (
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            fontSize: '11px',
-                                                            backgroundColor: '#fff3e0',
-                                                            color: '#e65100',
-                                                            padding: '2px 6px',
-                                                            borderRadius: '3px',
-                                                            marginBottom: '4px',
-                                                        }}>
-                                                            {details.source.name || details.source.id}
-                                                        </span>
-                                                    )}
+                                                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                                                        {isCustom && (
+                                                            <span
+                                                                className={`dashicons ${getCustomIcon()}`}
+                                                                style={{
+                                                                    fontSize: '16px',
+                                                                    width: '16px',
+                                                                    height: '16px',
+                                                                    marginRight: '6px',
+                                                                    color: '#9c27b0',
+                                                                }}
+                                                            />
+                                                        )}
+                                                        <strong>
+                                                            {details.title || ref.title || (isExternal ? `External Event #${ref.id}` : `Event #${ref.id}`)}
+                                                        </strong>
+                                                    </div>
+                                                    {/* Type badge */}
+                                                    <span style={{
+                                                        display: 'inline-block',
+                                                        fontSize: '11px',
+                                                        backgroundColor: isCustom ? '#f3e5f5' : (isExternal ? '#fff3e0' : '#e3f2fd'),
+                                                        color: isCustom ? '#7b1fa2' : (isExternal ? '#e65100' : '#1565c0'),
+                                                        padding: '2px 6px',
+                                                        borderRadius: '3px',
+                                                        marginBottom: '4px',
+                                                    }}>
+                                                        {isCustom ? 'Custom Link' : (isExternal ? (details.source?.name || details.source?.id) : 'Local Event')}
+                                                    </span>
                                                     {details.start_date && (
                                                         <div style={{ color: '#666', fontSize: '12px', marginBottom: '8px' }}>
                                                             <span className="dashicons dashicons-calendar-alt" style={{ fontSize: '14px', marginRight: '4px', verticalAlign: 'middle' }}></span>
@@ -829,9 +1046,9 @@ const AnnouncementEditor = () => {
                                                         </div>
                                                     )}
                                                     <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                                                        {details.permalink && (
+                                                        {(details.permalink || ref.url) && (
                                                             <a
-                                                                href={details.permalink}
+                                                                href={details.permalink || ref.url}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 style={{
@@ -848,10 +1065,10 @@ const AnnouncementEditor = () => {
                                                                 }}
                                                             >
                                                                 <span className="dashicons dashicons-external" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
-                                                                {isExternal ? 'View on External Site' : 'View'}
+                                                                {isCustom ? 'Open Link' : (isExternal ? 'View on External Site' : 'View')}
                                                             </a>
                                                         )}
-                                                        {!isExternal && details.edit_link && (
+                                                        {!isExternal && !isCustom && details.edit_link && (
                                                             <a
                                                                 href={details.edit_link}
                                                                 target="_blank"
@@ -897,15 +1114,32 @@ const AnnouncementEditor = () => {
                     </div>
                 )}
 
-                {/* Link Event Button */}
-                <Button
-                    variant="secondary"
-                    onClick={() => setIsModalOpen(true)}
-                    style={{ width: '100%', justifyContent: 'center' }}
-                >
-                    <span className="dashicons dashicons-plus-alt2" style={{ marginRight: '4px' }}></span>
-                    Link Event
-                </Button>
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setIsCustomLinkModalOpen(true)}
+                        style={{ flex: 1, justifyContent: 'center' }}
+                    >
+                        <span className="dashicons dashicons-admin-links" style={{ marginRight: '4px' }}></span>
+                        Add Custom Link
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setIsModalOpen(true)}
+                        style={{ flex: 1, justifyContent: 'center' }}
+                    >
+                        <span className="dashicons dashicons-calendar-alt" style={{ marginRight: '4px' }}></span>
+                        Link Event
+                    </Button>
+                </div>
+
+                {/* Custom Link Modal */}
+                <CustomLinkModal
+                    isOpen={isCustomLinkModalOpen}
+                    onClose={() => setIsCustomLinkModalOpen(false)}
+                    onAddLink={addCustomLink}
+                />
 
                 {/* Event Search Modal */}
                 <EventSearchModal
