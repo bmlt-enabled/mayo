@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.8.4 =
 * Added custom URL/link support for announcements with selectable icons. [#227]
+* Various fixes for some theme conflicts [#223]
 
 = 1.8.3 =
 * Fixed ampersand and other HTML entities not displaying properly in announcement sidebar widget titles. [#222]

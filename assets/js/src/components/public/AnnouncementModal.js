@@ -1,4 +1,4 @@
-import { useEffect } from '@wordpress/element';
+import { useEffect, createPortal } from '@wordpress/element';
 
 // Map icon names to dashicon classes
 const getIconClass = (iconName) => {
@@ -72,7 +72,7 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
         return null;
     }
 
-    return (
+    return createPortal(
         <div className="mayo-announcement-modal-backdrop" onClick={handleBackdropClick}>
             <div className="mayo-announcement-modal">
                 <button className="mayo-announcement-modal-close" onClick={onClose} title="Close">
@@ -173,7 +173,8 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
