@@ -1,10 +1,12 @@
+import { createPortal } from '@wordpress/element';
+
 const AnnouncementBellIcon = ({ count, onClick, backgroundColor, textColor }) => {
     // Build custom styles if colors are provided
     const customStyle = {};
     if (backgroundColor) customStyle.background = backgroundColor;
     if (textColor) customStyle.color = textColor;
 
-    return (
+    return createPortal(
         <button
             className="mayo-announcement-bell"
             onClick={onClick}
@@ -17,7 +19,8 @@ const AnnouncementBellIcon = ({ count, onClick, backgroundColor, textColor }) =>
                     {count > 9 ? '9+' : count}
                 </span>
             )}
-        </button>
+        </button>,
+        document.body
     );
 };
 
