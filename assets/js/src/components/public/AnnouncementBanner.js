@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, createPortal } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 
 // Map icon names to dashicon classes
 const getIconClass = (iconName) => {
@@ -92,7 +92,7 @@ const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClo
         );
     };
 
-    return createPortal(
+    return (
         <div
             className="mayo-announcement-banner"
             ref={bannerRef}
@@ -196,8 +196,7 @@ const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClo
             >
                 <span className="dashicons dashicons-no-alt"></span>
             </button>
-        </div>,
-        document.body
+        </div>
     );
 };
 
