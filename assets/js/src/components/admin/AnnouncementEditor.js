@@ -1115,11 +1115,11 @@ const AnnouncementEditor = () => {
                 )}
 
                 {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <Button
                         variant="secondary"
                         onClick={() => setIsCustomLinkModalOpen(true)}
-                        style={{ flex: 1, justifyContent: 'center' }}
+                        style={{ justifyContent: 'center' }}
                     >
                         <span className="dashicons dashicons-admin-links" style={{ marginRight: '4px' }}></span>
                         Add Custom Link
@@ -1127,7 +1127,7 @@ const AnnouncementEditor = () => {
                     <Button
                         variant="secondary"
                         onClick={() => setIsModalOpen(true)}
-                        style={{ flex: 1, justifyContent: 'center' }}
+                        style={{ justifyContent: 'center' }}
                     >
                         <span className="dashicons dashicons-calendar-alt" style={{ marginRight: '4px' }}></span>
                         Link Event

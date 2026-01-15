@@ -401,6 +401,7 @@ class AnnouncementsController {
                     'title' => $title,
                     'permalink' => $permalink,
                     'start_date' => $start_date,
+                    'icon' => $resolved['icon'] ?? null,
                     'source' => $resolved['source'] ?? ['type' => 'local', 'id' => 'local', 'name' => 'Local'],
                 ];
             } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
