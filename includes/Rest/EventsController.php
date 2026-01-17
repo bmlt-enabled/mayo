@@ -217,7 +217,16 @@ class EventsController {
                         $result = self::fetch_external_events($source);
 
                         if (!empty($result['events'])) {
-                            $events = array_merge($events, $result['events']);
+                            // Filter external events by request tags (client-side filtering)
+                            // This ensures external events match the requested tag filters
+                            $filtered_events = $result['events'];
+                            if (isset($_GET['tags'])) {
+                                $filtered_events = self::filter_external_events_by_tags(
+                                    $result['events'],
+                                    sanitize_text_field($_GET['tags'])
+                                );
+                            }
+                            $events = array_merge($events, $filtered_events);
                         }
 
                         if (!empty($result['source'])) {
@@ -1065,6 +1074,7 @@ class EventsController {
 
             if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
             if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];
+            if (isset($_GET['tags'])) $params['tags'] = sanitize_text_field($_GET['tags']);
 
             $params['per_page'] = 100;
 
@@ -1161,6 +1171,52 @@ class EventsController {
         } catch (\Exception $e) {
             return [];
         }
+    }
+
+    /**
+     * Filter external events by tags (client-side filtering)
+     *
+     * This is needed because external sources may not properly filter by tags,
+     * so we filter the returned events client-side to match the requested tags.
+     *
+     * @param array $events Events array from external source
+     * @param string $tags_filter Comma-separated tag slugs (prefix with '-' to exclude)
+     * @return array Filtered events
+     */
+    private static function filter_external_events_by_tags($events, $tags_filter) {
+        if (empty($tags_filter) || empty($events)) {
+            return $events;
+        }
+
+        $tag_filter = Helpers\TaxonomyQuery::parse_taxonomy_filter($tags_filter);
+        $include_tags = !empty($tag_filter['include']) ? array_map('trim', explode(',', $tag_filter['include'])) : [];
+        $exclude_tags = !empty($tag_filter['exclude']) ? array_map('trim', explode(',', $tag_filter['exclude'])) : [];
+
+        return array_filter($events, function($event) use ($include_tags, $exclude_tags) {
+            // Get event tag slugs
+            $event_tags = isset($event['tags']) ? array_column($event['tags'], 'slug') : [];
+
+            // Check exclusions first - if event has any excluded tag, filter it out
+            if (!empty($exclude_tags)) {
+                foreach ($exclude_tags as $exclude_tag) {
+                    if (in_array($exclude_tag, $event_tags)) {
+                        return false;
+                    }
+                }
+            }
+
+            // Check inclusions - event must have at least one of the included tags
+            if (!empty($include_tags)) {
+                foreach ($include_tags as $include_tag) {
+                    if (in_array($include_tag, $event_tags)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            return true;
+        });
     }
 
     /**
