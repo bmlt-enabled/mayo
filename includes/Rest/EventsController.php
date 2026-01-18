@@ -1098,9 +1098,10 @@ class EventsController {
                 'service_bodies' => $service_bodies
             ];
 
-            // Events only reference source by ID (no duplication of service bodies)
+            // Attach full external_source object to each event for frontend use
             foreach ($events as &$event) {
                 $event['source_id'] = $source['id'];
+                $event['external_source'] = $source_info;
             }
 
             return [
