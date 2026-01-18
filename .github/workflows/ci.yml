@@ -1,6 +1,8 @@
-name: 'pull-request'
+name: 'CI'
 
 on:
+  push:
+    branches: [ 'main' ]
   pull_request:
     branches: [ 'main' ]
 
@@ -53,6 +55,37 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Run tests 🧪
+        run: make test
+
+  coverage:
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Check out code 🛒
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 🐫
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: xdebug
+          coverage: xdebug
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies 📦
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run tests with coverage 🧪
         run: make coverage
 
       - name: Upload coverage to Codecov ☂️
@@ -63,4 +96,3 @@ jobs:
           flags: unittests
           name: codecov-mayo
           fail_ci_if_error: false
-          verbose: true
