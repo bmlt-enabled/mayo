@@ -55,6 +55,14 @@ class RssFeed {
             return [];
         }
 
+        // Build sources lookup map
+        $sources_lookup = [];
+        if (!empty($api_events['sources'])) {
+            foreach ($api_events['sources'] as $source) {
+                $sources_lookup[$source['id']] = $source;
+            }
+        }
+
         $rss_items = [];
         foreach ($api_events['events'] as $event) {
             try {
@@ -63,8 +71,9 @@ class RssFeed {
                 $link = isset($event['id']) ? get_permalink($event['id']) : home_url();
                 
                 // For external events, we might not have a local permalink
-                if (isset($event['source']) && $event['source']['id'] !== 'local') {
-                    $link = $event['external_source']['url'] ?? home_url();
+                if (isset($event['source_id']) && $event['source_id'] !== 'local') {
+                    $source = $sources_lookup[$event['source_id']] ?? null;
+                    $link = $source ? ('https://' . $source['url']) : home_url();
                 }
 
                 // Format dates
@@ -141,18 +150,19 @@ class RssFeed {
                 }
 
                 // Source information
-                if (isset($event['source'])) {
+                if (isset($event['source_id'])) {
                     $source_text = '<p><strong>Source:</strong> ';
-                    
+
                     // Check if this is an external source event
-                    if (isset($event['external_source']) && !empty($event['external_source']['name'])) {
-                        // This is an external event, use the external_source name
-                        $source_text .= \esc_html($event['external_source']['name']);
+                    if ($event['source_id'] !== 'local' && isset($sources_lookup[$event['source_id']])) {
+                        // This is an external event, use the source name from lookup
+                        $source = $sources_lookup[$event['source_id']];
+                        $source_text .= \esc_html($source['name'] ?? $source['url']);
                     } else {
                         // This is a local event
                         $source_text .= 'Local Event';
                     }
-                    
+
                     $source_text .= '</p>';
                     $content_parts[] = $source_text;
                 }

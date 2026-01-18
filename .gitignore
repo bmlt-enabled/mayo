@@ -4,4 +4,7 @@ assets/js/dist
 *.zip
 .vscode
 .phpunit.result.cache
+.phpunit.cache
+coverage.xml
+coverage-report
 settings.local.json

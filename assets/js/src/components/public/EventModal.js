@@ -42,7 +42,7 @@ const EventModal = ({ event, timeFormat, onClose }) => {
     const endDate = isMultiDay ? new Date(event.meta.event_end_date + 'T00:00:00') : null;
 
     // Determine the source ID for service body lookup
-    const sourceId = event.external_source ? event.external_source.id : 'local';
+    const sourceId = event.source_id || 'local';
 
     return (
         <div className="mayo-event-modal-backdrop" onClick={handleBackdropClick}>
@@ -111,10 +111,10 @@ const EventModal = ({ event, timeFormat, onClose }) => {
                             </div>
                         )}
 
-                        {event.external_source && (
+                        {event.source_id && event.source_id !== 'local' && (
                             <div className="mayo-event-modal-source">
                                 <span className="dashicons dashicons-admin-site"></span>
-                                <span>Source: {event.external_source.url}</span>
+                                <span>External Event</span>
                             </div>
                         )}
                     </div>
