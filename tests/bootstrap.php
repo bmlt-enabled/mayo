@@ -102,7 +102,7 @@ if (!class_exists('WP_REST_Request')) {
     /**
      * Mock WP_REST_Request class
      */
-    class WP_REST_Request {
+    class WP_REST_Request implements \ArrayAccess {
         private $method;
         private $route;
         private $params = [];
@@ -127,7 +127,7 @@ if (!class_exists('WP_REST_Request')) {
         }
 
         public function get_params() {
-            return array_merge($this->query_params, $this->body_params, $this->params);
+            return array_merge($this->query_params, $this->body_params, $this->params, $this->attributes);
         }
 
         public function get_param($key) {
@@ -171,19 +171,25 @@ if (!class_exists('WP_REST_Request')) {
             $this->body = $body;
         }
 
-        public function offsetExists($offset) {
-            return isset($this->params[$offset]) || isset($this->attributes[$offset]);
+        #[\ReturnTypeWillChange]
+        public function offsetExists($offset): bool {
+            $params = $this->get_params();
+            return isset($params[$offset]);
         }
 
-        public function offsetGet($offset) {
-            return $this->params[$offset] ?? $this->attributes[$offset] ?? null;
+        #[\ReturnTypeWillChange]
+        public function offsetGet($offset): mixed {
+            $params = $this->get_params();
+            return $params[$offset] ?? null;
         }
 
-        public function offsetSet($offset, $value) {
+        #[\ReturnTypeWillChange]
+        public function offsetSet($offset, $value): void {
             $this->params[$offset] = $value;
         }
 
-        public function offsetUnset($offset) {
+        #[\ReturnTypeWillChange]
+        public function offsetUnset($offset): void {
             unset($this->params[$offset]);
         }
     }
@@ -300,6 +306,7 @@ if (!class_exists('WP_Widget')) {
         public $name;
         public $widget_options;
         public $control_options;
+        public $number = 1;
 
         public function __construct($id_base = '', $name = '', $widget_options = [], $control_options = []) {
             $this->id_base = $id_base;
@@ -311,6 +318,14 @@ if (!class_exists('WP_Widget')) {
         public function widget($args, $instance) {}
         public function form($instance) {}
         public function update($new_instance, $old_instance) { return $new_instance; }
+
+        public function get_field_id($field_name) {
+            return 'widget-' . $this->id_base . '-' . $this->number . '-' . $field_name;
+        }
+
+        public function get_field_name($field_name) {
+            return 'widget-' . $this->id_base . '[' . $this->number . '][' . $field_name . ']';
+        }
     }
 }
 
@@ -327,5 +342,36 @@ if (!function_exists('rest_ensure_response')) {
             return $response;
         }
         return new WP_REST_Response($response);
+    }
+}
+
+// WordPress upload/media functions (so FileUpload doesn't try to require files)
+if (!function_exists('wp_handle_upload')) {
+    function wp_handle_upload($file, $overrides = false) {
+        return [];
+    }
+}
+
+if (!function_exists('wp_generate_attachment_metadata')) {
+    function wp_generate_attachment_metadata($attachment_id, $file) {
+        return [];
+    }
+}
+
+if (!function_exists('wp_insert_attachment')) {
+    function wp_insert_attachment($attachment, $filename = false, $parent_post_id = 0, $wp_error = false) {
+        return 0;
+    }
+}
+
+if (!function_exists('wp_update_attachment_metadata')) {
+    function wp_update_attachment_metadata($attachment_id, $data) {
+        return true;
+    }
+}
+
+if (!function_exists('sanitize_file_name')) {
+    function sanitize_file_name($filename) {
+        return preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
     }
 }
