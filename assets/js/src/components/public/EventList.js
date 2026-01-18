@@ -76,9 +76,9 @@ const EventList = ({ widget = false, settings = {} }) => {
         }
     }, [autoexpand, events]);
 
-    // Process external service bodies when events are loaded
-    const processServiceBodies = useCallback((events) => {
-        if (!events.length || !settings?.sourceIds) {
+    // Process external service bodies from sources array in API response
+    const processServiceBodies = useCallback((sources) => {
+        if (!sources || !Array.isArray(sources) || !settings?.sourceIds) {
             return;
         }
 
@@ -89,31 +89,13 @@ const EventList = ({ widget = false, settings = {} }) => {
 
         // Debounce the service body update
         updateTimeout.current = setTimeout(() => {
-            const externalSources = new Map();
-            
-            events.forEach(event => {
-                if (event.external_source && event.external_source.service_bodies) {
-                    const sourceId = event.external_source.id;
-                    const serviceBodies = event.external_source.service_bodies;
-                    
-                    if (settings.sourceIds.includes(sourceId)) {
-                        externalSources.set(sourceId, serviceBodies);
-                    }
+            sources.forEach(source => {
+                if (source.id !== 'local' && source.service_bodies) {
+                    updateExternalServiceBodies(source.id, source.service_bodies);
                 }
-            });
-            
-            externalSources.forEach((serviceBodies, sourceId) => {
-                updateExternalServiceBodies(sourceId, serviceBodies);
             });
         }, 300);
     }, [settings?.sourceIds, updateExternalServiceBodies]);
-
-    // Call processServiceBodies when events change
-    useEffect(() => {
-        if (events.length > 0) {
-            processServiceBodies(events);
-        }
-    }, [events, processServiceBodies]);
 
     // Set up intersection observer for infinite scroll
     useEffect(() => {
@@ -310,14 +292,20 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&order=${order}`;
             
             const data = await apiFetch(endpoint);
-            
+
             // Handle both old and new response formats
             const events = Array.isArray(data) ? data : (data.events || []);
+            const sources = data.sources || [];
             const pagination = data.pagination || {
                 current_page: 1,
                 total_pages: Math.ceil(events.length / (settings?.perPage || 10))
             };
-            
+
+            // Process service bodies from sources array
+            if (sources.length > 0) {
+                processServiceBodies(sources);
+            }
+
             // Process events to handle invalid dates
             const processedEvents = processEvents(events);
             
@@ -389,6 +377,12 @@ const EventList = ({ widget = false, settings = {} }) => {
 
             // Handle both old and new response formats
             const fetchedEvents = Array.isArray(data) ? data : (data.events || []);
+            const sources = data.sources || [];
+
+            // Process service bodies from sources array
+            if (sources.length > 0) {
+                processServiceBodies(sources);
+            }
 
             // Process events to handle invalid dates
             const processedEvents = processEvents(fetchedEvents);

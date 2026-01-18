@@ -1098,10 +1098,9 @@ class EventsController {
                 'service_bodies' => $service_bodies
             ];
 
-            // Attach full external_source object to each event for frontend use
+            // Attach source_id to each event (service bodies are in the sources array)
             foreach ($events as &$event) {
                 $event['source_id'] = $source['id'];
-                $event['external_source'] = $source_info;
             }
 
             return [

@@ -43,7 +43,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
 
         // Service body class
         if (event.meta.service_body) {
-            const sourceId = event.external_source ? event.external_source.id : 'local';
+            const sourceId = event.source_id || 'local';
             const serviceBodyName = getServiceBodyName(event.meta.service_body, sourceId);
             classes.push(`mayo-event-service-body-${convertToUnicode(serviceBodyName).toLowerCase().replace(/\s+/g, '-')}`);
         }
@@ -177,7 +177,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
 
         // Service body
         if (event.meta.service_body) {
-            const sourceId = event.external_source ? event.external_source.id : 'local';
+            const sourceId = event.source_id || 'local';
             const serviceBodyName = getServiceBodyName(event.meta.service_body, sourceId);
             if (serviceBodyName && serviceBodyName !== event.meta.service_body) {
                 data.serviceBody = serviceBodyName;
