@@ -70,6 +70,14 @@ const EventBlockEditorSidebar = () => {
         editPost({ meta: { ...meta, [key]: value } });
     };
 
+    // Auto-set timezone for new events based on browser timezone
+    useEffect(() => {
+        if (isNewEvent && !meta.timezone) {
+            const detectedTimezone = getUserTimezone();
+            updateMetaValue('timezone', detectedTimezone);
+        }
+    }, [isNewEvent, meta.timezone]);
+
     const recurringPattern = meta.recurring_pattern || {
         type: 'none',
         interval: 1,
@@ -219,7 +227,7 @@ const EventBlockEditorSidebar = () => {
                     </div>
                     <SelectControl
                         label="Timezone"
-                        value={meta.timezone || (isNewEvent ? getUserTimezone() : '')}
+                        value={meta.timezone || ''}
                         options={[
                             { label: '-- No timezone set --', value: '' },
                             ...getTimezoneOptions()

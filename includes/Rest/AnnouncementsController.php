@@ -167,8 +167,12 @@ class AnnouncementsController {
 
                 $end_time_str = get_post_meta($post->ID, 'display_end_time', true);
 
+                // Use the announcement's own timezone if set, otherwise fall back to request timezone
+                $announcement_timezone = get_post_meta($post->ID, 'display_timezone', true);
+                $effective_timezone = !empty($announcement_timezone) ? $announcement_timezone : $timezone;
+
                 // Create end DateTime with proper time and timezone
-                $tz = new \DateTimeZone($timezone);
+                $tz = new \DateTimeZone($effective_timezone);
                 $end_datetime = new \DateTime($end_date_str, $tz);
                 if (!empty($end_time_str)) {
                     $time_parts = explode(':', $end_time_str);
@@ -472,14 +476,15 @@ class AnnouncementsController {
         $display_start_time = get_post_meta($post->ID, 'display_start_time', true);
         $display_end_date = get_post_meta($post->ID, 'display_end_date', true);
         $display_end_time = get_post_meta($post->ID, 'display_end_time', true);
+        $display_timezone = get_post_meta($post->ID, 'display_timezone', true);
 
         // Use provided $now or fall back to current time
         if (!$now) {
             $now = new \DateTime('now', new \DateTimeZone(wp_timezone_string()));
         }
 
-        // Get timezone from $now for consistent comparisons
-        $tz = $now->getTimezone();
+        // Use the announcement's own timezone if set, otherwise get timezone from $now
+        $tz = !empty($display_timezone) ? new \DateTimeZone($display_timezone) : $now->getTimezone();
 
         $is_active = true;
 
@@ -536,6 +541,7 @@ class AnnouncementsController {
             'display_start_time' => get_post_meta($post->ID, 'display_start_time', true),
             'display_end_date' => $display_end_date,
             'display_end_time' => get_post_meta($post->ID, 'display_end_time', true),
+            'display_timezone' => $display_timezone,
             'priority' => get_post_meta($post->ID, 'priority', true) ?: 'normal',
             'service_body' => get_post_meta($post->ID, 'service_body', true) ?: '',
             'is_active' => $is_active,

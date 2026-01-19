@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { apiFetch } from '../../util';
 import { useEventProvider } from '../providers/EventProvider';
+import { getTimezoneOptions, getUserTimezone } from '../../timezones';
 
 // Event Search Modal Component with infinite scroll
 const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linkedEventRefs, getRefKey }) => {
@@ -575,6 +576,17 @@ const AnnouncementEditor = () => {
         fetchSubscriptionSettings();
     }, [postType]);
 
+    // Determine if this is a new announcement
+    const isNewAnnouncement = postStatus === 'auto-draft';
+
+    // Auto-set timezone for new announcements based on browser timezone
+    useEffect(() => {
+        if (isNewAnnouncement && !meta.display_timezone) {
+            const detectedTimezone = getUserTimezone();
+            editPost({ meta: { ...meta, display_timezone: detectedTimezone } });
+        }
+    }, [isNewAnnouncement, meta.display_timezone]);
+
     if (postType !== 'mayo_announcement') return null;
 
     // Filter service bodies by subscription settings
@@ -897,6 +909,19 @@ const AnnouncementEditor = () => {
                         <p className="components-base-control__help" style={{ marginTop: '8px', marginBottom: 0 }}>
                             Leave empty to show indefinitely
                         </p>
+                    </div>
+                    <div style={{ marginTop: '12px' }}>
+                        <SelectControl
+                            label="Timezone"
+                            value={meta.display_timezone || ''}
+                            options={[
+                                { label: '-- No timezone set --', value: '' },
+                                ...getTimezoneOptions()
+                            ]}
+                            onChange={value => updateMetaValue('display_timezone', value)}
+                            __nextHasNoMarginBottom={true}
+                            __next40pxDefaultSize={true}
+                        />
                     </div>
                 </PanelBody>
 
