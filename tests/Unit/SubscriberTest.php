@@ -5,6 +5,25 @@ namespace BmltEnabled\Mayo\Tests\Unit;
 use BmltEnabled\Mayo\Subscriber;
 use Brain\Monkey\Functions;
 use ReflectionClass;
+use Mockery;
+
+/**
+ * Testable Subscriber class that allows mocking $wpdb
+ */
+class TestableSubscriber extends Subscriber {
+    public static $mockWpdb = null;
+
+    protected static function get_wpdb() {
+        if (self::$mockWpdb !== null) {
+            return self::$mockWpdb;
+        }
+        return parent::get_wpdb();
+    }
+
+    public static function resetMock() {
+        self::$mockWpdb = null;
+    }
+}
 
 class SubscriberTest extends TestCase {
 
@@ -33,6 +52,29 @@ class SubscriberTest extends TestCase {
 
         // Mock get_term
         Functions\when('get_term')->justReturn(null);
+
+        // Mock get_bloginfo for email methods
+        Functions\when('get_bloginfo')->alias(function($show) {
+            if ($show === 'name') return 'Test Site';
+            return '';
+        });
+
+        // Reset testable subscriber mock
+        TestableSubscriber::resetMock();
+    }
+
+    protected function tearDown(): void {
+        TestableSubscriber::resetMock();
+        parent::tearDown();
+    }
+
+    /**
+     * Create a mock wpdb object for testing
+     */
+    private function createMockWpdb() {
+        $mock = Mockery::mock('wpdb');
+        $mock->prefix = 'wp_';
+        return $mock;
     }
 
     /**
@@ -390,6 +432,597 @@ class SubscriberTest extends TestCase {
      */
     public function testTableNameConstant(): void {
         $this->assertEquals('mayo_subscribers', Subscriber::TABLE_NAME);
+    }
+
+    /**
+     * Test get_table_name returns prefixed table name
+     */
+    public function testGetTableNameReturnsPrefixedTableName(): void {
+        $mockWpdb = $this->createMockWpdb();
+        $mockWpdb->prefix = 'test_prefix_';
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::get_table_name();
+
+        $this->assertEquals('test_prefix_mayo_subscribers', $result);
+    }
+
+    /**
+     * Test subscribe returns error for invalid email
+     */
+    public function testSubscribeReturnsErrorForInvalidEmail(): void {
+        $result = TestableSubscriber::subscribe('not-an-email');
+
+        $this->assertIsArray($result);
+        $this->assertFalse($result['success']);
+        $this->assertEquals('invalid_email', $result['code']);
+    }
+
+    /**
+     * Test subscribe creates new subscriber
+     */
+    public function testSubscribeCreatesNewSubscriber(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        // No existing subscriber
+        $mockWpdb->shouldReceive('prepare')
+            ->once()
+            ->andReturn('SELECT * FROM wp_mayo_subscribers WHERE email = "test@example.com"');
+
+        $mockWpdb->shouldReceive('get_row')
+            ->once()
+            ->andReturn(null);
+
+        // Insert new subscriber
+        $mockWpdb->shouldReceive('insert')
+            ->once()
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::subscribe('test@example.com');
+
+        $this->assertIsArray($result);
+        $this->assertTrue($result['success']);
+        $this->assertEquals('confirmation_sent', $result['code']);
+    }
+
+    /**
+     * Test subscribe with preferences creates new subscriber with preferences
+     */
+    public function testSubscribeWithPreferencesCreatesSubscriberWithPreferences(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('prepare')
+            ->once()
+            ->andReturn('SQL');
+
+        $mockWpdb->shouldReceive('get_row')
+            ->once()
+            ->andReturn(null);
+
+        $mockWpdb->shouldReceive('insert')
+            ->once()
+            ->withArgs(function($table, $data) {
+                return isset($data['preferences']) && $data['preferences'] !== null;
+            })
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $preferences = ['categories' => [1, 2], 'tags' => [], 'service_bodies' => []];
+        $result = TestableSubscriber::subscribe('test@example.com', $preferences);
+
+        $this->assertTrue($result['success']);
+    }
+
+    /**
+     * Test subscribe returns error when email already active
+     */
+    public function testSubscribeReturnsErrorWhenEmailAlreadyActive(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $existingSubscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'active',
+            'token' => 'existingtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($existingSubscriber);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::subscribe('test@example.com');
+
+        $this->assertFalse($result['success']);
+        $this->assertEquals('already_subscribed', $result['code']);
+    }
+
+    /**
+     * Test subscribe resends confirmation for pending subscriber
+     */
+    public function testSubscribeResendsConfirmationForPending(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $existingSubscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'pending',
+            'token' => 'existingtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($existingSubscriber);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::subscribe('test@example.com');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('confirmation_resent', $result['code']);
+    }
+
+    /**
+     * Test subscribe re-subscribes unsubscribed user
+     */
+    public function testSubscribeResubscribesUnsubscribedUser(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $existingSubscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'unsubscribed',
+            'token' => 'existingtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($existingSubscriber);
+        $mockWpdb->shouldReceive('update')->once()->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::subscribe('test@example.com');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('resubscribed', $result['code']);
+    }
+
+    /**
+     * Test subscribe returns error on database failure
+     */
+    public function testSubscribeReturnsErrorOnDatabaseFailure(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn(null);
+        $mockWpdb->shouldReceive('insert')->once()->andReturn(false);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::subscribe('test@example.com');
+
+        $this->assertFalse($result['success']);
+        $this->assertEquals('database_error', $result['code']);
+    }
+
+    /**
+     * Test get_by_token returns subscriber
+     */
+    public function testGetByTokenReturnsSubscriber(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'active',
+            'token' => 'abc123def456'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($subscriber);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::get_by_token('abc123def456');
+
+        $this->assertNotNull($result);
+        $this->assertEquals('test@example.com', $result->email);
+    }
+
+    /**
+     * Test get_by_token returns null for invalid token
+     */
+    public function testGetByTokenReturnsNullForInvalidToken(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn(null);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::get_by_token('invalidtoken');
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test confirm activates subscriber
+     */
+    public function testConfirmActivatesSubscriber(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'pending',
+            'token' => 'validtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($subscriber);
+        $mockWpdb->shouldReceive('update')->once()->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::confirm('validtoken123');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('confirmed', $result['code']);
+    }
+
+    /**
+     * Test confirm returns error for invalid token
+     */
+    public function testConfirmReturnsErrorForInvalidToken(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn(null);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::confirm('invalidtoken');
+
+        $this->assertFalse($result['success']);
+        $this->assertEquals('invalid_token', $result['code']);
+    }
+
+    /**
+     * Test confirm returns already confirmed for active subscriber
+     */
+    public function testConfirmReturnsAlreadyConfirmedForActive(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'active',
+            'token' => 'validtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($subscriber);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::confirm('validtoken123');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('already_confirmed', $result['code']);
+    }
+
+    /**
+     * Test unsubscribe marks subscriber as unsubscribed
+     */
+    public function testUnsubscribeMarksSubscriberAsUnsubscribed(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'active',
+            'token' => 'validtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($subscriber);
+        $mockWpdb->shouldReceive('update')->once()->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::unsubscribe('validtoken123');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('unsubscribed', $result['code']);
+    }
+
+    /**
+     * Test unsubscribe returns error for invalid token
+     */
+    public function testUnsubscribeReturnsErrorForInvalidToken(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn(null);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::unsubscribe('invalidtoken');
+
+        $this->assertFalse($result['success']);
+        $this->assertEquals('invalid_token', $result['code']);
+    }
+
+    /**
+     * Test unsubscribe returns already_unsubscribed for unsubscribed user
+     */
+    public function testUnsubscribeReturnsAlreadyUnsubscribed(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscriber = (object)[
+            'id' => 1,
+            'email' => 'test@example.com',
+            'status' => 'unsubscribed',
+            'token' => 'validtoken123'
+        ];
+
+        $mockWpdb->shouldReceive('prepare')->once()->andReturn('SQL');
+        $mockWpdb->shouldReceive('get_row')->once()->andReturn($subscriber);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::unsubscribe('validtoken123');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('already_unsubscribed', $result['code']);
+    }
+
+    /**
+     * Test get_active_subscribers returns only active subscribers
+     */
+    public function testGetActiveSubscribersReturnsOnlyActive(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscribers = [
+            (object)['id' => 1, 'email' => 'active1@example.com', 'status' => 'active'],
+            (object)['id' => 2, 'email' => 'active2@example.com', 'status' => 'active']
+        ];
+
+        $mockWpdb->shouldReceive('get_results')->once()->andReturn($subscribers);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::get_active_subscribers();
+
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+    }
+
+    /**
+     * Test get_all_subscribers returns all subscribers
+     */
+    public function testGetAllSubscribersReturnsAll(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscribers = [
+            (object)['id' => 1, 'email' => 'a@example.com', 'status' => 'active'],
+            (object)['id' => 2, 'email' => 'b@example.com', 'status' => 'pending'],
+            (object)['id' => 3, 'email' => 'c@example.com', 'status' => 'unsubscribed']
+        ];
+
+        $mockWpdb->shouldReceive('get_results')->once()->andReturn($subscribers);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::get_all_subscribers();
+
+        $this->assertIsArray($result);
+        $this->assertCount(3, $result);
+    }
+
+    /**
+     * Test update_status updates subscriber status
+     */
+    public function testUpdateStatusUpdatesSubscriberStatus(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('update')
+            ->once()
+            ->withArgs(function($table, $data, $where) {
+                return $data['status'] === 'active';
+            })
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::update_status(1, 'active');
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test update_status sets confirmed_at when activating
+     */
+    public function testUpdateStatusSetsConfirmedAtWhenActivating(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('update')
+            ->once()
+            ->withArgs(function($table, $data, $where) {
+                return isset($data['confirmed_at']);
+            })
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::update_status(1, 'active');
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test update_preferences updates subscriber preferences
+     */
+    public function testUpdatePreferencesUpdatesSubscriberPreferences(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('update')
+            ->once()
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::update_preferences('token123', ['categories' => [1]]);
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test update_preferences returns false on failure
+     */
+    public function testUpdatePreferencesReturnsFalseOnFailure(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('update')
+            ->once()
+            ->andReturn(false);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::update_preferences('token123', ['categories' => [1]]);
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test update_preferences_by_id updates subscriber preferences by ID
+     */
+    public function testUpdatePreferencesByIdUpdatesPreferences(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('update')
+            ->once()
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::update_preferences_by_id(1, ['categories' => [1, 2]]);
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test delete removes subscriber
+     */
+    public function testDeleteRemovesSubscriber(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('delete')
+            ->once()
+            ->andReturn(1);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::delete(1);
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test delete returns false when subscriber not found
+     */
+    public function testDeleteReturnsFalseWhenNotFound(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $mockWpdb->shouldReceive('delete')
+            ->once()
+            ->andReturn(false);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::delete(999);
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test get_matching returns subscribers matching criteria
+     */
+    public function testGetMatchingReturnsMatchingSubscribers(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscribers = [
+            (object)[
+                'id' => 1,
+                'email' => 'match@example.com',
+                'status' => 'active',
+                'preferences' => json_encode(['categories' => [1], 'tags' => [], 'service_bodies' => []])
+            ]
+        ];
+
+        $mockWpdb->shouldReceive('get_results')->once()->andReturn($subscribers);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::get_matching([
+            'categories' => [1],
+            'tags' => [],
+            'service_body' => ''
+        ]);
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+    }
+
+    /**
+     * Test count_matching returns count of matching subscribers
+     */
+    public function testCountMatchingReturnsCount(): void {
+        $mockWpdb = $this->createMockWpdb();
+
+        $subscribers = [
+            (object)[
+                'id' => 1,
+                'email' => 'match1@example.com',
+                'status' => 'active',
+                'preferences' => null
+            ],
+            (object)[
+                'id' => 2,
+                'email' => 'match2@example.com',
+                'status' => 'active',
+                'preferences' => null
+            ]
+        ];
+
+        $mockWpdb->shouldReceive('get_results')->once()->andReturn($subscribers);
+
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $result = TestableSubscriber::count_matching([
+            'categories' => [1],
+            'tags' => [],
+            'service_body' => ''
+        ]);
+
+        $this->assertEquals(2, $result);
+    }
+
+    /**
+     * Test get_wpdb returns wpdb instance
+     * Note: create_table can't be fully tested without WordPress test environment
+     * because it requires require_once for upgrade.php
+     */
+    public function testGetWpdbIntegration(): void {
+        // The base class get_wpdb() is tested implicitly by other tests
+        // This test verifies the TestableSubscriber mock pattern works
+        $mockWpdb = $this->createMockWpdb();
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        // Verify the mock is returned
+        $this->assertEquals('wp_mayo_subscribers', TestableSubscriber::get_table_name());
     }
 
     /**
