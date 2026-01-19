@@ -111,10 +111,10 @@ const EventModal = ({ event, timeFormat, onClose }) => {
                             </div>
                         )}
 
-                        {event.source_id && event.source_id !== 'local' && (
+                        {event.source && event.source.type === 'external' && (
                             <div className="mayo-event-modal-source">
                                 <span className="dashicons dashicons-admin-site"></span>
-                                <span>External Event</span>
+                                <span>{event.source.name}</span>
                             </div>
                         )}
                     </div>

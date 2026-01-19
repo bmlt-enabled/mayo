@@ -3,6 +3,7 @@ import AnnouncementBanner from './AnnouncementBanner';
 import AnnouncementModal from './AnnouncementModal';
 import AnnouncementBellIcon from './AnnouncementBellIcon';
 import { apiFetch } from '../../util';
+import { getUserTimezone } from '../../timezones';
 
 const EventAnnouncement = ({ settings = {} }) => {
     const [announcements, setAnnouncements] = useState([]);
@@ -40,6 +41,9 @@ const EventAnnouncement = ({ settings = {} }) => {
         return Date.now() - timestamp < twentyFourHours;
     }, [getDismissalKey]);
 
+    // Get user's timezone for accurate time filtering
+    const userTimezone = getUserTimezone();
+
     // Fetch announcements from the new announcements API
     useEffect(() => {
         const fetchAnnouncements = async () => {
@@ -47,6 +51,10 @@ const EventAnnouncement = ({ settings = {} }) => {
             try {
                 // Use the new announcements endpoint which handles date filtering server-side
                 let endpoint = '/announcements?per_page=20';
+
+                // Add timezone and current time for accurate end time filtering
+                endpoint += `&timezone=${encodeURIComponent(userTimezone)}`;
+                endpoint += `&current_time=${encodeURIComponent(new Date().toISOString())}`;
 
                 if (categories) {
                     endpoint += `&categories=${encodeURIComponent(categories)}`;
@@ -87,7 +95,7 @@ const EventAnnouncement = ({ settings = {} }) => {
         };
 
         fetchAnnouncements();
-    }, [categories, categoryRelation, tags, priority, orderBy, order, checkDismissed]);
+    }, [categories, categoryRelation, tags, priority, orderBy, order, userTimezone, checkDismissed]);
 
     // Handle dismiss
     const handleDismiss = useCallback(() => {

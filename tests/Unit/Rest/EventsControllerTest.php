@@ -1449,4 +1449,267 @@ class EventsControllerTest extends TestCase {
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
     }
 
+    /**
+     * Test get_events hides events after their end time passes
+     *
+     * This test verifies the fix for issue #237 where events remained visible
+     * after their scheduled end time. The end date worked correctly but the
+     * end time was ignored.
+     *
+     * Uses UTC timezone consistently to avoid server timezone dependencies.
+     */
+    public function testGetEventsHidesEventsAfterEndTime(): void {
+        // Use fixed dates to avoid timezone ambiguity
+        // Event ends at 14:00 UTC, current time is 15:00 UTC
+        $eventDate = '2030-06-15';
+        $eventStartTime = '13:00:00';
+        $eventEndTime = '14:00:00';
+        $currentTimeUtc = '2030-06-15T15:00:00Z';  // 1 hour after event ends
+
+        $post = $this->createMockPost([
+            'ID' => 700,
+            'post_title' => 'Past Event',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+
+        $this->setPostMeta(700, [
+            'event_start_date' => $eventDate,
+            'event_end_date' => $eventDate,
+            'event_start_time' => $eventStartTime,
+            'event_end_time' => $eventEndTime
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_site_url')->justReturn('https://example.com');
+        Functions\when('get_the_title')->justReturn('Past Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        // Use UTC timezone consistently for both event and current time
+        $_GET = [
+            'timezone' => 'UTC',
+            'current_time' => $currentTimeUtc
+        ];
+
+        $response = EventsController::get_events();
+
+        $this->assertInstanceOf(\WP_REST_Response::class, $response);
+        $data = $response->get_data();
+
+        // The event should not appear in the list since its end time has passed
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(0, $data['events'], 'Event should be hidden after its end time passes');
+    }
+
+    /**
+     * Test get_events shows events that have not ended yet
+     *
+     * Uses UTC timezone consistently to avoid server timezone dependencies.
+     */
+    public function testGetEventsShowsEventsBeforeEndTime(): void {
+        // Use fixed dates to avoid timezone ambiguity
+        // Event ends at 16:00 UTC, current time is 14:00 UTC (2 hours before)
+        $eventDate = '2030-06-15';
+        $eventStartTime = '13:00:00';
+        $eventEndTime = '16:00:00';
+        $currentTimeUtc = '2030-06-15T14:00:00Z';  // 2 hours before event ends
+
+        $post = $this->createMockPost([
+            'ID' => 701,
+            'post_title' => 'Ongoing Event',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+
+        $this->setPostMeta(701, [
+            'event_start_date' => $eventDate,
+            'event_end_date' => $eventDate,
+            'event_start_time' => $eventStartTime,
+            'event_end_time' => $eventEndTime
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_site_url')->justReturn('https://example.com');
+        Functions\when('get_the_title')->justReturn('Ongoing Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        // Use UTC timezone consistently for both event and current time
+        $_GET = [
+            'timezone' => 'UTC',
+            'current_time' => $currentTimeUtc
+        ];
+
+        $response = EventsController::get_events();
+
+        $this->assertInstanceOf(\WP_REST_Response::class, $response);
+        $data = $response->get_data();
+
+        // The event should appear since its end time has not passed
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(1, $data['events'], 'Event should be visible before its end time passes');
+    }
+
+    /**
+     * Test get_events with timezone offset shows event before end time
+     *
+     * This test reproduces the timezone mismatch bug where an event is incorrectly
+     * hidden when the server timezone (UTC) differs from the user's timezone.
+     *
+     * Scenario:
+     * - Event ends at 23:25 EST on Jan 18
+     * - Current time is 23:12 EST (passed as 04:12 UTC on Jan 19)
+     * - Event should still be visible because 23:12 < 23:25 in EST
+     *
+     * The bug was that DateTime objects were created without timezone, causing
+     * the event's end time (23:25 UTC) to be compared against the user's current
+     * time (04:12 UTC), incorrectly filtering out the event.
+     */
+    public function testGetEventsWithTimezoneOffsetShowsEventBeforeEndTime(): void {
+        $post = $this->createMockPost([
+            'ID' => 800,
+            'post_title' => 'Test Expire Event',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+
+        // Event on Jan 18, 2026, ending at 23:25 EST
+        $this->setPostMeta(800, [
+            'event_start_date' => '2026-01-18',
+            'event_end_date' => '2026-01-18',
+            'event_start_time' => '23:00',
+            'event_end_time' => '23:25'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_site_url')->justReturn('https://example.com');
+        Functions\when('get_the_title')->justReturn('Test Expire Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        // Current time is 23:12 EST = 04:12 UTC on Jan 19
+        // The event ends at 23:25 EST, so it should still be visible (13 minutes left)
+        $_GET = [
+            'timezone' => 'America/New_York',
+            'current_time' => '2026-01-19T04:12:21Z'  // 23:12 EST on Jan 18
+        ];
+
+        $response = EventsController::get_events();
+
+        $this->assertInstanceOf(\WP_REST_Response::class, $response);
+        $data = $response->get_data();
+
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(1, $data['events'], 'Event should be visible since current time (23:12 EST) is before event end time (23:25 EST)');
+    }
+
+    /**
+     * Test get_events with timezone offset hides event after end time
+     *
+     * Companion test to verify the event IS hidden when the time has passed.
+     */
+    public function testGetEventsWithTimezoneOffsetHidesEventAfterEndTime(): void {
+        $post = $this->createMockPost([
+            'ID' => 801,
+            'post_title' => 'Expired Event',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+
+        // Event on Jan 18, 2026, ending at 23:25 EST
+        $this->setPostMeta(801, [
+            'event_start_date' => '2026-01-18',
+            'event_end_date' => '2026-01-18',
+            'event_start_time' => '23:00',
+            'event_end_time' => '23:25'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_site_url')->justReturn('https://example.com');
+        Functions\when('get_the_title')->justReturn('Expired Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        // Current time is 23:30 EST = 04:30 UTC on Jan 19
+        // The event ended at 23:25 EST, so it should be hidden
+        $_GET = [
+            'timezone' => 'America/New_York',
+            'current_time' => '2026-01-19T04:30:00Z'  // 23:30 EST on Jan 18
+        ];
+
+        $response = EventsController::get_events();
+
+        $this->assertInstanceOf(\WP_REST_Response::class, $response);
+        $data = $response->get_data();
+
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(0, $data['events'], 'Event should be hidden since current time (23:30 EST) is after event end time (23:25 EST)');
+    }
+
+    /**
+     * Test get_events uses current_time parameter correctly
+     *
+     * This test verifies the current_time parameter is properly parsed and used.
+     * We use far-future and far-past times to avoid timezone edge cases.
+     */
+    public function testGetEventsUsesCurrentTimeParameter(): void {
+        // Create an event that ends at a specific time
+        $eventDate = '2030-06-15'; // Far future date to avoid any timezone issues
+
+        $post = $this->createMockPost([
+            'ID' => 702,
+            'post_title' => 'Future Event',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+
+        $this->setPostMeta(702, [
+            'event_start_date' => $eventDate,
+            'event_end_date' => $eventDate,
+            'event_start_time' => '10:00:00',
+            'event_end_time' => '14:00:00'  // 2 PM
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_site_url')->justReturn('https://example.com');
+        Functions\when('get_the_title')->justReturn('Future Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        // Test 1: When "now" is before the event starts, it should be visible
+        $_GET = [
+            'timezone' => 'UTC',
+            'current_time' => '2030-06-15T08:00:00Z'  // 8 AM, before event starts
+        ];
+
+        $response = EventsController::get_events();
+        $data = $response->get_data();
+        $this->assertCount(1, $data['events'], 'Event should be visible when current time is before event starts');
+
+        // Test 2: When "now" is during the event, it should still be visible
+        $_GET = [
+            'timezone' => 'UTC',
+            'current_time' => '2030-06-15T12:00:00Z'  // Noon, during the event
+        ];
+
+        $response = EventsController::get_events();
+        $data = $response->get_data();
+        $this->assertCount(1, $data['events'], 'Event should be visible when current time is during the event');
+
+        // Test 3: When "now" is after the event ends, it should be hidden
+        $_GET = [
+            'timezone' => 'UTC',
+            'current_time' => '2030-06-15T15:00:00Z'  // 3 PM, after event ends at 2 PM
+        ];
+
+        $response = EventsController::get_events();
+        $data = $response->get_data();
+        $this->assertCount(0, $data['events'], 'Event should be hidden when current time is after event ends');
+    }
 }

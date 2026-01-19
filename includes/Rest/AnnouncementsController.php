@@ -64,8 +64,18 @@ class AnnouncementsController {
         $active_only = !isset($params['active']) || $params['active'] !== 'false';
         $orderby = isset($params['orderby']) ? sanitize_text_field($params['orderby']) : 'date';
         $order = isset($params['order']) ? strtoupper(sanitize_text_field($params['order'])) : '';
+        $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : wp_timezone_string();
+        $current_time = isset($params['current_time']) ? sanitize_text_field(wp_unslash($params['current_time'])) : null;
 
         $today = current_time('Y-m-d');
+
+        // Create DateTime object for current time with proper timezone
+        if ($current_time) {
+            $now = new \DateTime($current_time);
+            $now->setTimezone(new \DateTimeZone($timezone));
+        } else {
+            $now = new \DateTime('now', new \DateTimeZone($timezone));
+        }
 
         $args = [
             'post_type' => 'mayo_announcement',
@@ -144,9 +154,42 @@ class AnnouncementsController {
 
         $posts = get_posts($args);
 
+        // Post-filter based on end time if active_only is enabled
+        // The meta_query only checks dates, so we need to filter by time here
+        if ($active_only) {
+            $posts = array_filter($posts, function($post) use ($now, $timezone) {
+                $end_date_str = get_post_meta($post->ID, 'display_end_date', true);
+
+                // If no end date, the announcement is considered active
+                if (empty($end_date_str)) {
+                    return true;
+                }
+
+                $end_time_str = get_post_meta($post->ID, 'display_end_time', true);
+
+                // Create end DateTime with proper time and timezone
+                $tz = new \DateTimeZone($timezone);
+                $end_datetime = new \DateTime($end_date_str, $tz);
+                if (!empty($end_time_str)) {
+                    $time_parts = explode(':', $end_time_str);
+                    $end_datetime->setTime(
+                        (int)($time_parts[0] ?? 23),
+                        (int)($time_parts[1] ?? 59),
+                        (int)($time_parts[2] ?? 59)
+                    );
+                } else {
+                    // If no end time specified, use end of day
+                    $end_datetime->setTime(23, 59, 59);
+                }
+
+                // Announcement is active if end datetime is in the future
+                return $end_datetime >= $now;
+            });
+        }
+
         $announcements = [];
         foreach ($posts as $post) {
-            $announcements[] = self::format_announcement($post);
+            $announcements[] = self::format_announcement($post, $now);
         }
 
         // Sort announcements
@@ -377,9 +420,10 @@ class AnnouncementsController {
      * Format announcement data for API response
      *
      * @param \WP_Post $post
+     * @param \DateTime|null $now Current DateTime for is_active calculation
      * @return array
      */
-    public static function format_announcement($post) {
+    public static function format_announcement($post, $now = null) {
         $linked_refs = Announcement::get_linked_event_refs($post->ID);
         $linked_event_data = [];
 
@@ -423,17 +467,56 @@ class AnnouncementsController {
             }
         }
 
-        // Calculate is_active based on display dates
-        $today = current_time('Y-m-d');
+        // Calculate is_active based on display dates and times
         $display_start_date = get_post_meta($post->ID, 'display_start_date', true);
+        $display_start_time = get_post_meta($post->ID, 'display_start_time', true);
         $display_end_date = get_post_meta($post->ID, 'display_end_date', true);
+        $display_end_time = get_post_meta($post->ID, 'display_end_time', true);
+
+        // Use provided $now or fall back to current time
+        if (!$now) {
+            $now = new \DateTime('now', new \DateTimeZone(wp_timezone_string()));
+        }
+
+        // Get timezone from $now for consistent comparisons
+        $tz = $now->getTimezone();
 
         $is_active = true;
-        if ($display_start_date && $display_start_date > $today) {
-            $is_active = false;
+
+        // Check start date/time
+        if ($display_start_date) {
+            $start_datetime = new \DateTime($display_start_date, $tz);
+            if (!empty($display_start_time)) {
+                $time_parts = explode(':', $display_start_time);
+                $start_datetime->setTime(
+                    (int)($time_parts[0] ?? 0),
+                    (int)($time_parts[1] ?? 0),
+                    (int)($time_parts[2] ?? 0)
+                );
+            } else {
+                $start_datetime->setTime(0, 0, 0);
+            }
+            if ($start_datetime > $now) {
+                $is_active = false;
+            }
         }
-        if ($display_end_date && $display_end_date < $today) {
-            $is_active = false;
+
+        // Check end date/time
+        if ($display_end_date && $is_active) {
+            $end_datetime = new \DateTime($display_end_date, $tz);
+            if (!empty($display_end_time)) {
+                $time_parts = explode(':', $display_end_time);
+                $end_datetime->setTime(
+                    (int)($time_parts[0] ?? 23),
+                    (int)($time_parts[1] ?? 59),
+                    (int)($time_parts[2] ?? 59)
+                );
+            } else {
+                $end_datetime->setTime(23, 59, 59);
+            }
+            if ($end_datetime < $now) {
+                $is_active = false;
+            }
         }
 
         $permalink = get_permalink($post->ID);

@@ -108,9 +108,9 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                 {formatDateTimeDisplay(event, timeFormat)}
                             </span>
                         )}
-                        {event.source_id && event.source_id !== 'local' && (
-                            <span className="mayo-event-source">
-                                External Event
+                        {event.source && event.source.type === 'external' && (
+                            <span className="mayo-event-source" title={`From ${event.source.name}`}>
+                                {event.source.name}
                             </span>
                         )}
                         {event.meta.service_body && (
