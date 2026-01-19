@@ -23,14 +23,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
     const isMultiDay = event.meta.event_end_date && event.meta.event_start_date !== event.meta.event_end_date;
     const endDate = isMultiDay ? new Date(event.meta.event_end_date + 'T00:00:00') : null;
     
-    const { getServiceBodyName, updateExternalServiceBodies } = useEventProvider();
-
-    // Update external service bodies if this is an external event
-    useEffect(() => {
-        if (event.external_source && event.external_source.service_bodies) {
-            updateExternalServiceBodies(event.external_source.id, event.external_source.service_bodies);
-        }
-    }, [event.external_source?.id, event.external_source?.service_bodies, updateExternalServiceBodies]);
+    const { getServiceBodyName } = useEventProvider();
 
     // Generate class names with emoji handling
     const categoryClasses = event.categories
@@ -47,7 +40,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
         '';
 
     // Determine the source ID for service body lookup
-    const sourceId = event.external_source ? event.external_source.id : 'local';
+    const sourceId = event.source_id || 'local';
     
     const serviceBodyClass = `mayo-event-service-body-${convertToUnicode(getServiceBodyName(event.meta.service_body, sourceId)).toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -115,9 +108,9 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                 {formatDateTimeDisplay(event, timeFormat)}
                             </span>
                         )}
-                        {event.external_source && (
+                        {event.source_id && event.source_id !== 'local' && (
                             <span className="mayo-event-source">
-                                Source: {event.external_source.url}
+                                External Event
                             </span>
                         )}
                         {event.meta.service_body && (

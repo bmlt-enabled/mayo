@@ -1098,7 +1098,7 @@ class EventsController {
                 'service_bodies' => $service_bodies
             ];
 
-            // Events only reference source by ID (no duplication of service bodies)
+            // Attach source_id to each event (service bodies are in the sources array)
             foreach ($events as &$event) {
                 $event['source_id'] = $source['id'];
             }

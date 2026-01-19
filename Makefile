@@ -46,4 +46,8 @@ fmt: composer ## PHP Fmt
 
 .PHONY: test
 test: composer ## PHP Unit Test
-	composer test:integration
+	vendor/bin/phpunit
+
+.PHONY: coverage
+coverage: composer ## PHP Unit Test with Coverage
+	XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover coverage.xml
