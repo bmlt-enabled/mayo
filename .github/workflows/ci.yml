@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code 🛒
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         id: code-checkout
 
       - name: Setup PHP 🐫
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code 🛒
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP 🐫
         uses: shivammathur/setup-php@v2
@@ -62,7 +62,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Check out code 🛒
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP 🐫
         uses: shivammathur/setup-php@v2
@@ -89,7 +89,7 @@ jobs:
         run: make coverage
 
       - name: Upload coverage to Codecov ☂️
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml

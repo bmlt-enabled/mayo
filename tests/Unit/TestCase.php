@@ -92,11 +92,17 @@ abstract class TestCase extends PHPUnitTestCase {
             'esc_attr' => function($text) {
                 return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
             },
+            'esc_url' => function($url) {
+                return filter_var($url, FILTER_SANITIZE_URL);
+            },
             'wp_unslash' => function($value) {
                 return stripslashes($value);
             },
             'absint' => function($value) {
                 return abs((int) $value);
+            },
+            'sanitize_title' => function($title) {
+                return strtolower(preg_replace('/[^a-zA-Z0-9-]/', '', str_replace(' ', '-', $title)));
             },
         ]);
 
@@ -116,10 +122,12 @@ abstract class TestCase extends PHPUnitTestCase {
                 return 'https://example.com/wp-json/' . ltrim($path, '/');
             },
             'get_site_url' => 'https://example.com',
-            'get_permalink' => function($post_id) {
+            'get_permalink' => function($post) {
+                $post_id = is_object($post) ? $post->ID : $post;
                 return 'https://example.com/event/' . $post_id;
             },
-            'get_edit_post_link' => function($post_id, $context = 'display') {
+            'get_edit_post_link' => function($post, $context = 'display') {
+                $post_id = is_object($post) ? $post->ID : $post;
                 return 'https://example.com/wp-admin/post.php?post=' . $post_id . '&action=edit';
             },
         ]);
@@ -164,6 +172,9 @@ abstract class TestCase extends PHPUnitTestCase {
         Functions\when('wp_insert_term')->justReturn(['term_id' => 1, 'term_taxonomy_id' => 1]);
         Functions\when('get_category')->justReturn(null);
 
+        // Default get_posts stub (returns empty array)
+        Functions\when('get_posts')->justReturn([]);
+
         // Hook functions
         Functions\when('add_action')->justReturn(true);
         Functions\when('add_filter')->justReturn(true);
@@ -174,6 +185,15 @@ abstract class TestCase extends PHPUnitTestCase {
             return $value;
         });
         Functions\when('has_filter')->justReturn(false);
+
+        // Form helpers
+        Functions\when('selected')->alias(function($selected, $current, $echo = true) {
+            $result = $selected == $current ? ' selected="selected"' : '';
+            if ($echo) {
+                echo $result;
+            }
+            return $result;
+        });
 
         // Query args
         Functions\when('add_query_arg')->alias(function($args, $url = '') {
