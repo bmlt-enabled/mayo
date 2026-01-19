@@ -15,11 +15,25 @@ class Subscriber
     const TABLE_NAME = 'mayo_subscribers';
 
     /**
+     * Get the wpdb instance
+     *
+     * This method is separated to allow for mocking in unit tests.
+     * Tests can extend this class and override this method to return a mock.
+     *
+     * @return \wpdb The WordPress database object
+     */
+    protected static function get_wpdb()
+    {
+        global $wpdb;
+        return $wpdb;
+    }
+
+    /**
      * Get the full table name with prefix
      */
     public static function get_table_name()
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
         return $wpdb->prefix . self::TABLE_NAME;
     }
 
@@ -29,7 +43,7 @@ class Subscriber
      */
     public static function create_table()
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $table_name = self::get_table_name();
         $charset_collate = $wpdb->get_charset_collate();
@@ -69,7 +83,7 @@ class Subscriber
      */
     public static function subscribe($email, $preferences = null)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $email = sanitize_email($email);
 
@@ -189,7 +203,7 @@ class Subscriber
      */
     public static function get_by_token($token)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $token = sanitize_text_field($token);
         $table_name = self::get_table_name();
@@ -209,7 +223,7 @@ class Subscriber
      */
     public static function update_preferences($token, $preferences)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $token = sanitize_text_field($token);
         $table_name = self::get_table_name();
@@ -233,7 +247,7 @@ class Subscriber
      */
     public static function confirm($token)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $token = sanitize_text_field($token);
         $table_name = self::get_table_name();
@@ -288,7 +302,7 @@ class Subscriber
      */
     public static function unsubscribe($token)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $token = sanitize_text_field($token);
         $table_name = self::get_table_name();
@@ -336,7 +350,7 @@ class Subscriber
      */
     public static function get_active_subscribers()
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $table_name = self::get_table_name();
 
@@ -352,7 +366,7 @@ class Subscriber
      */
     public static function get_all_subscribers()
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $table_name = self::get_table_name();
 
@@ -370,7 +384,7 @@ class Subscriber
      */
     public static function update_status($id, $status)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $id = intval($id);
         $status = sanitize_text_field($status);
@@ -405,7 +419,7 @@ class Subscriber
      */
     public static function update_preferences_by_id($id, $preferences)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $id = intval($id);
         $table_name = self::get_table_name();
@@ -429,7 +443,7 @@ class Subscriber
      */
     public static function delete($id)
     {
-        global $wpdb;
+        $wpdb = static::get_wpdb();
 
         $id = intval($id);
         $table_name = self::get_table_name();

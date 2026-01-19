@@ -381,6 +381,293 @@ class RssFeedTest extends TestCase {
     }
 
     /**
+     * Test build_rss_xml returns valid XML structure
+     */
+    public function testBuildRssXmlReturnsValidXmlStructure(): void {
+        $events = [];
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US',
+            'Mon, 01 Jan 2024 12:00:00 +0000'
+        );
+
+        $this->assertStringContainsString('<?xml version="1.0" encoding="UTF-8"?>', $xml);
+        $this->assertStringContainsString('<rss version="2.0"', $xml);
+        $this->assertStringContainsString('<channel>', $xml);
+        $this->assertStringContainsString('</channel>', $xml);
+        $this->assertStringContainsString('</rss>', $xml);
+    }
+
+    /**
+     * Test build_rss_xml includes channel elements
+     */
+    public function testBuildRssXmlIncludesChannelElements(): void {
+        $events = [];
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'My Test Site',
+            'https://mysite.example.com',
+            'Events from our site',
+            'fr_FR',
+            'Tue, 15 Jan 2024 10:30:00 +0000'
+        );
+
+        $this->assertStringContainsString('<title>My Test Site - Events</title>', $xml);
+        $this->assertStringContainsString('<link>https://mysite.example.com</link>', $xml);
+        $this->assertStringContainsString('<description>Events from our site</description>', $xml);
+        $this->assertStringContainsString('<lastBuildDate>Tue, 15 Jan 2024 10:30:00 +0000</lastBuildDate>', $xml);
+        $this->assertStringContainsString('<language>fr_FR</language>', $xml);
+        $this->assertStringContainsString('<generator>Mayo Events Manager</generator>', $xml);
+    }
+
+    /**
+     * Test build_rss_xml formats events correctly
+     */
+    public function testBuildRssXmlFormatsEventsCorrectly(): void {
+        $events = [
+            [
+                'title' => 'Test Event',
+                'link' => 'https://example.com/event/1',
+                'pub_date' => 'Wed, 20 Jan 2024 14:00:00 +0000',
+                'description' => 'Event on January 20',
+                'content' => '<p>Full event content here</p>',
+                'categories' => []
+            ]
+        ];
+
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US',
+            'Mon, 01 Jan 2024 12:00:00 +0000'
+        );
+
+        $this->assertStringContainsString('<item>', $xml);
+        $this->assertStringContainsString('<title>Test Event</title>', $xml);
+        $this->assertStringContainsString('<link>https://example.com/event/1</link>', $xml);
+        $this->assertStringContainsString('<guid isPermaLink="true">https://example.com/event/1</guid>', $xml);
+        $this->assertStringContainsString('<pubDate>Wed, 20 Jan 2024 14:00:00 +0000</pubDate>', $xml);
+        $this->assertStringContainsString('<description><![CDATA[Event on January 20]]></description>', $xml);
+        $this->assertStringContainsString('<content:encoded><![CDATA[<p>Full event content here</p>]]></content:encoded>', $xml);
+        $this->assertStringContainsString('</item>', $xml);
+    }
+
+    /**
+     * Test build_rss_xml includes multiple items
+     */
+    public function testBuildRssXmlIncludesMultipleItems(): void {
+        $events = [
+            [
+                'title' => 'First Event',
+                'link' => 'https://example.com/event/1',
+                'pub_date' => 'Wed, 20 Jan 2024 14:00:00 +0000',
+                'description' => 'First event',
+                'content' => 'Content 1',
+                'categories' => []
+            ],
+            [
+                'title' => 'Second Event',
+                'link' => 'https://example.com/event/2',
+                'pub_date' => 'Thu, 21 Jan 2024 14:00:00 +0000',
+                'description' => 'Second event',
+                'content' => 'Content 2',
+                'categories' => []
+            ],
+            [
+                'title' => 'Third Event',
+                'link' => 'https://example.com/event/3',
+                'pub_date' => 'Fri, 22 Jan 2024 14:00:00 +0000',
+                'description' => 'Third event',
+                'content' => 'Content 3',
+                'categories' => []
+            ]
+        ];
+
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US'
+        );
+
+        $this->assertStringContainsString('<title>First Event</title>', $xml);
+        $this->assertStringContainsString('<title>Second Event</title>', $xml);
+        $this->assertStringContainsString('<title>Third Event</title>', $xml);
+        $this->assertEquals(3, substr_count($xml, '<item>'));
+        $this->assertEquals(3, substr_count($xml, '</item>'));
+    }
+
+    /**
+     * Test build_rss_xml includes categories
+     */
+    public function testBuildRssXmlIncludesCategories(): void {
+        $events = [
+            [
+                'title' => 'Categorized Event',
+                'link' => 'https://example.com/event/1',
+                'pub_date' => 'Wed, 20 Jan 2024 14:00:00 +0000',
+                'description' => 'Event with categories',
+                'content' => 'Content',
+                'categories' => ['News', 'Events', 'Featured']
+            ]
+        ];
+
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US'
+        );
+
+        $this->assertStringContainsString('<category>News</category>', $xml);
+        $this->assertStringContainsString('<category>Events</category>', $xml);
+        $this->assertStringContainsString('<category>Featured</category>', $xml);
+    }
+
+    /**
+     * Test build_rss_xml escapes XML special characters in title
+     */
+    public function testBuildRssXmlEscapesSpecialCharactersInTitle(): void {
+        $events = [
+            [
+                'title' => 'Event & "Special" <Test>',
+                'link' => 'https://example.com/event/1',
+                'pub_date' => 'Wed, 20 Jan 2024 14:00:00 +0000',
+                'description' => 'Description',
+                'content' => 'Content',
+                'categories' => []
+            ]
+        ];
+
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Site & "Name"',
+            'https://example.com',
+            'Description with <tags>',
+            'en_US'
+        );
+
+        $this->assertStringContainsString('&amp;', $xml);
+        $this->assertStringContainsString('&quot;', $xml);
+        $this->assertStringContainsString('&lt;', $xml);
+        $this->assertStringContainsString('&gt;', $xml);
+    }
+
+    /**
+     * Test build_rss_xml handles empty events array
+     */
+    public function testBuildRssXmlHandlesEmptyEventsArray(): void {
+        $xml = RssFeed::build_rss_xml(
+            [],
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US'
+        );
+
+        $this->assertStringContainsString('<channel>', $xml);
+        $this->assertStringContainsString('</channel>', $xml);
+        $this->assertStringNotContainsString('<item>', $xml);
+    }
+
+    /**
+     * Test build_rss_xml uses current date when build_date is null
+     */
+    public function testBuildRssXmlUsesCurrentDateWhenBuildDateIsNull(): void {
+        $xml = RssFeed::build_rss_xml(
+            [],
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US',
+            null
+        );
+
+        // Should contain a date in RFC 2822 format
+        $this->assertMatchesRegularExpression('/<lastBuildDate>[A-Za-z]{3}, \d{2} [A-Za-z]{3} \d{4} \d{2}:\d{2}:\d{2} [+-]\d{4}<\/lastBuildDate>/', $xml);
+    }
+
+    /**
+     * Test build_rss_xml is well-formed XML
+     */
+    public function testBuildRssXmlIsWellFormedXml(): void {
+        $events = [
+            [
+                'title' => 'Test Event',
+                'link' => 'https://example.com/event/1',
+                'pub_date' => 'Wed, 20 Jan 2024 14:00:00 +0000',
+                'description' => 'Event description',
+                'content' => '<p>Content</p>',
+                'categories' => ['Category1']
+            ]
+        ];
+
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US',
+            'Mon, 01 Jan 2024 12:00:00 +0000'
+        );
+
+        // Parse XML to verify it's well-formed
+        $doc = new \DOMDocument();
+        $result = @$doc->loadXML($xml);
+        $this->assertTrue($result, 'XML should be well-formed and parseable');
+    }
+
+    /**
+     * Test build_rss_xml RSS namespace for content:encoded
+     */
+    public function testBuildRssXmlHasContentNamespace(): void {
+        $xml = RssFeed::build_rss_xml(
+            [],
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US'
+        );
+
+        $this->assertStringContainsString('xmlns:content="http://purl.org/rss/1.0/modules/content/"', $xml);
+        $this->assertStringContainsString('xmlns:dc="http://purl.org/dc/elements/1.1/"', $xml);
+    }
+
+    /**
+     * Test build_rss_xml handles event with empty categories
+     */
+    public function testBuildRssXmlHandlesEventWithEmptyCategories(): void {
+        $events = [
+            [
+                'title' => 'Event Without Categories',
+                'link' => 'https://example.com/event/1',
+                'pub_date' => 'Wed, 20 Jan 2024 14:00:00 +0000',
+                'description' => 'Description',
+                'content' => 'Content',
+                'categories' => []
+            ]
+        ];
+
+        $xml = RssFeed::build_rss_xml(
+            $events,
+            'Test Site',
+            'https://example.com',
+            'Test description',
+            'en_US'
+        );
+
+        $this->assertStringContainsString('<item>', $xml);
+        $this->assertStringNotContainsString('<category>', $xml);
+    }
+
+    /**
      * Helper to get private method
      */
     private function getPrivateMethod(string $methodName): \ReflectionMethod {

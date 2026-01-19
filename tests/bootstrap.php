@@ -171,6 +171,10 @@ if (!class_exists('WP_REST_Request')) {
             $this->body = $body;
         }
 
+        public function get_json_params() {
+            return $this->body_params;
+        }
+
         #[\ReturnTypeWillChange]
         public function offsetExists($offset): bool {
             $params = $this->get_params();

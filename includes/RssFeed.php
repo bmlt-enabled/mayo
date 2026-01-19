@@ -14,7 +14,19 @@ class RssFeed {
     }
 
 
-    private static function get_rss_items_from_rest_api($eventType = '', $serviceBody = '', $sourceIds = '', $relation = 'AND', $categories = '', $tags = '', $per_page = 10) {
+    /**
+     * Get RSS items from the REST API
+     *
+     * @param string $eventType Event type filter
+     * @param string $serviceBody Service body filter
+     * @param string $sourceIds Source IDs filter
+     * @param string $relation Taxonomy relation (AND/OR)
+     * @param string $categories Category filter
+     * @param string $tags Tag filter
+     * @param int $per_page Number of items per page
+     * @return array Array of RSS item data
+     */
+    public static function get_rss_items_from_rest_api($eventType = '', $serviceBody = '', $sourceIds = '', $relation = 'AND', $categories = '', $tags = '', $per_page = 10) {
         // Store original $_GET to restore later
         $original_get = $_GET;
         
@@ -187,6 +199,55 @@ class RssFeed {
     }
 
 
+    /**
+     * Build the RSS XML string from events data
+     *
+     * This method is separated from generate_rss_feed() to allow for unit testing.
+     *
+     * @param array $events Array of event data from get_rss_items_from_rest_api()
+     * @param string $site_name Site name for feed title
+     * @param string $site_url Site URL for feed link
+     * @param string $feed_description Description for the feed
+     * @param string $language Language code
+     * @param string|null $build_date Optional build date (defaults to current time)
+     * @return string Complete RSS XML document
+     */
+    public static function build_rss_xml($events, $site_name, $site_url, $feed_description, $language = 'en_US', $build_date = null) {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
+        $xml .= '<channel>' . "\n";
+        $xml .= '<title>' . self::escape_xml_text($site_name . ' - Events') . '</title>' . "\n";
+        $xml .= '<link>' . self::escape_xml_text($site_url) . '</link>' . "\n";
+        $xml .= '<description>' . self::escape_xml_text($feed_description) . '</description>' . "\n";
+        $xml .= '<lastBuildDate>' . ($build_date ?? date('D, d M Y H:i:s O')) . '</lastBuildDate>' . "\n";
+        $xml .= '<language>' . $language . '</language>' . "\n";
+        $xml .= '<generator>Mayo Events Manager</generator>' . "\n";
+
+        foreach ($events as $event) {
+            $xml .= '<item>' . "\n";
+            $xml .= '<title>' . self::escape_xml_text($event['title']) . '</title>' . "\n";
+            $xml .= '<link>' . self::escape_xml_text($event['link']) . '</link>' . "\n";
+            $xml .= '<guid isPermaLink="true">' . self::escape_xml_text($event['link']) . '</guid>' . "\n";
+            $xml .= '<pubDate>' . $event['pub_date'] . '</pubDate>' . "\n";
+            $xml .= '<description><![CDATA[' . $event['description'] . ']]></description>' . "\n";
+            $xml .= '<content:encoded><![CDATA[' . $event['content'] . ']]></content:encoded>' . "\n";
+
+            // Add categories if available
+            if (!empty($event['categories'])) {
+                foreach ($event['categories'] as $category) {
+                    $xml .= '<category>' . self::escape_xml_text($category) . '</category>' . "\n";
+                }
+            }
+
+            $xml .= '</item>' . "\n";
+        }
+
+        $xml .= '</channel>' . "\n";
+        $xml .= '</rss>' . "\n";
+
+        return $xml;
+    }
+
     public static function generate_rss_feed() {
         // Get parameters from URL (for manual overrides) or detect from page shortcode
         $eventType = isset($_GET['event_type']) ? \sanitize_text_field($_GET['event_type']) : '';
@@ -196,7 +257,7 @@ class RssFeed {
         $categories = isset($_GET['categories']) ? \sanitize_text_field($_GET['categories']) : '';
         $tags = isset($_GET['tags']) ? \sanitize_text_field($_GET['tags']) : '';
         $per_page = isset($_GET['per_page']) ? \sanitize_text_field($_GET['per_page']) : '';
-        
+
         // If no URL parameters provided, try to get them from the current page's shortcode
         if (empty($eventType) && empty($serviceBody) && empty($sourceIds) && empty($categories) && empty($tags) && empty($per_page)) {
             $shortcode_params = self::get_shortcode_params_from_current_page();
@@ -221,42 +282,11 @@ class RssFeed {
         }
         $site_name = \get_bloginfo('name');
         $site_url = \home_url();
-        $site_description = \get_bloginfo('description');
-        
+
         // Build descriptive feed description with active filters
         $feed_description = self::build_feed_description($site_name, $eventType, $serviceBody, $sourceIds, $relation, $categories, $tags, $per_page);
 
-        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        echo '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">' . "\n";
-        echo '<channel>' . "\n";
-        echo '<title>' . self::escape_xml_text($site_name . ' - Events') . '</title>' . "\n";
-        echo '<link>' . self::escape_xml_text($site_url) . '</link>' . "\n";
-        echo '<description>' . self::escape_xml_text($feed_description) . '</description>' . "\n";
-        echo '<lastBuildDate>' . date('D, d M Y H:i:s O') . '</lastBuildDate>' . "\n";
-        echo '<language>' . \get_locale() . '</language>' . "\n";
-        echo '<generator>Mayo Events Manager</generator>' . "\n";
-
-        foreach ($events as $event) {
-            echo '<item>' . "\n";
-            echo '<title>' . self::escape_xml_text($event['title']) . '</title>' . "\n";
-            echo '<link>' . self::escape_xml_text($event['link']) . '</link>' . "\n";
-            echo '<guid isPermaLink="true">' . self::escape_xml_text($event['link']) . '</guid>' . "\n";
-            echo '<pubDate>' . $event['pub_date'] . '</pubDate>' . "\n";
-            echo '<description><![CDATA[' . $event['description'] . ']]></description>' . "\n";
-            echo '<content:encoded><![CDATA[' . $event['content'] . ']]></content:encoded>' . "\n";
-            
-            // Add categories if available
-            if (!empty($event['categories'])) {
-                foreach ($event['categories'] as $category) {
-                    echo '<category>' . self::escape_xml_text($category) . '</category>' . "\n";
-                }
-            }
-            
-            echo '</item>' . "\n";
-        }
-
-        echo '</channel>' . "\n";
-        echo '</rss>' . "\n";
+        echo self::build_rss_xml($events, $site_name, $site_url, $feed_description, \get_locale());
         exit;
     }
 
