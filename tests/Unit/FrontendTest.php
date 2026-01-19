@@ -328,4 +328,146 @@ class FrontendTest extends TestCase {
         // Instances should be different
         $this->assertNotEquals($matches1[1], $matches2[1]);
     }
+
+    /**
+     * Test is_shortcode_present_in_widgets returns false when no sidebars
+     */
+    public function testIsShortcodePresentInWidgetsReturnsFalseWhenNoSidebars(): void {
+        global $wp_registered_sidebars;
+        $wp_registered_sidebars = [];
+
+        $method = new \ReflectionMethod(Frontend::class, 'is_shortcode_present_in_widgets');
+        $method->setAccessible(true);
+
+        $result = $method->invoke(null, 'mayo_event_list');
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test is_shortcode_present_in_widgets returns false for inactive sidebar
+     */
+    public function testIsShortcodePresentInWidgetsReturnsFalseForInactiveSidebar(): void {
+        global $wp_registered_sidebars;
+        $wp_registered_sidebars = ['sidebar-1' => ['id' => 'sidebar-1', 'name' => 'Test Sidebar']];
+
+        Functions\when('is_active_sidebar')->justReturn(false);
+
+        $method = new \ReflectionMethod(Frontend::class, 'is_shortcode_present_in_widgets');
+        $method->setAccessible(true);
+
+        $result = $method->invoke(null, 'mayo_event_list');
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test is_shortcode_present_in_widgets returns true when shortcode found
+     */
+    public function testIsShortcodePresentInWidgetsReturnsTrueWhenShortcodeFound(): void {
+        global $wp_registered_sidebars, $wp_registered_widgets;
+
+        $widget_obj = new \stdClass();
+        $widget_obj->id_base = 'text';
+
+        $wp_registered_sidebars = ['sidebar-1' => ['id' => 'sidebar-1', 'name' => 'Test Sidebar']];
+        $wp_registered_widgets = [
+            'text-1' => [
+                'callback' => [$widget_obj, 'widget']
+            ]
+        ];
+
+        Functions\when('is_active_sidebar')->justReturn(true);
+        Functions\when('wp_get_sidebars_widgets')->justReturn([
+            'sidebar-1' => ['text-1']
+        ]);
+        Functions\when('get_option')->justReturn([
+            1 => ['content' => '[mayo_event_list]']
+        ]);
+        Functions\when('has_shortcode')->justReturn(true);
+
+        $method = new \ReflectionMethod(Frontend::class, 'is_shortcode_present_in_widgets');
+        $method->setAccessible(true);
+
+        $result = $method->invoke(null, 'mayo_event_list');
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test is_shortcode_present_in_widgets returns false when shortcode not in content
+     */
+    public function testIsShortcodePresentInWidgetsReturnsFalseWhenNoShortcode(): void {
+        global $wp_registered_sidebars, $wp_registered_widgets;
+
+        $widget_obj = new \stdClass();
+        $widget_obj->id_base = 'text';
+
+        $wp_registered_sidebars = ['sidebar-1' => ['id' => 'sidebar-1', 'name' => 'Test Sidebar']];
+        $wp_registered_widgets = [
+            'text-1' => [
+                'callback' => [$widget_obj, 'widget']
+            ]
+        ];
+
+        Functions\when('is_active_sidebar')->justReturn(true);
+        Functions\when('wp_get_sidebars_widgets')->justReturn([
+            'sidebar-1' => ['text-1']
+        ]);
+        Functions\when('get_option')->justReturn([
+            1 => ['content' => 'Just some text']
+        ]);
+        Functions\when('has_shortcode')->justReturn(false);
+
+        $method = new \ReflectionMethod(Frontend::class, 'is_shortcode_present_in_widgets');
+        $method->setAccessible(true);
+
+        $result = $method->invoke(null, 'mayo_event_list');
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test enqueue_scripts when shortcode present in widgets
+     */
+    public function testEnqueueScriptsWhenShortcodeInWidgets(): void {
+        global $wp_registered_sidebars, $wp_registered_widgets;
+
+        $widget_obj = new \stdClass();
+        $widget_obj->id_base = 'text';
+
+        $wp_registered_sidebars = ['sidebar-1' => ['id' => 'sidebar-1', 'name' => 'Test Sidebar']];
+        $wp_registered_widgets = [
+            'text-1' => [
+                'callback' => [$widget_obj, 'widget']
+            ]
+        ];
+
+        $enqueuedScripts = [];
+
+        Functions\when('get_post')->justReturn(null);
+        Functions\when('is_active_sidebar')->justReturn(true);
+        Functions\when('wp_get_sidebars_widgets')->justReturn([
+            'sidebar-1' => ['text-1']
+        ]);
+        Functions\when('get_option')->justReturn([
+            1 => ['content' => '[mayo_event_list]']
+        ]);
+        Functions\when('has_shortcode')->justReturn(true);
+        Functions\when('is_post_type_archive')->justReturn(false);
+        Functions\when('is_singular')->justReturn(false);
+        Functions\when('wp_enqueue_script')->alias(function($name) use (&$enqueuedScripts) {
+            $enqueuedScripts[] = $name;
+        });
+        Functions\when('wp_enqueue_style')->justReturn(true);
+        Functions\when('plugin_dir_url')->justReturn('https://example.com/plugins/mayo/');
+        Functions\when('wp_localize_script')->justReturn(true);
+        Functions\when('rest_url')->justReturn('https://example.com/wp-json/');
+        Functions\when('esc_url_raw')->alias(function($url) { return $url; });
+        Functions\when('wp_create_nonce')->justReturn('test-nonce');
+
+        Frontend::enqueue_scripts();
+
+        $this->assertContains('mayo-public', $enqueuedScripts);
+    }
 }

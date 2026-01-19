@@ -324,6 +324,216 @@ class CalendarFeedTest extends TestCase {
     }
 
     /**
+     * Test get_ics_items with both categories and tags filters
+     */
+    public function testGetIcsItemsWithCategoriesAndTags(): void {
+        Functions\when('get_posts')->justReturn([]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null, '', '', 'AND', 'news,events', 'featured,important');
+
+        $this->assertIsArray($result);
+    }
+
+    /**
+     * Test get_ics_items with OR relation
+     */
+    public function testGetIcsItemsWithOrRelation(): void {
+        Functions\when('get_posts')->justReturn([]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null, 'Service', '5', 'OR');
+
+        $this->assertIsArray($result);
+    }
+
+    /**
+     * Test get_ics_items handles DateTime exception gracefully
+     */
+    public function testGetIcsItemsHandlesDateTimeException(): void {
+        $post = $this->createMockPost([
+            'ID' => 200,
+            'post_title' => 'Event With Bad Date',
+            'post_content' => 'Test',
+            'post_type' => 'mayo_event'
+        ]);
+
+        // Set invalid date that will cause DateTime exception
+        $this->setPostMeta(200, [
+            'event_type' => 'Meeting',
+            'event_start_date' => 'invalid-date-format',
+            'event_end_date' => 'also-invalid',
+            'event_start_time' => 'not-a-time',
+            'event_end_time' => 'also-not-time',
+            'timezone' => 'Invalid/Timezone'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null);
+
+        // Should handle the exception gracefully and return empty or skip the event
+        $this->assertIsArray($result);
+    }
+
+    /**
+     * Test get_ics_items handles events with missing meta
+     */
+    public function testGetIcsItemsHandlesMissingMeta(): void {
+        $post = $this->createMockPost([
+            'ID' => 201,
+            'post_title' => 'Event Without Meta',
+            'post_content' => '',
+            'post_type' => 'mayo_event'
+        ]);
+
+        // Empty meta - all defaults should kick in
+        $this->setPostMeta(201, []);
+
+        Functions\when('get_posts')->justReturn([$post]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null);
+
+        // Should handle gracefully
+        $this->assertIsArray($result);
+    }
+
+    /**
+     * Test get_ics_items builds correct description with location
+     */
+    public function testGetIcsItemsBuildsCorrectDescriptionWithLocation(): void {
+        $post = $this->createMockPost([
+            'ID' => 202,
+            'post_title' => 'Event With Location',
+            'post_content' => 'This is the event description.',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(202, [
+            'event_type' => 'Convention',
+            'event_start_date' => date('Y-m-d', strtotime('+10 days')),
+            'event_end_date' => date('Y-m-d', strtotime('+12 days')),
+            'event_start_time' => '09:00:00',
+            'event_end_time' => '17:00:00',
+            'timezone' => 'America/Los_Angeles',
+            'location_name' => 'Grand Convention Center'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null);
+
+        $this->assertCount(1, $result);
+        $this->assertStringContainsString('Convention', $result[0]['description']);
+        $this->assertStringContainsString('Grand Convention Center', $result[0]['description']);
+        $this->assertStringContainsString('This is the event description', $result[0]['description']);
+    }
+
+    /**
+     * Test get_ics_items handles multiple events
+     */
+    public function testGetIcsItemsHandlesMultipleEvents(): void {
+        $post1 = $this->createMockPost([
+            'ID' => 203,
+            'post_title' => 'First Event',
+            'post_content' => 'Description 1',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $post2 = $this->createMockPost([
+            'ID' => 204,
+            'post_title' => 'Second Event',
+            'post_content' => 'Description 2',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(203, [
+            'event_type' => 'Meeting',
+            'event_start_date' => date('Y-m-d', strtotime('+5 days')),
+            'event_end_date' => date('Y-m-d', strtotime('+5 days')),
+            'event_start_time' => '18:00:00',
+            'event_end_time' => '20:00:00',
+            'timezone' => 'UTC'
+        ]);
+
+        $this->setPostMeta(204, [
+            'event_type' => 'Service',
+            'event_start_date' => date('Y-m-d', strtotime('+14 days')),
+            'event_end_date' => date('Y-m-d', strtotime('+14 days')),
+            'event_start_time' => '10:00:00',
+            'event_end_time' => '14:00:00',
+            'timezone' => 'UTC'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post1, $post2]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals('First Event', $result[0]['summary']);
+        $this->assertEquals('Second Event', $result[1]['summary']);
+    }
+
+    /**
+     * Test escape_ical_text handles empty string
+     */
+    public function testEscapeIcalTextHandlesEmptyString(): void {
+        $method = $this->getPrivateMethod('escape_ical_text');
+
+        $result = $method->invoke(null, '');
+
+        $this->assertEquals('', $result);
+    }
+
+    /**
+     * Test escape_ical_text handles multiple line breaks
+     */
+    public function testEscapeIcalTextHandlesMultipleLineBreaks(): void {
+        $method = $this->getPrivateMethod('escape_ical_text');
+
+        $result = $method->invoke(null, "Line 1\n\nLine 2\n\n\nLine 3");
+
+        // All newlines should be escaped
+        $this->assertStringNotContainsString("\n", $result);
+    }
+
+    /**
+     * Test get_ics_items strips HTML from content
+     */
+    public function testGetIcsItemsStripsHtmlFromContent(): void {
+        $post = $this->createMockPost([
+            'ID' => 205,
+            'post_title' => 'Event With HTML',
+            'post_content' => '<p>This is <strong>bold</strong> text with <a href="#">links</a>.</p>',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(205, [
+            'event_type' => 'Meeting',
+            'event_start_date' => date('Y-m-d', strtotime('+8 days')),
+            'event_end_date' => date('Y-m-d', strtotime('+8 days')),
+            'event_start_time' => '19:00:00',
+            'event_end_time' => '21:00:00',
+            'timezone' => 'UTC'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+
+        $method = $this->getPrivateMethod('get_ics_items');
+        $result = $method->invoke(null);
+
+        $this->assertCount(1, $result);
+        // HTML should be stripped
+        $this->assertStringNotContainsString('<p>', $result[0]['description']);
+        $this->assertStringNotContainsString('<strong>', $result[0]['description']);
+        $this->assertStringContainsString('bold', $result[0]['description']);
+    }
+
+    /**
      * Helper to get private method
      */
     private function getPrivateMethod(string $methodName): \ReflectionMethod {

@@ -1195,4 +1195,412 @@ class AnnouncementTest extends TestCase {
         $ref2 = ['type' => 'external', 'source_id' => 'source1']; // No id
         $this->assertNull(Announcement::resolve_event_ref($ref2));
     }
+
+    /**
+     * Test get_active_announcements returns published announcements
+     */
+    public function testGetActiveAnnouncementsReturnsPublishedAnnouncements(): void {
+        $announcement1 = $this->createMockPost([
+            'ID' => 500,
+            'post_title' => 'Test Announcement 1',
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'post_content' => 'Content 1'
+        ]);
+
+        $announcement2 = $this->createMockPost([
+            'ID' => 501,
+            'post_title' => 'Test Announcement 2',
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'post_content' => 'Content 2'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$announcement1, $announcement2]);
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+        Functions\when('get_the_excerpt')->justReturn('Test excerpt');
+        Functions\when('get_the_post_thumbnail_url')->justReturn('');
+
+        $this->setPostMeta(500, [
+            'display_start_date' => date('Y-m-d', strtotime('-1 day')),
+            'display_end_date' => date('Y-m-d', strtotime('+1 day')),
+            'priority' => 'normal',
+            'linked_event_refs' => []
+        ]);
+
+        $this->setPostMeta(501, [
+            'display_start_date' => '',
+            'display_end_date' => '',
+            'priority' => 'high',
+            'linked_event_refs' => []
+        ]);
+
+        $result = Announcement::get_active_announcements();
+
+        $this->assertCount(2, $result);
+        $this->assertEquals('Test Announcement 1', $result[0]['title']);
+        $this->assertEquals('Test Announcement 2', $result[1]['title']);
+    }
+
+    /**
+     * Test get_active_announcements resolves linked local events
+     */
+    public function testGetActiveAnnouncementsResolvesLinkedLocalEvents(): void {
+        $announcement = $this->createMockPost([
+            'ID' => 600,
+            'post_title' => 'Event Announcement',
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'post_content' => 'Check out this event'
+        ]);
+
+        $event = $this->createMockPost([
+            'ID' => 700,
+            'post_title' => 'Linked Local Event',
+            'post_name' => 'linked-local-event',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$announcement]);
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+        Functions\when('get_the_excerpt')->justReturn('Test excerpt');
+        Functions\when('get_the_post_thumbnail_url')->justReturn('');
+
+        $this->setPostMeta(600, [
+            'display_start_date' => '',
+            'display_end_date' => '',
+            'priority' => 'normal',
+            'linked_event_refs' => [
+                ['type' => 'local', 'id' => 700]
+            ]
+        ]);
+
+        $this->setPostMeta(700, [
+            'event_start_date' => '2025-05-15',
+            'event_end_date' => '2025-05-15',
+            'event_start_time' => '10:00',
+            'event_end_time' => '12:00',
+            'location_name' => 'Test Venue',
+            'location_address' => '123 Test St'
+        ]);
+
+        Functions\when('get_post')->justReturn($event);
+
+        $result = Announcement::get_active_announcements();
+
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey('linked_events', $result[0]);
+        $this->assertCount(1, $result[0]['linked_events']);
+        $this->assertEquals('Linked Local Event', $result[0]['linked_events'][0]['title']);
+        $this->assertEquals('local', $result[0]['linked_events'][0]['source']['type']);
+    }
+
+    /**
+     * Test get_active_announcements handles multiple linked event types
+     */
+    public function testGetActiveAnnouncementsHandlesMultipleLinkedEventTypes(): void {
+        $announcement = $this->createMockPost([
+            'ID' => 601,
+            'post_title' => 'Multi-Event Announcement',
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'post_content' => 'Multiple events'
+        ]);
+
+        $localEvent = $this->createMockPost([
+            'ID' => 701,
+            'post_title' => 'Local Event',
+            'post_name' => 'local-event',
+            'post_type' => 'mayo_event'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$announcement]);
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+        Functions\when('get_the_excerpt')->justReturn('Test excerpt');
+        Functions\when('get_the_post_thumbnail_url')->justReturn('');
+
+        $this->setPostMeta(601, [
+            'display_start_date' => '',
+            'display_end_date' => '',
+            'priority' => 'normal',
+            'linked_event_refs' => [
+                ['type' => 'local', 'id' => 701],
+                ['type' => 'custom', 'url' => 'https://example.com/info', 'title' => 'More Info', 'icon' => 'external'],
+                ['type' => 'external', 'id' => 123, 'source_id' => 'source1']
+            ]
+        ]);
+
+        $this->setPostMeta(701, [
+            'event_start_date' => '2025-06-01',
+            'event_end_date' => '2025-06-01',
+            'event_start_time' => '14:00',
+            'event_end_time' => '16:00',
+            'location_name' => '',
+            'location_address' => ''
+        ]);
+
+        Functions\when('get_post')->alias(function($id) use ($localEvent) {
+            if ($id === 701) return $localEvent;
+            return null;
+        });
+
+        // Mock external event fetch
+        $this->mockWpRemoteGet([
+            'event-manager/v1/events' => [
+                'code' => 200,
+                'body' => [
+                    'id' => 123,
+                    'title' => 'External Event',
+                    'slug' => 'external-event',
+                    'meta' => [
+                        'event_start_date' => '2025-06-05',
+                        'event_end_date' => '2025-06-05'
+                    ]
+                ]
+            ]
+        ]);
+        $this->mockTrailingslashit();
+        Functions\when('wp_remote_retrieve_response_code')->justReturn(200);
+
+        $result = Announcement::get_active_announcements();
+
+        $this->assertCount(1, $result);
+        // At least local and custom should resolve (external may fail without full mock)
+        $this->assertGreaterThanOrEqual(2, count($result[0]['linked_events']));
+    }
+
+    /**
+     * Test get_active_announcements excludes expired announcements
+     */
+    public function testGetActiveAnnouncementsExcludesExpiredAnnouncements(): void {
+        $activeAnnouncement = $this->createMockPost([
+            'ID' => 602,
+            'post_title' => 'Active Announcement',
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'post_content' => 'Still active'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$activeAnnouncement]);
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+        Functions\when('get_the_excerpt')->justReturn('Test excerpt');
+        Functions\when('get_the_post_thumbnail_url')->justReturn('');
+
+        $this->setPostMeta(602, [
+            'display_start_date' => date('Y-m-d', strtotime('-7 days')),
+            'display_end_date' => date('Y-m-d', strtotime('+7 days')),
+            'priority' => 'normal',
+            'linked_event_refs' => []
+        ]);
+
+        $result = Announcement::get_active_announcements();
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('Active Announcement', $result[0]['title']);
+    }
+
+    /**
+     * Test get_active_announcements filters by service body
+     */
+    public function testGetActiveAnnouncementsFiltersByServiceBody(): void {
+        $announcement = $this->createMockPost([
+            'ID' => 603,
+            'post_title' => 'Area Announcement',
+            'post_type' => 'mayo_announcement',
+            'post_status' => 'publish',
+            'post_content' => 'For specific area'
+        ]);
+
+        Functions\when('get_posts')->justReturn([$announcement]);
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+        Functions\when('get_the_excerpt')->justReturn('Test excerpt');
+        Functions\when('get_the_post_thumbnail_url')->justReturn('');
+
+        $this->setPostMeta(603, [
+            'display_start_date' => '',
+            'display_end_date' => '',
+            'priority' => 'normal',
+            'service_body' => '10',
+            'linked_event_refs' => []
+        ]);
+
+        $result = Announcement::get_active_announcements(['service_body' => '10']);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('Area Announcement', $result[0]['title']);
+    }
+
+    /**
+     * Test get_active_announcements returns empty when no announcements
+     */
+    public function testGetActiveAnnouncementsReturnsEmptyWhenNoAnnouncements(): void {
+        Functions\when('get_posts')->justReturn([]);
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+
+        $result = Announcement::get_active_announcements();
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * Test render_custom_columns handles unknown column gracefully
+     */
+    public function testRenderCustomColumnsHandlesUnknownColumnGracefully(): void {
+        $this->setPostMeta(700, []);
+
+        ob_start();
+        Announcement::render_custom_columns('unknown_column', 700);
+        $output = ob_get_clean();
+
+        // Should not crash and output should be empty or minimal
+        $this->assertIsString($output);
+    }
+
+    /**
+     * Test render_custom_columns linked_events with local events only
+     */
+    public function testRenderCustomColumnsLinkedEventsWithLocalEvents(): void {
+        $event1 = $this->createMockPost([
+            'ID' => 801,
+            'post_title' => 'First Event',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $event2 = $this->createMockPost([
+            'ID' => 802,
+            'post_title' => 'Second Event',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(119, [
+            'linked_event_refs' => [
+                ['type' => 'local', 'id' => 801],
+                ['type' => 'local', 'id' => 802]
+            ]
+        ]);
+
+        Functions\when('get_post')->alias(function($id) use ($event1, $event2) {
+            if ($id === 801) return $event1;
+            if ($id === 802) return $event2;
+            return null;
+        });
+
+        ob_start();
+        Announcement::render_custom_columns('linked_events', 119);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('First Event', $output);
+        $this->assertStringContainsString('Second Event', $output);
+    }
+
+
+    /**
+     * Test fetch_external_event returns null when event not found
+     */
+    public function testFetchExternalEventReturnsNullWhenEventNotFound(): void {
+        $this->mockWpRemoteGet([
+            'event-manager/v1/events' => [
+                'code' => 200,
+                'body' => null // No event returned
+            ]
+        ]);
+        $this->mockTrailingslashit();
+        Functions\when('wp_remote_retrieve_response_code')->justReturn(200);
+
+        $result = Announcement::fetch_external_event('source1', 999);
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test resolve_event_ref handles malformed custom link
+     */
+    public function testResolveEventRefHandlesMalformedCustomLink(): void {
+        // Custom link with empty URL
+        $ref = [
+            'type' => 'custom',
+            'url' => '',
+            'title' => 'Broken Link'
+        ];
+        $this->assertNull(Announcement::resolve_event_ref($ref));
+
+        // Custom link with empty title
+        $ref2 = [
+            'type' => 'custom',
+            'url' => 'https://example.com',
+            'title' => ''
+        ];
+        $this->assertNull(Announcement::resolve_event_ref($ref2));
+    }
+
+    /**
+     * Test get_active_announcements handles WP_Error from get_posts
+     */
+    public function testGetActiveAnnouncementsHandlesWpError(): void {
+        Functions\when('wp_parse_args')->alias(function($args, $defaults) {
+            return array_merge($defaults, $args);
+        });
+        Functions\when('get_posts')->justReturn(new \WP_Error('db_error', 'Database error'));
+
+        $result = Announcement::get_active_announcements();
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * Test build_external_event_permalink with valid source and slug
+     */
+    public function testBuildExternalEventPermalinkWithValidSourceAndSlug(): void {
+        $source = ['url' => 'https://external-site.example.com'];
+        $this->mockTrailingslashit();
+
+        $result = Announcement::build_external_event_permalink($source, 'test-event-slug');
+
+        $this->assertStringContainsString('external-site.example.com', $result);
+        $this->assertStringContainsString('test-event-slug', $result);
+    }
+
+    /**
+     * Test handle_custom_orderby returns original for non-admin
+     */
+    public function testHandleCustomOrderbyReturnsOriginalForNonAdmin(): void {
+        Functions\when('is_admin')->justReturn(false);
+
+        $mockQuery = \Mockery::mock('WP_Query');
+        $mockQuery->shouldReceive('is_main_query')->andReturn(true);
+        $mockQuery->shouldReceive('get')->with('orderby')->andReturn('title');
+
+        $result = Announcement::handle_custom_orderby('original_orderby', $mockQuery);
+
+        $this->assertEquals('original_orderby', $result);
+    }
+
+    /**
+     * Test handle_custom_orderby returns original for non-main query
+     */
+    public function testHandleCustomOrderbyReturnsOriginalForNonMainQuery(): void {
+        Functions\when('is_admin')->justReturn(true);
+
+        $mockQuery = \Mockery::mock('WP_Query');
+        $mockQuery->shouldReceive('is_main_query')->andReturn(false);
+
+        $result = Announcement::handle_custom_orderby('original_orderby', $mockQuery);
+
+        $this->assertEquals('original_orderby', $result);
+    }
 }

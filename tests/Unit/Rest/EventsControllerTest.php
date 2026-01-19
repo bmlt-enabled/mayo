@@ -1448,4 +1448,5 @@ class EventsControllerTest extends TestCase {
 
         $this->assertInstanceOf(\WP_REST_Response::class, $response);
     }
+
 }

@@ -1273,4 +1273,241 @@ class AdminTest extends TestCase {
 
         $this->assertContains('mayo-admin', $enqueuedScripts);
     }
+
+    /**
+     * Test handle_copy_event fails with invalid nonce
+     */
+    public function testHandleCopyEventFailsWithInvalidNonce(): void {
+        $_POST['_ajax_nonce'] = 'invalid-nonce';
+        $_POST['post_id'] = '123';
+
+        $died = false;
+        Functions\when('wp_verify_nonce')->justReturn(false);
+        Functions\when('wp_die')->alias(function($msg) use (&$died) {
+            $died = true;
+        });
+        // Mock wp_send_json_error since execution continues in tests
+        Functions\when('current_user_can')->justReturn(false);
+        Functions\when('wp_send_json_error')->justReturn(null);
+
+        Admin::handle_copy_event();
+
+        $this->assertTrue($died);
+
+        $_POST = [];
+    }
+
+    /**
+     * Test handle_copy_event fails without post ID
+     */
+    public function testHandleCopyEventFailsWithoutPostId(): void {
+        $_POST['_ajax_nonce'] = 'valid-nonce';
+        $_POST['post_id'] = '0';
+
+        $errorSent = false;
+        Functions\when('wp_verify_nonce')->justReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
+        Functions\when('wp_send_json_error')->alias(function($msg) use (&$errorSent) {
+            $errorSent = true;
+        });
+
+        Admin::handle_copy_event();
+
+        $this->assertTrue($errorSent);
+
+        $_POST = [];
+    }
+
+    /**
+     * Test handle_copy_event fails for non mayo_event post
+     */
+    public function testHandleCopyEventFailsForNonMayoEvent(): void {
+        $_POST['_ajax_nonce'] = 'valid-nonce';
+        $_POST['post_id'] = '123';
+
+        $post = $this->createMockPost([
+            'ID' => 123,
+            'post_type' => 'post' // Not mayo_event
+        ]);
+
+        $errorSent = false;
+        Functions\when('wp_verify_nonce')->justReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('wp_send_json_error')->alias(function($msg) use (&$errorSent) {
+            $errorSent = true;
+        });
+
+        Admin::handle_copy_event();
+
+        $this->assertTrue($errorSent);
+
+        $_POST = [];
+    }
+
+    /**
+     * Test handle_copy_event successfully copies event
+     */
+    public function testHandleCopyEventSuccessfullyCopiesEvent(): void {
+        $_POST['_ajax_nonce'] = 'valid-nonce';
+        $_POST['post_id'] = '100';
+
+        $originalPost = $this->createMockPost([
+            'ID' => 100,
+            'post_title' => 'Original Event',
+            'post_content' => 'Event content',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(100, [
+            'event_type' => 'conference',
+            'service_body' => '5',
+            'event_start_date' => '2025-06-01',
+            'event_end_date' => '2025-06-02'
+        ]);
+
+        $successData = null;
+        Functions\when('wp_verify_nonce')->justReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
+        Functions\when('get_post')->justReturn($originalPost);
+        Functions\when('get_current_user_id')->justReturn(1);
+        Functions\when('wp_insert_post')->justReturn(200);
+        Functions\when('update_post_meta')->justReturn(true);
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_categories')->justReturn([]);
+        Functions\when('wp_get_post_tags')->justReturn([]);
+        Functions\when('get_edit_post_link')->justReturn('http://example.com/edit/200');
+        Functions\when('wp_send_json_success')->alias(function($data) use (&$successData) {
+            $successData = $data;
+        });
+
+        Admin::handle_copy_event();
+
+        $this->assertNotNull($successData);
+        $this->assertEquals(200, $successData['new_post_id']);
+        $this->assertStringContainsString('edit/200', $successData['edit_url']);
+
+        $_POST = [];
+    }
+
+    /**
+     * Test handle_copy_event copies featured image
+     */
+    public function testHandleCopyEventCopiesFeaturedImage(): void {
+        $_POST['_ajax_nonce'] = 'valid-nonce';
+        $_POST['post_id'] = '100';
+
+        $originalPost = $this->createMockPost([
+            'ID' => 100,
+            'post_title' => 'Event with Image',
+            'post_content' => 'Content',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(100, []);
+
+        $thumbnailSet = false;
+        Functions\when('wp_verify_nonce')->justReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
+        Functions\when('get_post')->justReturn($originalPost);
+        Functions\when('get_current_user_id')->justReturn(1);
+        Functions\when('wp_insert_post')->justReturn(201);
+        Functions\when('update_post_meta')->justReturn(true);
+        Functions\when('has_post_thumbnail')->justReturn(true);
+        Functions\when('get_post_thumbnail_id')->justReturn(50);
+        Functions\when('set_post_thumbnail')->alias(function($post_id, $thumb_id) use (&$thumbnailSet) {
+            $thumbnailSet = ($thumb_id === 50);
+            return true;
+        });
+        Functions\when('wp_get_post_categories')->justReturn([]);
+        Functions\when('wp_get_post_tags')->justReturn([]);
+        Functions\when('get_edit_post_link')->justReturn('http://example.com/edit/201');
+        Functions\when('wp_send_json_success')->justReturn(null);
+
+        Admin::handle_copy_event();
+
+        $this->assertTrue($thumbnailSet);
+
+        $_POST = [];
+    }
+
+    /**
+     * Test handle_copy_event copies categories and tags
+     */
+    public function testHandleCopyEventCopiesCategoriesAndTags(): void {
+        $_POST['_ajax_nonce'] = 'valid-nonce';
+        $_POST['post_id'] = '100';
+
+        $originalPost = $this->createMockPost([
+            'ID' => 100,
+            'post_title' => 'Event with Taxonomies',
+            'post_content' => 'Content',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(100, []);
+
+        $categoriesSet = false;
+        $tagsSet = false;
+        Functions\when('wp_verify_nonce')->justReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
+        Functions\when('get_post')->justReturn($originalPost);
+        Functions\when('get_current_user_id')->justReturn(1);
+        Functions\when('wp_insert_post')->justReturn(202);
+        Functions\when('update_post_meta')->justReturn(true);
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_categories')->justReturn([1, 2, 3]);
+        Functions\when('wp_set_post_categories')->alias(function($post_id, $cats) use (&$categoriesSet) {
+            $categoriesSet = ($cats === [1, 2, 3]);
+            return true;
+        });
+        Functions\when('wp_get_post_tags')->justReturn([
+            (object)['term_id' => 5],
+            (object)['term_id' => 6]
+        ]);
+        Functions\when('wp_set_post_tags')->alias(function($post_id, $tags) use (&$tagsSet) {
+            $tagsSet = true;
+            return true;
+        });
+        Functions\when('get_edit_post_link')->justReturn('http://example.com/edit/202');
+        Functions\when('wp_send_json_success')->justReturn(null);
+
+        Admin::handle_copy_event();
+
+        $this->assertTrue($categoriesSet);
+        $this->assertTrue($tagsSet);
+
+        $_POST = [];
+    }
+
+    /**
+     * Test handle_copy_event handles wp_insert_post failure
+     */
+    public function testHandleCopyEventHandlesInsertFailure(): void {
+        $_POST['_ajax_nonce'] = 'valid-nonce';
+        $_POST['post_id'] = '100';
+
+        $originalPost = $this->createMockPost([
+            'ID' => 100,
+            'post_title' => 'Original Event',
+            'post_content' => 'Content',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $errorSent = false;
+        Functions\when('wp_verify_nonce')->justReturn(true);
+        Functions\when('current_user_can')->justReturn(true);
+        Functions\when('get_post')->justReturn($originalPost);
+        Functions\when('get_current_user_id')->justReturn(1);
+        Functions\when('wp_insert_post')->justReturn(new \WP_Error('error', 'Insert failed'));
+        Functions\when('wp_send_json_error')->alias(function($msg) use (&$errorSent) {
+            $errorSent = true;
+        });
+
+        Admin::handle_copy_event();
+
+        $this->assertTrue($errorSent);
+
+        $_POST = [];
+    }
 }

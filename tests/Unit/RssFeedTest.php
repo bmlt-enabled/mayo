@@ -4,6 +4,7 @@ namespace BmltEnabled\Mayo\Tests\Unit;
 
 use BmltEnabled\Mayo\RssFeed;
 use Brain\Monkey\Functions;
+use Mockery;
 use ReflectionClass;
 
 class RssFeedTest extends TestCase {
