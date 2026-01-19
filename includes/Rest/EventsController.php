@@ -196,6 +196,11 @@ class EventsController {
 
             $events = array_merge($events, array_map(function($event) {
                 $event['source_id'] = 'local';
+                $event['source'] = [
+                    'type' => 'local',
+                    'id' => 'local',
+                    'name' => 'Local',
+                ];
                 return $event;
             }, $local_events));
         }
@@ -796,13 +801,20 @@ class EventsController {
         $categoryRelation = isset($params['category_relation']) ? strtoupper(sanitize_text_field(wp_unslash($params['category_relation']))) : 'OR';
         $tags = isset($params['tags']) ? sanitize_text_field(wp_unslash($params['tags'])) : '';
         $timezone = isset($params['timezone']) ? urldecode(sanitize_text_field(wp_unslash($params['timezone']))) : wp_timezone_string();
+        $current_time = isset($params['current_time']) ? sanitize_text_field(wp_unslash($params['current_time'])) : null;
 
         $range_start = isset($params['start_date']) ? sanitize_text_field(wp_unslash($params['start_date'])) : null;
         $range_end = isset($params['end_date']) ? sanitize_text_field(wp_unslash($params['end_date'])) : null;
         $has_date_range = !empty($range_start) && !empty($range_end);
 
-        $today = new DateTime('now', new \DateTimeZone($timezone));
-        $today->setTime(0, 0, 0);
+        // Use the browser's current time if provided, otherwise fall back to server time
+        if ($current_time) {
+            $today = new DateTime($current_time);
+            $today->setTimezone(new \DateTimeZone($timezone));
+        } else {
+            $today = new DateTime('now', new \DateTimeZone($timezone));
+        }
+        // Keep the actual current time - don't reset to midnight
 
         $events = [];
 
@@ -870,21 +882,32 @@ class EventsController {
                 if ($filter_range_start) $filter_range_start->setTime(0, 0, 0);
                 if ($filter_range_end) $filter_range_end->setTime(23, 59, 59);
 
-                $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive, $has_date_range, $filter_range_start, $filter_range_end) {
+                $filtered_recurring_events = array_filter($recurring_events, function($event) use ($today, $is_archive, $has_date_range, $filter_range_start, $filter_range_end, $timezone) {
                     if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                         return false;
                     }
 
                     try {
+                        $tz = new \DateTimeZone($timezone);
                         $start_date_str = $event['meta']['event_start_date'];
-                        $start_date = new DateTime($start_date_str);
+                        $start_date = new DateTime($start_date_str, $tz);
                         $start_date->setTime(0, 0, 0);
 
                         $end_date_str = isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])
                             ? $event['meta']['event_end_date']
                             : $start_date_str;
-                        $end_date = new DateTime($end_date_str);
-                        $end_date->setTime(23, 59, 59);
+                        $end_date = new DateTime($end_date_str, $tz);
+
+                        // Use actual event_end_time if available, otherwise default to end of day
+                        $end_time_str = isset($event['meta']['event_end_time']) && !empty($event['meta']['event_end_time'])
+                            ? $event['meta']['event_end_time']
+                            : '23:59:59';
+                        $end_time_parts = explode(':', $end_time_str);
+                        $end_date->setTime(
+                            (int)($end_time_parts[0] ?? 23),
+                            (int)($end_time_parts[1] ?? 59),
+                            (int)($end_time_parts[2] ?? 59)
+                        );
 
                         if ($has_date_range) {
                             return $start_date <= $filter_range_end && $end_date >= $filter_range_start;
@@ -914,21 +937,32 @@ class EventsController {
         if ($range_start_dt) $range_start_dt->setTime(0, 0, 0);
         if ($range_end_dt) $range_end_dt->setTime(23, 59, 59);
 
-        $events = array_filter($events, function($event) use ($today, $is_archive, $has_date_range, $range_start_dt, $range_end_dt) {
+        $events = array_filter($events, function($event) use ($today, $is_archive, $has_date_range, $range_start_dt, $range_end_dt, $timezone) {
             if (!isset($event['meta']['event_start_date']) || empty($event['meta']['event_start_date'])) {
                 return false;
             }
 
             try {
+                $tz = new \DateTimeZone($timezone);
                 $start_date_str = $event['meta']['event_start_date'];
-                $start_date = new DateTime($start_date_str);
+                $start_date = new DateTime($start_date_str, $tz);
                 $start_date->setTime(0, 0, 0);
 
                 $end_date_str = isset($event['meta']['event_end_date']) && !empty($event['meta']['event_end_date'])
                     ? $event['meta']['event_end_date']
                     : $start_date_str;
-                $end_date = new DateTime($end_date_str);
-                $end_date->setTime(23, 59, 59);
+                $end_date = new DateTime($end_date_str, $tz);
+
+                // Use actual event_end_time if available, otherwise default to end of day
+                $end_time_str = isset($event['meta']['event_end_time']) && !empty($event['meta']['event_end_time'])
+                    ? $event['meta']['event_end_time']
+                    : '23:59:59';
+                $end_time_parts = explode(':', $end_time_str);
+                $end_date->setTime(
+                    (int)($end_time_parts[0] ?? 23),
+                    (int)($end_time_parts[1] ?? 59),
+                    (int)($end_time_parts[2] ?? 59)
+                );
 
                 if ($has_date_range) {
                     return $start_date <= $range_end_dt && $end_date >= $range_start_dt;
@@ -1098,9 +1132,14 @@ class EventsController {
                 'service_bodies' => $service_bodies
             ];
 
-            // Attach source_id to each event (service bodies are in the sources array)
+            // Attach source info to each event (service bodies are in the sources array)
             foreach ($events as &$event) {
                 $event['source_id'] = $source['id'];
+                $event['source'] = [
+                    'type' => 'external',
+                    'id' => $source['id'],
+                    'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
+                ];
             }
 
             return [

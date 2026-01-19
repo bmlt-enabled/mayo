@@ -1,6 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import { formatTimezone, apiFetch } from '../../util'; // Import the helper function
 import { useEventProvider } from '../providers/EventProvider';
+import { getUserTimezone } from '../../timezones';
 
 const EventArchive = () => {
     const [events, setEvents] = useState([]);
@@ -8,10 +9,16 @@ const EventArchive = () => {
     const [error, setError] = useState(null);
     const { getServiceBodyName } = useEventProvider();
 
+    // Get user's current timezone
+    const userTimezone = getUserTimezone();
+
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await apiFetch('/events?archive=true');
+                const endpoint = `/events?archive=true`
+                    + `&timezone=${encodeURIComponent(userTimezone)}`
+                    + `&current_time=${encodeURIComponent(new Date().toISOString())}`;
+                const response = await apiFetch(endpoint);
                 
                 // Ensure we have a valid response and it's an array
                 if (response && Array.isArray(response)) {

@@ -86,6 +86,7 @@ class AnnouncementTest extends TestCase {
         $this->assertContains('display_end_date', $registeredMeta['mayo_announcement']);
         $this->assertContains('display_start_time', $registeredMeta['mayo_announcement']);
         $this->assertContains('display_end_time', $registeredMeta['mayo_announcement']);
+        $this->assertContains('display_timezone', $registeredMeta['mayo_announcement']);
         $this->assertContains('priority', $registeredMeta['mayo_announcement']);
         $this->assertContains('linked_events', $registeredMeta['mayo_announcement']);
         $this->assertContains('linked_event_refs', $registeredMeta['mayo_announcement']);

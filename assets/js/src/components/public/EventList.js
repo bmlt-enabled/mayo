@@ -288,6 +288,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&page=${page}`
                 + `&per_page=${perPage}`
                 + `&timezone=${encodeURIComponent(userTimezone)}`
+                + `&current_time=${encodeURIComponent(new Date().toISOString())}`
                 + `&archive=${archive}`
                 + `&order=${order}`;
             
@@ -368,6 +369,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 + `&tags=${tags}`
                 + `&source_ids=${sourceIds}`
                 + `&timezone=${encodeURIComponent(userTimezone)}`
+                + `&current_time=${encodeURIComponent(new Date().toISOString())}`
                 + `&order=${order}`
                 + `&start_date=${startDate}`
                 + `&end_date=${endDate}`

@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.8.5 =
 * Fixed external feed events not displaying service body names correctly. [#234]
+* Fixed events and announcements remaining visible after their scheduled end time passes. Previously only the end date was checked, ignoring the end time. [#237]
 
 = 1.8.4 =
 * Added custom URL/link support for announcements with selectable icons. [#227]
