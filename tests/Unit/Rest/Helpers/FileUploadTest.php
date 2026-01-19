@@ -130,4 +130,41 @@ class FileUploadTest extends TestCase {
 
         $_FILES = [];
     }
+
+    /**
+     * Test get_uploaded_file_names skips files with empty names
+     */
+    public function testGetUploadedFileNamesSkipsFilesWithEmptyNames(): void {
+        $_FILES = [
+            'file1' => ['name' => 'valid.txt'],
+            'file2' => ['name' => ''],
+            'file3' => ['name' => 'another.doc']
+        ];
+
+        $result = FileUpload::get_uploaded_file_names();
+
+        $this->assertCount(2, $result);
+        $this->assertContains('valid.txt', $result);
+        $this->assertContains('another.doc', $result);
+
+        $_FILES = [];
+    }
+
+    /**
+     * Test maybe_set_featured_image with svg image type
+     */
+    public function testMaybeSetFeaturedImageWithSvgImage(): void {
+        $setCalled = false;
+
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('set_post_thumbnail')->alias(function() use (&$setCalled) {
+            $setCalled = true;
+            return true;
+        });
+
+        FileUpload::maybe_set_featured_image(123, 456, 'image/svg+xml');
+
+        // SVG is an image type
+        $this->assertTrue($setCalled);
+    }
 }

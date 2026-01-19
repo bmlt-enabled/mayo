@@ -1026,6 +1026,672 @@ class SubscriberTest extends TestCase {
     }
 
     /**
+     * Test get_match_reason returns categories when they match
+     */
+    public function testGetMatchReasonReturnsCategoriesWhenMatched(): void {
+        $method = $this->getPrivateMethod('get_match_reason');
+
+        // Mock get_term to return a category term
+        Functions\when('get_term')->alias(function($term_id, $taxonomy) {
+            if ($taxonomy === 'category') {
+                $term = new \stdClass();
+                $term->term_id = $term_id;
+                $term->name = 'News Category';
+                return $term;
+            }
+            return null;
+        });
+
+        $subscriber = (object)[
+            'email' => 'test@example.com',
+            'preferences' => json_encode([
+                'categories' => [5, 10],
+                'tags' => [],
+                'service_bodies' => []
+            ])
+        ];
+
+        $announcement_data = [
+            'categories' => [5, 15], // 5 matches
+            'tags' => [],
+            'service_body' => ''
+        ];
+
+        $result = $method->invoke(null, $subscriber, $announcement_data, []);
+
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result['categories']);
+    }
+
+    /**
+     * Test get_match_reason returns tags when they match
+     */
+    public function testGetMatchReasonReturnsTagsWhenMatched(): void {
+        $method = $this->getPrivateMethod('get_match_reason');
+
+        // Mock get_term to return a tag term
+        Functions\when('get_term')->alias(function($term_id, $taxonomy) {
+            if ($taxonomy === 'post_tag') {
+                $term = new \stdClass();
+                $term->term_id = $term_id;
+                $term->name = 'Featured Tag';
+                return $term;
+            }
+            return null;
+        });
+
+        $subscriber = (object)[
+            'email' => 'test@example.com',
+            'preferences' => json_encode([
+                'categories' => [],
+                'tags' => [7, 8],
+                'service_bodies' => []
+            ])
+        ];
+
+        $announcement_data = [
+            'categories' => [],
+            'tags' => [8, 9], // 8 matches
+            'service_body' => ''
+        ];
+
+        $result = $method->invoke(null, $subscriber, $announcement_data, []);
+
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result['tags']);
+    }
+
+    /**
+     * Test get_match_reason returns service body when it matches
+     */
+    public function testGetMatchReasonReturnsServiceBodyWhenMatched(): void {
+        $method = $this->getPrivateMethod('get_match_reason');
+
+        $subscriber = (object)[
+            'email' => 'test@example.com',
+            'preferences' => json_encode([
+                'categories' => [],
+                'tags' => [],
+                'service_bodies' => ['15', '20']
+            ])
+        ];
+
+        $announcement_data = [
+            'categories' => [],
+            'tags' => [],
+            'service_body' => '15'
+        ];
+
+        $service_body_names = [
+            '15' => 'Test Service Body',
+            '20' => 'Another Service Body'
+        ];
+
+        $result = $method->invoke(null, $subscriber, $announcement_data, $service_body_names);
+
+        $this->assertIsArray($result);
+        $this->assertEquals('Test Service Body', $result['service_body']);
+    }
+
+    /**
+     * Test get_match_reason uses fallback for unknown service body
+     */
+    public function testGetMatchReasonUsesFallbackForUnknownServiceBody(): void {
+        $method = $this->getPrivateMethod('get_match_reason');
+
+        $subscriber = (object)[
+            'email' => 'test@example.com',
+            'preferences' => json_encode([
+                'categories' => [],
+                'tags' => [],
+                'service_bodies' => ['999']
+            ])
+        ];
+
+        $announcement_data = [
+            'categories' => [],
+            'tags' => [],
+            'service_body' => '999'
+        ];
+
+        // Empty service body names lookup
+        $result = $method->invoke(null, $subscriber, $announcement_data, []);
+
+        $this->assertIsArray($result);
+        $this->assertEquals('Service Body 999', $result['service_body']);
+    }
+
+    /**
+     * Test get_announcement_data returns categories from wp_get_post_terms
+     */
+    public function testGetAnnouncementDataReturnsCategories(): void {
+        $method = $this->getPrivateMethod('get_announcement_data');
+
+        $this->setPostMeta(300, [
+            'service_body' => '10'
+        ]);
+
+        Functions\when('wp_get_post_terms')->alias(function($post_id, $taxonomy, $args = []) {
+            if ($taxonomy === 'category') {
+                return [1, 2, 3];
+            }
+            if ($taxonomy === 'post_tag') {
+                return [5, 6];
+            }
+            return [];
+        });
+
+        $result = $method->invoke(null, 300);
+
+        $this->assertIsArray($result);
+        $this->assertEquals([1, 2, 3], $result['categories']);
+        $this->assertEquals([5, 6], $result['tags']);
+        $this->assertEquals('10', $result['service_body']);
+    }
+
+    /**
+     * Test get_announcement_data handles empty wp_get_post_terms results
+     */
+    public function testGetAnnouncementDataHandlesEmptyTerms(): void {
+        $method = $this->getPrivateMethod('get_announcement_data');
+
+        $this->setPostMeta(301, [
+            'service_body' => ''
+        ]);
+
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $result = $method->invoke(null, 301);
+
+        $this->assertIsArray($result);
+        $this->assertEquals([], $result['categories']);
+        $this->assertEquals([], $result['tags']);
+    }
+
+    /**
+     * Test get_linked_events_text formats local events
+     */
+    public function testGetLinkedEventsTextFormatsLocalEvents(): void {
+        $method = $this->getPrivateMethod('get_linked_events_text');
+
+        $this->setPostMeta(400, [
+            'linked_event_refs' => [
+                ['type' => 'local', 'id' => 500]
+            ]
+        ]);
+
+        // Create a mock event post
+        $event = $this->createMockPost([
+            'ID' => 500,
+            'post_title' => 'Test Local Event',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(500, [
+            'event_start_date' => '2025-02-15',
+            'event_end_date' => '2025-02-15',
+            'event_start_time' => '14:00',
+            'event_end_time' => '16:00',
+            'location_name' => 'Community Center',
+            'location_address' => '123 Main Street'
+        ]);
+
+        Functions\when('get_post')->justReturn($event);
+
+        $result = $method->invoke(null, 400);
+
+        $this->assertStringContainsString('RELATED EVENT', $result);
+        $this->assertStringContainsString('Test Local Event', $result);
+        $this->assertStringContainsString('February', $result);
+        $this->assertStringContainsString('Community Center', $result);
+        $this->assertStringContainsString('123 Main Street', $result);
+    }
+
+    /**
+     * Test get_linked_events_text handles multiple date range events
+     */
+    public function testGetLinkedEventsTextHandlesDateRange(): void {
+        $method = $this->getPrivateMethod('get_linked_events_text');
+
+        $this->setPostMeta(401, [
+            'linked_event_refs' => [
+                ['type' => 'local', 'id' => 501]
+            ]
+        ]);
+
+        $event = $this->createMockPost([
+            'ID' => 501,
+            'post_title' => 'Multi-Day Event',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(501, [
+            'event_start_date' => '2025-03-01',
+            'event_end_date' => '2025-03-03', // Different end date
+            'event_start_time' => '09:00',
+            'event_end_time' => '17:00',
+            'location_name' => '',
+            'location_address' => ''
+        ]);
+
+        Functions\when('get_post')->justReturn($event);
+
+        $result = $method->invoke(null, 401);
+
+        $this->assertStringContainsString('Multi-Day Event', $result);
+        // Should show both dates
+        $this->assertStringContainsString('March', $result);
+    }
+
+    /**
+     * Test get_linked_events_text handles custom links
+     */
+    public function testGetLinkedEventsTextHandlesCustomLinks(): void {
+        $method = $this->getPrivateMethod('get_linked_events_text');
+
+        $this->setPostMeta(402, [
+            'linked_event_refs' => [
+                [
+                    'type' => 'custom',
+                    'url' => 'https://example.com/info',
+                    'title' => 'Registration Link',
+                    'icon' => 'external'
+                ]
+            ]
+        ]);
+
+        $result = $method->invoke(null, 402);
+
+        $this->assertStringContainsString('RELATED EVENT', $result);
+        $this->assertStringContainsString('Registration Link', $result);
+        $this->assertStringContainsString('https://example.com/info', $result);
+    }
+
+    /**
+     * Test get_linked_events_text handles empty external event refs
+     */
+    public function testGetLinkedEventsTextHandlesEmptyLinkedEvents(): void {
+        $method = $this->getPrivateMethod('get_linked_events_text');
+
+        $this->setPostMeta(403, [
+            'linked_event_refs' => []
+        ]);
+
+        $result = $method->invoke(null, 403);
+
+        // Should return empty string for no linked events
+        $this->assertEquals('', $result);
+    }
+
+    /**
+     * Test get_linked_events_text handles missing linked_event_refs meta
+     */
+    public function testGetLinkedEventsTextHandlesMissingMeta(): void {
+        $method = $this->getPrivateMethod('get_linked_events_text');
+
+        // Set empty meta (no linked_event_refs)
+        $this->setPostMeta(404, []);
+
+        $result = $method->invoke(null, 404);
+
+        // Should return empty string when meta is missing
+        $this->assertEquals('', $result);
+    }
+
+    /**
+     * Test send_announcement_email does nothing for non-announcement post type
+     */
+    public function testSendAnnouncementEmailIgnoresNonAnnouncementPostType(): void {
+        $post = $this->createMockPost([
+            'ID' => 600,
+            'post_type' => 'post', // Not mayo_announcement
+            'post_title' => 'Regular Post',
+            'post_content' => 'Content'
+        ]);
+
+        Functions\when('get_post')->justReturn($post);
+
+        // Should not throw an error and should return early
+        Subscriber::send_announcement_email(600);
+
+        // No emails should be captured
+        $this->assertEmpty($this->capturedEmails);
+    }
+
+    /**
+     * Test send_announcement_email does nothing when no subscribers
+     */
+    public function testSendAnnouncementEmailDoesNothingWhenNoSubscribers(): void {
+        $post = $this->createMockPost([
+            'ID' => 601,
+            'post_type' => 'mayo_announcement',
+            'post_title' => 'Test Announcement',
+            'post_content' => 'Announcement content'
+        ]);
+
+        Functions\when('get_post')->justReturn($post);
+
+        $mockWpdb = $this->createMockWpdb();
+        $mockWpdb->shouldReceive('get_results')->andReturn([]); // No subscribers
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        TestableSubscriber::send_announcement_email(601);
+
+        // No emails should be captured
+        $this->assertEmpty($this->capturedEmails);
+    }
+
+    /**
+     * Test send_announcement_email sends to matching subscribers
+     */
+    public function testSendAnnouncementEmailSendsToMatchingSubscribers(): void {
+        $post = $this->createMockPost([
+            'ID' => 602,
+            'post_type' => 'mayo_announcement',
+            'post_title' => 'Important Announcement',
+            'post_content' => 'This is an important announcement.'
+        ]);
+
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Important Announcement');
+        Functions\when('the_content')->justReturn('This is an important announcement.');
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $this->setPostMeta(602, [
+            'service_body' => '5',
+            'linked_event_refs' => []
+        ]);
+
+        $mockWpdb = $this->createMockWpdb();
+        $mockWpdb->shouldReceive('get_results')->andReturn([
+            (object)[
+                'id' => 1,
+                'email' => 'subscriber1@example.com',
+                'status' => 'active',
+                'token' => 'token123',
+                'preferences' => null // Legacy subscriber, gets all
+            ],
+            (object)[
+                'id' => 2,
+                'email' => 'subscriber2@example.com',
+                'status' => 'active',
+                'token' => 'token456',
+                'preferences' => json_encode([
+                    'categories' => [],
+                    'tags' => [],
+                    'service_bodies' => ['5'] // Matches
+                ])
+            ]
+        ]);
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        TestableSubscriber::send_announcement_email(602);
+
+        // Should have sent 2 emails
+        $this->assertCount(2, $this->capturedEmails);
+        $this->assertEquals('subscriber1@example.com', $this->capturedEmails[0]['to']);
+        $this->assertEquals('subscriber2@example.com', $this->capturedEmails[1]['to']);
+        $this->assertStringContainsString('Important Announcement', $this->capturedEmails[0]['subject']);
+    }
+
+    /**
+     * Test send_announcement_email skips non-matching subscribers
+     */
+    public function testSendAnnouncementEmailSkipsNonMatchingSubscribers(): void {
+        $post = $this->createMockPost([
+            'ID' => 603,
+            'post_type' => 'mayo_announcement',
+            'post_title' => 'Targeted Announcement',
+            'post_content' => 'Only for certain subscribers.'
+        ]);
+
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Targeted Announcement');
+        Functions\when('the_content')->justReturn('Only for certain subscribers.');
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $this->setPostMeta(603, [
+            'service_body' => '10',
+            'linked_event_refs' => []
+        ]);
+
+        $mockWpdb = $this->createMockWpdb();
+        $mockWpdb->shouldReceive('get_results')->andReturn([
+            (object)[
+                'id' => 1,
+                'email' => 'matching@example.com',
+                'status' => 'active',
+                'token' => 'token789',
+                'preferences' => json_encode([
+                    'categories' => [],
+                    'tags' => [],
+                    'service_bodies' => ['10'] // Matches
+                ])
+            ],
+            (object)[
+                'id' => 2,
+                'email' => 'nonmatching@example.com',
+                'status' => 'active',
+                'token' => 'tokenabc',
+                'preferences' => json_encode([
+                    'categories' => [999], // Doesn't match
+                    'tags' => [999],
+                    'service_bodies' => ['999']
+                ])
+            ]
+        ]);
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        TestableSubscriber::send_announcement_email(603);
+
+        // Should have sent only 1 email
+        $this->assertCount(1, $this->capturedEmails);
+        $this->assertEquals('matching@example.com', $this->capturedEmails[0]['to']);
+    }
+
+    /**
+     * Test send_announcement_email includes linked events text
+     */
+    public function testSendAnnouncementEmailIncludesLinkedEventsText(): void {
+        $post = $this->createMockPost([
+            'ID' => 604,
+            'post_type' => 'mayo_announcement',
+            'post_title' => 'Event Announcement',
+            'post_content' => 'Check out this event!'
+        ]);
+
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Event Announcement');
+        Functions\when('the_content')->justReturn('Check out this event!');
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $event = $this->createMockPost([
+            'ID' => 700,
+            'post_title' => 'Linked Event',
+            'post_type' => 'mayo_event'
+        ]);
+
+        $this->setPostMeta(604, [
+            'service_body' => '',
+            'linked_event_refs' => [
+                ['type' => 'local', 'id' => 700]
+            ]
+        ]);
+
+        $this->setPostMeta(700, [
+            'event_start_date' => '2025-05-20',
+            'event_end_date' => '2025-05-20',
+            'event_start_time' => '18:00',
+            'event_end_time' => '20:00',
+            'location_name' => 'Event Venue',
+            'location_address' => '456 Event St'
+        ]);
+
+        // Override get_post to return the right post
+        Functions\when('get_post')->alias(function($id) use ($post, $event) {
+            if ($id === 604) return $post;
+            if ($id === 700) return $event;
+            return null;
+        });
+
+        $mockWpdb = $this->createMockWpdb();
+        $mockWpdb->shouldReceive('get_results')->andReturn([
+            (object)[
+                'id' => 1,
+                'email' => 'eventfan@example.com',
+                'status' => 'active',
+                'token' => 'tokenxyz',
+                'preferences' => null
+            ]
+        ]);
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        TestableSubscriber::send_announcement_email(604);
+
+        $this->assertCount(1, $this->capturedEmails);
+        $this->assertStringContainsString('RELATED EVENT', $this->capturedEmails[0]['message']);
+        $this->assertStringContainsString('Linked Event', $this->capturedEmails[0]['message']);
+        $this->assertStringContainsString('Event Venue', $this->capturedEmails[0]['message']);
+    }
+
+    /**
+     * Test format_date handles invalid date gracefully
+     */
+    public function testFormatDateHandlesInvalidDateGracefully(): void {
+        $method = $this->getPrivateMethod('format_date');
+
+        // Test with a date that DateTime can parse but is weird
+        $result = $method->invoke(null, '0000-00-00');
+
+        // Should return something (either formatted or original)
+        $this->assertIsString($result);
+    }
+
+    /**
+     * Test format_time handles invalid time gracefully
+     */
+    public function testFormatTimeHandlesInvalidTimeGracefully(): void {
+        $method = $this->getPrivateMethod('format_time');
+
+        // Test with invalid time string
+        $result = $method->invoke(null, 'invalid-time');
+
+        // Should return something (either formatted or original)
+        $this->assertIsString($result);
+    }
+
+    /**
+     * Test get_service_body_names makes BMLT API call
+     */
+    public function testGetServiceBodyNamesMakesBmltApiCall(): void {
+        $method = $this->getPrivateMethod('get_service_body_names');
+
+        $this->mockGetOption([
+            'mayo_settings' => [
+                'bmlt_root_server' => 'https://bmlt.example.com'
+            ]
+        ]);
+
+        $this->mockWpRemoteGet([
+            'GetServiceBodies' => [
+                'code' => 200,
+                'body' => [
+                    ['id' => '1', 'name' => 'Region 1'],
+                    ['id' => '2', 'name' => 'Area 2']
+                ]
+            ]
+        ]);
+
+        $result = $method->invoke(null);
+
+        $this->assertIsArray($result);
+        $this->assertEquals('Region 1', $result['1']);
+        $this->assertEquals('Area 2', $result['2']);
+    }
+
+    /**
+     * Test get_service_body_names returns empty on error
+     */
+    public function testGetServiceBodyNamesReturnsEmptyOnError(): void {
+        $method = $this->getPrivateMethod('get_service_body_names');
+
+        $this->mockGetOption([
+            'mayo_settings' => [
+                'bmlt_root_server' => 'https://bmlt.example.com'
+            ]
+        ]);
+
+        Functions\when('wp_remote_get')->justReturn(new \WP_Error('error', 'Connection failed'));
+
+        $result = $method->invoke(null);
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * Test get_service_body_names returns empty when no BMLT server configured
+     */
+    public function testGetServiceBodyNamesReturnsEmptyWhenNoBmltServer(): void {
+        $method = $this->getPrivateMethod('get_service_body_names');
+
+        $this->mockGetOption([
+            'mayo_settings' => [
+                'bmlt_root_server' => '' // No server configured
+            ]
+        ]);
+
+        $result = $method->invoke(null);
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * Test get_matching_with_reasons returns subscribers with reasons
+     */
+    public function testGetMatchingWithReasonsReturnsSubscribersWithReasons(): void {
+        $mockWpdb = $this->createMockWpdb();
+        $mockWpdb->shouldReceive('get_results')->andReturn([
+            (object)[
+                'id' => 1,
+                'email' => 'all@example.com',
+                'status' => 'active',
+                'preferences' => null // Legacy
+            ],
+            (object)[
+                'id' => 2,
+                'email' => 'specific@example.com',
+                'status' => 'active',
+                'preferences' => json_encode([
+                    'categories' => [],
+                    'tags' => [],
+                    'service_bodies' => ['5']
+                ])
+            ]
+        ]);
+        TestableSubscriber::$mockWpdb = $mockWpdb;
+
+        $this->mockGetOption([
+            'mayo_settings' => [
+                'bmlt_root_server' => ''
+            ]
+        ]);
+
+        $result = TestableSubscriber::get_matching_with_reasons([
+            'categories' => [],
+            'tags' => [],
+            'service_body' => '5'
+        ]);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals('all@example.com', $result[0]['subscriber']->email);
+        $this->assertTrue($result[0]['reason']['all']);
+        $this->assertEquals('specific@example.com', $result[1]['subscriber']->email);
+        $this->assertEquals('Service Body 5', $result[1]['reason']['service_body']);
+    }
+
+    /**
      * Helper to get private method
      */
     private function getPrivateMethod(string $methodName): \ReflectionMethod {
