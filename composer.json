@@ -28,7 +28,9 @@
         "test": "phpunit",
         "test:unit": "phpunit --testsuite Unit",
         "lint": "phpcs *.php",
-        "lint:fix": "phpcbf *.php"
+        "lint:fix": "phpcbf *.php",
+        "lint:esc-url": "bash scripts/check-esc-url.sh",
+        "lint:all": ["@lint", "@lint:esc-url"]
     },
     "config": {
         "allow-plugins": {

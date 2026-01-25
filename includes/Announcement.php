@@ -844,7 +844,7 @@ class Announcement {
             return [
                 'id' => $ref['id'] ?? 0,
                 'title' => sanitize_text_field($ref['title']),
-                'permalink' => esc_url($ref['url']),
+                'permalink' => esc_url_raw($ref['url']),
                 'icon' => isset($ref['icon']) ? sanitize_text_field($ref['icon']) : 'external',
                 'source' => [
                     'type' => 'custom',
