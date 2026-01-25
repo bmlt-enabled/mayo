@@ -126,3 +126,18 @@ Also update the version number in:
 - `mayo-events-manager.php` (line 23: `MAYO_VERSION` constant)
 - `readme.txt` (line 8: `Stable tag`)
 - `package.json` (line 3: `version`)
+
+## Encoding Guidelines for REST API Data
+
+This codebase has had multiple encoding bugs (#41, #84, #109, #222, #249). Follow these rules when returning data via REST API:
+
+### URLs
+- **REST API/JSON context**: Use `esc_url_raw($url)` - preserves `&` characters
+- **HTML output context**: Use `esc_url($url)` - encodes `&` to `&amp;`
+
+### Text/Titles
+- **REST API/JSON context**: Use `html_entity_decode($text, ENT_QUOTES, 'UTF-8')`
+- **HTML output context**: Use `esc_html($text)` or `esc_attr($text)`
+
+### Why?
+WordPress escaping functions encode special characters for HTML safety. When this data goes through REST API → JSON → React, the HTML entities cause display issues or broken functionality.

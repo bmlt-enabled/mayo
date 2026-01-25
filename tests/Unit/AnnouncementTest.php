@@ -430,6 +430,33 @@ class AnnouncementTest extends TestCase {
     }
 
     /**
+     * Test resolve_event_ref preserves URL query parameters (issue #249)
+     *
+     * Custom URLs with ampersands in query strings must not be HTML-encoded
+     * when returned via REST API.
+     */
+    public function testResolveEventRefPreservesUrlQueryParameters(): void {
+        $ref = [
+            'type' => 'custom',
+            'url' => 'https://example.com/link?id=123&key=GRP&app=resvlink',
+            'title' => 'Book Room',
+            'icon' => 'external'
+        ];
+
+        $result = Announcement::resolve_event_ref($ref);
+
+        $this->assertNotNull($result);
+        // URL should preserve literal & characters, not HTML entities
+        $this->assertEquals(
+            'https://example.com/link?id=123&key=GRP&app=resvlink',
+            $result['permalink']
+        );
+        // Explicitly verify no HTML encoding
+        $this->assertStringNotContainsString('&amp;', $result['permalink']);
+        $this->assertStringNotContainsString('&#038;', $result['permalink']);
+    }
+
+    /**
      * Test resolve_event_ref returns null for custom link without url
      */
     public function testResolveEventRefReturnsNullForCustomLinkWithoutUrl(): void {
