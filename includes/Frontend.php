@@ -195,7 +195,7 @@ class Frontend {
         wp_localize_script('mayo-public', $settings_key, [
             'additionalRequiredFields' => $atts['additional_required_fields'],
             'defaultServiceBodies' => $atts['default_service_bodies'],
-            'showFlyer' => $atts['show_flyer'] === 'true'
+            'showFlyer' => $atts['show_flyer']
         ]);
 
         return sprintf(

@@ -101,7 +101,7 @@ const AnnouncementForm = () => {
     };
 
     // Check if flyer upload should be shown (via shortcode param)
-    const showFlyer = settings.showFlyer === true || settings.showFlyer === 'true';
+    const showFlyer = settings.showFlyer === 'true';
 
     const [formData, setFormData] = useState({
         title: '',
