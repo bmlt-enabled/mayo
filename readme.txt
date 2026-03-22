@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.8.7
+Stable tag: 1.8.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,9 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.8.8 =
+* Added diagnostic timing instrumentation to the events API for debugging slow external source requests. Append `&debug=1` to see per-call timing breakdown.
 
 = 1.8.7 =
 * Fixed announcement form flyer upload field never appearing even when `show_flyer="true"` shortcode attribute was set. [#252]

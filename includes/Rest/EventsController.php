@@ -171,6 +171,13 @@ class EventsController {
         $previous_error_reporting = error_reporting();
         error_reporting(E_ERROR | E_PARSE);
 
+        $include_debug = (isset($_GET['debug']) && $_GET['debug'] === '1')
+            || (isset($_REQUEST['debug']) && $_REQUEST['debug'] === '1');
+        if ($include_debug) {
+            $t_total = microtime(true);
+            $debug = ['external_sources' => []];
+        }
+
         $events = [];
         $sources = [];
 
@@ -185,7 +192,16 @@ class EventsController {
 
         // Get local events by default unless source_ids is explicitly set and doesn't include 'local'
         if (empty($sourceIds) || in_array('local', $sourceIds)) {
+            if ($include_debug) {
+                $t0 = microtime(true);
+            }
             $local_events = self::get_local_events($_GET);
+            if ($include_debug) {
+                $debug['local_events'] = [
+                    'duration_ms' => round((microtime(true) - $t0) * 1000),
+                    'count' => count($local_events),
+                ];
+            }
 
             // Add local source to sources array
             $sources['local'] = [
@@ -219,7 +235,18 @@ class EventsController {
             if (!empty($enabled_sources)) {
                 foreach ($enabled_sources as $source) {
                     try {
-                        $result = self::fetch_external_events($source);
+                        if ($include_debug) {
+                            $t0 = microtime(true);
+                        }
+                        $result = self::fetch_external_events($source, $include_debug);
+
+                        if ($include_debug) {
+                            $source_debug = $result['_debug'] ?? [];
+                            $source_debug['source_id'] = $source['id'];
+                            $source_debug['source_url'] = $source['url'];
+                            $source_debug['duration_ms'] = round((microtime(true) - $t0) * 1000);
+                            $debug['external_sources'][] = $source_debug;
+                        }
 
                         if (!empty($result['events'])) {
                             $events = array_merge($events, $result['events']);
@@ -233,6 +260,10 @@ class EventsController {
                     }
                 }
             }
+        }
+
+        if ($include_debug) {
+            $t_sort = microtime(true);
         }
 
         // Get sort order from request
@@ -277,9 +308,15 @@ class EventsController {
         $offset = ($page - 1) * $per_page;
         $paginated_events = array_slice($events, $offset, $per_page);
 
+        if ($include_debug) {
+            $debug['sorting_pagination_ms'] = round((microtime(true) - $t_sort) * 1000);
+            $debug['total_events_before_pagination'] = $total_events;
+            $debug['total_duration_ms'] = round((microtime(true) - $t_total) * 1000);
+        }
+
         error_reporting($previous_error_reporting);
 
-        return new \WP_REST_Response([
+        $response_data = [
             'events' => $paginated_events,
             'sources' => array_values($sources),
             'pagination' => [
@@ -288,7 +325,13 @@ class EventsController {
                 'current_page' => $page,
                 'total_pages' => $total_pages
             ]
-        ]);
+        ];
+
+        if ($include_debug) {
+            $response_data['_debug'] = $debug;
+        }
+
+        return new \WP_REST_Response($response_data);
     }
 
     /**
@@ -1089,7 +1132,8 @@ class EventsController {
      * @param array $source External source configuration
      * @return array Array with 'events' and 'source' keys
      */
-    private static function fetch_external_events($source) {
+    private static function fetch_external_events($source, $include_debug = false) {
+        $debug = ['calls' => []];
         try {
             $params = [];
             if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
@@ -1104,14 +1148,26 @@ class EventsController {
 
             $url = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
 
+            if ($include_debug) {
+                $t0 = microtime(true);
+            }
             $response = wp_remote_get($url, [
                 'timeout' => 15,
                 'sslverify' => true
             ]);
+            if ($include_debug) {
+                $events_body_raw = is_wp_error($response) ? '' : wp_remote_retrieve_body($response);
+                $debug['calls']['events_fetch'] = [
+                    'url' => $url,
+                    'duration_ms' => round((microtime(true) - $t0) * 1000),
+                    'status' => is_wp_error($response) ? $response->get_error_message() : wp_remote_retrieve_response_code($response),
+                    'size_bytes' => strlen($events_body_raw),
+                ];
+            }
 
             if (is_wp_error($response)) {
                 error_log('External Events Error: ' . $response->get_error_message());
-                return ['events' => [], 'source' => null];
+                return ['events' => [], 'source' => null, '_debug' => $include_debug ? $debug : null];
             }
 
             $body = wp_remote_retrieve_body($response);
@@ -1119,10 +1175,22 @@ class EventsController {
 
             $events = isset($data['events']) ? $data['events'] : $data;
 
-            if (!is_array($events)) return ['events' => [], 'source' => null];
+            if (!is_array($events)) return ['events' => [], 'source' => null, '_debug' => $include_debug ? $debug : null];
 
             // Fetch service bodies once for this source
-            $service_bodies = self::fetch_external_service_bodies($source);
+            if ($include_debug) {
+                $t0 = microtime(true);
+            }
+            $sb_result = self::fetch_external_service_bodies($source, $include_debug);
+            if ($include_debug) {
+                $service_bodies = $sb_result['data'];
+                $debug['calls']['service_bodies_fetch'] = [
+                    'duration_ms' => round((microtime(true) - $t0) * 1000),
+                    'calls' => $sb_result['_debug'],
+                ];
+            } else {
+                $service_bodies = $sb_result;
+            }
 
             // Build source info (with service bodies at source level, not per-event)
             $source_info = [
@@ -1142,13 +1210,18 @@ class EventsController {
                 ];
             }
 
+            if ($include_debug) {
+                $debug['event_count'] = count($events);
+            }
+
             return [
                 'events' => $events,
-                'source' => $source_info
+                'source' => $source_info,
+                '_debug' => $include_debug ? $debug : null,
             ];
         } catch (\Exception $e) {
             error_log('External Events Error: ' . $e->getMessage());
-            return ['events' => [], 'source' => null];
+            return ['events' => [], 'source' => null, '_debug' => $include_debug ? $debug : null];
         }
     }
 
@@ -1158,47 +1231,72 @@ class EventsController {
      * @param array $source External source configuration
      * @return array
      */
-    private static function fetch_external_service_bodies($source) {
+    private static function fetch_external_service_bodies($source, $include_debug = false) {
+        $debug = [];
         try {
             $settings_url = trailingslashit($source['url']) . 'wp-json/event-manager/v1/settings';
 
+            if ($include_debug) {
+                $t0 = microtime(true);
+            }
             $settings_response = wp_remote_get($settings_url, [
                 'timeout' => 15,
                 'sslverify' => true
             ]);
+            if ($include_debug) {
+                $settings_body_raw = is_wp_error($settings_response) ? '' : wp_remote_retrieve_body($settings_response);
+                $debug['settings_fetch'] = [
+                    'url' => $settings_url,
+                    'duration_ms' => round((microtime(true) - $t0) * 1000),
+                    'status' => is_wp_error($settings_response) ? $settings_response->get_error_message() : wp_remote_retrieve_response_code($settings_response),
+                    'size_bytes' => strlen($settings_body_raw),
+                ];
+            }
 
             if (is_wp_error($settings_response)) {
-                return [];
+                return $include_debug ? ['data' => [], '_debug' => $debug] : [];
             }
 
             $settings_body = wp_remote_retrieve_body($settings_response);
             $settings = json_decode($settings_body, true);
 
             if (empty($settings['bmlt_root_server'])) {
-                return [];
+                return $include_debug ? ['data' => [], '_debug' => $debug] : [];
             }
 
             $bmlt_url = add_query_arg('switcher', 'GetServiceBodies', trailingslashit($settings['bmlt_root_server']) . 'client_interface/json/');
 
+            if ($include_debug) {
+                $t0 = microtime(true);
+            }
             $bmlt_response = wp_remote_get($bmlt_url, [
                 'timeout' => 15,
                 'sslverify' => true
             ]);
+            if ($include_debug) {
+                $bmlt_body_raw = is_wp_error($bmlt_response) ? '' : wp_remote_retrieve_body($bmlt_response);
+                $debug['bmlt_fetch'] = [
+                    'url' => $bmlt_url,
+                    'duration_ms' => round((microtime(true) - $t0) * 1000),
+                    'status' => is_wp_error($bmlt_response) ? $bmlt_response->get_error_message() : wp_remote_retrieve_response_code($bmlt_response),
+                    'size_bytes' => strlen($bmlt_body_raw),
+                ];
+            }
 
             if (is_wp_error($bmlt_response)) {
-                return [];
+                return $include_debug ? ['data' => [], '_debug' => $debug] : [];
             }
 
             $bmlt_body = wp_remote_retrieve_body($bmlt_response);
             $service_bodies = json_decode($bmlt_body, true);
 
             if (!is_array($service_bodies)) {
-                return [];
+                return $include_debug ? ['data' => [], '_debug' => $debug] : [];
             }
 
-            return $service_bodies;
+            return $include_debug ? ['data' => $service_bodies, '_debug' => $debug] : $service_bodies;
         } catch (\Exception $e) {
-            return [];
+            return $include_debug ? ['data' => [], '_debug' => $debug] : [];
         }
     }
 
