@@ -10,6 +10,7 @@ use BmltEnabled\Mayo\Announcement;
 use BmltEnabled\Mayo\Rest\Helpers\TaxonomyQuery;
 use BmltEnabled\Mayo\Rest\Helpers\FileUpload;
 use BmltEnabled\Mayo\Rest\Helpers\EmailNotification;
+use BmltEnabled\Mayo\Rest\Helpers\ParallelHttp;
 use BmltEnabled\Mayo\Rest\Helpers\ServiceBodyLookup;
 
 /**
@@ -233,31 +234,13 @@ class EventsController {
             }
 
             if (!empty($enabled_sources)) {
-                foreach ($enabled_sources as $source) {
-                    try {
-                        if ($include_debug) {
-                            $t0 = microtime(true);
-                        }
-                        $result = self::fetch_external_events($source, $include_debug);
-
-                        if ($include_debug) {
-                            $source_debug = $result['_debug'] ?? [];
-                            $source_debug['source_id'] = $source['id'];
-                            $source_debug['source_url'] = $source['url'];
-                            $source_debug['duration_ms'] = round((microtime(true) - $t0) * 1000);
-                            $debug['external_sources'][] = $source_debug;
-                        }
-
-                        if (!empty($result['events'])) {
-                            $events = array_merge($events, $result['events']);
-                        }
-
-                        if (!empty($result['source'])) {
-                            $sources[$source['id']] = $result['source'];
-                        }
-                    } catch (\Exception $e) {
-                        error_log('Error fetching events from source ' . $source['url'] . ': ' . $e->getMessage());
-                    }
+                $external_result = self::fetch_all_external_events($enabled_sources, $include_debug);
+                $events = array_merge($events, $external_result['events']);
+                foreach ($external_result['sources'] as $id => $source_info) {
+                    $sources[$id] = $source_info;
+                }
+                if ($include_debug) {
+                    $debug['external_sources'] = $external_result['_debug'];
                 }
             }
         }
@@ -1124,6 +1107,204 @@ class EventsController {
         }
 
         return $events;
+    }
+
+    /**
+     * Fetch events from all external sources in parallel.
+     *
+     * Phase 1: Fire events + settings fetches for all sources in parallel.
+     * Phase 2: Parse settings to get BMLT URLs, fire BMLT fetches in parallel.
+     * Phase 3: Assemble results.
+     *
+     * @param array $sources   Array of enabled source configurations
+     * @param bool  $include_debug Whether to include debug timing info
+     * @return array ['events' => [...], 'sources' => [...], '_debug' => [...]]
+     */
+    private static function fetch_all_external_events(array $sources, bool $include_debug): array
+    {
+        $all_events    = [];
+        $all_sources   = [];
+        $all_debug     = [];
+
+        // --- Phase 1: Build events + settings URLs, fire in parallel ---
+        $phase1_requests = [];
+        $source_map      = []; // keyed by source id for quick lookup
+
+        foreach ($sources as $source) {
+            $sid = $source['id'];
+            $source_map[$sid] = $source;
+
+            // Events URL (same logic as fetch_external_events)
+            $params = [];
+            if (!empty($source['event_type'])) {
+                $params['event_type'] = $source['event_type'];
+            }
+            if (!empty($source['service_body'])) {
+                $params['service_body'] = $source['service_body'];
+            }
+            if (!empty($source['categories'])) {
+                $params['categories'] = $source['categories'];
+            }
+            if (!empty($source['tags'])) {
+                $params['tags'] = $source['tags'];
+            }
+            if (isset($_GET['archive'])) {
+                $params['archive'] = $_GET['archive'];
+            }
+            if (isset($_GET['timezone'])) {
+                $params['timezone'] = $_GET['timezone'];
+            }
+            $params['per_page'] = 100;
+
+            $events_url   = add_query_arg($params, trailingslashit($source['url']) . 'wp-json/event-manager/v1/events');
+            $settings_url = trailingslashit($source['url']) . 'wp-json/event-manager/v1/settings';
+
+            $phase1_requests["{$sid}:events"]   = $events_url;
+            $phase1_requests["{$sid}:settings"] = $settings_url;
+        }
+
+        $phase1_results = ParallelHttp::get_multiple($phase1_requests);
+
+        // --- Phase 2: Parse settings responses, build BMLT URLs, fire in parallel ---
+        $phase2_requests = [];
+
+        foreach ($sources as $source) {
+            $sid        = $source['id'];
+            $settings_r = $phase1_results["{$sid}:settings"];
+
+            if ($settings_r['error'] !== null || $settings_r['status'] !== 200) {
+                continue;
+            }
+
+            $settings = json_decode($settings_r['body'], true);
+            if (empty($settings['bmlt_root_server'])) {
+                continue;
+            }
+
+            $bmlt_url = add_query_arg(
+                'switcher',
+                'GetServiceBodies',
+                trailingslashit($settings['bmlt_root_server']) . 'client_interface/json/'
+            );
+            $phase2_requests["{$sid}:bmlt"] = $bmlt_url;
+        }
+
+        $phase2_results = !empty($phase2_requests) ? ParallelHttp::get_multiple($phase2_requests) : [];
+
+        // --- Phase 3: Assemble results ---
+        foreach ($sources as $source) {
+            $sid         = $source['id'];
+            $source_debug = [];
+
+            if ($include_debug) {
+                $source_debug['source_id']  = $sid;
+                $source_debug['source_url'] = $source['url'];
+                $source_debug['calls']      = [];
+            }
+
+            // Parse events response
+            $events_r = $phase1_results["{$sid}:events"];
+
+            if ($include_debug) {
+                $source_debug['calls']['events_fetch'] = [
+                    'url'        => $phase1_requests["{$sid}:events"],
+                    'duration_ms' => $events_r['duration_ms'],
+                    'status'     => $events_r['error'] ?? $events_r['status'],
+                    'size_bytes' => $events_r['size_bytes'],
+                ];
+            }
+
+            $events = [];
+            if ($events_r['error'] === null && $events_r['status'] === 200) {
+                $data   = json_decode($events_r['body'], true);
+                $events = isset($data['events']) ? $data['events'] : $data;
+                if (!is_array($events)) {
+                    $events = [];
+                }
+            } else {
+                error_log('External Events Error for source ' . $source['url'] . ': ' . ($events_r['error'] ?? 'HTTP ' . $events_r['status']));
+            }
+
+            // Parse settings + BMLT response for service bodies
+            $service_bodies = [];
+            $settings_r     = $phase1_results["{$sid}:settings"];
+
+            if ($include_debug) {
+                $source_debug['calls']['service_bodies_fetch'] = [
+                    'calls' => [],
+                ];
+
+                $source_debug['calls']['service_bodies_fetch']['calls']['settings_fetch'] = [
+                    'url'        => $phase1_requests["{$sid}:settings"],
+                    'duration_ms' => $settings_r['duration_ms'],
+                    'status'     => $settings_r['error'] ?? $settings_r['status'],
+                    'size_bytes' => $settings_r['size_bytes'],
+                ];
+            }
+
+            if (isset($phase2_results["{$sid}:bmlt"])) {
+                $bmlt_r = $phase2_results["{$sid}:bmlt"];
+
+                if ($include_debug) {
+                    $source_debug['calls']['service_bodies_fetch']['calls']['bmlt_fetch'] = [
+                        'url'        => $phase2_requests["{$sid}:bmlt"],
+                        'duration_ms' => $bmlt_r['duration_ms'],
+                        'status'     => $bmlt_r['error'] ?? $bmlt_r['status'],
+                        'size_bytes' => $bmlt_r['size_bytes'],
+                    ];
+                }
+
+                if ($bmlt_r['error'] === null && $bmlt_r['status'] === 200) {
+                    $decoded = json_decode($bmlt_r['body'], true);
+                    if (is_array($decoded)) {
+                        $service_bodies = $decoded;
+                    }
+                }
+            }
+
+            if ($include_debug) {
+                $source_debug['calls']['service_bodies_fetch']['duration_ms'] =
+                    ($settings_r['duration_ms'] ?? 0)
+                    + (isset($phase2_results["{$sid}:bmlt"]) ? $phase2_results["{$sid}:bmlt"]['duration_ms'] : 0);
+            }
+
+            // Build source info
+            $source_name = $source['name'] ?? parse_url($source['url'], PHP_URL_HOST);
+            $source_info = [
+                'id'             => $sid,
+                'url'            => parse_url($source['url'], PHP_URL_HOST),
+                'name'           => $source_name,
+                'service_bodies' => $service_bodies,
+            ];
+
+            // Tag events with source info
+            foreach ($events as &$event) {
+                $event['source_id'] = $sid;
+                $event['source']    = [
+                    'type' => 'external',
+                    'id'   => $sid,
+                    'name' => $source_name,
+                ];
+            }
+            unset($event);
+
+            if ($include_debug) {
+                $source_debug['event_count'] = count($events);
+            }
+
+            $all_events  = array_merge($all_events, $events);
+            $all_sources[$sid] = $source_info;
+
+            if ($include_debug) {
+                $all_debug[] = $source_debug;
+            }
+        }
+
+        return [
+            'events'  => $all_events,
+            'sources' => $all_sources,
+            '_debug'  => $all_debug,
+        ];
     }
 
     /**
