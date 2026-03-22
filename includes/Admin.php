@@ -217,6 +217,42 @@ class Admin {
         ];
     }
 
+    private static $service_body_map = null;
+
+    public static function get_service_body_map() {
+        if (self::$service_body_map !== null) {
+            return self::$service_body_map;
+        }
+
+        $cached = get_transient('mayo_service_body_map');
+        if ($cached !== false) {
+            self::$service_body_map = $cached;
+            return self::$service_body_map;
+        }
+
+        $map = [];
+        $settings = get_option('mayo_settings', []);
+        $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
+
+        if (!empty($bmlt_root_server)) {
+            $response = wp_remote_get($bmlt_root_server . '/client_interface/json/?switcher=GetServiceBodies');
+
+            if (!is_wp_error($response)) {
+                $service_bodies = json_decode(wp_remote_retrieve_body($response), true);
+
+                if (is_array($service_bodies)) {
+                    foreach ($service_bodies as $body) {
+                        $map[$body['id']] = $body['name'];
+                    }
+                }
+            }
+        }
+
+        set_transient('mayo_service_body_map', $map, 600);
+        self::$service_body_map = $map;
+        return self::$service_body_map;
+    }
+
     public static function render_custom_columns($column, $post_id) {
         switch ($column) {
             case 'event_type':
@@ -226,37 +262,14 @@ class Admin {
                 $service_body_id = get_post_meta($post_id, 'service_body', true);
                 if ($service_body_id === '0') {
                     echo esc_html('Unaffiliated (0)');
+                } elseif (empty($service_body_id)) {
+                    echo esc_html('—');
                 } else {
-                    // Get the service body name from the BMLT root server
-                    $settings = get_option('mayo_settings', []);
-                    $bmlt_root_server = $settings['bmlt_root_server'] ?? '';
-                    $found = false;
-                    
-                    if (!empty($bmlt_root_server)) {
-                        $response = wp_remote_get($bmlt_root_server . '/client_interface/json/?switcher=GetServiceBodies');
-                        
-                        if (!is_wp_error($response)) {
-                            $service_bodies = json_decode(wp_remote_retrieve_body($response), true);
-                            
-                            if (is_array($service_bodies)) {
-                                foreach ($service_bodies as $body) {
-                                    if ($body['id'] == $service_body_id) {
-                                        echo esc_html($body['name'] . ' (' . $body['id'] . ')');
-                                        $found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Fallback if we couldn't get the name
-                    if (!$found) {
-                        if (empty($service_body_id)) {
-                            echo esc_html('—');
-                        } else {
-                            echo esc_html('Service Body (' . $service_body_id . ')');
-                        }
+                    $map = self::get_service_body_map();
+                    if (isset($map[$service_body_id])) {
+                        echo esc_html($map[$service_body_id] . ' (' . $service_body_id . ')');
+                    } else {
+                        echo esc_html('Service Body (' . $service_body_id . ')');
                     }
                 }
                 break;
