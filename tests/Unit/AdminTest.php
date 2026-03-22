@@ -279,9 +279,17 @@ class AdminTest extends TestCase {
      * Test render_custom_columns outputs service body fallback
      */
     public function testRenderCustomColumnsOutputsServiceBodyFallback(): void {
+        // Reset static cache from prior tests
+        $ref = new \ReflectionProperty(Admin::class, 'service_body_map');
+        $ref->setAccessible(true);
+        $ref->setValue(null, null);
+
         $this->setPostMeta(402, [
             'service_body' => '999'
         ]);
+
+        Functions\when('get_transient')->justReturn(false);
+        Functions\when('set_transient')->justReturn(true);
 
         $this->mockWpRemoteGet([
             'GetServiceBodies' => [
@@ -303,13 +311,6 @@ class AdminTest extends TestCase {
     public function testRenderCustomColumnsOutputsEmptyServiceBody(): void {
         $this->setPostMeta(403, [
             'service_body' => ''
-        ]);
-
-        $this->mockWpRemoteGet([
-            'GetServiceBodies' => [
-                'code' => 200,
-                'body' => []
-            ]
         ]);
 
         ob_start();
@@ -591,9 +592,17 @@ class AdminTest extends TestCase {
      * Test render_custom_columns outputs service body with BMLT lookup
      */
     public function testRenderCustomColumnsOutputsServiceBodyFromBmlt(): void {
+        // Reset static cache from prior tests
+        $ref = new \ReflectionProperty(Admin::class, 'service_body_map');
+        $ref->setAccessible(true);
+        $ref->setValue(null, null);
+
         $this->setPostMeta(412, [
             'service_body' => '5'
         ]);
+
+        Functions\when('get_transient')->justReturn(false);
+        Functions\when('set_transient')->justReturn(true);
 
         $this->mockWpRemoteGet([
             'GetServiceBodies' => [
@@ -1046,9 +1055,17 @@ class AdminTest extends TestCase {
      * Test render_custom_columns service body with BMLT error response
      */
     public function testRenderCustomColumnsServiceBodyWithBmltError(): void {
+        // Reset static cache from prior tests
+        $ref = new \ReflectionProperty(Admin::class, 'service_body_map');
+        $ref->setAccessible(true);
+        $ref->setValue(null, null);
+
         $this->setPostMeta(422, [
             'service_body' => '123'
         ]);
+
+        Functions\when('get_transient')->justReturn(false);
+        Functions\when('set_transient')->justReturn(true);
 
         // wp_remote_get returns WP_Error which is_wp_error() will detect
         Functions\when('wp_remote_get')->justReturn(new \WP_Error('http_error', 'Connection failed'));
