@@ -236,6 +236,19 @@ const Settings = () => {
         }
     };
 
+    const handleCopyId = async (id) => {
+        try {
+            await navigator.clipboard.writeText(id);
+        } catch (err) {
+            const textArea = document.createElement('textarea');
+            textArea.value = id;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(textArea);
+        }
+    };
+
     const handleDeleteSource = async (index) => {
         if (!confirm('Are you sure you want to delete this external source?')) return;
 
@@ -427,12 +440,23 @@ const Settings = () => {
                                 <div className="mayo-external-source-info">
                                     <strong>{source.name || source.url}</strong>
                                     <div className="mayo-external-source-details">
-                                        <span className="mayo-source-id">ID: {source.id}</span>
-                                        <span>Type: {source.event_type || 'All'}</span>
-                                        {source.service_body && <span>Service Body: {source.service_body}</span>}
-                                        <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
-                                            {source.enabled ? 'Enabled' : 'Disabled'}
-                                        </span>
+                                        <div className="mayo-source-id-row">
+                                            <code className="mayo-source-id">{source.id}</code>
+                                            <button
+                                                className="mayo-copy-id"
+                                                onClick={() => handleCopyId(source.id)}
+                                                title="Copy ID"
+                                            >
+                                                Copy ID to clipboard
+                                            </button>
+                                        </div>
+                                        <div className="mayo-source-meta">
+                                            <span>Type: {source.event_type || 'All'}</span>
+                                            {source.service_body && <span>Service Body: {source.service_body}</span>}
+                                            <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
+                                                {source.enabled ? 'Enabled' : 'Disabled'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="mayo-external-source-actions">

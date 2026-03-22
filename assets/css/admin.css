@@ -428,6 +428,13 @@
     margin-top: 20px !important;
 }
 
+.mayo-source-id-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
 .mayo-source-id {
     font-family: monospace;
     color: #2271b1;
@@ -436,6 +443,22 @@
     padding: 4px 8px;
     border-radius: 3px;
     border: 1px solid #c5d9ed;
+    user-select: all;
+}
+
+.mayo-copy-id {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 4px;
+    background: none;
+    border: 1px solid #c5d9ed;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #2271b1;
+}
+
+.mayo-copy-id:hover {
+    background: #f0f7fc;
 }
 
 /* Recurring Indicator Styles */
