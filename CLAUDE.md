@@ -100,12 +100,8 @@ Update the changelog whenever you:
 - Update dependencies or requirements
 
 ### How to Update
-1. **Add a new version section** at the top of the changelog (after `== Changelog ==`)
-2. **Increment version number** appropriately:
-   - Patch (X.X.1): Bug fixes, minor improvements
-   - Minor (X.1.0): New features, non-breaking changes
-   - Major (1.X.0): Breaking changes, major rewrites
-3. **Write clear, user-focused descriptions**:
+1. **Add entries to the current (unreleased) version section** at the top of the changelog. Do NOT create a new version section or bump version numbers unless explicitly asked — versions are only bumped at release time.
+2. **Write clear, user-focused descriptions**:
    - Start with action words (Fixed, Added, Improved, etc.)
    - Describe the user impact, not technical details
    - Reference GitHub issue numbers when applicable: `[#123]`
@@ -122,7 +118,7 @@ Update the changelog whenever you:
 ```
 
 ### Version Consistency
-Also update the version number in:
+Only bump version numbers when explicitly asked to cut a release. When bumping, update in:
 - `mayo-events-manager.php` (line 23: `MAYO_VERSION` constant)
 - `readme.txt` (line 8: `Stable tag`)
 - `package.json` (line 3: `version`)
