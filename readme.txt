@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.8.8 =
 * Added diagnostic timing instrumentation to the events API for debugging slow external source requests. Append `&debug=1` to see per-call timing breakdown.
+* Improved performance of external source fetching by parallelizing HTTP requests. Sites with multiple external sources will see significantly faster load times.
 
 = 1.8.7 =
 * Fixed announcement form flyer upload field never appearing even when `show_flyer="true"` shortcode attribute was set. [#252]
