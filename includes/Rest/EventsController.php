@@ -862,11 +862,20 @@ class EventsController {
         ];
 
         if (!empty($eventType)) {
-            $recurring_meta_query[] = [
-                'key' => 'event_type',
-                'value' => $eventType,
-                'compare' => '='
-            ];
+            if (str_contains($eventType, ',')) {
+                $event_types = array_map('trim', explode(',', $eventType));
+                $recurring_meta_query[] = [
+                    'key' => 'event_type',
+                    'value' => $event_types,
+                    'compare' => 'IN'
+                ];
+            } else {
+                $recurring_meta_query[] = [
+                    'key' => 'event_type',
+                    'value' => $eventType,
+                    'compare' => '='
+                ];
+            }
         }
 
         if (!empty($serviceBody)) {
@@ -1024,11 +1033,20 @@ class EventsController {
         $meta_query = [];
 
         if (!empty($eventType)) {
-            $meta_query[] = [
-                'key' => 'event_type',
-                'value' => $eventType,
-                'compare' => '='
-            ];
+            if (str_contains($eventType, ',')) {
+                $event_types = array_map('trim', explode(',', $eventType));
+                $meta_query[] = [
+                    'key' => 'event_type',
+                    'value' => $event_types,
+                    'compare' => 'IN'
+                ];
+            } else {
+                $meta_query[] = [
+                    'key' => 'event_type',
+                    'value' => $eventType,
+                    'compare' => '='
+                ];
+            }
         }
 
         if (!empty($serviceBody)) {
