@@ -190,6 +190,8 @@ This project is licensed under the GPL v2 or later.
 = 1.8.8 =
 * Added diagnostic timing instrumentation to the events API for debugging slow external source requests. Append `&debug=1` to see per-call timing breakdown.
 * Improved performance of external source fetching by parallelizing HTTP requests. Sites with multiple external sources will see significantly faster load times.
+* Changed external source event type dropdown from "Select an event type" to "All Event Types" to clarify that leaving it blank fetches all types.
+* Added support for comma-separated event types in the REST API (e.g., `event_type=Activity,Service`), enabling a single external source to fetch multiple event types in one request.
 
 = 1.8.7 =
 * Fixed announcement form flyer upload field never appearing even when `show_flyer="true"` shortcode attribute was set. [#252]

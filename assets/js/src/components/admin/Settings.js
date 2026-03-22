@@ -428,7 +428,7 @@ const Settings = () => {
                                     <strong>{source.name || source.url}</strong>
                                     <div className="mayo-external-source-details">
                                         <span className="mayo-source-id">ID: {source.id}</span>
-                                        {source.event_type && <span>Type: {source.event_type}</span>}
+                                        <span>Type: {source.event_type || 'All'}</span>
                                         {source.service_body && <span>Service Body: {source.service_body}</span>}
                                         <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
                                             {source.enabled ? 'Enabled' : 'Disabled'}
@@ -484,7 +484,7 @@ const Settings = () => {
                                 label="Event Type"
                                 value={currentSource.event_type || ''}
                                 options={[
-                                    { label: 'Select an event type', value: '' },
+                                    { label: 'All Event Types', value: '' },
                                     { label: 'Activity', value: 'Activity' },
                                     { label: 'Service', value: 'Service' }
                                 ]}
