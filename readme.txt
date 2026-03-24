@@ -188,6 +188,8 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.8.8 =
+* Added copy-to-clipboard button for external source IDs in Settings, making IDs easier to select and copy. [#254]
+* Improved external source layout with ID displayed in a distinct box on its own row.
 * Added diagnostic timing instrumentation to the events API for debugging slow external source requests. Append `&debug=1` to see per-call timing breakdown.
 * Improved performance of external source fetching by parallelizing HTTP requests. Sites with multiple external sources will see significantly faster load times.
 * Changed external source event type dropdown from "Select an event type" to "All Event Types" to clarify that leaving it blank fetches all types.
