@@ -195,6 +195,7 @@ This project is licensed under the GPL v2 or later.
 * Changed external source event type dropdown from "Select an event type" to "All Event Types" to clarify that leaving it blank fetches all types.
 * Added support for comma-separated event types in the REST API (e.g., `event_type=Activity,Service`), enabling a single external source to fetch multiple event types in one request.
 * Fixed admin events list page taking minutes to load when many events exist by caching service body lookups instead of making an HTTP request per row.
+* Added server health check warning on settings page when PHP curl extension is missing, which causes significantly slower external source requests.
 
 = 1.8.7 =
 * Fixed announcement form flyer upload field never appearing even when `show_flyer="true"` shortcode attribute was set. [#252]
