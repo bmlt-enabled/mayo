@@ -38,7 +38,7 @@ class SettingsController {
         $settings = get_option('mayo_settings', []);
         $external_sources = get_option('mayo_external_sources', []);
 
-        return new \WP_REST_Response([
+        $response_data = [
             'bmlt_root_server' => $settings['bmlt_root_server'] ?? '',
             'notification_email' => $settings['notification_email'] ?? '',
             'default_service_bodies' => $settings['default_service_bodies'] ?? '',
@@ -47,7 +47,17 @@ class SettingsController {
             'subscription_tags' => $settings['subscription_tags'] ?? [],
             'subscription_service_bodies' => $settings['subscription_service_bodies'] ?? [],
             'subscription_new_option_behavior' => $settings['subscription_new_option_behavior'] ?? 'opt_in'
-        ]);
+        ];
+
+        if (current_user_can('manage_options')) {
+            $response_data['server_info'] = [
+                'php_version'    => PHP_VERSION,
+                'curl_available' => extension_loaded('curl'),
+                'curl_version'   => extension_loaded('curl') ? curl_version()['version'] : null,
+            ];
+        }
+
+        return new \WP_REST_Response($response_data);
     }
 
     /**

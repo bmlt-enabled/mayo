@@ -105,7 +105,8 @@ const Settings = () => {
                 setSettings({
                     bmlt_root_server: response.bmlt_root_server || '',
                     notification_email: response.notification_email || '',
-                    default_service_bodies: response.default_service_bodies || ''
+                    default_service_bodies: response.default_service_bodies || '',
+                    server_info: response.server_info || null
                 });
                 setExternalSources(Array.isArray(response.external_sources) ? response.external_sources : []);
 
@@ -338,6 +339,18 @@ const Settings = () => {
             <Notice status="warning" isDismissible={false}>
                 <p><strong>Important:</strong> This plugin requires Pretty Permalinks to be enabled for the REST API to function correctly. If you're experiencing 404 errors when accessing external source or settings  BMLT server, please ensure your WordPress site is using Pretty Permalinks (Settings → Permalinks) and not the "Plain" setting.</p>
             </Notice>
+
+            {settings.server_info && !settings.server_info.curl_available && (
+                <Notice status="warning" isDismissible={false}>
+                    <p><strong>Performance Warning:</strong> The PHP curl extension is not installed. External source requests will be significantly slower. Ask your hosting provider to install the php-curl extension for PHP {settings.server_info.php_version}.</p>
+                </Notice>
+            )}
+
+            {settings.server_info && settings.server_info.curl_available && (
+                <Notice status="success" isDismissible={false}>
+                    <p>PHP {settings.server_info.php_version} with curl {settings.server_info.curl_version} detected.</p>
+                </Notice>
+            )}
             
             {error && (
                 <Notice status="error" isDismissible={true} onRemove={() => setError(null)}>
