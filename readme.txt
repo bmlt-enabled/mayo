@@ -187,6 +187,9 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.8.9 =
+* Fixed release workflow fetching release-notes-tool from stale `master` branch instead of `main`, which caused GitHub Release notes to be truncated.
+
 = 1.8.8 =
 * Added copy-to-clipboard button for external source IDs in Settings, making IDs easier to select and copy. [#254]
 * Improved external source layout with ID displayed in a distinct box on its own row.
