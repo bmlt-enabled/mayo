@@ -82,7 +82,7 @@ class Frontend {
             'categories' => '',  // Comma-separated category slugs
             'category_relation' => 'OR',  // AND or OR - how to match multiple categories
             'tags' => '',       // Comma-separated tag slugs
-            'event_type' => '',  // Single event type (Service, Activity)
+            'event_type' => '',  // Single event type (Service, Activity, Celebration)
             'status' => 'publish',  // Single event status (publish, pending)
             'service_body' => '',  // Comma-separated service body IDs
             'source_ids' => '',  // Comma-separated source IDs
