@@ -24,7 +24,7 @@ class Frontend {
                     'wp-i18n',
                     'wp-api-fetch'
                 ],
-                '1.0',
+                defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
                 true
             );
         });
@@ -238,7 +238,7 @@ class Frontend {
                     'wp-i18n',
                     'wp-api-fetch'
                 ],
-                '1.0',
+                defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
                 true
             );
 
@@ -247,7 +247,7 @@ class Frontend {
                 'mayo-public',
                 plugin_dir_url(__FILE__) . '../assets/css/public.css',
                 ['wp-components'],
-                '1.0'
+                defined('MAYO_VERSION') ? MAYO_VERSION : '1.0'
             );
             wp_enqueue_style('dashicons');
         }
