@@ -517,6 +517,7 @@ const EventForm = () => {
                         <option value="">Select Event Type</option>
                         <option value="Service">Service</option>
                         <option value="Activity">Activity</option>
+                        <option value="Celebration">Celebration</option>
                     </select>
                 </div>
 
