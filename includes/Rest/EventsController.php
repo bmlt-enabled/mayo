@@ -949,7 +949,7 @@ class EventsController {
                         }
 
                         if ($is_archive) {
-                            return $end_date < $today;
+                            return $start_date < $today && $end_date < $today;
                         } else {
                             return $start_date >= $today || $end_date >= $today;
                         }
@@ -1004,7 +1004,7 @@ class EventsController {
                 }
 
                 if ($is_archive) {
-                    return $end_date < $today;
+                    return $start_date < $today && $end_date < $today;
                 } else {
                     return $start_date >= $today || $end_date >= $today;
                 }
