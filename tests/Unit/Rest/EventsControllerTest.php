@@ -944,19 +944,130 @@ class EventsControllerTest extends TestCase {
     }
 
     /**
-     * Test get_events with archive mode
+     * Test get_events with archive mode — past multi-day event should appear
      */
     public function testGetEventsWithArchiveMode(): void {
         $_GET = [
-            'archive' => 'true'
+            'archive'      => 'true',
+            'timezone'     => 'UTC',
+            'current_time' => '2025-06-01T00:00:00Z',
         ];
 
-        Functions\when('get_posts')->justReturn([]);
-        Functions\when('get_site_url')->justReturn('https://example.com');
+        $post = $this->createMockPost(['ID' => 801, 'post_title' => 'Past Multi-Day Event']);
+        $this->setPostMeta(801, [
+            'event_start_date' => '2025-01-10',
+            'event_end_date'   => '2025-01-12',
+            'event_start_time' => '09:00:00',
+            'event_end_time'   => '17:00:00',
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Past Multi-Day Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
 
         $response = EventsController::get_events();
+        $data = $response->get_data();
 
-        $this->assertInstanceOf(\WP_REST_Response::class, $response);
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(1, $data['events'],
+            'A past multi-day event (both start and end before today) must appear in archive');
+    }
+
+    /**
+     * Test archive mode excludes future multi-day events (bug #265)
+     */
+    public function testArchiveExcludesFutureMultiDayEvent(): void {
+        $_GET = [
+            'archive'      => 'true',
+            'timezone'     => 'UTC',
+            'current_time' => '2025-06-01T00:00:00Z',
+        ];
+
+        $post = $this->createMockPost(['ID' => 802, 'post_title' => 'Future Multi-Day Event']);
+        $this->setPostMeta(802, [
+            'event_start_date' => '2025-07-15',
+            'event_end_date'   => '2025-07-18',
+            'event_start_time' => '09:00:00',
+            'event_end_time'   => '17:00:00',
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Future Multi-Day Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $response = EventsController::get_events();
+        $data = $response->get_data();
+
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(0, $data['events'],
+            'A future multi-day event (start date after today) must NOT appear in archive — bug #265');
+    }
+
+    /**
+     * Test archive mode excludes ongoing multi-day events (started past, ends future)
+     */
+    public function testArchiveExcludesOngoingMultiDayEvent(): void {
+        $_GET = [
+            'archive'      => 'true',
+            'timezone'     => 'UTC',
+            'current_time' => '2025-06-01T12:00:00Z',
+        ];
+
+        $post = $this->createMockPost(['ID' => 803, 'post_title' => 'Ongoing Multi-Day Event']);
+        $this->setPostMeta(803, [
+            'event_start_date' => '2025-05-28',
+            'event_end_date'   => '2025-06-05',
+            'event_start_time' => '09:00:00',
+            'event_end_time'   => '17:00:00',
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Ongoing Multi-Day Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $response = EventsController::get_events();
+        $data = $response->get_data();
+
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(0, $data['events'],
+            'An ongoing multi-day event (started past, ends future) must NOT appear in archive');
+    }
+
+    /**
+     * Test archive mode excludes future single-day events
+     */
+    public function testArchiveExcludesFutureSingleDayEvent(): void {
+        $_GET = [
+            'archive'      => 'true',
+            'timezone'     => 'UTC',
+            'current_time' => '2025-06-01T00:00:00Z',
+        ];
+
+        $post = $this->createMockPost(['ID' => 804, 'post_title' => 'Future Single-Day Event']);
+        $this->setPostMeta(804, [
+            'event_start_date' => '2025-08-01',
+            'event_start_time' => '14:00:00',
+            'event_end_time'   => '16:00:00',
+        ]);
+
+        Functions\when('get_posts')->justReturn([$post]);
+        Functions\when('get_post')->justReturn($post);
+        Functions\when('get_the_title')->justReturn('Future Single-Day Event');
+        Functions\when('has_post_thumbnail')->justReturn(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+
+        $response = EventsController::get_events();
+        $data = $response->get_data();
+
+        $this->assertArrayHasKey('events', $data);
+        $this->assertCount(0, $data['events'],
+            'A future single-day event must NOT appear in archive');
     }
 
     /**
