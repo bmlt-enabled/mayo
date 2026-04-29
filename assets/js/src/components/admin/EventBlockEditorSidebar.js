@@ -180,7 +180,8 @@ const EventBlockEditorSidebar = () => {
                     options={[
                         { label: 'Select Event Type', value: '' },
                         { label: 'Service', value: 'Service' },
-                        { label: 'Activity', value: 'Activity' }
+                        { label: 'Activity', value: 'Activity' },
+                        { label: 'Celebration', value: 'Celebration' }
                     ]}
                     onChange={value => updateMetaValue('event_type', value)}
                     __nextHasNoMarginBottom={true}

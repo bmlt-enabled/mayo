@@ -523,7 +523,8 @@ const Settings = () => {
                                 options={[
                                     { label: 'All Event Types', value: '' },
                                     { label: 'Activity', value: 'Activity' },
-                                    { label: 'Service', value: 'Service' }
+                                    { label: 'Service', value: 'Service' },
+                                    { label: 'Celebration', value: 'Celebration' }
                                 ]}
                                 onChange={(value) => {
                                     setCurrentSource({...currentSource, event_type: value});
