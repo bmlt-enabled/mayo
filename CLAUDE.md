@@ -137,3 +137,26 @@ This codebase has had multiple encoding bugs (#41, #84, #109, #222, #249). Follo
 
 ### Why?
 WordPress escaping functions encode special characters for HTML safety. When this data goes through REST API → JSON → React, the HTML entities cause display issues or broken functionality.
+
+## Internationalization (i18n)
+
+The plugin uses the `mayo-events-manager` text domain. Translations live in `languages/`.
+
+### Adding new strings
+
+- **PHP**: wrap user-facing strings in `__()`, `_e()`, `esc_html__()`, `esc_attr__()`, `_n()`, etc., always passing `'mayo-events-manager'` as the second argument.
+- **JavaScript**: import from `@wordpress/i18n` (e.g. `import { __, sprintf, _n } from '@wordpress/i18n';`) and pass the same text domain.
+- Use `printf`-style placeholders (`%s`, `%d`, `%1$s`) and add `/* translators: ... */` comments for any non-obvious context.
+- Strings sent through the REST API and rendered as-is in JS should still be wrapped on the PHP side so the server-side locale is honored.
+
+### Regenerating the POT template
+
+```bash
+composer make-pot
+# or
+make pot
+# preferred (when available):
+wp i18n make-pot . languages/mayo-events-manager.pot --slug=mayo-events-manager
+```
+
+See `languages/README.md` for the full translator workflow.

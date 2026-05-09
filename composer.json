@@ -30,7 +30,8 @@
         "lint": "phpcs *.php",
         "lint:fix": "phpcbf *.php",
         "lint:esc-url": "bash scripts/check-esc-url.sh",
-        "lint:all": ["@lint", "@lint:esc-url"]
+        "lint:all": ["@lint", "@lint:esc-url"],
+        "make-pot": "php scripts/generate-pot.php > languages/mayo-events-manager.pot"
     },
     "config": {
         "allow-plugins": {

@@ -1,4 +1,5 @@
 import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames } from '../../util';
 import LocationAddress from './LocationAddress';
@@ -47,7 +48,7 @@ const EventModal = ({ event, timeFormat, onClose }) => {
     return (
         <div className="mayo-event-modal-backdrop" onClick={handleBackdropClick}>
             <div className="mayo-event-modal">
-                <button className="mayo-event-modal-close" onClick={onClose} title="Close">
+                <button className="mayo-event-modal-close" onClick={onClose} title={__('Close', 'mayo-events-manager')}>
                     <span className="dashicons dashicons-no-alt"></span>
                 </button>
 
@@ -66,7 +67,7 @@ const EventModal = ({ event, timeFormat, onClose }) => {
                                 </span>
                             )
                         ) : (
-                            <span className="mayo-event-date-error">No Date Set</span>
+                            <span className="mayo-event-date-error">{__('No Date Set', 'mayo-events-manager')}</span>
                         )}
                     </div>
                     <h2 dangerouslySetInnerHTML={{ __html: event.title.rendered }} />
@@ -136,7 +137,7 @@ const EventModal = ({ event, timeFormat, onClose }) => {
                                 className="mayo-image-download"
                             >
                                 <span className="dashicons dashicons-download"></span>
-                                Download Flyer
+                                {__('Download Flyer', 'mayo-events-manager')}
                             </a>
                         </div>
                     )}
@@ -166,7 +167,7 @@ const EventModal = ({ event, timeFormat, onClose }) => {
 
                 <div className="mayo-event-modal-footer">
                     <a href={event.link} className="mayo-event-modal-link">
-                        View Full Details
+                        {__('View Full Details', 'mayo-events-manager')}
                         <span className="dashicons dashicons-arrow-right-alt2"></span>
                     </a>
                 </div>

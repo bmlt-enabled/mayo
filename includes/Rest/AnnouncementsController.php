@@ -345,7 +345,7 @@ class AnnouncementsController {
         return new \WP_REST_Response([
             'success' => true,
             'id' => $post_id,
-            'message' => 'Announcement submitted successfully'
+            'message' => __('Announcement submitted successfully', 'mayo-events-manager')
         ], 200);
     }
 
@@ -363,31 +363,41 @@ class AnnouncementsController {
         }
 
         $site_name = get_bloginfo('name');
-        $subject = sprintf('[%s] New Announcement Submission: %s', $site_name, sanitize_text_field($params['title']));
+        /* translators: 1: site name, 2: announcement title */
+        $subject = sprintf(__('[%1$s] New Announcement Submission: %2$s', 'mayo-events-manager'), $site_name, sanitize_text_field($params['title']));
 
-        $message = "A new announcement has been submitted and is pending review.\n\n";
-        $message .= "Title: " . sanitize_text_field($params['title']) . "\n\n";
+        $not_provided = __('Not provided', 'mayo-events-manager');
+        $not_set = __('Not set', 'mayo-events-manager');
+
+        $message = __('A new announcement has been submitted and is pending review.', 'mayo-events-manager') . "\n\n";
+        /* translators: %s: announcement title */
+        $message .= sprintf(__('Title: %s', 'mayo-events-manager'), sanitize_text_field($params['title'])) . "\n\n";
 
         // Dates
         if (!empty($params['start_date']) || !empty($params['end_date'])) {
-            $start_date = !empty($params['start_date']) ? sanitize_text_field($params['start_date']) : 'Not set';
-            $end_date = !empty($params['end_date']) ? sanitize_text_field($params['end_date']) : 'Not set';
-            $message .= "Start Date: " . $start_date . "\n";
-            $message .= "End Date: " . $end_date . "\n\n";
+            $start_date = !empty($params['start_date']) ? sanitize_text_field($params['start_date']) : $not_set;
+            $end_date = !empty($params['end_date']) ? sanitize_text_field($params['end_date']) : $not_set;
+            /* translators: %s: start date */
+            $message .= sprintf(__('Start Date: %s', 'mayo-events-manager'), $start_date) . "\n";
+            /* translators: %s: end date */
+            $message .= sprintf(__('End Date: %s', 'mayo-events-manager'), $end_date) . "\n\n";
         }
 
-        $message .= "Description:\n" . sanitize_textarea_field($params['description'] ?? '') . "\n\n";
+        $message .= __('Description:', 'mayo-events-manager') . "\n" . sanitize_textarea_field($params['description'] ?? '') . "\n\n";
 
         // Service body info
         if (!empty($params['service_body'])) {
             $service_body_id = sanitize_text_field($params['service_body']);
-            $message .= "Service Body ID: " . $service_body_id . "\n";
+            /* translators: %s: service body ID */
+            $message .= sprintf(__('Service Body ID: %s', 'mayo-events-manager'), $service_body_id) . "\n";
         }
 
         // Contact info
-        $message .= "\nSubmitted by:\n";
-        $message .= "Name: " . sanitize_text_field($params['contact_name'] ?? 'Not provided') . "\n";
-        $message .= "Email: " . sanitize_email($params['email'] ?? 'Not provided') . "\n\n";
+        $message .= "\n" . __('Submitted by:', 'mayo-events-manager') . "\n";
+        /* translators: %s: contact name */
+        $message .= sprintf(__('Name: %s', 'mayo-events-manager'), sanitize_text_field($params['contact_name'] ?? $not_provided)) . "\n";
+        /* translators: %s: email address */
+        $message .= sprintf(__('Email: %s', 'mayo-events-manager'), sanitize_email($params['email'] ?? $not_provided)) . "\n\n";
 
         // Categories
         if (!empty($params['categories'])) {
@@ -400,18 +410,20 @@ class AnnouncementsController {
                 }
             }
             if (!empty($category_names)) {
-                $message .= "Categories: " . implode(', ', $category_names) . "\n";
+                /* translators: %s: comma-separated category names */
+                $message .= sprintf(__('Categories: %s', 'mayo-events-manager'), implode(', ', $category_names)) . "\n";
             }
         }
 
         // Tags
         if (!empty($params['tags'])) {
-            $message .= "Tags: " . sanitize_text_field($params['tags']) . "\n";
+            /* translators: %s: comma-separated tags */
+            $message .= sprintf(__('Tags: %s', 'mayo-events-manager'), sanitize_text_field($params['tags'])) . "\n";
         }
 
         // Edit link
         $edit_link = admin_url('post.php?post=' . $post_id . '&action=edit');
-        $message .= "\nReview and edit this announcement:\n" . $edit_link . "\n";
+        $message .= "\n" . __('Review and edit this announcement:', 'mayo-events-manager') . "\n" . $edit_link . "\n";
 
         $headers = ['Content-Type: text/plain; charset=UTF-8'];
 

@@ -669,42 +669,57 @@ class EventsController {
                 : $params['recurring_pattern'];
 
             if (is_array($recurring_pattern) && isset($recurring_pattern['type']) && $recurring_pattern['type'] !== 'none') {
-                $recurring_info = "\nRecurring Pattern: ";
+                $recurring_info = "\n" . __('Recurring Pattern:', 'mayo-events-manager') . ' ';
                 switch ($recurring_pattern['type']) {
                     case 'daily':
-                        $recurring_info .= "Daily";
+                        $recurring_info .= __('Daily', 'mayo-events-manager');
                         if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
-                            $recurring_info .= " (every " . $recurring_pattern['interval'] . " days)";
+                            /* translators: %d: interval days */
+                            $recurring_info .= ' ' . sprintf(__('(every %d days)', 'mayo-events-manager'), $recurring_pattern['interval']);
                         }
                         break;
                     case 'weekly':
-                        $recurring_info .= "Weekly";
+                        $recurring_info .= __('Weekly', 'mayo-events-manager');
                         if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
-                            $recurring_info .= " (every " . $recurring_pattern['interval'] . " weeks)";
+                            /* translators: %d: interval weeks */
+                            $recurring_info .= ' ' . sprintf(__('(every %d weeks)', 'mayo-events-manager'), $recurring_pattern['interval']);
                         }
                         if (!empty($recurring_pattern['weekdays'])) {
-                            $weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            $weekdays = [
+                                __('Sunday', 'mayo-events-manager'),
+                                __('Monday', 'mayo-events-manager'),
+                                __('Tuesday', 'mayo-events-manager'),
+                                __('Wednesday', 'mayo-events-manager'),
+                                __('Thursday', 'mayo-events-manager'),
+                                __('Friday', 'mayo-events-manager'),
+                                __('Saturday', 'mayo-events-manager'),
+                            ];
                             $selected_days = array_map(function($day) use ($weekdays) {
                                 return $weekdays[$day] ?? '';
                             }, $recurring_pattern['weekdays']);
-                            $recurring_info .= " on " . implode(', ', array_filter($selected_days));
+                            /* translators: %s: comma-separated list of weekdays */
+                            $recurring_info .= ' ' . sprintf(__('on %s', 'mayo-events-manager'), implode(', ', array_filter($selected_days)));
                         }
                         break;
                     case 'monthly':
-                        $recurring_info .= "Monthly";
+                        $recurring_info .= __('Monthly', 'mayo-events-manager');
                         if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
-                            $recurring_info .= " (every " . $recurring_pattern['interval'] . " months)";
+                            /* translators: %d: interval months */
+                            $recurring_info .= ' ' . sprintf(__('(every %d months)', 'mayo-events-manager'), $recurring_pattern['interval']);
                         }
                         if (isset($recurring_pattern['monthlyType']) && $recurring_pattern['monthlyType'] === 'date' && isset($recurring_pattern['monthlyDate'])) {
-                            $recurring_info .= " on day " . $recurring_pattern['monthlyDate'];
+                            /* translators: %s: day of the month */
+                            $recurring_info .= ' ' . sprintf(__('on day %s', 'mayo-events-manager'), $recurring_pattern['monthlyDate']);
                         } elseif (isset($recurring_pattern['monthlyWeekday'])) {
-                            $recurring_info .= " on " . $recurring_pattern['monthlyWeekday'];
+                            /* translators: %s: ordinal weekday description, e.g. "first Monday" */
+                            $recurring_info .= ' ' . sprintf(__('on %s', 'mayo-events-manager'), $recurring_pattern['monthlyWeekday']);
                         }
                         break;
                 }
 
                 if (!empty($recurring_pattern['endDate'])) {
-                    $recurring_info .= " until " . $recurring_pattern['endDate'];
+                    /* translators: %s: end date */
+                    $recurring_info .= ' ' . sprintf(__('until %s', 'mayo-events-manager'), $recurring_pattern['endDate']);
                 }
             }
         }
@@ -712,73 +727,72 @@ class EventsController {
         // Format location information
         $location_info = '';
         if (!empty($params['location_name']) || !empty($params['location_address']) || !empty($params['location_details'])) {
-            $location_info = "\nLocation:";
+            $location_info = "\n" . __('Location:', 'mayo-events-manager');
             if (!empty($params['location_name'])) {
-                $location_info .= "\n  Name: " . sanitize_text_field($params['location_name']);
+                $location_info .= "\n  " . __('Name:', 'mayo-events-manager') . ' ' . sanitize_text_field($params['location_name']);
             }
             if (!empty($params['location_address'])) {
-                $location_info .= "\n  Address: " . sanitize_text_field($params['location_address']);
+                $location_info .= "\n  " . __('Address:', 'mayo-events-manager') . ' ' . sanitize_text_field($params['location_address']);
             }
             if (!empty($params['location_details'])) {
-                $location_info .= "\n  Details: " . sanitize_text_field($params['location_details']);
+                $location_info .= "\n  " . __('Details:', 'mayo-events-manager') . ' ' . sanitize_text_field($params['location_details']);
             }
         }
 
         // Format categories and tags
         $categories_info = '';
         if (!empty($params['categories'])) {
-            $categories_info = "\nCategories: " . sanitize_text_field($params['categories']);
+            $categories_info = "\n" . __('Categories:', 'mayo-events-manager') . ' ' . sanitize_text_field($params['categories']);
         }
 
         $tags_info = '';
         if (!empty($params['tags'])) {
-            $tags_info = "\nTags: " . sanitize_text_field($params['tags']);
+            $tags_info = "\n" . __('Tags:', 'mayo-events-manager') . ' ' . sanitize_text_field($params['tags']);
         }
 
         // Check for file attachments
         $file_names = FileUpload::get_uploaded_file_names();
         $attachments_info = '';
         if (!empty($file_names)) {
-            $attachments_info = "\nAttachments: " . implode(', ', $file_names);
+            $attachments_info = "\n" . __('Attachments:', 'mayo-events-manager') . ' ' . implode(', ', $file_names);
         }
 
         // Build subject and message
         $subject = sprintf($subject_template, sanitize_text_field($params['event_name']));
 
-        $message_template = "Event Name: %s\n" .
-            "Event Type: %s\n" .
-            "Service Body: %s (ID: %s)\n" .
-            "Start Date: %s\n" .
-            "Start Time: %s\n" .
-            "End Date: %s\n" .
-            "End Time: %s\n" .
-            "Timezone: %s\n" .
-            "Contact Name: %s\n" .
-            "Contact Email: %s%s%s%s%s%s\n\n" .
-            "Description:\n%s\n\n" .
-            "View the event: %s";
+        $lines = [];
+        /* translators: %s: event name */
+        $lines[] = sprintf(__('Event Name: %s', 'mayo-events-manager'), sanitize_text_field($params['event_name']));
+        /* translators: %s: event type */
+        $lines[] = sprintf(__('Event Type: %s', 'mayo-events-manager'), sanitize_text_field($params['event_type']));
+        /* translators: 1: service body name, 2: service body ID */
+        $lines[] = sprintf(__('Service Body: %1$s (ID: %2$s)', 'mayo-events-manager'), $service_body_name, $service_body_id);
+        /* translators: %s: start date */
+        $lines[] = sprintf(__('Start Date: %s', 'mayo-events-manager'), sanitize_text_field($params['event_start_date']));
+        /* translators: %s: start time */
+        $lines[] = sprintf(__('Start Time: %s', 'mayo-events-manager'), sanitize_text_field($params['event_start_time']));
+        /* translators: %s: end date */
+        $lines[] = sprintf(__('End Date: %s', 'mayo-events-manager'), sanitize_text_field($params['event_end_date']));
+        /* translators: %s: end time */
+        $lines[] = sprintf(__('End Time: %s', 'mayo-events-manager'), sanitize_text_field($params['event_end_time']));
+        /* translators: %s: timezone */
+        $lines[] = sprintf(__('Timezone: %s', 'mayo-events-manager'), sanitize_text_field($params['timezone']));
+        /* translators: %s: contact name */
+        $lines[] = sprintf(__('Contact Name: %s', 'mayo-events-manager'), sanitize_text_field($params['contact_name']));
+        /* translators: %s: contact email */
+        $lines[] = sprintf(__('Contact Email: %s', 'mayo-events-manager'), sanitize_email($params['email']));
 
-        $message = sprintf(
-            $message_template,
-            sanitize_text_field($params['event_name']),
-            sanitize_text_field($params['event_type']),
-            $service_body_name,
-            $service_body_id,
-            sanitize_text_field($params['event_start_date']),
-            sanitize_text_field($params['event_start_time']),
-            sanitize_text_field($params['event_end_date']),
-            sanitize_text_field($params['event_end_time']),
-            sanitize_text_field($params['timezone']),
-            sanitize_text_field($params['contact_name']),
-            sanitize_email($params['email']),
-            $recurring_info,
-            $location_info,
-            $categories_info,
-            $tags_info,
-            $attachments_info,
-            sanitize_textarea_field($params['description'] ?? ''),
-            $view_url
-        );
+        $message = implode("\n", $lines)
+            . $recurring_info
+            . $location_info
+            . $categories_info
+            . $tags_info
+            . $attachments_info
+            . "\n\n"
+            . __('Description:', 'mayo-events-manager') . "\n"
+            . sanitize_textarea_field($params['description'] ?? '') . "\n\n"
+            /* translators: %s: URL to view the event */
+            . sprintf(__('View the event: %s', 'mayo-events-manager'), $view_url);
 
         return [
             'subject' => $subject,
@@ -795,7 +809,8 @@ class EventsController {
     private static function send_event_submission_email($post_id, $params) {
         $to = EmailNotification::get_notification_recipients();
 
-        $subject_template = 'New Event Submission: %s';
+        /* translators: %s: event name */
+        $subject_template = __('New Event Submission: %s', 'mayo-events-manager');
         $view_url = admin_url('post.php?post=' . $post_id . '&action=edit');
 
         $email_content = self::build_event_email_content($params, $subject_template, $view_url);

@@ -158,8 +158,38 @@ abstract class TestCase extends PHPUnitTestCase {
             '_e' => function($text, $domain = 'default') {
                 echo $text;
             },
+            '_x' => function($text, $context = '', $domain = 'default') {
+                return $text;
+            },
+            '_ex' => function($text, $context = '', $domain = 'default') {
+                echo $text;
+            },
+            '_n' => function($single, $plural, $number, $domain = 'default') {
+                return $number === 1 ? $single : $plural;
+            },
+            '_nx' => function($single, $plural, $number, $context = '', $domain = 'default') {
+                return $number === 1 ? $single : $plural;
+            },
             'esc_html__' => function($text, $domain = 'default') {
                 return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+            },
+            'esc_html_e' => function($text, $domain = 'default') {
+                echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+            },
+            'esc_attr__' => function($text, $domain = 'default') {
+                return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+            },
+            'esc_attr_e' => function($text, $domain = 'default') {
+                echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+            },
+            'load_plugin_textdomain' => function($domain, $deprecated = false, $plugin_rel_path = false) {
+                return true;
+            },
+            'wp_set_script_translations' => function($handle, $domain = 'default', $path = null) {
+                return true;
+            },
+            'plugin_dir_path' => function($file = '') {
+                return '/fake/plugin/path/';
             },
         ]);
 

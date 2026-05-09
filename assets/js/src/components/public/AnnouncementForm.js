@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
 
@@ -249,7 +250,7 @@ const AnnouncementForm = () => {
                 const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
                 if (!allowedTypes.includes(formData.flyer.type) || !allowedExtensions.includes(fileExtension)) {
-                    throw new Error('You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)');
+                    throw new Error(__('You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)', 'mayo-events-manager'));
                 }
             }
 
@@ -262,7 +263,11 @@ const AnnouncementForm = () => {
             });
 
             if (missingFields.length > 0) {
-                throw new Error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+                throw new Error(sprintf(
+                    /* translators: %s: comma-separated list of missing fields */
+                    __('Please fill in all required fields: %s', 'mayo-events-manager'),
+                    missingFields.join(', ')
+                ));
             }
 
             const data = new FormData();
@@ -298,7 +303,7 @@ const AnnouncementForm = () => {
             if (result.id || result.success) {
                 setMessage({
                     type: 'success',
-                    text: 'Announcement submitted successfully!'
+                    text: __('Announcement submitted successfully!', 'mayo-events-manager')
                 });
 
                 // Reset form - preserve service_body if only one is configured
@@ -321,12 +326,12 @@ const AnnouncementForm = () => {
                 });
                 setUploadType(null);
             } else {
-                throw new Error(result.message || 'Failed to submit announcement');
+                throw new Error(result.message || __('Failed to submit announcement', 'mayo-events-manager'));
             }
         } catch (error) {
             setMessage({
                 type: 'error',
-                text: error.message || 'Error submitting form'
+                text: error.message || __('Error submitting form', 'mayo-events-manager')
             });
         } finally {
             setIsSubmitting(false);
@@ -345,7 +350,7 @@ const AnnouncementForm = () => {
             if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
                 setMessage({
                     type: 'error',
-                    text: 'The selected file is not a valid image. Please use a valid image file (JPG, PNG, or GIF)'
+                    text: __('The selected file is not a valid image. Please use a valid image file (JPG, PNG, or GIF)', 'mayo-events-manager')
                 });
                 e.target.value = '';
                 setFormData(prev => ({
@@ -371,7 +376,7 @@ const AnnouncementForm = () => {
                 img.onerror = () => {
                     setMessage({
                         type: 'error',
-                        text: 'The selected file is not a valid image. Please choose a valid image file (JPG, PNG, or GIF)'
+                        text: __('The selected file is not a valid image. Please choose a valid image file (JPG, PNG, or GIF)', 'mayo-events-manager')
                     });
                     e.target.value = '';
                     setFormData(prev => ({
@@ -385,7 +390,7 @@ const AnnouncementForm = () => {
             reader.onerror = () => {
                 setMessage({
                     type: 'error',
-                    text: 'Error reading the file'
+                    text: __('Error reading the file', 'mayo-events-manager')
                 });
                 e.target.value = '';
                 setFormData(prev => ({
@@ -429,7 +434,7 @@ const AnnouncementForm = () => {
             <form onSubmit={handleSubmit}>
                 <div className="mayo-form-field">
                     <label htmlFor="title">
-                        Announcement Title {isFieldRequired('title') && '*'}
+                        {__('Announcement Title', 'mayo-events-manager')} {isFieldRequired('title') && '*'}
                     </label>
                     <input
                         type="text"
@@ -443,7 +448,7 @@ const AnnouncementForm = () => {
 
                 {shouldShowServiceBodyField() && (
                     <div className="mayo-form-field">
-                        <label htmlFor="service_body">Service Body *</label>
+                        <label htmlFor="service_body">{__('Service Body', 'mayo-events-manager')} *</label>
                         <select
                             id="service_body"
                             name="service_body"
@@ -451,9 +456,9 @@ const AnnouncementForm = () => {
                             onChange={handleServiceBodyChange}
                             required
                         >
-                            <option value="">Select a service body</option>
+                            <option value="">{__('Select a service body', 'mayo-events-manager')}</option>
                             {shouldShowUnaffiliated() && (
-                                <option value="0">Unaffiliated (0)</option>
+                                <option value="0">{__('Unaffiliated (0)', 'mayo-events-manager')}</option>
                             )}
                             {getFilteredServiceBodies().map((body) => (
                                 <option key={body.id} value={body.id}>
@@ -465,7 +470,7 @@ const AnnouncementForm = () => {
                 )}
 
                 <div className="mayo-form-field">
-                    <label htmlFor="contact_name">Point of Contact Name (Private) *</label>
+                    <label htmlFor="contact_name">{__('Point of Contact Name (Private)', 'mayo-events-manager')} *</label>
                     <input
                         type="text"
                         id="contact_name"
@@ -473,12 +478,12 @@ const AnnouncementForm = () => {
                         value={formData.contact_name}
                         onChange={handleChange}
                         required
-                        placeholder="Your name (will not be displayed publicly)"
+                        placeholder={__('Your name (will not be displayed publicly)', 'mayo-events-manager')}
                     />
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="email">Point of Contact Email (Private) *</label>
+                    <label htmlFor="email">{__('Point of Contact Email (Private)', 'mayo-events-manager')} *</label>
                     <input
                         type="email"
                         id="email"
@@ -486,21 +491,21 @@ const AnnouncementForm = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        placeholder="Your email address (will not be displayed publicly)"
+                        placeholder={__('Your email address (will not be displayed publicly)', 'mayo-events-manager')}
                     />
                 </div>
 
                 <fieldset className="mayo-display-window-fieldset">
-                    <legend>Display Window</legend>
+                    <legend>{__('Display Window', 'mayo-events-manager')}</legend>
                     <p className="mayo-fieldset-description">
-                        Control when this announcement is visible on the site.
+                        {__('Control when this announcement is visible on the site.', 'mayo-events-manager')}
                     </p>
 
                     <div className="mayo-datetime-group">
                         <div className="mayo-datetime-row">
                             <div className="mayo-form-field">
                                 <label htmlFor="start_date">
-                                    Start Date {isFieldRequired('start_date') && '*'}
+                                    {__('Start Date', 'mayo-events-manager')} {isFieldRequired('start_date') && '*'}
                                 </label>
                                 <input
                                     type="date"
@@ -514,7 +519,7 @@ const AnnouncementForm = () => {
 
                             <div className="mayo-form-field">
                                 <label htmlFor="start_time">
-                                    Start Time {isFieldRequired('start_time') && '*'}
+                                    {__('Start Time', 'mayo-events-manager')} {isFieldRequired('start_time') && '*'}
                                 </label>
                                 <input
                                     type="time"
@@ -526,12 +531,12 @@ const AnnouncementForm = () => {
                                 />
                             </div>
                         </div>
-                        <p className="mayo-field-hint">Leave empty to start showing immediately</p>
+                        <p className="mayo-field-hint">{__('Leave empty to start showing immediately', 'mayo-events-manager')}</p>
 
                         <div className="mayo-datetime-row">
                             <div className="mayo-form-field">
                                 <label htmlFor="end_date">
-                                    End Date {isFieldRequired('end_date') && '*'}
+                                    {__('End Date', 'mayo-events-manager')} {isFieldRequired('end_date') && '*'}
                                 </label>
                                 <input
                                     type="date"
@@ -545,7 +550,7 @@ const AnnouncementForm = () => {
 
                             <div className="mayo-form-field">
                                 <label htmlFor="end_time">
-                                    End Time {isFieldRequired('end_time') && '*'}
+                                    {__('End Time', 'mayo-events-manager')} {isFieldRequired('end_time') && '*'}
                                 </label>
                                 <input
                                     type="time"
@@ -557,13 +562,13 @@ const AnnouncementForm = () => {
                                 />
                             </div>
                         </div>
-                        <p className="mayo-field-hint">Leave empty to show indefinitely</p>
+                        <p className="mayo-field-hint">{__('Leave empty to show indefinitely', 'mayo-events-manager')}</p>
                     </div>
                 </fieldset>
 
                 <div className="mayo-form-field">
                     <label htmlFor="description">
-                        Description {isFieldRequired('description') && '*'}
+                        {__('Description', 'mayo-events-manager')} {isFieldRequired('description') && '*'}
                     </label>
                     <textarea
                         id="description"
@@ -578,7 +583,7 @@ const AnnouncementForm = () => {
                 {showFlyer && (
                     <div className="mayo-form-field">
                         <label>
-                            Image/Flyer {isFieldRequired('flyer') && '*'}
+                            {__('Image/Flyer', 'mayo-events-manager')} {isFieldRequired('flyer') && '*'}
                         </label>
                         <div className="mayo-upload-section">
                             {!uploadType && (
@@ -593,11 +598,11 @@ const AnnouncementForm = () => {
                                         className="mayo-file-input"
                                     />
                                     <label htmlFor="flyer-upload" className="mayo-upload-button">
-                                        Upload Image
+                                        {__('Upload Image', 'mayo-events-manager')}
                                     </label>
                                     <p className="mayo-upload-info">
-                                        Supported file types: Images (.jpg, .jpeg, .png, .gif)
-                                        {isFieldRequired('flyer') && ' (Required)'}
+                                        {__('Supported file types: Images (.jpg, .jpeg, .png, .gif)', 'mayo-events-manager')}
+                                        {isFieldRequired('flyer') && ' ' + __('(Required)', 'mayo-events-manager')}
                                     </p>
                                 </>
                             )}
@@ -605,14 +610,18 @@ const AnnouncementForm = () => {
                             {uploadType && (
                                 <div className="mayo-upload-preview">
                                     <p>
-                                        Selected: {formData.flyer?.name || 'No file selected'}
+                                        {sprintf(
+                                            /* translators: %s: filename */
+                                            __('Selected: %s', 'mayo-events-manager'),
+                                            formData.flyer?.name || __('No file selected', 'mayo-events-manager')
+                                        )}
                                     </p>
                                     <button
                                         type="button"
                                         onClick={clearUploads}
                                         className="mayo-clear-upload"
                                     >
-                                        Clear Upload
+                                        {__('Clear Upload', 'mayo-events-manager')}
                                     </button>
                                 </div>
                             )}
@@ -622,7 +631,7 @@ const AnnouncementForm = () => {
 
                 {categories.length > 0 && (
                     <div className="mayo-form-field">
-                        <label>Categories</label>
+                        <label>{__('Categories', 'mayo-events-manager')}</label>
                         <div className="mayo-taxonomy-list">
                             {categories.map(category => (
                                 <label key={category?.id} className="mayo-taxonomy-item">
@@ -636,7 +645,7 @@ const AnnouncementForm = () => {
                                             setFormData({...formData, categories: newCategories});
                                         }}
                                     />
-                                    {category?.name ? decodeHtmlEntities(category.name) : 'Unnamed Category'}
+                                    {category?.name ? decodeHtmlEntities(category.name) : __('Unnamed Category', 'mayo-events-manager')}
                                 </label>
                             ))}
                         </div>
@@ -645,7 +654,7 @@ const AnnouncementForm = () => {
 
                 {tags.length > 0 && (
                     <div className="mayo-form-field">
-                        <label>Tags</label>
+                        <label>{__('Tags', 'mayo-events-manager')}</label>
                         <div className="mayo-taxonomy-list">
                             {tags.map(tag => (
                                 <label key={tag?.id || 'default'} className="mayo-taxonomy-item">
@@ -659,7 +668,7 @@ const AnnouncementForm = () => {
                                             setFormData({...formData, tags: newTags});
                                         }}
                                     />
-                                    {tag?.name ? decodeHtmlEntities(tag.name) : 'Unnamed Tag'}
+                                    {tag?.name ? decodeHtmlEntities(tag.name) : __('Unnamed Tag', 'mayo-events-manager')}
                                 </label>
                             ))}
                         </div>
@@ -671,12 +680,12 @@ const AnnouncementForm = () => {
                     disabled={isSubmitting}
                     className="mayo-submit-button"
                 >
-                    {isSubmitting ? 'Submitting...' : 'Submit Announcement'}
+                    {isSubmitting ? __('Submitting...', 'mayo-events-manager') : __('Submit Announcement', 'mayo-events-manager')}
                 </button>
 
                 {message && (
                     <div className={`mayo-message mayo-message-${message.type}`}>
-                        {typeof message.text === 'string' ? message.text : 'An error occurred while submitting the form. Please try again.'}
+                        {typeof message.text === 'string' ? message.text : __('An error occurred while submitting the form. Please try again.', 'mayo-events-manager')}
                     </div>
                 )}
             </form>

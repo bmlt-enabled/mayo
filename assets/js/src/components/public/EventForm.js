@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
 import { getTimezonesByRegion, getUserTimezone } from '../../timezones';
@@ -235,7 +236,7 @@ const EventForm = () => {
                 const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
                 
                 if (!allowedTypes.includes(formData.flyer.type) || !allowedExtensions.includes(fileExtension)) {
-                    throw new Error('You did not attach a valid image file, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)');
+                    throw new Error(__('You did not attach a valid image file, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)', 'mayo-events-manager'));
                 }
             }
 
@@ -248,7 +249,11 @@ const EventForm = () => {
             });
 
             if (missingFields.length > 0) {
-                throw new Error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+                throw new Error(sprintf(
+                    /* translators: %s: comma-separated list of missing fields */
+                    __('Please fill in all required fields: %s', 'mayo-events-manager'),
+                    missingFields.join(', ')
+                ));
             }
 
             const data = new FormData();
@@ -286,9 +291,9 @@ const EventForm = () => {
             });
 
             if (result.id || result.success) {
-                setMessage({ 
-                    type: 'success', 
-                    text: 'Event submitted successfully!' 
+                setMessage({
+                    type: 'success',
+                    text: __('Event submitted successfully!', 'mayo-events-manager')
                 });
 
                 // Reset form - preserve service_body if only one is configured
@@ -329,13 +334,13 @@ const EventForm = () => {
                 });
                 setUploadType(null);
             } else {
-                throw new Error(result.message || 'Failed to submit event');
+                throw new Error(result.message || __('Failed to submit event', 'mayo-events-manager'));
             }
         } catch (error) {
             // Remove console.error
-            setMessage({ 
-                type: 'error', 
-                text: error.message || 'Error submitting form' 
+            setMessage({
+                type: 'error',
+                text: error.message || __('Error submitting form', 'mayo-events-manager')
             });
         } finally {
             setIsSubmitting(false);
@@ -354,9 +359,9 @@ const EventForm = () => {
             
             // Immediately reject if not an allowed type
             if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
-                setMessage({ 
-                    type: 'error', 
-                    text: 'The selected file is not a valid image, so one will not be submitted.  Please use a valid image file (JPG, PNG, or GIF)' 
+                setMessage({
+                    type: 'error',
+                    text: __('The selected file is not a valid image, so one will not be submitted.  Please use a valid image file (JPG, PNG, or GIF)', 'mayo-events-manager')
                 });
                 e.target.value = ''; // Clear the file input
                 setFormData(prev => ({
@@ -382,9 +387,9 @@ const EventForm = () => {
                 };
                 img.onerror = () => {
                     // Not a valid image
-                    setMessage({ 
-                        type: 'error', 
-                        text: 'The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)' 
+                    setMessage({
+                        type: 'error',
+                        text: __('The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)', 'mayo-events-manager')
                     });
                     e.target.value = ''; // Clear the file input
                     setFormData(prev => ({
@@ -396,9 +401,9 @@ const EventForm = () => {
                 img.src = event.target.result;
             };
             reader.onerror = () => {
-                setMessage({ 
-                    type: 'error', 
-                    text: 'Error reading the file' 
+                setMessage({
+                    type: 'error',
+                    text: __('Error reading the file', 'mayo-events-manager')
                 });
                 e.target.value = ''; // Clear the file input
                 setFormData(prev => ({
@@ -465,23 +470,23 @@ const EventForm = () => {
 
     // Weekday options for recurring events
     const weekdays = [
-        { value: 0, label: 'Sunday' },
-        { value: 1, label: 'Monday' },
-        { value: 2, label: 'Tuesday' },
-        { value: 3, label: 'Wednesday' },
-        { value: 4, label: 'Thursday' },
-        { value: 5, label: 'Friday' },
-        { value: 6, label: 'Saturday' }
+        { value: 0, label: __('Sunday', 'mayo-events-manager') },
+        { value: 1, label: __('Monday', 'mayo-events-manager') },
+        { value: 2, label: __('Tuesday', 'mayo-events-manager') },
+        { value: 3, label: __('Wednesday', 'mayo-events-manager') },
+        { value: 4, label: __('Thursday', 'mayo-events-manager') },
+        { value: 5, label: __('Friday', 'mayo-events-manager') },
+        { value: 6, label: __('Saturday', 'mayo-events-manager') }
     ];
 
     // Week number options for monthly recurring events
     const weekNumbers = [
-        { value: '1', label: 'First' },
-        { value: '2', label: 'Second' },
-        { value: '3', label: 'Third' },
-        { value: '4', label: 'Fourth' },
-        { value: '5', label: 'Fifth' },
-        { value: '-1', label: 'Last' }
+        { value: '1', label: __('First', 'mayo-events-manager') },
+        { value: '2', label: __('Second', 'mayo-events-manager') },
+        { value: '3', label: __('Third', 'mayo-events-manager') },
+        { value: '4', label: __('Fourth', 'mayo-events-manager') },
+        { value: '5', label: __('Fifth', 'mayo-events-manager') },
+        { value: '-1', label: __('Last', 'mayo-events-manager') }
     ];
 
     if (error) return <div className="mayo-error">{error}</div>;
@@ -491,7 +496,7 @@ const EventForm = () => {
             <form onSubmit={handleSubmit}>
                 <div className="mayo-form-field">
                     <label htmlFor="event_name">
-                        Event Name {isFieldRequired('event_name') && '*'}
+                        {__('Event Name', 'mayo-events-manager')} {isFieldRequired('event_name') && '*'}
                     </label>
                     <input
                         type="text"
@@ -505,7 +510,7 @@ const EventForm = () => {
 
                 <div className="mayo-form-field">
                     <label htmlFor="event_type">
-                        Event Type {isFieldRequired('event_type') && '*'}
+                        {__('Event Type', 'mayo-events-manager')} {isFieldRequired('event_type') && '*'}
                     </label>
                     <select
                         id="event_type"
@@ -514,16 +519,16 @@ const EventForm = () => {
                         onChange={handleChange}
                         required={isFieldRequired('event_type')}
                     >
-                        <option value="">Select Event Type</option>
-                        <option value="Service">Service</option>
-                        <option value="Activity">Activity</option>
-                        <option value="Celebration">Celebration</option>
+                        <option value="">{__('Select Event Type', 'mayo-events-manager')}</option>
+                        <option value="Service">{__('Service', 'mayo-events-manager')}</option>
+                        <option value="Activity">{__('Activity', 'mayo-events-manager')}</option>
+                        <option value="Celebration">{__('Celebration', 'mayo-events-manager')}</option>
                     </select>
                 </div>
 
                 {shouldShowServiceBodyField() && (
                     <div className="mayo-form-field">
-                        <label htmlFor="service_body">Service Body *</label>
+                        <label htmlFor="service_body">{__('Service Body', 'mayo-events-manager')} *</label>
                         <select
                             id="service_body"
                             name="service_body"
@@ -531,9 +536,9 @@ const EventForm = () => {
                             onChange={handleservice_bodyChange}
                             required
                         >
-                            <option value="">Select a service body</option>
+                            <option value="">{__('Select a service body', 'mayo-events-manager')}</option>
                             {shouldShowUnaffiliated() && (
-                                <option value="0">Unaffiliated (0)</option>
+                                <option value="0">{__('Unaffiliated (0)', 'mayo-events-manager')}</option>
                             )}
                             {getFilteredServiceBodies().map((body) => (
                                 <option key={body.id} value={body.id}>
@@ -545,7 +550,7 @@ const EventForm = () => {
                 )}
 
                 <div className="mayo-form-field">
-                    <label htmlFor="contact_name">Point of Contact Name (Private) *</label>
+                    <label htmlFor="contact_name">{__('Point of Contact Name (Private)', 'mayo-events-manager')} *</label>
                     <input
                         type="text"
                         id="contact_name"
@@ -553,12 +558,12 @@ const EventForm = () => {
                         value={formData.contact_name}
                         onChange={handleChange}
                         required
-                        placeholder="Your name (will not be displayed publicly)"
+                        placeholder={__('Your name (will not be displayed publicly)', 'mayo-events-manager')}
                     />
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="email">Point of Contact Email (Private) *</label>
+                    <label htmlFor="email">{__('Point of Contact Email (Private)', 'mayo-events-manager')} *</label>
                     <input
                         type="email"
                         id="email"
@@ -566,13 +571,13 @@ const EventForm = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        placeholder="Your email address (will not be displayed publicly)"
+                        placeholder={__('Your email address (will not be displayed publicly)', 'mayo-events-manager')}
                     />
                 </div>
 
                 <div className="mayo-datetime-group">
                     <div className="mayo-form-field">
-                        <label>Start Date/Time *</label>
+                        <label>{__('Start Date/Time', 'mayo-events-manager')} *</label>
                         <div className="mayo-datetime-inputs">
                             <input
                                 type="date"
@@ -594,7 +599,7 @@ const EventForm = () => {
                     </div>
 
                     <div className="mayo-form-field">
-                        <label>End Date/Time *</label>
+                        <label>{__('End Date/Time', 'mayo-events-manager')} *</label>
                         <div className="mayo-datetime-inputs">
                             <input
                                 type="date"
@@ -617,7 +622,7 @@ const EventForm = () => {
 
                 <div className="mayo-form-field">
                     <label htmlFor="timezone">
-                        Timezone {isFieldRequired('timezone') && '*'}
+                        {__('Timezone', 'mayo-events-manager')} {isFieldRequired('timezone') && '*'}
                     </label>
                     <select
                         id="timezone"
@@ -639,13 +644,13 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label>Recurring Pattern</label>
+                    <label>{__('Recurring Pattern', 'mayo-events-manager')}</label>
                     <div className="mayo-recurring-pattern">
                         <select
                             value={formData.recurring_pattern.type}
                             onChange={(e) => {
                                 const type = e.target.value;
-                                updateRecurringPattern({ 
+                                updateRecurringPattern({
                                     type,
                                     // Reset other fields when changing type
                                     interval: 1,
@@ -658,16 +663,16 @@ const EventForm = () => {
                                 setShowRecurringOptions(type !== 'none');
                             }}
                         >
-                            <option value="none">No Recurrence</option>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
+                            <option value="none">{__('No Recurrence', 'mayo-events-manager')}</option>
+                            <option value="daily">{__('Daily', 'mayo-events-manager')}</option>
+                            <option value="weekly">{__('Weekly', 'mayo-events-manager')}</option>
+                            <option value="monthly">{__('Monthly', 'mayo-events-manager')}</option>
                         </select>
 
                         {showRecurringOptions && (
                             <div className="mayo-recurring-options">
                                 <div className="mayo-recurring-interval">
-                                    <label>Repeat every</label>
+                                    <label>{__('Repeat every', 'mayo-events-manager')}</label>
                                     <input
                                         type="number"
                                         min="1"
@@ -675,14 +680,14 @@ const EventForm = () => {
                                         onChange={(e) => updateRecurringPattern({ interval: parseInt(e.target.value) })}
                                     />
                                     <span>
-                                        {formData.recurring_pattern.type === 'daily' ? 'days' : 
-                                         formData.recurring_pattern.type === 'weekly' ? 'weeks' : 'months'}
+                                        {formData.recurring_pattern.type === 'daily' ? __('days', 'mayo-events-manager') :
+                                         formData.recurring_pattern.type === 'weekly' ? __('weeks', 'mayo-events-manager') : __('months', 'mayo-events-manager')}
                                     </span>
                                 </div>
 
                                 {formData.recurring_pattern.type === 'weekly' && (
                                     <div className="mayo-weekday-controls">
-                                        <label>On these days</label>
+                                        <label>{__('On these days', 'mayo-events-manager')}</label>
                                         {weekdays.map(day => (
                                             <label key={day.value} className="mayo-weekday-checkbox">
                                                 <input
@@ -704,7 +709,7 @@ const EventForm = () => {
                                 {formData.recurring_pattern.type === 'monthly' && (
                                     <div className="mayo-monthly-pattern">
                                         <div className="mayo-monthly-type">
-                                            <label>Monthly Pattern</label>
+                                            <label>{__('Monthly Pattern', 'mayo-events-manager')}</label>
                                             <div className="mayo-radio-group">
                                                 <label>
                                                     <input
@@ -712,13 +717,13 @@ const EventForm = () => {
                                                         name="monthlyType"
                                                         value="date"
                                                         checked={formData.recurring_pattern.monthlyType === 'date'}
-                                                        onChange={() => updateRecurringPattern({ 
+                                                        onChange={() => updateRecurringPattern({
                                                             monthlyType: 'date',
                                                             monthlyDate: getInitialMonthlyDate(),
                                                             monthlyWeekday: ''
                                                         })}
                                                     />
-                                                    On a specific date
+                                                    {__('On a specific date', 'mayo-events-manager')}
                                                 </label>
                                                 <label>
                                                     <input
@@ -726,20 +731,20 @@ const EventForm = () => {
                                                         name="monthlyType"
                                                         value="weekday"
                                                         checked={formData.recurring_pattern.monthlyType === 'weekday'}
-                                                        onChange={() => updateRecurringPattern({ 
+                                                        onChange={() => updateRecurringPattern({
                                                             monthlyType: 'weekday',
                                                             monthlyDate: '',
                                                             monthlyWeekday: getInitialWeekdayPattern()
                                                         })}
                                                     />
-                                                    On a specific day
+                                                    {__('On a specific day', 'mayo-events-manager')}
                                                 </label>
                                             </div>
                                         </div>
 
                                         {formData.recurring_pattern.monthlyType === 'date' && (
                                             <div className="mayo-monthly-date">
-                                                <label>Day of month</label>
+                                                <label>{__('Day of month', 'mayo-events-manager')}</label>
                                                 <input
                                                     type="number"
                                                     min="1"
@@ -753,7 +758,7 @@ const EventForm = () => {
                                         {formData.recurring_pattern.monthlyType === 'weekday' && (
                                             <div className="mayo-monthly-weekday">
                                                 <div className="mayo-week-select">
-                                                    <label>Week</label>
+                                                    <label>{__('Week', 'mayo-events-manager')}</label>
                                                     <select
                                                         value={formData.recurring_pattern.monthlyWeekday?.split(',')[0] || '1'}
                                                         onChange={(e) => {
@@ -771,7 +776,7 @@ const EventForm = () => {
                                                     </select>
                                                 </div>
                                                 <div className="mayo-day-select">
-                                                    <label>Day</label>
+                                                    <label>{__('Day', 'mayo-events-manager')}</label>
                                                     <select
                                                         value={formData.recurring_pattern.monthlyWeekday?.split(',')[1] || '0'}
                                                         onChange={(e) => {
@@ -794,7 +799,7 @@ const EventForm = () => {
                                 )}
 
                                 <div className="mayo-recurring-end-date">
-                                    <label>End Date (optional)</label>
+                                    <label>{__('End Date (optional)', 'mayo-events-manager')}</label>
                                     <input
                                         type="date"
                                         value={formData.recurring_pattern.endDate}
@@ -808,7 +813,7 @@ const EventForm = () => {
 
                 <div className="mayo-form-field">
                     <label htmlFor="description">
-                        Description {isFieldRequired('description') && '*'}
+                        {__('Description', 'mayo-events-manager')} {isFieldRequired('description') && '*'}
                     </label>
                     <textarea
                         id="description"
@@ -821,7 +826,7 @@ const EventForm = () => {
 
                 <div className="mayo-form-field">
                     <label>
-                        Event Flyer {isFieldRequired('flyer') && '*'}
+                        {__('Event Flyer', 'mayo-events-manager')} {isFieldRequired('flyer') && '*'}
                     </label>
                     <div className="mayo-upload-section">
                         {!uploadType && (
@@ -836,11 +841,11 @@ const EventForm = () => {
                                     className="mayo-file-input"
                                 />
                                 <label htmlFor="flyer-upload" className="mayo-upload-button">
-                                    Upload Flyer
+                                    {__('Upload Flyer', 'mayo-events-manager')}
                                 </label>
                                 <p className="mayo-upload-info">
-                                    Supported file types: Images (.jpg, .jpeg, .png, .gif)
-                                    {isFieldRequired('flyer') && ' (Required)'}
+                                    {__('Supported file types: Images (.jpg, .jpeg, .png, .gif)', 'mayo-events-manager')}
+                                    {isFieldRequired('flyer') && ' ' + __('(Required)', 'mayo-events-manager')}
                                 </p>
                                 {message && message.type === 'error' && message.text.includes('image') && (
                                     <p className="mayo-upload-error">
@@ -853,15 +858,18 @@ const EventForm = () => {
                         {uploadType && (
                             <div className="mayo-upload-preview">
                                 <p>
-                                    Selected {uploadType === 'Image'}: {' '}
-                                    {formData.flyer?.name || 'No file selected'}
+                                    {sprintf(
+                                        /* translators: %s: filename */
+                                        __('Selected: %s', 'mayo-events-manager'),
+                                        formData.flyer?.name || __('No file selected', 'mayo-events-manager')
+                                    )}
                                 </p>
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     onClick={clearUploads}
                                     className="mayo-clear-upload"
                                 >
-                                    Clear Upload
+                                    {__('Clear Upload', 'mayo-events-manager')}
                                 </button>
                             </div>
                         )}
@@ -869,7 +877,7 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="location_name">Location Name</label>
+                    <label htmlFor="location_name">{__('Location Name', 'mayo-events-manager')}</label>
                     <input
                         type="text"
                         id="location_name"
@@ -880,7 +888,7 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="location_address">Address</label>
+                    <label htmlFor="location_address">{__('Address', 'mayo-events-manager')}</label>
                     <input
                         type="text"
                         id="location_address"
@@ -891,18 +899,18 @@ const EventForm = () => {
                 </div>
 
                 <div className="mayo-form-field">
-                    <label htmlFor="location_details">Location Details</label>
+                    <label htmlFor="location_details">{__('Location Details', 'mayo-events-manager')}</label>
                     <textarea
                         id="location_details"
                         name="location_details"
                         value={formData.location_details}
                         onChange={handleChange}
-                        placeholder="Additional details about the location (e.g., parking, entrance info)"
+                        placeholder={__('Additional details about the location (e.g., parking, entrance info)', 'mayo-events-manager')}
                     />
                 </div>
 
                 <div className="mayo-form-field">
-                    <label>Categories</label>
+                    <label>{__('Categories', 'mayo-events-manager')}</label>
                     <div className="mayo-taxonomy-list">
                         {Array.isArray(categories) && categories.map(category => (
                             <label key={category?.id} className="mayo-taxonomy-item">
@@ -916,14 +924,14 @@ const EventForm = () => {
                                         setFormData({...formData, categories: newCategories});
                                     }}
                                 />
-                                {category?.name ? decodeHtmlEntities(category.name) : 'Unnamed Category'}
+                                {category?.name ? decodeHtmlEntities(category.name) : __('Unnamed Category', 'mayo-events-manager')}
                             </label>
                         ))}
                     </div>
                 </div>
 
                 <div className="mayo-form-field">
-                    <label>Tags</label>
+                    <label>{__('Tags', 'mayo-events-manager')}</label>
                     <div className="mayo-taxonomy-list">
                         {Array.isArray(tags) && tags.map(tag => (
                             <label key={tag?.id || 'default'} className="mayo-taxonomy-item">
@@ -937,23 +945,23 @@ const EventForm = () => {
                                         setFormData({...formData, tags: newTags});
                                     }}
                                 />
-                                {tag?.name ? decodeHtmlEntities(tag.name) : 'Unnamed Tag'}
+                                {tag?.name ? decodeHtmlEntities(tag.name) : __('Unnamed Tag', 'mayo-events-manager')}
                             </label>
                         ))}
                     </div>
                 </div>
 
-                <button 
-                    type="submit" 
+                <button
+                    type="submit"
                     disabled={isSubmitting}
                     className="mayo-submit-button"
                 >
-                    {isSubmitting ? 'Submitting...' : 'Submit Event'}
+                    {isSubmitting ? __('Submitting...', 'mayo-events-manager') : __('Submit Event', 'mayo-events-manager')}
                 </button>
 
                 {message && (
                     <div className={`mayo-message mayo-message-${message.type}`}>
-                        {typeof message.text === 'string' ? message.text : 'An error occurred while submitting the form. Please try again.'}
+                        {typeof message.text === 'string' ? message.text : __('An error occurred while submitting the form. Please try again.', 'mayo-events-manager')}
                     </div>
                 )}
             </form>

@@ -1,4 +1,5 @@
 import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 // Map icon names to dashicon classes
 const getIconClass = (iconName) => {
@@ -75,13 +76,13 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
     return (
         <div className="mayo-announcement-modal-backdrop" onClick={handleBackdropClick}>
             <div className="mayo-announcement-modal">
-                <button className="mayo-announcement-modal-close" onClick={onClose} title="Close">
+                <button className="mayo-announcement-modal-close" onClick={onClose} title={__('Close', 'mayo-events-manager')}>
                     <span className="dashicons dashicons-no-alt"></span>
                 </button>
 
                 <div className="mayo-announcement-modal-header" style={headerStyle}>
                     <span className="dashicons dashicons-megaphone"></span>
-                    <h2>Announcements</h2>
+                    <h2>{__('Announcements', 'mayo-events-manager')}</h2>
                 </div>
 
                 <div className="mayo-announcement-modal-body">
@@ -106,7 +107,7 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
                                 )}
                                 {announcement.linked_events && announcement.linked_events.length > 0 && (
                                     <div className="mayo-announcement-linked-events" style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
-                                        <span style={{ marginRight: '4px' }}>Related:</span>
+                                        <span style={{ marginRight: '4px' }}>{__('Related:', 'mayo-events-manager')}</span>
                                         {announcement.linked_events.map((event, index) => {
                                             const isCustom = event.source && event.source.type === 'custom';
                                             const isExternal = event.source && event.source.type === 'external';
@@ -169,7 +170,7 @@ const AnnouncementModal = ({ announcements, timeFormat, onClose, backgroundColor
 
                 <div className="mayo-announcement-modal-footer">
                     <button className="mayo-announcement-dismiss-button" onClick={onClose}>
-                        Dismiss
+                        {__('Dismiss', 'mayo-events-manager')}
                     </button>
                 </div>
             </div>

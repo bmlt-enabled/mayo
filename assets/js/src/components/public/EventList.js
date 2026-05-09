@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 import CalendarView from './CalendarView';
@@ -492,15 +493,15 @@ const EventList = ({ widget = false, settings = {} }) => {
             <body>
                 <div class="mayo-print-header">
                     <h1>${pageTitle}</h1>
-                    <p>Printed on ${new Date().toLocaleString()}</p>
+                    <p>${__('Printed on', 'mayo-events-manager')} ${new Date().toLocaleString()}</p>
                 </div>
                 ${events.map(event => `
                     <div class="mayo-print-event">
                         <h2 class="mayo-print-event-title">${event.title.rendered}</h2>
                         <div class="mayo-print-event-meta">
-                            <p><strong>Date:</strong> ${event.meta.event_start_date}${event.meta.event_start_time ? ` at ${event.meta.event_start_time}` : ''}</p>
-                            ${event.meta.event_type ? `<p><strong>Type:</strong> ${event.meta.event_type}</p>` : ''}
-                            ${event.meta.location_name ? `<p><strong>Location:</strong> ${event.meta.location_name}</p>` : ''}
+                            <p><strong>${__('Date:', 'mayo-events-manager')}</strong> ${event.meta.event_start_date}${event.meta.event_start_time ? ` ${__('at', 'mayo-events-manager')} ${event.meta.event_start_time}` : ''}</p>
+                            ${event.meta.event_type ? `<p><strong>${__('Type:', 'mayo-events-manager')}</strong> ${event.meta.event_type}</p>` : ''}
+                            ${event.meta.location_name ? `<p><strong>${__('Location:', 'mayo-events-manager')}</strong> ${event.meta.location_name}</p>` : ''}
                         </div>
                         <div class="mayo-print-event-description">
                             ${event.content.rendered}
@@ -533,16 +534,16 @@ const EventList = ({ widget = false, settings = {} }) => {
         };
     };
 
-    if (loading && events.length === 0) return <div>Loading events...</div>;
+    if (loading && events.length === 0) return <div>{__('Loading events...', 'mayo-events-manager')}</div>;
     if (error && events.length === 0) return <div className="mayo-error">{error}</div>;
     if (!events.length) {
         if (settings?.showArchived) {
-            return <div className="mayo-no-events">No events found in the archive.</div>;
+            return <div className="mayo-no-events">{__('No events found in the archive.', 'mayo-events-manager')}</div>;
         } else {
             return <div className="mayo-no-events">
-                No upcoming events found. 
+                {__('No upcoming events found.', 'mayo-events-manager')}{' '}
                 <a href={`${window.location.pathname}?archive=true`} className="mayo-archive-link">
-                    View past events
+                    {__('View past events', 'mayo-events-manager')}
                 </a>
             </div>;
         }
@@ -567,14 +568,14 @@ const EventList = ({ widget = false, settings = {} }) => {
                             <button
                                 className={`mayo-view-toggle-button ${viewMode === 'list' ? 'active' : ''}`}
                                 onClick={() => setViewMode('list')}
-                                title="List View"
+                                title={__('List View', 'mayo-events-manager')}
                             >
                                 <span className="dashicons dashicons-list-view"></span>
                             </button>
                             <button
                                 className={`mayo-view-toggle-button ${viewMode === 'calendar' ? 'active' : ''}`}
                                 onClick={() => setViewMode('calendar')}
-                                title="Calendar View"
+                                title={__('Calendar View', 'mayo-events-manager')}
                             >
                                 <span className="dashicons dashicons-calendar-alt"></span>
                             </button>
@@ -584,7 +585,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                                 <button
                                     className="mayo-expand-all-button"
                                     onClick={() => setAllExpanded(!allExpanded)}
-                                    title={allExpanded ? "Collapse All" : "Expand All"}
+                                    title={allExpanded ? __('Collapse All', 'mayo-events-manager') : __('Expand All', 'mayo-events-manager')}
                                 >
                                     <span className={`dashicons ${allExpanded ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'}`}></span>
                                 </button>
@@ -592,7 +593,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                             <button
                                 className="mayo-print-button"
                                 onClick={handlePrint}
-                                title="Print Events"
+                                title={__('Print Events', 'mayo-events-manager')}
                             >
                                 <span className="dashicons dashicons-printer"></span>
                             </button>
@@ -601,7 +602,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                                 className="mayo-rss-link"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                title="Calendar Feed (ICS)"
+                                title={__('Calendar Feed (ICS)', 'mayo-events-manager')}
                             >
                                 <span className="dashicons dashicons-calendar"></span>
                             </a>
@@ -610,14 +611,14 @@ const EventList = ({ widget = false, settings = {} }) => {
                                 className="mayo-rss-link"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                title="RSS Feed"
+                                title={__('RSS Feed', 'mayo-events-manager')}
                             >
                                 <span className="dashicons dashicons-rss"></span>
                             </a>
                             <button
                                 className="mayo-shortcode-button"
                                 onClick={() => setShowShortcode(!showShortcode)}
-                                title={showShortcode ? "Hide Shortcode" : "Show Shortcode"}
+                                title={showShortcode ? __('Hide Shortcode', 'mayo-events-manager') : __('Show Shortcode', 'mayo-events-manager')}
                             >
                                 <span className="dashicons dashicons-editor-code"></span>
                             </button>
@@ -626,14 +627,14 @@ const EventList = ({ widget = false, settings = {} }) => {
                     {showShortcode && (
                         <div className="mayo-shortcode-display">
                             <div className="mayo-shortcode-header">
-                                <strong>Shortcode for this event list:</strong>
-                                <button 
+                                <strong>{__('Shortcode for this event list:', 'mayo-events-manager')}</strong>
+                                <button
                                     className="mayo-copy-shortcode"
                                     onClick={handleCopyShortcode}
-                                    title="Copy to Clipboard"
+                                    title={__('Copy to Clipboard', 'mayo-events-manager')}
                                 >
                                     <span className="dashicons dashicons-clipboard"></span>
-                                    Copy
+                                    {__('Copy', 'mayo-events-manager')}
                                 </button>
                             </div>
                             <div className="mayo-shortcode-text">
@@ -663,12 +664,12 @@ const EventList = ({ widget = false, settings = {} }) => {
                             {getQueryStringValue('infinite_scroll') !== null ?
                                 getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
                                     <div ref={loaderRef} className="mayo-infinite-loader">
-                                        {loading && <div className="mayo-loader">Loading more events...</div>}
+                                        {loading && <div className="mayo-loader">{__('Loading more events...', 'mayo-events-manager')}</div>}
                                     </div>
                                 )
                                 : settings?.infiniteScroll && hasMore && (
                                     <div ref={loaderRef} className="mayo-infinite-loader">
-                                        {loading && <div className="mayo-loader">Loading more events...</div>}
+                                        {loading && <div className="mayo-loader">{__('Loading more events...', 'mayo-events-manager')}</div>}
                                     </div>
                                 )
                             }

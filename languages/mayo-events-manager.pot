@@ -1,0 +1,1554 @@
+# Copyright (C) bmlt-enabled
+# This file is distributed under the GPLv2 or later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: Mayo Events Manager\n"
+"Report-Msgid-Bugs-To: https://github.com/bmlt-enabled/mayo/issues\n"
+"POT-Creation-Date: 2026-05-09 04:16+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: \n"
+"X-Domain: mayo-events-manager\n"
+
+#: includes/Admin.php:365
+msgid "%d skipped"
+msgid_plural "%d skipped"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin.php:623
+msgid "%s (Copy)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:605
+#: assets/js/src/components/public/EventForm.js:848
+msgid "(Required)"
+msgstr ""
+
+#: includes/Rest/EventsController.php:678
+msgid "(every %d days)"
+msgstr ""
+
+#: includes/Rest/EventsController.php:708
+msgid "(every %d months)"
+msgstr ""
+
+#: includes/Rest/EventsController.php:685
+msgid "(every %d weeks)"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:127
+msgid "12-hour (e.g., 2:30 PM)"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:130
+msgid "24-hour (e.g., 14:30)"
+msgstr ""
+
+#: includes/Subscriber.php:129
+#: includes/Subscriber.php:157
+#: includes/Subscriber.php:194
+msgid "A confirmation email has been sent. Please check your inbox (and spam folder)."
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:372
+msgid "A new announcement has been submitted and is pending review."
+msgstr ""
+
+#: includes/Admin.php:114
+msgid "API"
+msgstr ""
+
+#: includes/Admin.php:113
+msgid "API Documentation"
+msgstr ""
+
+#: includes/Announcement.php:300
+#: includes/Announcement.php:389
+msgid "Active"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:524
+msgid "Activity"
+msgstr ""
+
+#: includes/Announcement.php:36
+#: includes/Announcement.php:37
+msgid "Add New Announcement"
+msgstr ""
+
+#: includes/Admin.php:42
+#: includes/Admin.php:43
+msgid "Add New Event"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:908
+msgid "Additional details about the location (e.g., parking, entrance info)"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:891
+msgid "Address"
+msgstr ""
+
+#: includes/Rest/EventsController.php:735
+msgid "Address:"
+msgstr ""
+
+#: includes/Admin.php:826
+msgid "All events"
+msgstr ""
+
+#: includes/Announcement.php:388
+msgid "All statuses"
+msgstr ""
+
+#: includes/Announcement.php:290
+msgid "Always visible"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:688
+#: assets/js/src/components/public/EventForm.js:964
+msgid "An error occurred while submitting the form. Please try again."
+msgstr ""
+
+#: includes/Subscriber.php:184
+#: assets/js/src/components/public/SubscribeForm.js:118
+#: assets/js/src/components/public/SubscribeForm.js:124
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: includes/Announcement.php:35
+msgid "Announcement"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:437
+msgid "Announcement Title"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:35
+#: assets/js/src/components/public/AnnouncementDetails.js:65
+msgid "Announcement not found"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:348
+msgid "Announcement submitted successfully"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:306
+msgid "Announcement submitted successfully!"
+msgstr ""
+
+#: includes/Announcement.php:34
+#: includes/Announcement.php:40
+#: assets/js/src/components/public/AnnouncementModal.js:85
+msgid "Announcements"
+msgstr ""
+
+#: assets/js/src/util.js:16
+msgid "Apr"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:68
+msgid "April"
+msgstr ""
+
+#: includes/Admin.php:189
+msgid "Are you sure you want to copy this event?"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:193
+msgid "Ascending"
+msgstr ""
+
+#: includes/Admin.php:222
+msgid "Attachments"
+msgstr ""
+
+#: includes/Rest/EventsController.php:757
+msgid "Attachments:"
+msgstr ""
+
+#: assets/js/src/util.js:20
+msgid "Aug"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:72
+msgid "August"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:136
+msgid "Background Color (hex):"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:84
+msgid "Banner (sticky top)"
+msgstr ""
+
+#: includes/Admin.php:104
+#: includes/Admin.php:105
+msgid "CSS Classes"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:605
+msgid "Calendar Feed (ICS)"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:578
+msgid "Calendar View"
+msgstr ""
+
+#: mayo-events-manager.php:752
+msgid "Cancel"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:634
+#: assets/js/src/components/public/EventForm.js:913
+#: assets/js/src/components/public/EventDetails.js:203
+#: assets/js/src/components/public/AnnouncementDetails.js:212
+#: assets/js/src/components/public/SubscribeForm.js:162
+#: mayo-events-manager.php:656
+msgid "Categories"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:93
+msgid "Categories (comma-separated slugs):"
+msgstr ""
+
+#: includes/Rest/EventsController.php:745
+msgid "Categories:"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:414
+msgid "Categories: %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:525
+msgid "Celebration"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:624
+#: assets/js/src/components/public/EventForm.js:872
+msgid "Clear Upload"
+msgstr ""
+
+#: includes/Subscriber.php:647
+msgid "Click the link below to confirm your subscription:"
+msgstr ""
+
+#: assets/js/src/components/public/EventModal.js:51
+#: assets/js/src/components/public/AnnouncementModal.js:79
+msgid "Close"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:588
+msgid "Collapse All"
+msgstr ""
+
+#: mayo-events-manager.php:222
+msgid "Confirmation Error"
+msgstr ""
+
+#: includes/Rest/EventsController.php:783
+msgid "Contact Email: %s"
+msgstr ""
+
+#: includes/Rest/EventsController.php:781
+msgid "Contact Name: %s"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:501
+msgid "Control when this announcement is visible on the site."
+msgstr ""
+
+#: includes/Admin.php:602
+#: assets/js/src/components/public/EventList.js:637
+msgid "Copy"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:634
+msgid "Copy to Clipboard"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:176
+msgid "Created Date"
+msgstr ""
+
+#: includes/Announcement.php:857
+msgid "Custom Link"
+msgstr ""
+
+#: includes/Rest/EventsController.php:675
+#: assets/js/src/components/public/EventForm.js:667
+msgid "Daily"
+msgstr ""
+
+#: includes/Admin.php:221
+#: assets/js/src/components/public/EventDetails.js:181
+msgid "Date & Time"
+msgstr ""
+
+#: includes/Subscriber.php:900
+#: assets/js/src/components/public/EventList.js:502
+msgid "Date:"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:779
+msgid "Day"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:747
+msgid "Day of month"
+msgstr ""
+
+#: assets/js/src/util.js:24
+msgid "Dec"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:76
+msgid "December"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:190
+msgid "Default"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:196
+msgid "Descending"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:571
+#: assets/js/src/components/public/EventForm.js:816
+#: assets/js/src/components/public/EventDetails.js:144
+msgid "Description"
+msgstr ""
+
+#: includes/Rest/EventsController.php:792
+#: includes/Rest/AnnouncementsController.php:386
+msgid "Description:"
+msgstr ""
+
+#: includes/Rest/EventsController.php:738
+#: includes/Subscriber.php:920
+msgid "Details:"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementModal.js:173
+#: assets/js/src/components/public/AnnouncementBanner.js:196
+msgid "Dismiss"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:76
+msgid "Display Mode:"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:170
+msgid "Display Start Date"
+msgstr ""
+
+#: includes/Announcement.php:214
+#: assets/js/src/components/public/AnnouncementForm.js:499
+#: assets/js/src/components/public/AnnouncementDetails.js:198
+msgid "Display Window"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:14
+msgid "Display event-based announcements as a banner or modal."
+msgstr ""
+
+#: assets/js/src/components/public/EventModal.js:140
+#: assets/js/src/components/public/EventDetails.js:134
+msgid "Download Flyer"
+msgstr ""
+
+#: includes/Announcement.php:38
+msgid "Edit Announcement"
+msgstr ""
+
+#: includes/Admin.php:44
+msgid "Edit Event"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:400
+#: mayo-events-manager.php:641
+msgid "Email: %s"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:539
+msgid "End Date"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:802
+msgid "End Date (optional)"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:602
+msgid "End Date/Time"
+msgstr ""
+
+#: includes/Rest/EventsController.php:775
+#: includes/Rest/AnnouncementsController.php:383
+msgid "End Date: %s"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:553
+msgid "End Time"
+msgstr ""
+
+#: includes/Rest/EventsController.php:777
+msgid "End Time: %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:188
+msgid "End:"
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:147
+msgid "Enter your email address"
+msgstr ""
+
+#: mayo-events-manager.php:239
+#: mayo-events-manager.php:287
+#: mayo-events-manager.php:408
+msgid "Error"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:393
+#: assets/js/src/components/public/EventForm.js:406
+msgid "Error reading the file"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:334
+#: assets/js/src/components/public/EventForm.js:343
+msgid "Error submitting form"
+msgstr ""
+
+#: includes/Admin.php:41
+msgid "Event"
+msgstr ""
+
+#: includes/Announcement.php:332
+msgid "Event #%d"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:829
+msgid "Event Flyer"
+msgstr ""
+
+#: includes/Admin.php:219
+#: assets/js/src/components/public/EventForm.js:499
+msgid "Event Name"
+msgstr ""
+
+#: includes/Rest/EventsController.php:765
+msgid "Event Name: %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:513
+#: assets/js/src/components/public/EventDetails.js:168
+msgid "Event Type"
+msgstr ""
+
+#: includes/Rest/EventsController.php:767
+msgid "Event Type: %s"
+msgstr ""
+
+#: includes/Admin.php:674
+msgid "Event copied successfully"
+msgstr ""
+
+#: includes/Announcement.php:604
+msgid "Event details unavailable"
+msgstr ""
+
+#: includes/Subscriber.php:926
+msgid "Event details unavailable from %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:28
+#: assets/js/src/components/public/EventDetails.js:43
+msgid "Event not found"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:296
+msgid "Event submitted successfully!"
+msgstr ""
+
+#: includes/Admin.php:40
+#: assets/js/src/components/public/EventArchive.js:53
+msgid "Events"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:201
+msgid "Events will show as announcements when today's date is between the event's start and end dates."
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:588
+msgid "Expand All"
+msgstr ""
+
+#: includes/Announcement.php:309
+#: includes/Announcement.php:391
+msgid "Expired"
+msgstr ""
+
+#: includes/Announcement.php:329
+#: includes/Announcement.php:601
+#: includes/Subscriber.php:924
+msgid "External"
+msgstr ""
+
+#: includes/Admin.php:190
+msgid "Failed to copy event. Please try again."
+msgstr ""
+
+#: includes/Admin.php:679
+msgid "Failed to create copy"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:39
+msgid "Failed to load announcement"
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:32
+msgid "Failed to load event details"
+msgstr ""
+
+#: assets/js/src/components/public/EventArchive.js:35
+msgid "Failed to load events"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:329
+msgid "Failed to submit announcement"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:337
+msgid "Failed to submit event"
+msgstr ""
+
+#: mayo-events-manager.php:288
+msgid "Failed to update preferences. Please try again."
+msgstr ""
+
+#: assets/js/src/util.js:14
+msgid "Feb"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:66
+msgid "February"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:488
+msgid "Fifth"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:484
+msgid "First"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:487
+msgid "Fourth"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:85
+msgid "Fri"
+msgstr ""
+
+#: includes/Rest/EventsController.php:694
+#: assets/js/src/util.js:9
+#: assets/js/src/components/public/EventForm.js:478
+msgid "Friday"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:200
+msgid "From:"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:316
+msgid "Go to Today"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:621
+msgid "Hide Shortcode"
+msgstr ""
+
+#: includes/Subscriber.php:649
+msgid "If you didn't request this, you can safely ignore this email."
+msgstr ""
+
+#: mayo-events-manager.php:764
+msgid "If you no longer want to receive announcements from %s, you can unsubscribe below."
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:586
+msgid "Image/Flyer"
+msgstr ""
+
+#: includes/Announcement.php:284
+msgid "Indefinite"
+msgstr ""
+
+#: includes/Admin.php:617
+msgid "Invalid event"
+msgstr ""
+
+#: includes/Subscriber.php:264
+msgid "Invalid or expired confirmation link."
+msgstr ""
+
+#: includes/Admin.php:682
+msgid "Invalid post ID or insufficient permissions"
+msgstr ""
+
+#: mayo-events-manager.php:240
+msgid "Invalid request. Please try again."
+msgstr ""
+
+#: includes/Subscriber.php:319
+msgid "Invalid unsubscribe link."
+msgstr ""
+
+#: assets/js/src/util.js:13
+msgid "Jan"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:65
+msgid "January"
+msgstr ""
+
+#: assets/js/src/util.js:19
+msgid "Jul"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:71
+msgid "July"
+msgstr ""
+
+#: assets/js/src/util.js:18
+msgid "Jun"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:70
+msgid "June"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:489
+msgid "Last"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:565
+msgid "Leave empty to show indefinitely"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:534
+msgid "Leave empty to start showing immediately"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:174
+msgid "Link"
+msgstr ""
+
+#: includes/Announcement.php:216
+msgid "Linked Events"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:571
+msgid "List View"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:51
+msgid "Loading announcement..."
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:41
+msgid "Loading event details..."
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:537
+#: assets/js/src/components/public/EventArchive.js:45
+#: assets/js/src/components/public/CalendarView.js:339
+msgid "Loading events..."
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:667
+#: assets/js/src/components/public/EventList.js:672
+msgid "Loading more events..."
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:134
+msgid "Loading..."
+msgstr ""
+
+#: includes/Announcement.php:584
+#: includes/Announcement.php:887
+msgid "Local"
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:150
+msgid "Location"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:902
+msgid "Location Details"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:880
+msgid "Location Name"
+msgstr ""
+
+#: includes/Rest/EventsController.php:730
+#: includes/Subscriber.php:917
+#: assets/js/src/components/public/EventList.js:504
+msgid "Location:"
+msgstr ""
+
+#: mayo-events-manager.php:503
+msgid "Manage Subscription - %s"
+msgstr ""
+
+#: mayo-events-manager.php:637
+msgid "Manage Your Subscription"
+msgstr ""
+
+#: includes/Subscriber.php:682
+#: includes/Subscriber.php:746
+msgid "Manage preferences / Unsubscribe:"
+msgstr ""
+
+#: assets/js/src/util.js:15
+msgid "Mar"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:67
+msgid "March"
+msgstr ""
+
+#: assets/js/src/util.js:17
+#: assets/js/src/components/public/CalendarView.js:69
+msgid "May"
+msgstr ""
+
+#: includes/Admin.php:64
+#: includes/Admin.php:65
+msgid "Mayo"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:12
+msgid "Mayo Event Announcements"
+msgstr ""
+
+#: includes/Admin.php:95
+msgid "Mayo Settings"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:87
+msgid "Modal (popup)"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:81
+msgid "Mon"
+msgstr ""
+
+#: includes/Rest/EventsController.php:690
+#: assets/js/src/util.js:5
+#: assets/js/src/components/public/EventForm.js:474
+msgid "Monday"
+msgstr ""
+
+#: includes/Rest/EventsController.php:705
+#: assets/js/src/components/public/EventForm.js:669
+msgid "Monthly"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:712
+msgid "Monthly Pattern"
+msgstr ""
+
+#: includes/Rest/EventsController.php:732
+msgid "Name:"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:398
+msgid "Name: %s"
+msgstr ""
+
+#: includes/Rest/EventsController.php:813
+msgid "New Event Submission: %s"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementBanner.js:186
+msgid "Next"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:322
+msgid "Next Month"
+msgstr ""
+
+#: assets/js/src/components/public/EventModal.js:70
+msgid "No Date Set"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:666
+msgid "No Recurrence"
+msgstr ""
+
+#: includes/Announcement.php:42
+msgid "No announcements found"
+msgstr ""
+
+#: includes/Announcement.php:43
+msgid "No announcements found in trash"
+msgstr ""
+
+#: assets/js/src/components/public/EventArchive.js:47
+msgid "No archived events found."
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:541
+msgid "No events found in the archive."
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:616
+#: assets/js/src/components/public/EventForm.js:864
+msgid "No file selected"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:544
+msgid "No upcoming events found."
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:369
+msgid "Not provided"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:370
+msgid "Not set"
+msgstr ""
+
+#: includes/Subscriber.php:650
+msgid "Note: If you don't see our emails, please check your spam or junk folder."
+msgstr ""
+
+#: assets/js/src/util.js:23
+msgid "Nov"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:75
+msgid "November"
+msgstr ""
+
+#: includes/Announcement.php:280
+msgid "Now"
+msgstr ""
+
+#: assets/js/src/util.js:22
+msgid "Oct"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:74
+msgid "October"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:726
+msgid "On a specific date"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:740
+msgid "On a specific day"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:690
+msgid "On these days"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:182
+msgid "Order:"
+msgstr ""
+
+#: includes/Admin.php:828
+msgid "Past events"
+msgstr ""
+
+#: includes/Subscriber.php:643
+msgid "Please confirm your subscription to %s announcements"
+msgstr ""
+
+#: includes/Subscriber.php:94
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:268
+#: assets/js/src/components/public/EventForm.js:254
+msgid "Please fill in all required fields: %s"
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:85
+msgid "Please select at least one preference to subscribe."
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:486
+#: assets/js/src/components/public/EventForm.js:566
+msgid "Point of Contact Email (Private)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:473
+#: assets/js/src/components/public/EventForm.js:553
+msgid "Point of Contact Name (Private)"
+msgstr ""
+
+#: mayo-events-manager.php:281
+msgid "Preferences Saved"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementBanner.js:109
+msgid "Previous"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:307
+msgid "Previous Month"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:596
+msgid "Print Events"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:496
+msgid "Printed on"
+msgstr ""
+
+#: includes/Announcement.php:212
+msgid "Priority"
+msgstr ""
+
+#: includes/Subscriber.php:864
+msgid "RELATED EVENT"
+msgid_plural "RELATED EVENTS"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/src/components/public/EventList.js:614
+msgid "RSS Feed"
+msgstr ""
+
+#: includes/Admin.php:359
+msgid "Recurring"
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:195
+msgid "Recurring Event"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:647
+msgid "Recurring Pattern"
+msgstr ""
+
+#: includes/Rest/EventsController.php:672
+msgid "Recurring Pattern:"
+msgstr ""
+
+#: includes/Admin.php:829
+msgid "Recurring events"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:137
+msgid "Related Links & Events"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementModal.js:110
+msgid "Related:"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:675
+msgid "Repeat every"
+msgstr ""
+
+#: mayo-events-manager.php:382
+msgid "Return to %s"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:426
+msgid "Review and edit this announcement:"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:86
+msgid "Sat"
+msgstr ""
+
+#: includes/Rest/EventsController.php:695
+#: assets/js/src/util.js:10
+#: assets/js/src/components/public/EventForm.js:479
+msgid "Saturday"
+msgstr ""
+
+#: mayo-events-manager.php:749
+msgid "Save Preferences"
+msgstr ""
+
+#: includes/Announcement.php:305
+#: includes/Announcement.php:390
+msgid "Scheduled"
+msgstr ""
+
+#: includes/Announcement.php:41
+msgid "Search Announcements"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:485
+msgid "Second"
+msgstr ""
+
+#: includes/Admin.php:610
+msgid "Security check failed"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:522
+msgid "Select Event Type"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:459
+#: assets/js/src/components/public/EventForm.js:539
+msgid "Select a service body"
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:157
+#: mayo-events-manager.php:652
+msgid "Select what you'd like to receive notifications about:"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:615
+#: assets/js/src/components/public/EventForm.js:863
+msgid "Selected: %s"
+msgstr ""
+
+#: assets/js/src/util.js:21
+msgid "Sep"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:73
+msgid "September"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:523
+msgid "Service"
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:200
+#: mayo-events-manager.php:718
+msgid "Service Bodies"
+msgstr ""
+
+#: includes/Announcement.php:213
+#: includes/Admin.php:224
+#: assets/js/src/components/public/AnnouncementForm.js:451
+#: assets/js/src/components/public/EventForm.js:531
+#: assets/js/src/components/public/EventDetails.js:175
+#: assets/js/src/components/public/AnnouncementDetails.js:191
+msgid "Service Body"
+msgstr ""
+
+#: includes/Announcement.php:268
+#: includes/Admin.php:282
+msgid "Service Body (%s)"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:392
+msgid "Service Body ID: %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventArchive.js:127
+msgid "Service Body:"
+msgstr ""
+
+#: includes/Rest/EventsController.php:769
+msgid "Service Body: %1$s (ID: %2$s)"
+msgstr ""
+
+#: includes/Admin.php:96
+msgid "Settings"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:630
+msgid "Shortcode for this event list:"
+msgstr ""
+
+#: includes/Admin.php:86
+#: includes/Admin.php:87
+msgid "Shortcodes"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:621
+msgid "Show Shortcode"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:162
+msgid "Sort By:"
+msgstr ""
+
+#: includes/Subscriber.php:883
+msgid "Source:"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:508
+msgid "Start Date"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:580
+msgid "Start Date/Time"
+msgstr ""
+
+#: includes/Rest/EventsController.php:771
+#: includes/Rest/AnnouncementsController.php:381
+msgid "Start Date: %s"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:522
+msgid "Start Time"
+msgstr ""
+
+#: includes/Rest/EventsController.php:773
+msgid "Start Time: %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventDetails.js:183
+msgid "Start:"
+msgstr ""
+
+#: includes/Announcement.php:215
+#: includes/Admin.php:223
+msgid "Status"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:683
+msgid "Submit Announcement"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:959
+msgid "Submit Event"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:396
+msgid "Submitted by:"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:683
+#: assets/js/src/components/public/EventForm.js:959
+msgid "Submitting..."
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:224
+msgid "Subscribe"
+msgstr ""
+
+#: includes/Admin.php:76
+#: includes/Admin.php:77
+msgid "Subscribers"
+msgstr ""
+
+#: assets/js/src/components/public/SubscribeForm.js:224
+msgid "Subscribing..."
+msgstr ""
+
+#: mayo-events-manager.php:221
+msgid "Subscription Confirmed"
+msgstr ""
+
+#: mayo-events-manager.php:409
+msgid "Subscription not found."
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:80
+msgid "Sun"
+msgstr ""
+
+#: includes/Rest/EventsController.php:689
+#: assets/js/src/util.js:4
+#: assets/js/src/components/public/EventForm.js:473
+msgid "Sunday"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:604
+#: assets/js/src/components/public/EventForm.js:847
+msgid "Supported file types: Images (.jpg, .jpeg, .png, .gif)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:657
+#: assets/js/src/components/public/EventForm.js:934
+#: assets/js/src/components/public/EventDetails.js:212
+#: assets/js/src/components/public/AnnouncementDetails.js:221
+#: assets/js/src/components/public/SubscribeForm.js:181
+#: mayo-events-manager.php:687
+msgid "Tags"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:106
+msgid "Tags (comma-separated slugs):"
+msgstr ""
+
+#: includes/Rest/EventsController.php:750
+msgid "Tags:"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:421
+msgid "Tags: %s"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:149
+msgid "Text Color (hex):"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:392
+msgid "The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:364
+msgid "The selected file is not a valid image, so one will not be submitted.  Please use a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:379
+msgid "The selected file is not a valid image. Please choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:353
+msgid "The selected file is not a valid image. Please use a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:486
+msgid "Third"
+msgstr ""
+
+#: includes/Subscriber.php:112
+msgid "This email is already subscribed."
+msgstr ""
+
+#: assets/js/src/util.js:111
+msgid "This event repeats daily"
+msgstr ""
+
+#: assets/js/src/util.js:108
+msgid "This event repeats every %d day"
+msgid_plural "This event repeats every %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/src/util.js:134
+msgid "This event repeats every %d month"
+msgid_plural "This event repeats every %d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/src/util.js:117
+msgid "This event repeats every %d week"
+msgid_plural "This event repeats every %d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/src/util.js:137
+msgid "This event repeats monthly"
+msgstr ""
+
+#: assets/js/src/util.js:120
+msgid "This event repeats weekly"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:84
+msgid "Thu"
+msgstr ""
+
+#: includes/Rest/EventsController.php:693
+#: assets/js/src/util.js:8
+#: assets/js/src/components/public/EventForm.js:477
+msgid "Thursday"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:119
+msgid "Time Format:"
+msgstr ""
+
+#: includes/Subscriber.php:908
+msgid "Time:"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:625
+msgid "Timezone"
+msgstr ""
+
+#: includes/Rest/EventsController.php:779
+msgid "Timezone: %s"
+msgstr ""
+
+#: includes/Announcement.php:211
+#: includes/Widgets/AnnouncementWidget.php:173
+msgid "Title"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:374
+msgid "Title: %s"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:318
+msgid "Today"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:82
+msgid "Tue"
+msgstr ""
+
+#: includes/Rest/EventsController.php:691
+#: assets/js/src/util.js:6
+#: assets/js/src/components/public/EventForm.js:475
+msgid "Tuesday"
+msgstr ""
+
+#: includes/Admin.php:220
+msgid "Type"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:503
+#: assets/js/src/components/public/EventArchive.js:77
+msgid "Type:"
+msgstr ""
+
+#: includes/Announcement.php:238
+#: includes/Admin.php:273
+#: assets/js/src/components/public/AnnouncementForm.js:461
+#: assets/js/src/components/public/EventForm.js:541
+msgid "Unaffiliated (0)"
+msgstr ""
+
+#: includes/Announcement.php:571
+msgid "Unknown Event"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:648
+#: assets/js/src/components/public/EventForm.js:927
+msgid "Unnamed Category"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:671
+#: assets/js/src/components/public/EventForm.js:948
+msgid "Unnamed Tag"
+msgstr ""
+
+#: mayo-events-manager.php:759
+#: mayo-events-manager.php:774
+msgid "Unsubscribe"
+msgstr ""
+
+#: mayo-events-manager.php:253
+msgid "Unsubscribe Error"
+msgstr ""
+
+#: mayo-events-manager.php:252
+msgid "Unsubscribed"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementDetails.js:203
+msgid "Until:"
+msgstr ""
+
+#: includes/Admin.php:827
+msgid "Upcoming events"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:844
+msgid "Upload Flyer"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:601
+msgid "Upload Image"
+msgstr ""
+
+#: includes/Announcement.php:39
+msgid "View Announcement"
+msgstr ""
+
+#: includes/Admin.php:45
+msgid "View Event"
+msgstr ""
+
+#: assets/js/src/components/public/EventArchive.js:131
+msgid "View Event Details"
+msgstr ""
+
+#: assets/js/src/components/public/EventModal.js:170
+msgid "View Full Details"
+msgstr ""
+
+#: includes/Subscriber.php:744
+msgid "View online:"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:546
+msgid "View past events"
+msgstr ""
+
+#: includes/Rest/EventsController.php:795
+msgid "View the event: %s"
+msgstr ""
+
+#: assets/js/src/components/public/CalendarView.js:83
+msgid "Wed"
+msgstr ""
+
+#: includes/Rest/EventsController.php:692
+#: assets/js/src/util.js:7
+#: assets/js/src/components/public/EventForm.js:476
+msgid "Wednesday"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:761
+msgid "Week"
+msgstr ""
+
+#: includes/Rest/EventsController.php:682
+#: assets/js/src/components/public/EventForm.js:668
+msgid "Weekly"
+msgstr ""
+
+#: includes/Subscriber.php:676
+msgid "Welcome to %s announcements"
+msgstr ""
+
+#: assets/js/src/components/public/EventArchive.js:82
+msgid "When:"
+msgstr ""
+
+#: assets/js/src/components/public/EventArchive.js:93
+msgid "Where:"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:239
+msgid "You did not attach a valid image file, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:253
+msgid "You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+
+#: includes/Subscriber.php:327
+msgid "You have already been unsubscribed."
+msgstr ""
+
+#: includes/Subscriber.php:342
+msgid "You have been unsubscribed and will no longer receive announcement emails."
+msgstr ""
+
+#: includes/Subscriber.php:646
+msgid "You have requested to subscribe to announcements from %s."
+msgstr ""
+
+#: includes/Subscriber.php:680
+msgid "You'll receive an email whenever a new announcement is published."
+msgstr ""
+
+#: includes/Subscriber.php:679
+msgid "You're now subscribed to announcements from %s."
+msgstr ""
+
+#: includes/Admin.php:762
+msgid "Your Event Has Been Published: %s"
+msgstr ""
+
+#: mayo-events-manager.php:651
+msgid "Your Preferences"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:494
+#: assets/js/src/components/public/EventForm.js:574
+msgid "Your email address (will not be displayed publicly)"
+msgstr ""
+
+#: assets/js/src/components/public/AnnouncementForm.js:481
+#: assets/js/src/components/public/EventForm.js:561
+msgid "Your name (will not be displayed publicly)"
+msgstr ""
+
+#: includes/Subscriber.php:293
+msgid "Your subscription has been confirmed! You will now receive announcement emails."
+msgstr ""
+
+#: includes/Subscriber.php:272
+msgid "Your subscription is already confirmed."
+msgstr ""
+
+#: mayo-events-manager.php:282
+msgid "Your subscription preferences have been updated."
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:367
+msgid "[%1$s] New Announcement Submission: %2$s"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:502
+#: assets/js/src/components/public/EventArchive.js:84
+#: assets/js/src/components/public/EventArchive.js:87
+#: assets/js/src/components/public/EventDetails.js:183
+#: assets/js/src/components/public/EventDetails.js:188
+#: assets/js/src/components/public/AnnouncementDetails.js:98
+msgid "at"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:683
+msgid "days"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:101
+msgid "e.g., announcements, alerts"
+msgstr ""
+
+#: includes/Widgets/AnnouncementWidget.php:114
+msgid "e.g., featured, urgent"
+msgstr ""
+
+#: assets/js/src/util.js:151
+msgid "fifth"
+msgstr ""
+
+#: assets/js/src/util.js:147
+msgid "first"
+msgstr ""
+
+#: assets/js/src/util.js:150
+msgid "fourth"
+msgstr ""
+
+#: assets/js/src/util.js:153
+msgid "last"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:684
+msgid "months"
+msgstr ""
+
+#: includes/Rest/EventsController.php:701
+#: includes/Rest/EventsController.php:715
+#: assets/js/src/util.js:125
+msgid "on %s"
+msgstr ""
+
+#: includes/Rest/EventsController.php:712
+#: assets/js/src/util.js:141
+msgid "on day %s"
+msgstr ""
+
+#: assets/js/src/util.js:156
+msgid "on the %1$s %2$s"
+msgstr ""
+
+#: assets/js/src/util.js:148
+msgid "second"
+msgstr ""
+
+#: assets/js/src/util.js:149
+msgid "third"
+msgstr ""
+
+#: includes/Rest/EventsController.php:722
+#: assets/js/src/util.js:169
+msgid "until %s"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:684
+msgid "weeks"
+msgstr ""
+

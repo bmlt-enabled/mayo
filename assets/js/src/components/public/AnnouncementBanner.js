@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 // Map icon names to dashicon classes
 const getIconClass = (iconName) => {
@@ -105,7 +106,7 @@ const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClo
                     <button
                         className="mayo-announcement-nav mayo-announcement-prev"
                         onClick={onPrev}
-                        title="Previous"
+                        title={__('Previous', 'mayo-events-manager')}
                     >
                         <span className="dashicons dashicons-arrow-left-alt2"></span>
                     </button>
@@ -182,7 +183,7 @@ const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClo
                     <button
                         className="mayo-announcement-nav mayo-announcement-next"
                         onClick={onNext}
-                        title="Next"
+                        title={__('Next', 'mayo-events-manager')}
                     >
                         <span className="dashicons dashicons-arrow-right-alt2"></span>
                     </button>
@@ -192,7 +193,7 @@ const AnnouncementBanner = ({ announcements, currentIndex, onPrev, onNext, onClo
             <button
                 className="mayo-announcement-close"
                 onClick={onClose}
-                title="Dismiss"
+                title={__('Dismiss', 'mayo-events-manager')}
             >
                 <span className="dashicons dashicons-no-alt"></span>
             </button>
