@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayo Events Manager\n"
 "Report-Msgid-Bugs-To: https://github.com/bmlt-enabled/mayo/issues\n"
-"POT-Creation-Date: 2026-05-09 04:16+0000\n"
+"POT-Creation-Date: 2026-05-09 04:23+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -198,7 +198,7 @@ msgstr ""
 msgid "Calendar View"
 msgstr ""
 
-#: mayo-events-manager.php:752
+#: mayo-events-manager.php:791
 msgid "Cancel"
 msgstr ""
 
@@ -207,7 +207,7 @@ msgstr ""
 #: assets/js/src/components/public/EventDetails.js:203
 #: assets/js/src/components/public/AnnouncementDetails.js:212
 #: assets/js/src/components/public/SubscribeForm.js:162
-#: mayo-events-manager.php:656
+#: mayo-events-manager.php:685
 msgid "Categories"
 msgstr ""
 
@@ -370,7 +370,7 @@ msgid "Edit Event"
 msgstr ""
 
 #: includes/Rest/AnnouncementsController.php:400
-#: mayo-events-manager.php:641
+#: mayo-events-manager.php:657
 msgid "Email: %s"
 msgstr ""
 
@@ -408,8 +408,8 @@ msgid "Enter your email address"
 msgstr ""
 
 #: mayo-events-manager.php:239
-#: mayo-events-manager.php:287
-#: mayo-events-manager.php:408
+#: mayo-events-manager.php:291
+#: mayo-events-manager.php:419
 msgid "Error"
 msgstr ""
 
@@ -526,7 +526,7 @@ msgstr ""
 msgid "Failed to submit event"
 msgstr ""
 
-#: mayo-events-manager.php:288
+#: mayo-events-manager.php:293
 msgid "Failed to update preferences. Please try again."
 msgstr ""
 
@@ -576,7 +576,7 @@ msgstr ""
 msgid "If you didn't request this, you can safely ignore this email."
 msgstr ""
 
-#: mayo-events-manager.php:764
+#: mayo-events-manager.php:803
 msgid "If you no longer want to receive announcements from %s, you can unsubscribe below."
 msgstr ""
 
@@ -702,11 +702,11 @@ msgstr ""
 msgid "Location:"
 msgstr ""
 
-#: mayo-events-manager.php:503
+#: mayo-events-manager.php:514
 msgid "Manage Subscription - %s"
 msgstr ""
 
-#: mayo-events-manager.php:637
+#: mayo-events-manager.php:651
 msgid "Manage Your Subscription"
 msgstr ""
 
@@ -896,7 +896,7 @@ msgstr ""
 msgid "Point of Contact Name (Private)"
 msgstr ""
 
-#: mayo-events-manager.php:281
+#: mayo-events-manager.php:280
 msgid "Preferences Saved"
 msgstr ""
 
@@ -962,7 +962,7 @@ msgstr ""
 msgid "Repeat every"
 msgstr ""
 
-#: mayo-events-manager.php:382
+#: mayo-events-manager.php:392
 msgid "Return to %s"
 msgstr ""
 
@@ -980,7 +980,7 @@ msgstr ""
 msgid "Saturday"
 msgstr ""
 
-#: mayo-events-manager.php:749
+#: mayo-events-manager.php:786
 msgid "Save Preferences"
 msgstr ""
 
@@ -1011,7 +1011,7 @@ msgid "Select a service body"
 msgstr ""
 
 #: assets/js/src/components/public/SubscribeForm.js:157
-#: mayo-events-manager.php:652
+#: mayo-events-manager.php:676
 msgid "Select what you'd like to receive notifications about:"
 msgstr ""
 
@@ -1033,7 +1033,7 @@ msgid "Service"
 msgstr ""
 
 #: assets/js/src/components/public/SubscribeForm.js:200
-#: mayo-events-manager.php:718
+#: mayo-events-manager.php:752
 msgid "Service Bodies"
 msgstr ""
 
@@ -1152,7 +1152,7 @@ msgstr ""
 msgid "Subscription Confirmed"
 msgstr ""
 
-#: mayo-events-manager.php:409
+#: mayo-events-manager.php:420
 msgid "Subscription not found."
 msgstr ""
 
@@ -1176,7 +1176,7 @@ msgstr ""
 #: assets/js/src/components/public/EventDetails.js:212
 #: assets/js/src/components/public/AnnouncementDetails.js:221
 #: assets/js/src/components/public/SubscribeForm.js:181
-#: mayo-events-manager.php:687
+#: mayo-events-manager.php:718
 msgid "Tags"
 msgstr ""
 
@@ -1329,8 +1329,8 @@ msgstr ""
 msgid "Unnamed Tag"
 msgstr ""
 
-#: mayo-events-manager.php:759
-#: mayo-events-manager.php:774
+#: mayo-events-manager.php:798
+#: mayo-events-manager.php:812
 msgid "Unsubscribe"
 msgstr ""
 
@@ -1449,7 +1449,7 @@ msgstr ""
 msgid "Your Event Has Been Published: %s"
 msgstr ""
 
-#: mayo-events-manager.php:651
+#: mayo-events-manager.php:670
 msgid "Your Preferences"
 msgstr ""
 

@@ -277,15 +277,25 @@ function Bmltenabled_Mayo_handleSubscriptionRequests()
                 $result = Subscriber::update_preferences($token, $preferences);
 
                 if ($result) {
+                    $title_msg = __('Preferences Saved', 'mayo-events-manager');
+                    $body_msg = __(
+                        'Your subscription preferences have been updated.',
+                        'mayo-events-manager'
+                    );
                     Bmltenabled_Mayo_displaySubscriptionMessage(
-                        __('Preferences Saved', 'mayo-events-manager'),
-                        __('Your subscription preferences have been updated.', 'mayo-events-manager'),
+                        $title_msg,
+                        $body_msg,
                         true
                     );
                 } else {
+                    $title_msg = __('Error', 'mayo-events-manager');
+                    $body_msg = __(
+                        'Failed to update preferences. Please try again.',
+                        'mayo-events-manager'
+                    );
                     Bmltenabled_Mayo_displaySubscriptionMessage(
-                        __('Error', 'mayo-events-manager'),
-                        __('Failed to update preferences. Please try again.', 'mayo-events-manager'),
+                        $title_msg,
+                        $body_msg,
                         false
                     );
                 }
@@ -379,7 +389,8 @@ function Bmltenabled_Mayo_displaySubscriptionMessage($title, $message, $success)
             <a href="<?php echo esc_url($home_url); ?>">
                 <?php
                 /* translators: %s: site name */
-                echo esc_html(sprintf(__('Return to %s', 'mayo-events-manager'), $site_name));
+                $return_text = __('Return to %s', 'mayo-events-manager');
+                echo esc_html(sprintf($return_text, $site_name));
                 ?>
             </a>
         </div>
@@ -500,7 +511,8 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
         <title>
         <?php
         /* translators: %s: site name */
-        echo esc_html(sprintf(__('Manage Subscription - %s', 'mayo-events-manager'), $site_name));
+        $title_text = __('Manage Subscription - %s', 'mayo-events-manager');
+        echo esc_html(sprintf($title_text, $site_name));
         ?>
         </title>
         <style>
@@ -634,11 +646,16 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
     </head>
     <body>
         <div class="manage-box">
-            <h1><?php esc_html_e('Manage Your Subscription', 'mayo-events-manager'); ?></h1>
+            <h1>
+                <?php
+                esc_html_e('Manage Your Subscription', 'mayo-events-manager');
+                ?>
+            </h1>
             <div class="email-display">
                 <?php
                 /* translators: %s: email address */
-                echo esc_html(sprintf(__('Email: %s', 'mayo-events-manager'), $subscriber->email));
+                $email_label = __('Email: %s', 'mayo-events-manager');
+                echo esc_html(sprintf($email_label, $subscriber->email));
                 ?>
             </div>
 
@@ -648,12 +665,25 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
                     value="<?php echo esc_attr($nonce); ?>">
 
                 <div class="preference-section">
-                    <h3><?php esc_html_e('Your Preferences', 'mayo-events-manager'); ?></h3>
-                    <p><?php esc_html_e("Select what you'd like to receive notifications about:", 'mayo-events-manager'); ?></p>
+                    <h3>
+                        <?php
+                        esc_html_e('Your Preferences', 'mayo-events-manager');
+                        ?>
+                    </h3>
+                    <p>
+                        <?php
+                        esc_html_e(
+                            "Select what you'd like to receive notifications about:",
+                            'mayo-events-manager'
+                        );
+                        ?>
+                    </p>
 
                     <?php if (!empty($categories)) : ?>
                     <div class="preference-group">
-                        <div class="preference-group-title"><?php esc_html_e('Categories', 'mayo-events-manager'); ?></div>
+                        <div class="preference-group-title">
+                            <?php esc_html_e('Categories', 'mayo-events-manager'); ?>
+                        </div>
                         <div class="checkbox-list">
                             <?php foreach ($categories as $cat) : ?>
                                 <?php
@@ -684,7 +714,9 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
 
                     <?php if (!empty($tags)) : ?>
                     <div class="preference-group">
-                        <div class="preference-group-title"><?php esc_html_e('Tags', 'mayo-events-manager'); ?></div>
+                        <div class="preference-group-title">
+                            <?php esc_html_e('Tags', 'mayo-events-manager'); ?>
+                        </div>
                         <div class="checkbox-list">
                             <?php foreach ($tags as $tag) : ?>
                                 <?php
@@ -715,7 +747,11 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
 
                     <?php if (!empty($service_bodies)) : ?>
                     <div class="preference-group">
-                        <div class="preference-group-title"><?php esc_html_e('Service Bodies', 'mayo-events-manager'); ?></div>
+                        <div class="preference-group-title">
+                            <?php
+                            esc_html_e('Service Bodies', 'mayo-events-manager');
+                            ?>
+                        </div>
                         <div class="checkbox-list">
                             <?php foreach ($service_bodies as $sb) : ?>
                                 <?php
@@ -746,10 +782,13 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
                     <button type="submit"
                         name="save_preferences"
                         class="btn btn-primary">
-                        <?php esc_html_e('Save Preferences', 'mayo-events-manager'); ?>
+                        <?php
+                        esc_html_e('Save Preferences', 'mayo-events-manager');
+                        ?>
                     </button>
                     <a href="<?php echo esc_url($home_url); ?>"
-                        class="btn btn-secondary"><?php esc_html_e('Cancel', 'mayo-events-manager'); ?>
+                        class="btn btn-secondary">
+                        <?php esc_html_e('Cancel', 'mayo-events-manager'); ?>
                     </a>
                 </div>
             </form>
@@ -760,10 +799,9 @@ function Bmltenabled_Mayo_displayManageSubscription($token)
                 <p>
                     <?php
                     /* translators: %s: site name */
-                    echo esc_html(sprintf(
-                        __('If you no longer want to receive announcements from %s, you can unsubscribe below.', 'mayo-events-manager'),
-                        $site_name
-                    ));
+                    // phpcs:ignore Generic.Files.LineLength.TooLong
+                    $unsub_text = __('If you no longer want to receive announcements from %s, you can unsubscribe below.', 'mayo-events-manager');
+                    echo esc_html(sprintf($unsub_text, $site_name));
                     ?>
                 </p>
                 <form method="post">
