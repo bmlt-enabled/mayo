@@ -27,6 +27,11 @@ class Frontend {
                 defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
                 true
             );
+            wp_set_script_translations(
+                'mayo-public',
+                'mayo-events-manager',
+                plugin_dir_path( __DIR__ ) . 'languages'
+            );
         });
     }
 
