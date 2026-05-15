@@ -234,18 +234,7 @@ class Frontend {
         }
         
         if ($should_enqueue) {
-            wp_enqueue_script(
-                'mayo-public',
-                plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',
-                [
-                    'wp-element',
-                    'wp-components',
-                    'wp-i18n',
-                    'wp-api-fetch'
-                ],
-                defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
-                true
-            );
+            wp_enqueue_script('mayo-public');
 
             wp_enqueue_style('wp-components');
             wp_enqueue_style(
