@@ -55,3 +55,7 @@ coverage: composer ## PHP Unit Test with Coverage
 .PHONY: pot
 pot: ## Regenerate languages/mayo-events-manager.pot from source
 	php scripts/generate-pot.php > languages/mayo-events-manager.pot
+
+.PHONY: translations
+translations: ## Generate JSON translation files for JS bundles from .po files
+	php scripts/generate-json-translations.php

@@ -185,6 +185,9 @@ abstract class TestCase extends PHPUnitTestCase {
             'load_plugin_textdomain' => function($domain, $deprecated = false, $plugin_rel_path = false) {
                 return true;
             },
+            'determine_locale' => function() {
+                return 'en_US';
+            },
             'wp_set_script_translations' => function($handle, $domain = 'default', $path = null) {
                 return true;
             },

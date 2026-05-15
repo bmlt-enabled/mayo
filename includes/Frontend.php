@@ -33,6 +33,20 @@ class Frontend {
                 plugin_dir_path( __DIR__ ) . 'languages'
             );
         });
+
+        // Resolve JSON translation files by script handle so they load
+        // regardless of the MD5 WordPress computes from the install path.
+        add_filter('load_script_translation_file', function ($file, $handle, $domain) {
+            if ('mayo-events-manager' !== $domain) {
+                return $file;
+            }
+            $lang_dir = plugin_dir_path(__DIR__) . 'languages';
+            $handle_file = "{$lang_dir}/mayo-events-manager-" . determine_locale() . "-{$handle}.json";
+            if (file_exists($handle_file)) {
+                return $handle_file;
+            }
+            return $file;
+        }, 10, 3);
     }
 
 
