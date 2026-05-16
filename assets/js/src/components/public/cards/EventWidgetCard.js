@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { formatTime, formatDateTimeDisplay, dayNames, monthNames } from '../../../util';
 
 const EventWidgetCard = ({ event, timeFormat }) => {
@@ -39,13 +40,13 @@ const EventWidgetCard = ({ event, timeFormat }) => {
                         )}
                     </>
                 ) : (
-                    <span className="mayo-event-date-error">No Date</span>
+                    <span className="mayo-event-date-error">{__('No Date Set', 'mayo-events-manager')}</span>
                 )}
             </div>
             <h4 className="mayo-widget-event-title">{event.title.rendered}</h4>
             {!hasValidDate && (
                 <div className="mayo-event-date-warning">
-                    Event date not set
+                    {__('No Date Set', 'mayo-events-manager')}
                 </div>
             )}
             {formatDateTimeDisplay(event, timeFormat) && (
@@ -63,7 +64,7 @@ const EventWidgetCard = ({ event, timeFormat }) => {
                 )}
             </a>
             <div className="mayo-widget-event-actions">
-                <a href={event.link} className="mayo-widget-event-link">Read More...</a>
+                <a href={event.link} className="mayo-widget-event-link">{__('Read More', 'mayo-events-manager')}...</a>
                 
             </div>
         </div>

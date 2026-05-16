@@ -932,6 +932,11 @@ msgid_plural "RELATED EVENTS"
 msgstr[0] "ÉVÉNEMENT ASSOCIÉ"
 msgstr[1] "ÉVÉNEMENTS ASSOCIÉS"
 
+#: assets/js/src/components/public/cards/EventCard.js:250
+#: assets/js/src/components/public/cards/EventWidgetCard.js:66
+msgid "Read More"
+msgstr "En savoir plus"
+
 #: assets/js/src/components/public/EventList.js:614
 msgid "RSS Feed"
 msgstr "Flux RSS"
