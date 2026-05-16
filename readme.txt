@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 6.9
-Stable tag: 1.8.9
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,9 +187,11 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
-= 1.8.9 =
+= 1.9.0 =
 * Added multilingual support: the plugin now declares the `mayo-events-manager` text domain, ships a `languages/mayo-events-manager.pot` template, and loads PHP and JavaScript translations so events, announcements, forms, subscription pages, and admin labels can be translated into any locale. [#268]
 * Added pre-populated translation files for Spanish (es_ES), Portuguese-Brazil (pt_BR), and French (fr_FR) with best-guess translations for all 354 strings. [#268]
+
+= 1.8.9 =
 * Added "Celebration" as a third event type option, allowing users to mark clean-time celebration dates/times alongside Service and Activity events.
 * Fixed archive mode incorrectly showing future multi-day events. Archive now requires both start and end dates to be before today. [#265]
 * Fixed mayo-public script and style cache never invalidating across plugin upgrades by using MAYO_VERSION for cache-busting. [#264]
