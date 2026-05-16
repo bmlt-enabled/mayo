@@ -151,7 +151,7 @@ const Subscribers = () => {
         const fetchData = async () => {
             try {
                 const [subscribersData, optionsData] = await Promise.all([
-                    apiFetch('/subscribers'),
+                    apiFetch('/subscribers', { authenticated: true }),
                     apiFetch('/subscription-options')
                 ]);
                 setSubscribers(subscribersData);
@@ -173,7 +173,7 @@ const Subscribers = () => {
                 body: JSON.stringify(data)
             });
             // Refresh subscriber list
-            const updated = await apiFetch('/subscribers');
+            const updated = await apiFetch('/subscribers', { authenticated: true });
             setSubscribers(updated);
             setEditingSubscriber(null);
         } catch (err) {

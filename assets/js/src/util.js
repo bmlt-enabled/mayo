@@ -127,36 +127,38 @@ export const apiFetch = async (endpoint, options = {}) => {
         baseUrl += '/';
     }
     const url = `${baseUrl}event-manager/v1${endpoint}`;
-    
-    // Check for nonce in various places
-    let nonce = '';
-    
-    // First check if mayoApiSettings exists (our plugin's settings)
-    if (window.mayoApiSettings && window.mayoApiSettings.nonce) {
-        nonce = window.mayoApiSettings.nonce;
-    } 
-    // Fallback to WordPress core's wpApiSettings
-    else if (window.wpApiSettings && window.wpApiSettings.nonce) {
-        nonce = window.wpApiSettings.nonce;
+
+    const method = (options.method || 'GET').toUpperCase();
+    const { authenticated, ...restOptions } = options;
+
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    // Only send nonce for write operations or when explicitly requested.
+    // Public GET endpoints don't need it, and sending a stale nonce
+    // (from CDN-cached pages) causes 403 errors.
+    if (method !== 'GET' || authenticated) {
+        const nonce = window.mayoApiSettings?.nonce || window.wpApiSettings?.nonce || '';
+        if (nonce) {
+            headers['X-WP-Nonce'] = nonce;
+        }
     }
-    
+
     const defaultOptions = {
         credentials: 'same-origin',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-WP-Nonce': nonce
-        }
+        headers
     };
-    
-    const fetchOptions = { ...defaultOptions, ...options };
-    
+
+    const fetchOptions = { ...defaultOptions, ...restOptions };
+
     try {
         const response = await fetch(url, fetchOptions);
-        
+
         if (!response.ok) {
             throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
-        
+
         return await response.json();
     } catch (error) {
         console.error('API fetch error:', error);

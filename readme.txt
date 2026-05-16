@@ -191,6 +191,7 @@ This project is licensed under the GPL v2 or later.
 * Added "Celebration" as a third event type option, allowing users to mark clean-time celebration dates/times alongside Service and Activity events.
 * Fixed archive mode incorrectly showing future multi-day events. Archive now requires both start and end dates to be before today. [#265]
 * Fixed mayo-public script and style cache never invalidating across plugin upgrades by using MAYO_VERSION for cache-busting. [#264]
+* Fixed calendar/event list failing to load on CDN-cached pages due to stale nonce in API requests. Public GET endpoints no longer send X-WP-Nonce header. [#271]
 
 = 1.8.8 =
 * Fixed release workflow fetching release-notes-tool from stale `master` branch instead of `main`, which caused GitHub Release notes to be truncated.
