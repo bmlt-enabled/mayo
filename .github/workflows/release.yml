@@ -37,6 +37,9 @@ jobs:
       - name: Check out code 🛒
         uses: actions/checkout@v6
 
+      - name: Install gettext (for msgfmt) 🌐
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gettext
+
       - name: Build package 🔧
         id: build-package
         run: |
