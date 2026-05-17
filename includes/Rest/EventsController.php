@@ -36,6 +36,12 @@ class EventsController {
             'permission_callback' => '__return_true',
         ]);
 
+        register_rest_route('event-manager/v1', '/events/facets', [
+            'methods' => 'GET',
+            'callback' => [__CLASS__, 'get_events_facets'],
+            'permission_callback' => '__return_true',
+        ]);
+
         register_rest_route('event-manager/v1', '/event/(?P<slug>[a-zA-Z0-9-]+)', [
             'methods' => 'GET',
             'callback' => [__CLASS__, 'get_event_details'],
@@ -315,6 +321,184 @@ class EventsController {
         }
 
         return new \WP_REST_Response($response_data);
+    }
+
+    /**
+     * Get distinct filter facet values across the full (unpaginated) result set.
+     *
+     * Accepts the same scope parameters as get_events (event_type, service_body,
+     * categories, tags, source_ids, status, date range). Returns distinct values
+     * for the four display filters so the frontend filter bar can populate its
+     * dropdowns from the actual data — including service bodies surfaced by
+     * external feeds.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function get_events_facets() {
+        $previous_error_reporting = error_reporting();
+        error_reporting(E_ERROR | E_PARSE);
+
+        $events = [];
+        $sources = [];
+
+        $sourceIds = isset($_GET['source_ids']) ?
+            array_map('trim', array_filter(explode(',', sanitize_text_field(wp_unslash($_GET['source_ids']))))) :
+            [];
+
+        if (empty($sourceIds) || in_array('local', $sourceIds)) {
+            $local_events = self::get_local_events($_GET);
+            $sources['local'] = [
+                'id' => 'local',
+                'name' => 'Local Events',
+                'url' => get_site_url(),
+                'service_bodies' => self::get_local_service_bodies(),
+            ];
+            $events = array_merge($events, array_map(function ($event) {
+                $event['source_id'] = 'local';
+                return $event;
+            }, $local_events));
+        }
+
+        if (!empty($sourceIds)) {
+            $external_sources = get_option('mayo_external_sources', []);
+            $enabled_sources = [];
+            foreach ($external_sources as $source) {
+                if (in_array($source['id'], $sourceIds) && !empty($source['enabled'])) {
+                    $enabled_sources[] = $source;
+                }
+            }
+            if (!empty($enabled_sources)) {
+                $external_result = self::fetch_all_external_events($enabled_sources, false);
+                $events = array_merge($events, $external_result['events']);
+                foreach ($external_result['sources'] as $id => $source_info) {
+                    $sources[$id] = $source_info;
+                }
+            }
+        }
+
+        $event_types = [];
+        $service_bodies = [];
+        $service_body_seen = [];
+        $categories = [];
+        $category_seen = [];
+        $tags = [];
+        $tag_seen = [];
+
+        foreach ($events as $event) {
+            $type = isset($event['meta']['event_type']) ? trim((string) $event['meta']['event_type']) : '';
+            if ($type !== '' && !in_array($type, $event_types, true)) {
+                $event_types[] = $type;
+            }
+
+            $service_body_id = isset($event['meta']['service_body']) ? trim((string) $event['meta']['service_body']) : '';
+            if ($service_body_id !== '') {
+                $source_id = isset($event['source_id']) ? (string) $event['source_id'] : 'local';
+                $key = $source_id . ':' . $service_body_id;
+                if (!isset($service_body_seen[$key])) {
+                    $service_body_seen[$key] = true;
+                    $service_bodies[] = [
+                        'id' => $service_body_id,
+                        'name' => self::resolve_service_body_name($service_body_id, $source_id, $sources),
+                        'source_id' => $source_id,
+                    ];
+                }
+            }
+
+            if (!empty($event['categories']) && is_array($event['categories'])) {
+                foreach ($event['categories'] as $term) {
+                    $slug = isset($term['slug']) ? (string) $term['slug'] : '';
+                    if ($slug === '' || isset($category_seen[$slug])) {
+                        continue;
+                    }
+                    $category_seen[$slug] = true;
+                    $categories[] = [
+                        'slug' => $slug,
+                        'name' => html_entity_decode(isset($term['name']) ? (string) $term['name'] : $slug, ENT_QUOTES, 'UTF-8'),
+                    ];
+                }
+            }
+
+            if (!empty($event['tags']) && is_array($event['tags'])) {
+                foreach ($event['tags'] as $term) {
+                    $slug = isset($term['slug']) ? (string) $term['slug'] : '';
+                    if ($slug === '' || isset($tag_seen[$slug])) {
+                        continue;
+                    }
+                    $tag_seen[$slug] = true;
+                    $tags[] = [
+                        'slug' => $slug,
+                        'name' => html_entity_decode(isset($term['name']) ? (string) $term['name'] : $slug, ENT_QUOTES, 'UTF-8'),
+                    ];
+                }
+            }
+        }
+
+        sort($event_types);
+        usort($service_bodies, function ($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+        usort($categories, function ($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+        usort($tags, function ($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+
+        error_reporting($previous_error_reporting);
+
+        return new \WP_REST_Response([
+            'event_types' => $event_types,
+            'service_bodies' => $service_bodies,
+            'categories' => $categories,
+            'tags' => $tags,
+        ]);
+    }
+
+    /**
+     * Look up the human-readable name for a service body, given its source.
+     *
+     * Local service bodies come from the configured BMLT root server; external
+     * ones come from the per-source service_bodies array populated by
+     * fetch_all_external_events().
+     *
+     * @param string $id Service body ID
+     * @param string $source_id Source ID ('local' or external source id)
+     * @param array  $sources Sources array keyed by source id
+     * @return string Resolved name (defaults to the ID when not found)
+     */
+    private static function resolve_service_body_name($id, $source_id, $sources) {
+        if (isset($sources[$source_id]['service_bodies']) && is_array($sources[$source_id]['service_bodies'])) {
+            foreach ($sources[$source_id]['service_bodies'] as $body) {
+                if (isset($body['id']) && (string) $body['id'] === (string) $id) {
+                    return html_entity_decode((string) ($body['name'] ?? $id), ENT_QUOTES, 'UTF-8');
+                }
+            }
+        }
+        return (string) $id;
+    }
+
+    /**
+     * Fetch local service bodies from the configured BMLT root server.
+     *
+     * Mirrors the per-source service body list that external sources publish so
+     * the facets endpoint can resolve local service body IDs to names.
+     *
+     * @return array
+     */
+    private static function get_local_service_bodies() {
+        $settings = get_option('mayo_settings', []);
+        $root = isset($settings['bmlt_root_server']) ? trim((string) $settings['bmlt_root_server']) : '';
+        if ($root === '') {
+            return [];
+        }
+        $url = rtrim($root, '/') . '/client_interface/json/?switcher=GetServiceBodies';
+        $response = wp_remote_get($url, ['timeout' => 5]);
+        if (is_wp_error($response)) {
+            return [];
+        }
+        $body = wp_remote_retrieve_body($response);
+        $decoded = json_decode($body, true);
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**

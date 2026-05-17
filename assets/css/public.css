@@ -1873,6 +1873,65 @@
     margin-bottom: 1rem;
 }
 
+.mayo-event-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.mayo-event-filter {
+    display: flex;
+    flex-direction: column;
+    min-width: 160px;
+    flex: 1 1 160px;
+}
+
+.mayo-event-filter-label {
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #1d2327;
+}
+
+.mayo-event-filter-select {
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    background: #fff;
+    font-size: 0.95em;
+    line-height: 1.4;
+    max-width: 100%;
+}
+
+.mayo-event-filter-select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: 2px solid transparent;
+}
+
+.mayo-event-filter-clear {
+    align-self: flex-end;
+    background: transparent;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    color: #1d2327;
+    font-size: 0.9em;
+}
+
+.mayo-event-filter-clear:hover {
+    background: #fff;
+    border-color: #2271b1;
+    color: #2271b1;
+}
+
 .mayo-view-toggle {
     display: flex;
 }

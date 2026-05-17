@@ -1,11 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import EventCard from './cards/EventCard';
 import EventWidgetCard from './cards/EventWidgetCard';
 import CalendarView from './CalendarView';
+import EventFilters from './EventFilters';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
 import { getUserTimezone } from '../../timezones';
+
+const EMPTY_FILTERS = { event_type: '', service_body: '', categories: '', tags: '' };
+const EMPTY_FACETS = { event_types: [], service_bodies: [], categories: [], tags: [] };
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
@@ -30,7 +34,20 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [calendarDate, setCalendarDate] = useState(new Date()); // Current month for calendar view
     const [calendarEvents, setCalendarEvents] = useState([]); // Events for calendar view
     const [calendarLoading, setCalendarLoading] = useState(false);
+    const [activeFilters, setActiveFilters] = useState(EMPTY_FILTERS);
+    const [facets, setFacets] = useState(EMPTY_FACETS);
     const { updateExternalServiceBodies } = useEventProvider();
+
+    // Locked facets: those pinned by a shortcode attribute should not be
+    // shown as user-selectable dropdowns (they'd just collapse to one value).
+    const lockedFilters = useMemo(() => {
+        const locked = new Set();
+        if (settings?.eventType) locked.add('event_type');
+        if (settings?.serviceBody) locked.add('service_body');
+        if (settings?.categories) locked.add('categories');
+        if (settings?.tags) locked.add('tags');
+        return locked;
+    }, [settings?.eventType, settings?.serviceBody, settings?.categories, settings?.tags]);
 
     // Get user's current timezone
     const userTimezone = getUserTimezone();
@@ -45,8 +62,12 @@ const EventList = ({ widget = false, settings = {} }) => {
         setError(null);
         setHasMore(true);
         setTotalPages(1);
-        
-        fetchEvents(1);
+        setActiveFilters(EMPTY_FILTERS);
+
+        fetchEvents(1, EMPTY_FILTERS);
+        if (!widget) {
+            fetchFacets();
+        }
     }, [settings, widget]);
 
     // Check for autoexpand in querystring or settings
@@ -260,17 +281,30 @@ const EventList = ({ widget = false, settings = {} }) => {
         return [...validEvents, ...invalidEvents];
     };
 
+    // Resolve a filter value with precedence: querystring > runtimeFilters > settings.
+    // Locked filters always use the settings value (the shortcode pin) so a user
+    // can't widen scope past what the site admin allowed.
+    const resolveFilter = (key, qsKey, settingsKey, runtimeFilters) => {
+        const qs = getQueryStringValue(qsKey);
+        if (qs !== null) return qs;
+        if (!lockedFilters.has(key) && runtimeFilters && runtimeFilters[key]) {
+            return runtimeFilters[key];
+        }
+        return settings?.[settingsKey] || '';
+    };
+
     // Update fetchEvents to use processEvents
-    const fetchEvents = async (page = 1) => {
+    const fetchEvents = async (page = 1, filterOverrides = null) => {
         setLoading(true);
         try {
+            const filters = filterOverrides || activeFilters;
             let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
-            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
-            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
+            let eventType = resolveFilter('event_type', 'event_type', 'eventType', filters);
+            let serviceBody = resolveFilter('service_body', 'service_body', 'serviceBody', filters);
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
-            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+            let categories = resolveFilter('categories', 'categories', 'categories', filters);
             let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
-            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
+            let tags = resolveFilter('tags', 'tags', 'tags', filters);
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
             let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
             let infiniteScroll = getQueryStringValue('infinite_scroll') !== null ? getQueryStringValue('infinite_scroll') === 'true' : (settings?.infiniteScroll ?? true);
@@ -342,16 +376,17 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     // Fetch events for calendar view by date range
-    const fetchCalendarEvents = async (year, month) => {
+    const fetchCalendarEvents = async (year, month, filterOverrides = null) => {
         setCalendarLoading(true);
         try {
+            const filters = filterOverrides || activeFilters;
             let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
-            let eventType = getQueryStringValue('event_type') !== null ? getQueryStringValue('event_type') : (settings?.eventType || '');
-            let serviceBody = getQueryStringValue('service_body') !== null ? getQueryStringValue('service_body') : (settings?.serviceBody || '');
+            let eventType = resolveFilter('event_type', 'event_type', 'eventType', filters);
+            let serviceBody = resolveFilter('service_body', 'service_body', 'serviceBody', filters);
             let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
-            let categories = getQueryStringValue('categories') !== null ? getQueryStringValue('categories') : (settings?.categories || '');
+            let categories = resolveFilter('categories', 'categories', 'categories', filters);
             let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
-            let tags = getQueryStringValue('tags') !== null ? getQueryStringValue('tags') : (settings?.tags || '');
+            let tags = resolveFilter('tags', 'tags', 'tags', filters);
             let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
             let order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
 
@@ -410,6 +445,47 @@ const EventList = ({ widget = false, settings = {} }) => {
             fetchCalendarEvents(calendarDate.getFullYear(), calendarDate.getMonth());
         }
     }, [viewMode]);
+
+    // Build the facets request URL using the shortcode-locked scope only — we
+    // intentionally exclude runtime user selections so the dropdowns keep their
+    // full option set as the user narrows results.
+    const fetchFacets = async () => {
+        try {
+            const params = new URLSearchParams();
+            const status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
+            const sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
+            params.append('status', status);
+            if (settings?.eventType) params.append('event_type', settings.eventType);
+            if (settings?.serviceBody) params.append('service_body', settings.serviceBody);
+            if (settings?.categories) params.append('categories', settings.categories);
+            if (settings?.tags) params.append('tags', settings.tags);
+            if (sourceIds) params.append('source_ids', sourceIds);
+            params.append('timezone', userTimezone);
+
+            const data = await apiFetch(`/events/facets?${params.toString()}`);
+            setFacets({
+                event_types: Array.isArray(data?.event_types) ? data.event_types : [],
+                service_bodies: Array.isArray(data?.service_bodies) ? data.service_bodies : [],
+                categories: Array.isArray(data?.categories) ? data.categories : [],
+                tags: Array.isArray(data?.tags) ? data.tags : [],
+            });
+        } catch (err) {
+            console.error('Error in fetchFacets:', err);
+            setFacets(EMPTY_FACETS);
+        }
+    };
+
+    const handleFilterChange = (key, value) => {
+        const next = key === '__clear__' ? { ...EMPTY_FILTERS } : { ...activeFilters, [key]: value };
+        setActiveFilters(next);
+        setCurrentPage(1);
+        setEvents([]);
+        setHasMore(true);
+        fetchEvents(1, next);
+        if (viewMode === 'calendar' && !isWidget) {
+            fetchCalendarEvents(calendarDate.getFullYear(), calendarDate.getMonth(), next);
+        }
+    };
 
     const handlePrint = () => {
         // Create a new window for printing
@@ -534,19 +610,50 @@ const EventList = ({ widget = false, settings = {} }) => {
         };
     };
 
-    if (loading && events.length === 0) return <div>{__('Loading events...', 'mayo-events-manager')}</div>;
-    if (error && events.length === 0) return <div className="mayo-error">{error}</div>;
+    const hasActiveFilters = Object.values(activeFilters).some(v => v);
+
+    const renderFilters = () => (!isWidget ? (
+        <EventFilters
+            facets={facets}
+            selected={activeFilters}
+            onChange={handleFilterChange}
+            lockedFilters={lockedFilters}
+        />
+    ) : null);
+
+    if (loading && events.length === 0) {
+        return (
+            <div className="mayo-event-list" ref={containerRef}>
+                {renderFilters()}
+                <div>{__('Loading events...', 'mayo-events-manager')}</div>
+            </div>
+        );
+    }
+    if (error && events.length === 0) {
+        return (
+            <div className="mayo-event-list" ref={containerRef}>
+                {renderFilters()}
+                <div className="mayo-error">{error}</div>
+            </div>
+        );
+    }
     if (!events.length) {
-        if (settings?.showArchived) {
-            return <div className="mayo-no-events">{__('No events found in the archive.', 'mayo-events-manager')}</div>;
-        } else {
-            return <div className="mayo-no-events">
-                {__('No upcoming events found.', 'mayo-events-manager')}{' '}
-                <a href={`${window.location.pathname}?archive=true`} className="mayo-archive-link">
-                    {__('View past events', 'mayo-events-manager')}
-                </a>
-            </div>;
-        }
+        const emptyMessage = hasActiveFilters
+            ? <div className="mayo-no-events">{__('No events match the selected filters.', 'mayo-events-manager')}</div>
+            : (settings?.showArchived
+                ? <div className="mayo-no-events">{__('No events found in the archive.', 'mayo-events-manager')}</div>
+                : <div className="mayo-no-events">
+                    {__('No upcoming events found.', 'mayo-events-manager')}{' '}
+                    <a href={`${window.location.pathname}?archive=true`} className="mayo-archive-link">
+                        {__('View past events', 'mayo-events-manager')}
+                    </a>
+                </div>);
+        return (
+            <div className="mayo-event-list" ref={containerRef}>
+                {renderFilters()}
+                {emptyMessage}
+            </div>
+        );
     }
 
     return (
@@ -563,6 +670,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                 </div>
             ) : (
                 <>
+                    {renderFilters()}
                     <div className="mayo-event-list-header">
                         <div className="mayo-view-toggle">
                             <button
