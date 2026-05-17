@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.0 =
+* Fixed issue with long caching mechanisms like Cloudflare to avoid using nonces for readonly API calls [#271]
 * Added multilingual support: the plugin now declares the `mayo-events-manager` text domain, ships a `languages/mayo-events-manager.pot` template, and loads PHP and JavaScript translations so events, announcements, forms, subscription pages, and admin labels can be translated into any locale. [#268]
 * Added pre-populated translation files for Spanish (es_ES), Portuguese-Brazil (pt_BR), and French (fr_FR) with best-guess translations for all 354 strings. [#268]
 
