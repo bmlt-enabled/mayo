@@ -9,12 +9,14 @@ The Mayo Events Manager plugin is internationalized and ready for translation.
 
 This directory holds:
 
-- `mayo-events-manager.pot` — the translation template (English source strings).
-- `mayo-events-manager-{locale}.po` — translator-edited message files per locale (e.g. `mayo-events-manager-es_ES.po`).
-- `mayo-events-manager-{locale}.mo` — compiled message catalogs that WordPress loads at runtime.
-- `mayo-events-manager-{locale}-{handle}.json` — JSON message catalogs for translatable strings used in JavaScript bundles. The `{handle}` matches the registered script handle (`admin-bundle`, `mayo-admin`, `mayo-public`).
+- `mayo-events-manager.pot` — the translation template (English source strings). **Tracked in git.**
+- `mayo-events-manager-{locale}.po` — translator-edited message files per locale (e.g. `mayo-events-manager-es_ES.po`). **Tracked in git** — the single source of truth.
+- `mayo-events-manager-{locale}.mo` — compiled message catalogs that WordPress loads at runtime. **Generated; not committed.**
+- `mayo-events-manager-{locale}-{handle}.json` — JSON message catalogs for translatable strings used in JavaScript bundles. The `{handle}` matches the registered script handle (`admin-bundle`, `mayo-admin`, `mayo-public`). **Generated; not committed.**
 
 WordPress automatically loads `.mo` files via `load_plugin_textdomain()`, and JavaScript translations via `wp_set_script_translations()`. Both are wired up in `mayo-events-manager.php` and the relevant component initializers.
+
+The `.mo` and per-handle `.json` files are derived artifacts compiled from the `.po` sources. They are produced by `make i18n` (which runs `make translations` for JSON and `make mo` for `.mo`) and are generated automatically during the release/latest CI builds. Contributors only need to commit `.po` (and, when source strings change, `.pot`) updates.
 
 ## Creating or updating the POT file
 
