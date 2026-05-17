@@ -1352,19 +1352,7 @@ class EventsController {
             $source_map[$sid] = $source;
 
             // Events URL (same logic as fetch_external_events)
-            $params = [];
-            if (!empty($source['event_type'])) {
-                $params['event_type'] = $source['event_type'];
-            }
-            if (!empty($source['service_body'])) {
-                $params['service_body'] = $source['service_body'];
-            }
-            if (!empty($source['categories'])) {
-                $params['categories'] = $source['categories'];
-            }
-            if (!empty($source['tags'])) {
-                $params['tags'] = $source['tags'];
-            }
+            $params = self::build_external_filter_params($source);
             if (isset($_GET['archive'])) {
                 $params['archive'] = $_GET['archive'];
             }
@@ -1525,6 +1513,72 @@ class EventsController {
     }
 
     /**
+     * Merge an external source's admin-configured filter with the user's
+     * runtime $_GET filter for a single facet.
+     *
+     * Both inputs are comma-separated strings. When both are non-empty, the
+     * result is their intersection so an admin's pin cannot be widened by
+     * the visitor. When only one is set, that one wins. When the user's
+     * selection has no overlap with the admin pin, the admin pin is kept
+     * (avoid widening scope).
+     *
+     * @param string $source_value Admin-configured value (may be empty)
+     * @param string $user_value   $_GET-provided value (may be empty)
+     * @return string Combined filter value (empty if neither set)
+     */
+    private static function merge_filter_value($source_value, $user_value) {
+        $source_value = is_string($source_value) ? trim($source_value) : '';
+        $user_value = is_string($user_value) ? trim($user_value) : '';
+
+        if ($source_value === '') {
+            return $user_value;
+        }
+        if ($user_value === '') {
+            return $source_value;
+        }
+
+        $source_list = array_filter(array_map('trim', explode(',', $source_value)), function ($v) {
+            return $v !== '';
+        });
+        $user_list = array_filter(array_map('trim', explode(',', $user_value)), function ($v) {
+            return $v !== '';
+        });
+        $intersection = array_values(array_intersect($source_list, $user_list));
+        if (!empty($intersection)) {
+            return implode(',', $intersection);
+        }
+        return $source_value;
+    }
+
+    /**
+     * Build the filter params (event_type, service_body, categories, tags) for
+     * an external feed request by merging the source's admin pin with the
+     * current visitor's $_GET selection.
+     *
+     * @param array $source Source configuration entry
+     * @return array Associative array of filter params (only set keys are returned)
+     */
+    private static function build_external_filter_params($source) {
+        $get_param = function ($key) {
+            return isset($_GET[$key]) ? sanitize_text_field(wp_unslash($_GET[$key])) : '';
+        };
+        $merged = [
+            'event_type' => self::merge_filter_value($source['event_type'] ?? '', $get_param('event_type')),
+            'service_body' => self::merge_filter_value($source['service_body'] ?? '', $get_param('service_body')),
+            'categories' => self::merge_filter_value($source['categories'] ?? '', $get_param('categories')),
+            'tags' => self::merge_filter_value($source['tags'] ?? '', $get_param('tags')),
+        ];
+
+        $params = [];
+        foreach ($merged as $key => $value) {
+            if ($value !== '') {
+                $params[$key] = $value;
+            }
+        }
+        return $params;
+    }
+
+    /**
      * Fetch events from external source
      *
      * @param array $source External source configuration
@@ -1533,11 +1587,7 @@ class EventsController {
     private static function fetch_external_events($source, $include_debug = false) {
         $debug = ['calls' => []];
         try {
-            $params = [];
-            if (!empty($source['event_type'])) $params['event_type'] = $source['event_type'];
-            if (!empty($source['service_body'])) $params['service_body'] = $source['service_body'];
-            if (!empty($source['categories'])) $params['categories'] = $source['categories'];
-            if (!empty($source['tags'])) $params['tags'] = $source['tags'];
+            $params = self::build_external_filter_params($source);
 
             if (isset($_GET['archive'])) $params['archive'] = $_GET['archive'];
             if (isset($_GET['timezone'])) $params['timezone'] = $_GET['timezone'];

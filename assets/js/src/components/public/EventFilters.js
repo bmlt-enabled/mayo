@@ -70,50 +70,46 @@ const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilter
                 const selectId = `mayo-event-filter-${def.key}`;
                 return (
                     <div key={def.key} className="mayo-event-filter-group">
-                        <label htmlFor={selectId} className="mayo-event-filter-label">
-                            {def.i18nLabel()}
-                        </label>
-                        <div className="mayo-event-filter-controls">
-                            <select
-                                id={selectId}
-                                className="mayo-event-filter-add"
-                                value=""
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        onAdd(def.key, e.target.value);
-                                        e.target.value = '';
-                                    }
-                                }}
-                                disabled={availableOptions.length === 0}
-                            >
-                                <option value="">{def.i18nPlaceholder()}</option>
-                                {availableOptions.map(option => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {activeValues.map(value => {
-                                const label = valueToLabel.get(value) || value;
-                                return (
-                                    <span key={value} className="mayo-event-filter-chip">
-                                        <span className="mayo-event-filter-chip-label">{label}</span>
-                                        <button
-                                            type="button"
-                                            className="mayo-event-filter-chip-remove"
-                                            onClick={() => onRemove(def.key, value)}
-                                            aria-label={sprintf(
-                                                /* translators: %s: filter value being removed */
-                                                __('Remove filter %s', 'mayo-events-manager'),
-                                                label
-                                            )}
-                                        >
-                                            ×
-                                        </button>
-                                    </span>
-                                );
-                            })}
-                        </div>
+                        <select
+                            id={selectId}
+                            className="mayo-event-filter-add"
+                            aria-label={def.i18nLabel()}
+                            value=""
+                            onChange={(e) => {
+                                if (e.target.value) {
+                                    onAdd(def.key, e.target.value);
+                                    e.target.value = '';
+                                }
+                            }}
+                            disabled={availableOptions.length === 0}
+                        >
+                            <option value="">{def.i18nPlaceholder()}</option>
+                            {availableOptions.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                        {activeValues.map(value => {
+                            const label = valueToLabel.get(value) || value;
+                            return (
+                                <span key={value} className="mayo-event-filter-chip">
+                                    <span className="mayo-event-filter-chip-label">{label}</span>
+                                    <button
+                                        type="button"
+                                        className="mayo-event-filter-chip-remove"
+                                        onClick={() => onRemove(def.key, value)}
+                                        aria-label={sprintf(
+                                            /* translators: %s: filter value being removed */
+                                            __('Remove filter %s', 'mayo-events-manager'),
+                                            label
+                                        )}
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            );
+                        })}
                     </div>
                 );
             })}
