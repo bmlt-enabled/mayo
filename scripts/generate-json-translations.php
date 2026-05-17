@@ -27,14 +27,20 @@ foreach ($locales as $locale => $pluralForms) {
 
     $entries = parsePo($poFile);
     $jsEntries = filterJsEntries($entries);
+    $adminEntries = filterAdminEntries($entries);
+    $publicEntries = filterPublicEntries($entries);
 
-    $jed = buildJed($locale, $pluralForms, $jsEntries);
+    // Write JSON for mayo-public handle (public-facing JS)
+    $publicJed = buildJed($locale, $pluralForms, $publicEntries);
+    $publicFile = "{$langDir}/mayo-events-manager-{$locale}-mayo-public.json";
+    file_put_contents($publicFile, json_encode($publicJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
 
-    // Write one JSON per script handle that has JS strings
-    $jsonFile = "{$langDir}/mayo-events-manager-{$locale}-mayo-public.json";
-    file_put_contents($jsonFile, json_encode($jed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
+    // Write JSON for admin-bundle handle (admin JS)
+    $adminJed = buildJed($locale, $pluralForms, $adminEntries);
+    $adminFile = "{$langDir}/mayo-events-manager-{$locale}-admin-bundle.json";
+    file_put_contents($adminFile, json_encode($adminJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
 
-    echo "{$locale}: wrote " . count($jsEntries) . " JS entries to " . basename($jsonFile) . "\n";
+    echo "{$locale}: wrote " . count($publicEntries) . " public + " . count($adminEntries) . " admin entries\n";
 }
 
 /**
@@ -132,6 +138,36 @@ function filterJsEntries(array $entries): array
     return array_filter($entries, function ($entry) {
         foreach ($entry['refs'] as $ref) {
             if (str_contains($ref, 'assets/js/')) {
+                return true;
+            }
+        }
+        return false;
+    });
+}
+
+/**
+ * Filter entries to only those with public JS source references.
+ */
+function filterPublicEntries(array $entries): array
+{
+    return array_filter($entries, function ($entry) {
+        foreach ($entry['refs'] as $ref) {
+            if (str_contains($ref, 'assets/js/src/components/public/') || str_contains($ref, 'assets/js/src/util.js')) {
+                return true;
+            }
+        }
+        return false;
+    });
+}
+
+/**
+ * Filter entries to only those with admin JS source references.
+ */
+function filterAdminEntries(array $entries): array
+{
+    return array_filter($entries, function ($entry) {
+        foreach ($entry['refs'] as $ref) {
+            if (str_contains($ref, 'assets/js/src/components/admin/')) {
                 return true;
             }
         }

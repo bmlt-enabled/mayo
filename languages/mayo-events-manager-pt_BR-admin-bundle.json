@@ -1,0 +1,87 @@
+{
+    "translation-revision-date": "2026-05-15 00:00+0000",
+    "generator": "mayo-generate-json-translations",
+    "source": "assets\/js\/dist\/public.bundle.js",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "pt_BR",
+                "plural_forms": "nplurals=2; plural=(n != 1);"
+            },
+            "-- No timezone set --": [
+                "-- Sem fuso horário --"
+            ],
+            "Add Skip": [
+                "Adicionar omissão"
+            ],
+            "Add Skipped Date": [
+                "Adicionar data omitida"
+            ],
+            "Announcements that reference this event.": [
+                "Comunicados que fazem referência a este evento."
+            ],
+            "Contact Email": [
+                "E-mail de contato"
+            ],
+            "Contact Information (Private)": [
+                "Informações de contato (Privado)"
+            ],
+            "Contact Name": [
+                "Nome de contato"
+            ],
+            "Create Announcement": [
+                "Criar comunicado"
+            ],
+            "Date to skip": [
+                "Data a omitir"
+            ],
+            "Edit": [
+                "Editar"
+            ],
+            "Email address": [
+                "Endereço de e-mail"
+            ],
+            "Event Details": [
+                "Detalhes do evento"
+            ],
+            "Full address": [
+                "Endereço completo"
+            ],
+            "Full name of the contact person": [
+                "Nome completo da pessoa de contato"
+            ],
+            "Linked Announcements": [
+                "Comunicados vinculados"
+            ],
+            "Manage specific dates when this recurring event should not occur.": [
+                "Gerencie datas específicas em que este evento recorrente não deve ocorrer."
+            ],
+            "No announcements linked to this event.": [
+                "Nenhum comunicado vinculado a este evento."
+            ],
+            "Parking info, entrance details, etc.": [
+                "Informações de estacionamento, detalhes de entrada, etc."
+            ],
+            "Point of Contact": [
+                "Ponto de contato"
+            ],
+            "Remove": [
+                "Remover"
+            ],
+            "Repeat": [
+                "Repetir"
+            ],
+            "Skipped Dates:": [
+                "Datas omitidas:"
+            ],
+            "Skipped Occurrences": [
+                "Ocorrências omitidas"
+            ],
+            "e.g., Community Center": [
+                "ex., Centro comunitário"
+            ]
+        }
+    }
+}

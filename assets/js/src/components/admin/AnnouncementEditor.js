@@ -162,23 +162,23 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
 
     return (
         <Modal
-            title="Link Events"
+            title={__('Link Events', 'mayo-events-manager')}
             onRequestClose={onClose}
             style={{ maxWidth: '600px', width: '100%' }}
             className="mayo-event-search-modal"
         >
             <div style={{ marginBottom: '16px' }}>
                 <TextControl
-                    label="Search Events"
+                    label={__('Search Events', 'mayo-events-manager')}
                     value={searchTerm}
                     onChange={setSearchTerm}
-                    placeholder="Search by event name..."
+                    placeholder={__('Search by event name...', 'mayo-events-manager')}
                     __nextHasNoMarginBottom={true}
                     __next40pxDefaultSize={true}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                     <CheckboxControl
-                        label="Hide past events"
+                        label={__('Hide past events', 'mayo-events-manager')}
                         checked={hidePastEvents}
                         onChange={setHidePastEvents}
                         __nextHasNoMarginBottom={true}
@@ -205,13 +205,13 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                 {isLoading && (
                     <div style={{ textAlign: 'center', padding: '40px' }}>
                         <Spinner />
-                        <p style={{ margin: '8px 0 0', color: '#666' }}>Loading events...</p>
+                        <p style={{ margin: '8px 0 0', color: '#666' }}>{__('Loading events...', 'mayo-events-manager')}</p>
                     </div>
                 )}
 
                 {!isLoading && events.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-                        {searchTerm ? `No events found matching "${searchTerm}"` : 'No events available'}
+                        {searchTerm ? __('No events found', 'mayo-events-manager') : __('No events available', 'mayo-events-manager')}
                     </div>
                 )}
 
@@ -286,7 +286,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                                             onClick={(e) => handleRemoveEvent(event, e)}
                                             style={{ minWidth: 'auto' }}
                                         >
-                                            Unlink
+                                            {__('Unlink', 'mayo-events-manager')}
                                         </Button>
                                     )}
                                 </div>
@@ -298,20 +298,20 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                 {isLoadingMore && (
                     <div style={{ textAlign: 'center', padding: '16px' }}>
                         <Spinner />
-                        <span style={{ marginLeft: '8px', color: '#666', fontSize: '12px' }}>Loading more...</span>
+                        <span style={{ marginLeft: '8px', color: '#666', fontSize: '12px' }}>{__('Loading more...', 'mayo-events-manager')}</span>
                     </div>
                 )}
 
                 {!isLoading && !isLoadingMore && !hasMore && events.length > 0 && (
                     <div style={{ textAlign: 'center', padding: '12px', color: '#666', fontSize: '12px' }}>
-                        End of results
+                        {__('End of results', 'mayo-events-manager')}
                     </div>
                 )}
             </div>
 
             <div style={{ marginTop: '16px', textAlign: 'right' }}>
                 <Button variant="secondary" onClick={onClose}>
-                    Close
+                    {__('Close', 'mayo-events-manager')}
                 </Button>
             </div>
         </Modal>
@@ -320,12 +320,12 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
 
 // Icon options for custom links
 const CUSTOM_LINK_ICONS = [
-    { value: 'external', label: 'External Link', dashicon: 'dashicons-external' },
-    { value: 'hotel', label: 'Hotel/Lodging', dashicon: 'dashicons-building' },
-    { value: 'info', label: 'Information', dashicon: 'dashicons-info' },
-    { value: 'calendar', label: 'Calendar', dashicon: 'dashicons-calendar-alt' },
-    { value: 'location', label: 'Location', dashicon: 'dashicons-location' },
-    { value: 'link', label: 'Generic Link', dashicon: 'dashicons-admin-links' },
+    { value: 'external', label: __('External Link', 'mayo-events-manager'), dashicon: 'dashicons-external' },
+    { value: 'hotel', label: __('Hotel/Lodging', 'mayo-events-manager'), dashicon: 'dashicons-building' },
+    { value: 'info', label: __('Information', 'mayo-events-manager'), dashicon: 'dashicons-info' },
+    { value: 'calendar', label: __('Calendar', 'mayo-events-manager'), dashicon: 'dashicons-calendar-alt' },
+    { value: 'location', label: __('Location', 'mayo-events-manager'), dashicon: 'dashicons-location' },
+    { value: 'link', label: __('Generic Link', 'mayo-events-manager'), dashicon: 'dashicons-admin-links' },
 ];
 
 // Custom Link Modal Component
@@ -347,7 +347,7 @@ const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
 
     const validateUrl = (value) => {
         if (!value) {
-            setUrlError('URL is required');
+            setUrlError(__('URL is required', 'mayo-events-manager'));
             return false;
         }
         try {
@@ -355,7 +355,7 @@ const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
             setUrlError('');
             return true;
         } catch {
-            setUrlError('Please enter a valid URL (e.g., https://example.com)');
+            setUrlError(__('Please enter a valid URL (e.g., https://example.com)', 'mayo-events-manager'));
             return false;
         }
     };
@@ -378,17 +378,17 @@ const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
 
     return (
         <Modal
-            title="Add Custom Link"
+            title={__('Add Custom Link', 'mayo-events-manager')}
             onRequestClose={onClose}
             style={{ maxWidth: '500px', width: '100%' }}
             className="mayo-custom-link-modal"
         >
             <div style={{ marginBottom: '16px' }}>
                 <TextControl
-                    label="Link Title"
+                    label={__('Link Title', 'mayo-events-manager')}
                     value={title}
                     onChange={setTitle}
-                    placeholder="e.g., Hotel Reservations"
+                    placeholder={__('e.g., Hotel Reservations', 'mayo-events-manager')}
                     __nextHasNoMarginBottom={true}
                     __next40pxDefaultSize={true}
                 />
@@ -396,7 +396,7 @@ const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
 
             <div style={{ marginBottom: '16px' }}>
                 <TextControl
-                    label="URL"
+                    label={__('URL', 'mayo-events-manager')}
                     value={url}
                     onChange={(value) => {
                         setUrl(value);
@@ -416,7 +416,7 @@ const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
 
             <div style={{ marginBottom: '24px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                    Icon
+                    {__('Icon', 'mayo-events-manager')}
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {CUSTOM_LINK_ICONS.map((iconOption) => (
@@ -460,14 +460,14 @@ const CustomLinkModal = ({ isOpen, onClose, onAddLink }) => {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <Button variant="secondary" onClick={onClose}>
-                    Cancel
+                    {__('Cancel', 'mayo-events-manager')}
                 </Button>
                 <Button
                     variant="primary"
                     onClick={handleSubmit}
                     disabled={!title.trim() || !url.trim()}
                 >
-                    Add Link
+                    {__('Add Link', 'mayo-events-manager')}
                 </Button>
             </div>
         </Modal>
@@ -840,12 +840,12 @@ const AnnouncementEditor = () => {
         <>
             <PluginDocumentSettingPanel
                 name="mayo-announcement-details"
-                title="Announcement Settings"
+                title={__('Announcement Settings', 'mayo-events-manager')}
                 className="mayo-announcement-details"
             >
-                <PanelBody title="Display Window" initialOpen={true}>
+                <PanelBody title={__('Display Window', 'mayo-events-manager')} initialOpen={true}>
                     <p className="components-base-control__help" style={{ marginTop: 0, marginBottom: '12px' }}>
-                        Control when this announcement is visible on the frontend.
+                        {__('Control when this announcement is visible on the frontend.', 'mayo-events-manager')}
                     </p>
                     <div style={{
                         border: '1px solid #e0e0e0',
@@ -855,10 +855,10 @@ const AnnouncementEditor = () => {
                         backgroundColor: '#fafafa'
                     }}>
                         <div style={{ marginBottom: '4px' }}>
-                            <strong style={{ fontSize: '12px', color: '#1e1e1e' }}>Start</strong>
+                            <strong style={{ fontSize: '12px', color: '#1e1e1e' }}>{__('Start', 'mayo-events-manager')}</strong>
                         </div>
                         <TextControl
-                            label="Date"
+                            label={__('Date', 'mayo-events-manager')}
                             type="date"
                             value={meta.display_start_date || ''}
                             onChange={value => updateMetaValue('display_start_date', value)}
@@ -867,7 +867,7 @@ const AnnouncementEditor = () => {
                         />
                         <div style={{ marginTop: '8px' }}>
                             <TextControl
-                                label="Time"
+                                label={__('Time', 'mayo-events-manager')}
                                 type="time"
                                 value={meta.display_start_time || ''}
                                 onChange={value => updateMetaValue('display_start_time', value)}
@@ -876,7 +876,7 @@ const AnnouncementEditor = () => {
                             />
                         </div>
                         <p className="components-base-control__help" style={{ marginTop: '8px', marginBottom: 0 }}>
-                            Leave empty to start showing immediately
+                            {__('Leave empty to start showing immediately', 'mayo-events-manager')}
                         </p>
                     </div>
                     <div style={{
@@ -886,10 +886,10 @@ const AnnouncementEditor = () => {
                         backgroundColor: '#fafafa'
                     }}>
                         <div style={{ marginBottom: '4px' }}>
-                            <strong style={{ fontSize: '12px', color: '#1e1e1e' }}>End</strong>
+                            <strong style={{ fontSize: '12px', color: '#1e1e1e' }}>{__('End', 'mayo-events-manager')}</strong>
                         </div>
                         <TextControl
-                            label="Date"
+                            label={__('Date', 'mayo-events-manager')}
                             type="date"
                             value={meta.display_end_date || ''}
                             onChange={value => updateMetaValue('display_end_date', value)}
@@ -898,7 +898,7 @@ const AnnouncementEditor = () => {
                         />
                         <div style={{ marginTop: '8px' }}>
                             <TextControl
-                                label="Time"
+                                label={__('Time', 'mayo-events-manager')}
                                 type="time"
                                 value={meta.display_end_time || ''}
                                 onChange={value => updateMetaValue('display_end_time', value)}
@@ -907,15 +907,15 @@ const AnnouncementEditor = () => {
                             />
                         </div>
                         <p className="components-base-control__help" style={{ marginTop: '8px', marginBottom: 0 }}>
-                            Leave empty to show indefinitely
+                            {__('Leave empty to show indefinitely', 'mayo-events-manager')}
                         </p>
                     </div>
                     <div style={{ marginTop: '12px' }}>
                         <SelectControl
-                            label="Timezone"
+                            label={__('Timezone', 'mayo-events-manager')}
                             value={meta.display_timezone || ''}
                             options={[
-                                { label: '-- No timezone set --', value: '' },
+                                { label: __('-- No timezone set --', 'mayo-events-manager'), value: '' },
                                 ...getTimezoneOptions()
                             ]}
                             onChange={value => updateMetaValue('display_timezone', value)}
@@ -925,15 +925,15 @@ const AnnouncementEditor = () => {
                     </div>
                 </PanelBody>
 
-                <PanelBody title="Priority" initialOpen={true}>
+                <PanelBody title={__('Priority', 'mayo-events-manager')} initialOpen={true}>
                     <SelectControl
-                        label="Priority Level"
+                        label={__('Priority Level', 'mayo-events-manager')}
                         value={meta.priority || 'normal'}
                         options={[
-                            { label: 'Low', value: 'low' },
-                            { label: 'Normal', value: 'normal' },
-                            { label: 'High', value: 'high' },
-                            { label: 'Urgent', value: 'urgent' },
+                            { label: __('Low', 'mayo-events-manager'), value: 'low' },
+                            { label: __('Normal', 'mayo-events-manager'), value: 'normal' },
+                            { label: __('High', 'mayo-events-manager'), value: 'high' },
+                            { label: __('Urgent', 'mayo-events-manager'), value: 'urgent' },
                         ]}
                         onChange={value => updateMetaValue('priority', value)}
                         __nextHasNoMarginBottom={true}
@@ -952,13 +952,13 @@ const AnnouncementEditor = () => {
                     </p>
                 </PanelBody>
 
-                <PanelBody title="Service Body" initialOpen={true}>
+                <PanelBody title={__('Service Body', 'mayo-events-manager')} initialOpen={true}>
                     <SelectControl
-                        label="Service Body"
+                        label={__('Service Body', 'mayo-events-manager')}
                         value={meta.service_body || ''}
                         options={[
-                            { label: 'Select a service body', value: '' },
-                            ...(isUnaffiliatedAllowed() ? [{ label: 'Unaffiliated (0)', value: '0' }] : []),
+                            { label: __('Select a service body', 'mayo-events-manager'), value: '' },
+                            ...(isUnaffiliatedAllowed() ? [{ label: __('Unaffiliated (0)', 'mayo-events-manager'), value: '0' }] : []),
                             ...filteredServiceBodies.map(body => ({
                                 label: `${body.name} (${body.id})`,
                                 value: body.id
@@ -982,18 +982,18 @@ const AnnouncementEditor = () => {
 
             <PluginDocumentSettingPanel
                 name="mayo-linked-events"
-                title="Links & Events"
+                title={__('Links & Events', 'mayo-events-manager')}
                 className="mayo-linked-events"
             >
                 <p className="components-base-control__help" style={{ marginTop: 0 }}>
-                    Add custom links or link to events. Custom links appear first.
+                    {__('Add custom links or link to events. Custom links appear first.', 'mayo-events-manager')}
                 </p>
 
                 {/* Linked Events List */}
                 {isLoadingEventDetails && linkedEventRefs.length > 0 && (
                     <div style={{ textAlign: 'center', padding: '16px' }}>
                         <Spinner />
-                        <p style={{ margin: '8px 0 0', color: '#666', fontSize: '12px' }}>Loading details...</p>
+                        <p style={{ margin: '8px 0 0', color: '#666', fontSize: '12px' }}>{__('Loading details...', 'mayo-events-manager')}</p>
                     </div>
                 )}
 
@@ -1062,7 +1062,7 @@ const AnnouncementEditor = () => {
                                                         borderRadius: '3px',
                                                         marginBottom: '4px',
                                                     }}>
-                                                        {isCustom ? 'Custom Link' : (isExternal ? (details.source?.name || details.source?.id) : 'Local Event')}
+                                                        {isCustom ? __('Custom Link', 'mayo-events-manager') : (isExternal ? (details.source?.name || details.source?.id) : __('Local Event', 'mayo-events-manager'))}
                                                     </span>
                                                     {details.start_date && (
                                                         <div style={{ color: '#666', fontSize: '12px', marginBottom: '8px' }}>
@@ -1090,7 +1090,7 @@ const AnnouncementEditor = () => {
                                                                 }}
                                                             >
                                                                 <span className="dashicons dashicons-external" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
-                                                                {isCustom ? 'Open Link' : (isExternal ? 'View on External Site' : 'View')}
+                                                                {isCustom ? __('Open Link', 'mayo-events-manager') : (isExternal ? __('View on External Site', 'mayo-events-manager') : __('View', 'mayo-events-manager'))}
                                                             </a>
                                                         )}
                                                         {!isExternal && !isCustom && details.edit_link && (
@@ -1112,7 +1112,7 @@ const AnnouncementEditor = () => {
                                                                 }}
                                                             >
                                                                 <span className="dashicons dashicons-edit" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
-                                                                Edit
+                                                                {__('Edit', 'mayo-events-manager')}
                                                             </a>
                                                         )}
                                                     </div>
@@ -1130,7 +1130,7 @@ const AnnouncementEditor = () => {
                                             onClick={() => removeLinkedEvent(ref)}
                                             style={{ marginLeft: '12px' }}
                                         >
-                                            Remove
+                                            {__('Remove', 'mayo-events-manager')}
                                         </Button>
                                     </div>
                                 </div>
@@ -1147,7 +1147,7 @@ const AnnouncementEditor = () => {
                         style={{ justifyContent: 'center' }}
                     >
                         <span className="dashicons dashicons-admin-links" style={{ marginRight: '4px' }}></span>
-                        Add Custom Link
+                        {__('Add Custom Link', 'mayo-events-manager')}
                     </Button>
                     <Button
                         variant="secondary"
@@ -1155,7 +1155,7 @@ const AnnouncementEditor = () => {
                         style={{ justifyContent: 'center' }}
                     >
                         <span className="dashicons dashicons-calendar-alt" style={{ marginRight: '4px' }}></span>
-                        Link Event
+                        {__('Link Event', 'mayo-events-manager')}
                     </Button>
                 </div>
 
@@ -1188,7 +1188,7 @@ const AnnouncementEditor = () => {
 
             <PluginDocumentSettingPanel
                 name="mayo-email-recipients"
-                title="Email Recipients"
+                title={__('Email Recipients', 'mayo-events-manager')}
                 className="mayo-email-recipients"
             >
                 <div
@@ -1216,8 +1216,8 @@ const AnnouncementEditor = () => {
                 </div>
 
                 <p className="components-base-control__help" style={{ marginTop: '8px' }}>
-                    Based on selected categories, tags, and service body.
-                    {subscriberCount > 0 && ' Click to view recipients.'}
+                    {__('Based on selected categories, tags, and service body.', 'mayo-events-manager')}
+                    {subscriberCount > 0 && ' ' + __('Click to view recipients.', 'mayo-events-manager')}
                 </p>
 
                 {showEmailList && (
@@ -1254,7 +1254,7 @@ const AnnouncementEditor = () => {
                                                     color: '#666',
                                                     borderRadius: '3px',
                                                 }}>
-                                                    Receives all announcements
+                                                    {__('Receives all announcements', 'mayo-events-manager')}
                                                 </span>
                                             ) : (
                                                 <>
@@ -1307,13 +1307,13 @@ const AnnouncementEditor = () => {
                                 ))
                             ) : (
                                 <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                                    No matching subscribers
+                                    {__('No matching subscribers', 'mayo-events-manager')}
                                 </div>
                             )}
                         </div>
                         <div style={{ marginTop: '16px', textAlign: 'right' }}>
                             <Button variant="secondary" onClick={() => setShowEmailList(false)}>
-                                Close
+                                {__('Close', 'mayo-events-manager')}
                             </Button>
                         </div>
                     </Modal>

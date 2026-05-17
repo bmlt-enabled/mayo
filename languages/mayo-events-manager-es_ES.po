@@ -1562,3 +1562,99 @@ msgstr "hasta %s"
 #: assets/js/src/components/public/EventForm.js:684
 msgid "weeks"
 msgstr "semanas"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "-- No timezone set --"
+msgstr "-- Sin zona horaria --"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Add Skip"
+msgstr "Añadir omisión"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Add Skipped Date"
+msgstr "Añadir fecha omitida"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Announcements that reference this event."
+msgstr "Anuncios que hacen referencia a este evento."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Contact Email"
+msgstr "Correo de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Contact Information (Private)"
+msgstr "Información de contacto (Privada)"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Contact Name"
+msgstr "Nombre de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Create Announcement"
+msgstr "Crear anuncio"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Date to skip"
+msgstr "Fecha a omitir"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Edit"
+msgstr "Editar"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Email address"
+msgstr "Correo electrónico"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Event Details"
+msgstr "Detalles del evento"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Full address"
+msgstr "Dirección completa"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Full name of the contact person"
+msgstr "Nombre completo de la persona de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Linked Announcements"
+msgstr "Anuncios vinculados"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Manage specific dates when this recurring event should not occur."
+msgstr "Gestiona fechas específicas en las que este evento recurrente no debe ocurrir."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "No announcements linked to this event."
+msgstr "No hay anuncios vinculados a este evento."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Parking info, entrance details, etc."
+msgstr "Información de estacionamiento, detalles de entrada, etc."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Point of Contact"
+msgstr "Punto de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Remove"
+msgstr "Eliminar"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Repeat"
+msgstr "Repetir"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Skipped Dates:"
+msgstr "Fechas omitidas:"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Skipped Occurrences"
+msgstr "Ocurrencias omitidas"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "e.g., Community Center"
+msgstr "ej., Centro comunitario"
