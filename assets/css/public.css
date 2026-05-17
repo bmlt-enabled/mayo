@@ -1952,20 +1952,23 @@
 }
 
 .mayo-event-filter-clear {
-    align-self: flex-start;
     background: transparent;
-    border: 1px solid #8c8f94;
+    border: 1px solid transparent;
     border-radius: 3px;
-    padding: 0.3rem 0.65rem;
+    padding: 0.2rem 0.4rem;
     cursor: pointer;
-    color: #1d2327;
-    font-size: 0.85em;
+    line-height: 1;
+    font-size: 1.05em;
 }
 
 .mayo-event-filter-clear:hover {
     background: #fff;
     border-color: #2271b1;
-    color: #2271b1;
+}
+
+.mayo-event-filter-clear:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 1px;
 }
 
 .mayo-view-toggle {

@@ -3,27 +3,23 @@ import { __, sprintf } from '@wordpress/i18n';
 const FACET_DEFS = [
     {
         key: 'event_type',
+        /* translators: dropdown title/placeholder for the event-type filter */
         i18nLabel: () => __('Event Type', 'mayo-events-manager'),
-        /* translators: dropdown placeholder for the event-type filter */
-        i18nPlaceholder: () => __('Filter by event type…', 'mayo-events-manager'),
     },
     {
         key: 'service_body',
+        /* translators: dropdown title/placeholder for the service-body filter */
         i18nLabel: () => __('Service Body', 'mayo-events-manager'),
-        /* translators: dropdown placeholder for the service-body filter */
-        i18nPlaceholder: () => __('Filter by service body…', 'mayo-events-manager'),
     },
     {
         key: 'categories',
+        /* translators: dropdown title/placeholder for the category filter */
         i18nLabel: () => __('Category', 'mayo-events-manager'),
-        /* translators: dropdown placeholder for the category filter */
-        i18nPlaceholder: () => __('Filter by category…', 'mayo-events-manager'),
     },
     {
         key: 'tags',
+        /* translators: dropdown title/placeholder for the tag filter */
         i18nLabel: () => __('Tag', 'mayo-events-manager'),
-        /* translators: dropdown placeholder for the tag filter */
-        i18nPlaceholder: () => __('Filter by tag…', 'mayo-events-manager'),
     },
 ];
 
@@ -74,6 +70,7 @@ const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilter
                             id={selectId}
                             className="mayo-event-filter-add"
                             aria-label={def.i18nLabel()}
+                            title={def.i18nLabel()}
                             value=""
                             onChange={(e) => {
                                 if (e.target.value) {
@@ -83,7 +80,7 @@ const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilter
                             }}
                             disabled={availableOptions.length === 0}
                         >
-                            <option value="">{def.i18nPlaceholder()}</option>
+                            <option value="">{def.i18nLabel()}</option>
                             {availableOptions.map(option => (
                                 <option key={option.value} value={option.value}>
                                     {option.label}
@@ -118,8 +115,10 @@ const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilter
                     type="button"
                     className="mayo-event-filter-clear"
                     onClick={onClear}
+                    title={__('Clear filters', 'mayo-events-manager')}
+                    aria-label={__('Clear filters', 'mayo-events-manager')}
                 >
-                    {__('Clear filters', 'mayo-events-manager')}
+                    <span aria-hidden="true">🧹</span>
                 </button>
             )}
         </div>
