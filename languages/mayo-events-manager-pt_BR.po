@@ -1882,3 +1882,51 @@ msgid "Opt-in: Existing subscribers must manually add new options"
 msgstr ""
 "Inclusão voluntária: os inscritos existentes devem adicionar novas opções "
 "manualmente"
+
+#: assets/js/src/components/admin/
+msgid "CSS Classes Documentation"
+msgstr "Documentação de classes CSS"
+
+#: assets/js/src/components/admin/
+msgid "Dynamic CSS Classes"
+msgstr "Classes CSS dinâmicas"
+
+#: assets/js/src/components/admin/
+msgid "Overview"
+msgstr "Visão geral"
+
+#: assets/js/src/components/admin/
+msgid "Table of Contents"
+msgstr "Índice"
+
+#: assets/js/src/components/admin/
+msgid "Event Meta Fields"
+msgstr "Campos meta de evento"
+
+#: assets/js/src/components/admin/
+msgid "Announcement Response Object"
+msgstr "Objeto de resposta de comunicado"
+
+#: assets/js/src/components/admin/
+msgid "Usage Examples"
+msgstr "Exemplos de uso"
+
+#: assets/js/src/components/admin/
+msgid "Event List Shortcode"
+msgstr "Shortcode de lista de eventos"
+
+#: assets/js/src/components/admin/
+msgid "Event Submission Form Shortcode"
+msgstr "Shortcode de formulário de envio de evento"
+
+#: assets/js/src/components/admin/
+msgid "Announcement Shortcode"
+msgstr "Shortcode de comunicado"
+
+#: assets/js/src/components/admin/
+msgid "Announcement Submission Form Shortcode"
+msgstr "Shortcode de formulário de envio de comunicado"
+
+#: assets/js/src/components/admin/
+msgid "Email Subscription Form Shortcode"
+msgstr "Shortcode de formulário de inscrição por e-mail"

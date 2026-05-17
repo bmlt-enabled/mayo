@@ -1,10 +1,12 @@
+import { __ } from '@wordpress/i18n';
+
 const ShortcodesDocs = () => {
     return (
         <div className="wrap mayo-docs">
-            <h1>Shortcodes</h1>
+            <h1>{__('Shortcodes', 'mayo-events-manager')}</h1>
 
             <div className="card" style={{ marginBottom: '20px' }}>
-                <h2>Table of Contents</h2>
+                <h2>{__('Table of Contents', 'mayo-events-manager')}</h2>
                 <ul style={{ listStyle: 'disc', marginLeft: '20px', lineHeight: '2' }}>
                     <li><a href="#event-list">[mayo_event_list] - Event List Shortcode</a></li>
                     <li><a href="#event-form">[mayo_event_form] - Event Submission Form Shortcode</a></li>
@@ -15,7 +17,7 @@ const ShortcodesDocs = () => {
             </div>
 
             <div className="card" id="event-list">
-                <h2>Event List Shortcode</h2>
+                <h2>{__('Event List Shortcode', 'mayo-events-manager')}</h2>
                 <p>Use this shortcode to display a list of upcoming events:</p>
                 <pre><code>[mayo_event_list]</code></pre>
                 
@@ -168,7 +170,7 @@ const ShortcodesDocs = () => {
             </div>
 
             <div className="card" id="event-form">
-                <h2>Event Submission Form Shortcode</h2>
+                <h2>{__('Event Submission Form Shortcode', 'mayo-events-manager')}</h2>
                 <p>
                     The Event Submission Form Shortcode allows users to submit new events to your site. The form includes fields for event name, type, start date, end date, and more.
                 </p>
@@ -260,7 +262,7 @@ const ShortcodesDocs = () => {
             </div>
 
             <div className="card" id="announcement">
-                <h2>Announcement Shortcode</h2>
+                <h2>{__('Announcement Shortcode', 'mayo-events-manager')}</h2>
                 <p>Use this shortcode to display announcements as banners or modals. Announcements are managed separately from events and are useful for:</p>
                 <ul className="ul-disc">
                     <li>Meeting closures or changes</li>
@@ -429,7 +431,7 @@ const ShortcodesDocs = () => {
             </div>
 
             <div className="card" id="announcement-form">
-                <h2>Announcement Submission Form Shortcode</h2>
+                <h2>{__('Announcement Submission Form Shortcode', 'mayo-events-manager')}</h2>
                 <p>
                     The Announcement Submission Form Shortcode allows users to submit new announcements to your site. This works similarly to the event form but for announcements.
                 </p>
@@ -548,7 +550,7 @@ const ShortcodesDocs = () => {
             </div>
 
             <div className="card" id="subscribe">
-                <h2>Email Subscription Form Shortcode</h2>
+                <h2>{__('Email Subscription Form Shortcode', 'mayo-events-manager')}</h2>
                 <p>Use this shortcode to display an email subscription form. Users can subscribe to receive announcement notifications via email:</p>
                 <pre><code>[mayo_subscribe]</code></pre>
 

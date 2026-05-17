@@ -1,18 +1,20 @@
+import { __ } from '@wordpress/i18n';
+
 const ApiDocs = () => {
     const baseUrl = window.location.origin;
 
     return (
         <div className="wrap mayo-docs">
-            <h1>API Documentation</h1>
+            <h1>{__('API Documentation', 'mayo-events-manager')}</h1>
 
             <div className="card">
-                <h2>Overview</h2>
+                <h2>{__('Overview', 'mayo-events-manager')}</h2>
                 <p>The Mayo Events Manager provides a REST API for programmatic access to events and announcements. All endpoints use the namespace <code>event-manager/v1</code>.</p>
                 <p><strong>Base URL:</strong> <code>{baseUrl}/wp-json/event-manager/v1</code></p>
             </div>
 
             <div className="card">
-                <h2>Table of Contents</h2>
+                <h2>{__('Table of Contents', 'mayo-events-manager')}</h2>
                 <h3>Event Endpoints</h3>
                 <ul className="ul-disc">
                     <li><a href="#get-events">GET /events</a> - List events with filtering</li>
@@ -752,7 +754,7 @@ fetch('${baseUrl}/wp-json/event-manager/v1/settings', {
             </div>
 
             <div className="card" id="event-meta-fields">
-                <h2>Event Meta Fields</h2>
+                <h2>{__('Event Meta Fields', 'mayo-events-manager')}</h2>
                 <p>Events use the following meta fields, which are exposed via the WordPress REST API for the <code>mayo_event</code> post type:</p>
 
                 <table className="widefat">
@@ -839,7 +841,7 @@ fetch('${baseUrl}/wp-json/event-manager/v1/settings', {
             </div>
 
             <div className="card" id="announcement-response">
-                <h2>Announcement Response Object</h2>
+                <h2>{__('Announcement Response Object', 'mayo-events-manager')}</h2>
                 <p>Announcements returned from the API include the following fields:</p>
 
                 <table className="widefat">
@@ -936,7 +938,7 @@ fetch('${baseUrl}/wp-json/event-manager/v1/settings', {
             </div>
 
             <div className="card" id="usage-examples">
-                <h2>Usage Examples</h2>
+                <h2>{__('Usage Examples', 'mayo-events-manager')}</h2>
 
                 <h3>JavaScript (Fetch API)</h3>
                 <pre><code>{`// Get upcoming events

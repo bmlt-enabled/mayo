@@ -837,6 +837,42 @@
             ],
             "Opt-in: Existing subscribers must manually add new options": [
                 "Inclusion volontaire : les abonnés existants doivent ajouter manuellement les nouvelles options"
+            ],
+            "CSS Classes Documentation": [
+                "Documentation des classes CSS"
+            ],
+            "Dynamic CSS Classes": [
+                "Classes CSS dynamiques"
+            ],
+            "Overview": [
+                "Aperçu"
+            ],
+            "Table of Contents": [
+                "Table des matières"
+            ],
+            "Event Meta Fields": [
+                "Champs méta d'événement"
+            ],
+            "Announcement Response Object": [
+                "Objet de réponse d'annonce"
+            ],
+            "Usage Examples": [
+                "Exemples d'utilisation"
+            ],
+            "Event List Shortcode": [
+                "Shortcode de liste d'événements"
+            ],
+            "Event Submission Form Shortcode": [
+                "Shortcode de formulaire de soumission d'événement"
+            ],
+            "Announcement Shortcode": [
+                "Shortcode d'annonce"
+            ],
+            "Announcement Submission Form Shortcode": [
+                "Shortcode de formulaire de soumission d'annonce"
+            ],
+            "Email Subscription Form Shortcode": [
+                "Shortcode de formulaire d'abonnement par e-mail"
             ]
         }
     }
