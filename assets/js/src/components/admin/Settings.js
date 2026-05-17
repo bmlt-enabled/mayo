@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { TextControl, Button, Panel, PanelBody, PanelRow, Spinner, Notice, ToggleControl, SelectControl, CheckboxControl, RadioControl } from '@wordpress/components';
 import { apiFetch } from '../../util';
 
@@ -157,7 +158,7 @@ const Settings = () => {
                     }
                 }
             } catch (err) {
-                setError('Failed to load settings. Please refresh the page and try again.');
+                setError(__('Failed to load settings. Please refresh the page and try again.', 'mayo-events-manager'));
             } finally {
                 setIsLoading(false);
             }
@@ -199,7 +200,7 @@ const Settings = () => {
             setError(null);
 
             if (!isValidHttpsUrl(currentSource.url)) {
-                throw new Error('External source URL must use HTTPS protocol.');
+                throw new Error(__('External source URL must use HTTPS protocol.', 'mayo-events-manager'));
             }
 
             // Ensure event_type is set
@@ -228,10 +229,10 @@ const Settings = () => {
             setCurrentSource(null);
             setIsEditingSource(null);
             setIsAddingNew(false);
-            setSuccessMessage('External source saved successfully!');
+            setSuccessMessage(__('External source saved successfully!', 'mayo-events-manager'));
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
-            setError(err.message || 'Failed to save external source.');
+            setError(err.message || __('Failed to save external source.', 'mayo-events-manager'));
         } finally {
             setIsSaving(false);
         }
@@ -251,7 +252,7 @@ const Settings = () => {
     };
 
     const handleDeleteSource = async (index) => {
-        if (!confirm('Are you sure you want to delete this external source?')) return;
+        if (!confirm(__('Are you sure you want to delete this external source?', 'mayo-events-manager'))) return;
 
         try {
             setIsSaving(true);
@@ -269,10 +270,10 @@ const Settings = () => {
             setCurrentSource(null);
             setIsEditingSource(null);
             setIsAddingNew(false);
-            setSuccessMessage('External source deleted successfully!');
+            setSuccessMessage(__('External source deleted successfully!', 'mayo-events-manager'));
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
-            setError('Failed to delete external source.');
+            setError(__('Failed to delete external source.', 'mayo-events-manager'));
         } finally {
             setIsSaving(false);
         }
@@ -306,12 +307,12 @@ const Settings = () => {
 
             // Validate HTTPS for BMLT root server
             if (!isValidHttpsUrl(settings.bmlt_root_server)) {
-                throw new Error('BMLT Root Server URL must use HTTPS protocol.');
+                throw new Error(__('BMLT Root Server URL must use HTTPS protocol.', 'mayo-events-manager'));
             }
 
             // Validate notification email if provided
             if (settings.notification_email && !isValidEmailList(settings.notification_email)) {
-                throw new Error('Please enter valid email addresses for notifications. Multiple emails can be separated by commas or semicolons.');
+                throw new Error(__('Please enter valid email addresses for notifications. Multiple emails can be separated by commas or semicolons.', 'mayo-events-manager'));
             }
 
             const response = await apiFetch('/settings', {
@@ -328,10 +329,10 @@ const Settings = () => {
                 })
             });
 
-            setSuccessMessage('Settings saved successfully!');
+            setSuccessMessage(__('Settings saved successfully!', 'mayo-events-manager'));
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
-            setError(err.message || 'Failed to save settings.');
+            setError(err.message || __('Failed to save settings.', 'mayo-events-manager'));
         } finally {
             setIsSaving(false);
         }
@@ -340,14 +341,14 @@ const Settings = () => {
     if (isLoading) {
         return (
             <div className="mayo-settings-loading">
-                <Spinner /> Loading settings...
+                <Spinner /> {__('Loading settings...', 'mayo-events-manager')}
             </div>
         );
     }
 
     return (
         <div className="mayo-settings-page">
-            <h1>Mayo Events Manager Settings</h1>
+            <h1>{__('Mayo Events Manager Settings', 'mayo-events-manager')}</h1>
             
             <Notice status="warning" isDismissible={false}>
                 <p><strong>Important:</strong> This plugin requires Pretty Permalinks to be enabled for the REST API to function correctly. If you're experiencing 404 errors when accessing external source or settings  BMLT server, please ensure your WordPress site is using Pretty Permalinks (Settings → Permalinks) and not the "Plain" setting.</p>
@@ -378,16 +379,16 @@ const Settings = () => {
             )}
             
             <Panel>
-                <PanelBody title="BMLT Settings" initialOpen={true}>
+                <PanelBody title={__('BMLT Settings', 'mayo-events-manager')} initialOpen={true}>
                     <PanelRow>
                         <TextControl
-                            label="BMLT Root Server URL"
+                            label={__('BMLT Root Server URL', 'mayo-events-manager')}
                             value={settings.bmlt_root_server}
                             onChange={(value) => handleChange('bmlt_root_server', value)}
                             help={
                                 settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)
-                                    ? "URL must start with 'https://'"
-                                    : "Enter the URL of your BMLT root server (e.g., https://bmlt.example.org/main_server)"
+                                    ? __("URL must start with 'https://'", 'mayo-events-manager')
+                                    : __('Enter the URL of your BMLT root server (e.g., https://bmlt.example.org/main_server)', 'mayo-events-manager')
                             }
                             className={
                                 settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)
@@ -400,13 +401,13 @@ const Settings = () => {
 
                     <PanelRow>
                         <TextControl
-                            label="Notification Email"
+                            label={__('Notification Email', 'mayo-events-manager')}
                             value={settings.notification_email}
                             onChange={(value) => handleChange('notification_email', value)}
                             help={
                                 settings.notification_email && !isValidEmailList(settings.notification_email)
-                                    ? "Please enter valid email addresses. Multiple emails can be separated by commas or semicolons."
-                                    : "Email addresses to receive event submission notifications. Multiple emails can be separated by commas or semicolons. Leave empty to send to all admins."
+                                    ? __('Please enter valid email addresses. Multiple emails can be separated by commas or semicolons.', 'mayo-events-manager')
+                                    : __('Email addresses to receive event submission notifications. Multiple emails can be separated by commas or semicolons. Leave empty to send to all admins.', 'mayo-events-manager')
                             }
                             className={
                                 settings.notification_email && !isValidEmailList(settings.notification_email)
@@ -418,14 +419,14 @@ const Settings = () => {
                     </PanelRow>
                 </PanelBody>
 
-                <PanelBody title="Service Body Configuration" initialOpen={true}>
+                <PanelBody title={__('Service Body Configuration', 'mayo-events-manager')} initialOpen={true}>
                     <PanelRow>
                         <TextControl
-                            label="Restricted Service Bodies"
+                            label={__('Restricted Service Bodies', 'mayo-events-manager')}
                             value={settings.default_service_bodies}
                             onChange={(value) => handleChange('default_service_bodies', value)}
-                            help="Comma-separated list of service body IDs (e.g., 1,2,3). When specified, only these service bodies will be available for event submission. Leave empty to allow all service bodies. Use '0' for Unaffiliated. Perfect for multi-site setups where each site should only show specific service bodies."
-                            placeholder="e.g., 1,2,3,0"
+                            help={__('Comma-separated list of service body IDs (e.g., 1,2,3). When specified, only these service bodies will be available for event submission. Leave empty to allow all service bodies.', 'mayo-events-manager')}
+                            placeholder={__('e.g., 1,2,3,0', 'mayo-events-manager')}
                             __next40pxDefaultSize={true}
                         />
                     </PanelRow>
@@ -439,14 +440,14 @@ const Settings = () => {
                                 (settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)) ||
                                 (settings.notification_email && !isValidEmailList(settings.notification_email))}
                         >
-                            {isSaving ? 'Saving...' : 'Save Settings'}
+                            {isSaving ? __('Saving...', 'mayo-events-manager') : __('Save Settings', 'mayo-events-manager')}
                         </Button>
                     </PanelRow>
                 </PanelBody>
             </Panel>
             
             <Panel>
-                <PanelBody title="External Event Sources" initialOpen={true}>
+                <PanelBody title={__('External Event Sources', 'mayo-events-manager')} initialOpen={true}>
                     <div className="mayo-external-sources-list">
                         {externalSources.map((source, index) => (
                             <div key={source.id} className="mayo-external-source-item">
@@ -458,16 +459,16 @@ const Settings = () => {
                                             <button
                                                 className="mayo-copy-id"
                                                 onClick={() => handleCopyId(source.id)}
-                                                title="Copy ID"
+                                                title={__('Copy ID', 'mayo-events-manager')}
                                             >
-                                                Copy ID to clipboard
+                                                {__('Copy ID to clipboard', 'mayo-events-manager')}
                                             </button>
                                         </div>
                                         <div className="mayo-source-meta">
-                                            <span>Type: {source.event_type || 'All'}</span>
-                                            {source.service_body && <span>Service Body: {source.service_body}</span>}
+                                            <span>{__('Type:', 'mayo-events-manager')} {source.event_type || __('All', 'mayo-events-manager')}</span>
+                                            {source.service_body && <span>{__('Service Body:', 'mayo-events-manager')} {source.service_body}</span>}
                                             <span className={`mayo-source-status ${source.enabled ? 'enabled' : 'disabled'}`}>
-                                                {source.enabled ? 'Enabled' : 'Disabled'}
+                                                {source.enabled ? __('Enabled', 'mayo-events-manager') : __('Disabled', 'mayo-events-manager')}
                                             </span>
                                         </div>
                                     </div>
@@ -477,13 +478,13 @@ const Settings = () => {
                                         isSecondary
                                         onClick={() => handleEditSource(source, index)}
                                     >
-                                        Edit
+                                        {__('Edit', 'mayo-events-manager')}
                                     </Button>
                                     <Button
                                         isDestructive
                                         onClick={() => handleDeleteSource(index)}
                                     >
-                                        Delete
+                                        {__('Delete', 'mayo-events-manager')}
                                     </Button>
                                 </div>
                             </div>
@@ -497,64 +498,64 @@ const Settings = () => {
                             className="mayo-add-source-button"
                             disabled={isAddingNew || isEditingSource !== null}
                         >
-                            Add New External Source
+                            {__('Add New External Source', 'mayo-events-manager')}
                         </Button>
                     </div>
                     
                     {(isAddingNew || isEditingSource !== null) && currentSource && (
                         <div className="mayo-external-source-form">
                             <TextControl
-                                label="Site URL"
+                                label={__('Site URL', 'mayo-events-manager')}
                                 value={currentSource.url}
                                 onChange={(value) => setCurrentSource({...currentSource, url: value})}
-                                help="Enter the URL of the WordPress site (e.g., https://example.com)"
+                                help={__('Enter the URL of the WordPress site (e.g., https://example.com)', 'mayo-events-manager')}
                                 __next40pxDefaultSize={true}
                             />
                             <TextControl
-                                label="Source Name"
+                                label={__('Source Name', 'mayo-events-manager')}
                                 value={currentSource.name}
                                 onChange={(value) => setCurrentSource({...currentSource, name: value})}
-                                help="Enter a friendly name for this source (e.g., District 5 Website)"
+                                help={__('Enter a friendly name for this source (e.g., District 5 Website)', 'mayo-events-manager')}
                                 __next40pxDefaultSize={true}
                             />
                             <SelectControl
-                                label="Event Type"
+                                label={__('Event Type', 'mayo-events-manager')}
                                 value={currentSource.event_type || ''}
                                 options={[
-                                    { label: 'All Event Types', value: '' },
-                                    { label: 'Activity', value: 'Activity' },
-                                    { label: 'Service', value: 'Service' },
-                                    { label: 'Celebration', value: 'Celebration' }
+                                    { label: __('All Event Types', 'mayo-events-manager'), value: '' },
+                                    { label: __('Activity', 'mayo-events-manager'), value: 'Activity' },
+                                    { label: __('Service', 'mayo-events-manager'), value: 'Service' },
+                                    { label: __('Celebration', 'mayo-events-manager'), value: 'Celebration' }
                                 ]}
                                 onChange={(value) => {
                                     setCurrentSource({...currentSource, event_type: value});
                                 }}
-                                help="Select the event type"
+                                help={__('Select the event type', 'mayo-events-manager')}
                                 __next40pxDefaultSize={true}
                             />
                             <TextControl
-                                label="Service Body"
+                                label={__('Service Body', 'mayo-events-manager')}
                                 value={currentSource.service_body}
                                 onChange={(value) => setCurrentSource({...currentSource, service_body: value})}
-                                help="Filter by service body (optional)"
+                                help={__('Filter by service body (optional)', 'mayo-events-manager')}
                                 __next40pxDefaultSize={true}
                             />
                             <TextControl
-                                label="Categories"
+                                label={__('Categories', 'mayo-events-manager')}
                                 value={currentSource.categories}
                                 onChange={(value) => setCurrentSource({...currentSource, categories: value})}
-                                help="Filter by categories (comma-separated)"
+                                help={__('Filter by categories (comma-separated)', 'mayo-events-manager')}
                                 __next40pxDefaultSize={true}
                             />
                             <TextControl
-                                label="Tags"
+                                label={__('Tags', 'mayo-events-manager')}
                                 value={currentSource.tags}
                                 onChange={(value) => setCurrentSource({...currentSource, tags: value})}
-                                help="Filter by tags (comma-separated)"
+                                help={__('Filter by tags (comma-separated)', 'mayo-events-manager')}
                                 __next40pxDefaultSize={true}
                             />
                             <ToggleControl
-                                label="Enable Source"
+                                label={__('Enable Source', 'mayo-events-manager')}
                                 checked={currentSource.enabled}
                                 onChange={(value) => setCurrentSource({...currentSource, enabled: value})}
                             />
@@ -574,7 +575,7 @@ const Settings = () => {
                                         setIsAddingNew(false);
                                     }}
                                 >
-                                    Cancel
+                                    {__('Cancel', 'mayo-events-manager')}
                                 </Button>
                             </div>
                         </div>
@@ -583,14 +584,14 @@ const Settings = () => {
             </Panel>
 
             <Panel>
-                <PanelBody title="Subscription Preferences" initialOpen={true}>
+                <PanelBody title={__('Subscription Preferences', 'mayo-events-manager')} initialOpen={true}>
                     <p className="mayo-settings-description">
-                        Configure which categories, tags, and service bodies are available for subscribers to choose from when signing up for announcement notifications.
+                        {__('Configure which categories, tags, and service bodies are available for subscribers to choose from when signing up for announcement notifications.', 'mayo-events-manager')}
                     </p>
 
                     {allCategories.length > 0 && (
                         <div className="mayo-subscription-section">
-                            <h4>Categories available for subscription:</h4>
+                            <h4>{__('Categories available for subscription:', 'mayo-events-manager')}</h4>
                             <div className="mayo-checkbox-list" style={{ border: '1px solid #ddd', borderRadius: '4px', background: '#fff', padding: '12px 16px', maxHeight: '300px', overflowY: 'auto' }}>
                                 {allCategories.map(cat => (
                                     <CheckboxControl
@@ -606,7 +607,7 @@ const Settings = () => {
 
                     {allTags.length > 0 && (
                         <div className="mayo-subscription-section">
-                            <h4>Tags available for subscription:</h4>
+                            <h4>{__('Tags available for subscription:', 'mayo-events-manager')}</h4>
                             <div className="mayo-checkbox-list" style={{ border: '1px solid #ddd', borderRadius: '4px', background: '#fff', padding: '12px 16px', maxHeight: '300px', overflowY: 'auto' }}>
                                 {allTags.map(tag => (
                                     <CheckboxControl
@@ -622,7 +623,7 @@ const Settings = () => {
 
                     {allServiceBodies.length > 0 && (
                         <div className="mayo-subscription-section">
-                            <h4>Service Bodies available for subscription:</h4>
+                            <h4>{__('Service Bodies available for subscription:', 'mayo-events-manager')}</h4>
                             <div className="mayo-service-body-tree">
                                 {buildServiceBodyTree(allServiceBodies).map(sb => (
                                     <div
@@ -642,12 +643,12 @@ const Settings = () => {
                     )}
 
                     <div className="mayo-subscription-section">
-                        <h4>When new options are added:</h4>
+                        <h4>{__('When new options are added:', 'mayo-events-manager')}</h4>
                         <RadioControl
                             selected={subscriptionSettings.subscription_new_option_behavior}
                             options={[
-                                { label: 'Auto-include: Automatically add to existing subscribers', value: 'auto_include' },
-                                { label: 'Opt-in: Existing subscribers must manually add new options', value: 'opt_in' }
+                                { label: __('Auto-include: Automatically add to existing subscribers', 'mayo-events-manager'), value: 'auto_include' },
+                                { label: __('Opt-in: Existing subscribers must manually add new options', 'mayo-events-manager'), value: 'opt_in' }
                             ]}
                             onChange={(value) => handleSubscriptionChange('subscription_new_option_behavior', value)}
                         />
@@ -662,7 +663,7 @@ const Settings = () => {
                                 (settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)) ||
                                 (settings.notification_email && !isValidEmailList(settings.notification_email))}
                         >
-                            {isSaving ? 'Saving...' : 'Save Settings'}
+                            {isSaving ? __('Saving...', 'mayo-events-manager') : __('Save Settings', 'mayo-events-manager')}
                         </Button>
                     </PanelRow>
                 </PanelBody>

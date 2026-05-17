@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Spinner, Modal, SelectControl, CheckboxControl, Button } from '@wordpress/components';
 import { apiFetch } from '../../util';
 
@@ -58,26 +59,25 @@ const SubscriberEditModal = ({ subscriber, options, onSave, onClose, saving }) =
         >
             <div style={{ minWidth: '400px' }}>
                 <SelectControl
-                    label="Status"
+                    label={__('Status', 'mayo-events-manager')}
                     value={status}
                     options={[
-                        { label: 'Active', value: 'active' },
-                        { label: 'Pending', value: 'pending' },
-                        { label: 'Unsubscribed', value: 'unsubscribed' }
+                        { label: __('Active', 'mayo-events-manager'), value: 'active' },
+                        { label: __('Pending', 'mayo-events-manager'), value: 'pending' },
+                        { label: __('Unsubscribed', 'mayo-events-manager'), value: 'unsubscribed' }
                     ]}
                     onChange={setStatus}
                 />
 
                 <div style={{ marginTop: '16px' }}>
-                    <h4 style={{ marginBottom: '8px' }}>Subscription Preferences</h4>
+                    <h4 style={{ marginBottom: '8px' }}>{__('Subscription Preferences', 'mayo-events-manager')}</h4>
                     <p className="description" style={{ marginBottom: '12px' }}>
-                        Select which categories, tags, and service bodies this subscriber should receive notifications for.
-                        If none are selected, they will receive all announcements.
+                        {__('Select which categories, tags, and service bodies this subscriber should receive notifications for. If none are selected, they will receive all announcements.', 'mayo-events-manager')}
                     </p>
 
                     {options?.categories?.length > 0 && (
                         <div style={{ marginBottom: '16px' }}>
-                            <strong style={{ display: 'block', marginBottom: '8px' }}>Categories</strong>
+                            <strong style={{ display: 'block', marginBottom: '8px' }}>{__('Categories', 'mayo-events-manager')}</strong>
                             {options.categories.map(cat => (
                                 <CheckboxControl
                                     key={cat.id}
@@ -91,7 +91,7 @@ const SubscriberEditModal = ({ subscriber, options, onSave, onClose, saving }) =
 
                     {options?.tags?.length > 0 && (
                         <div style={{ marginBottom: '16px' }}>
-                            <strong style={{ display: 'block', marginBottom: '8px' }}>Tags</strong>
+                            <strong style={{ display: 'block', marginBottom: '8px' }}>{__('Tags', 'mayo-events-manager')}</strong>
                             {options.tags.map(tag => (
                                 <CheckboxControl
                                     key={tag.id}
@@ -105,7 +105,7 @@ const SubscriberEditModal = ({ subscriber, options, onSave, onClose, saving }) =
 
                     {options?.service_bodies?.length > 0 && (
                         <div style={{ marginBottom: '16px' }}>
-                            <strong style={{ display: 'block', marginBottom: '8px' }}>Service Bodies</strong>
+                            <strong style={{ display: 'block', marginBottom: '8px' }}>{__('Service Bodies', 'mayo-events-manager')}</strong>
                             {options.service_bodies.map(sb => (
                                 <CheckboxControl
                                     key={sb.id}
@@ -119,17 +119,17 @@ const SubscriberEditModal = ({ subscriber, options, onSave, onClose, saving }) =
 
                     {(!options?.categories?.length && !options?.tags?.length && !options?.service_bodies?.length) && (
                         <p style={{ color: '#646970', fontStyle: 'italic' }}>
-                            No subscription options configured. Configure them in the Settings page.
+                            {__('No subscription options configured. Configure them in the Settings page.', 'mayo-events-manager')}
                         </p>
                     )}
                 </div>
 
                 <div style={{ marginTop: '20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                     <Button isSecondary onClick={onClose} disabled={saving}>
-                        Cancel
+                        {__('Cancel', 'mayo-events-manager')}
                     </Button>
                     <Button isPrimary onClick={handleSave} disabled={saving}>
-                        {saving ? 'Saving...' : 'Save Changes'}
+                        {saving ? __('Saving...', 'mayo-events-manager') : __('Save Changes', 'mayo-events-manager')}
                     </Button>
                 </div>
             </div>
@@ -157,7 +157,7 @@ const Subscribers = () => {
                 setSubscribers(subscribersData);
                 setSubscriptionOptions(optionsData);
             } catch (err) {
-                setError(err.message || 'Failed to load subscribers');
+                setError(err.message || __('Failed to load subscribers', 'mayo-events-manager'));
             } finally {
                 setLoading(false);
             }
@@ -300,7 +300,7 @@ const Subscribers = () => {
     if (loading) {
         return (
             <div className="wrap">
-                <h1 className="wp-heading-inline">Subscribers</h1>
+                <h1 className="wp-heading-inline">{__('Subscribers', 'mayo-events-manager')}</h1>
                 <hr className="wp-header-end" />
                 <div style={{ padding: '20px', textAlign: 'center' }}>
                     <Spinner />
@@ -312,7 +312,7 @@ const Subscribers = () => {
     if (error) {
         return (
             <div className="wrap">
-                <h1 className="wp-heading-inline">Subscribers</h1>
+                <h1 className="wp-heading-inline">{__('Subscribers', 'mayo-events-manager')}</h1>
                 <hr className="wp-header-end" />
                 <div className="notice notice-error">
                     <p>{error}</p>
@@ -323,7 +323,7 @@ const Subscribers = () => {
 
     return (
         <div className="wrap">
-            <h1 className="wp-heading-inline">Subscribers</h1>
+            <h1 className="wp-heading-inline">{__('Subscribers', 'mayo-events-manager')}</h1>
             <hr className="wp-header-end" />
 
             {/* WordPress-style subsubsub filter links */}
@@ -334,7 +334,7 @@ const Subscribers = () => {
                         className={statusFilter === 'all' ? 'current' : ''}
                         onClick={(e) => { e.preventDefault(); setStatusFilter('all'); }}
                     >
-                        All <span className="count">({counts.all})</span>
+                        {__('All', 'mayo-events-manager')} <span className="count">({counts.all})</span>
                     </a> |
                 </li>
                 <li className="active">
@@ -343,7 +343,7 @@ const Subscribers = () => {
                         className={statusFilter === 'active' ? 'current' : ''}
                         onClick={(e) => { e.preventDefault(); setStatusFilter('active'); }}
                     >
-                        Active <span className="count">({counts.active})</span>
+                        {__('Active', 'mayo-events-manager')} <span className="count">({counts.active})</span>
                     </a> |
                 </li>
                 <li className="pending">
@@ -352,7 +352,7 @@ const Subscribers = () => {
                         className={statusFilter === 'pending' ? 'current' : ''}
                         onClick={(e) => { e.preventDefault(); setStatusFilter('pending'); }}
                     >
-                        Pending <span className="count">({counts.pending})</span>
+                        {__('Pending', 'mayo-events-manager')} <span className="count">({counts.pending})</span>
                     </a> |
                 </li>
                 <li className="unsubscribed">
@@ -361,20 +361,20 @@ const Subscribers = () => {
                         className={statusFilter === 'unsubscribed' ? 'current' : ''}
                         onClick={(e) => { e.preventDefault(); setStatusFilter('unsubscribed'); }}
                     >
-                        Unsubscribed <span className="count">({counts.unsubscribed})</span>
+                        {__('Unsubscribed', 'mayo-events-manager')} <span className="count">({counts.unsubscribed})</span>
                     </a>
                 </li>
             </ul>
 
             {/* WordPress-style search box */}
             <p className="search-box">
-                <label className="screen-reader-text" htmlFor="subscriber-search-input">Search Subscribers:</label>
+                <label className="screen-reader-text" htmlFor="subscriber-search-input">{__('Search Subscribers:', 'mayo-events-manager')}</label>
                 <input
                     type="search"
                     id="subscriber-search-input"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by email..."
+                    placeholder={__('Search by email...', 'mayo-events-manager')}
                 />
             </p>
 
@@ -385,17 +385,17 @@ const Subscribers = () => {
             <table className="wp-list-table widefat fixed striped table-view-list">
                 <thead>
                     <tr>
-                        <th scope="col" className="manage-column column-email column-primary">Email</th>
-                        <th scope="col" className="manage-column column-status">Status</th>
-                        <th scope="col" className="manage-column column-date">Subscribed</th>
-                        <th scope="col" className="manage-column column-date">Confirmed</th>
-                        <th scope="col" className="manage-column column-preferences">Preferences</th>
+                        <th scope="col" className="manage-column column-email column-primary">{__('Email', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-status">{__('Status', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-date">{__('Subscribed', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-date">{__('Confirmed', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-preferences">{__('Preferences', 'mayo-events-manager')}</th>
                     </tr>
                 </thead>
                 <tbody id="the-list">
                     {filteredSubscribers.length === 0 ? (
                         <tr className="no-items">
-                            <td className="colspanchange" colSpan="5">No subscribers found.</td>
+                            <td className="colspanchange" colSpan="5">{__('No subscribers found.', 'mayo-events-manager')}</td>
                         </tr>
                     ) : (
                         filteredSubscribers.map(sub => (
@@ -411,7 +411,7 @@ const Subscribers = () => {
                                                     onClick={() => setEditingSubscriber(sub)}
                                                     style={{ marginRight: '4px' }}
                                                 >
-                                                    Edit
+                                                    {__('Edit', 'mayo-events-manager')}
                                                 </button>
                                             </span>
                                             <span className="delete">
@@ -421,7 +421,7 @@ const Subscribers = () => {
                                                     onClick={(e) => handleDelete(e, sub)}
                                                     style={{ color: '#b32d2e' }}
                                                 >
-                                                    Delete
+                                                    {__('Delete', 'mayo-events-manager')}
                                                 </button>
                                             </span>
                                         </div>
@@ -458,7 +458,7 @@ const Subscribers = () => {
                                                     ))}
                                                 </>
                                             ) : (
-                                                <span style={badgeStyles.all}>All announcements</span>
+                                                <span style={badgeStyles.all}>{__('All announcements', 'mayo-events-manager')}</span>
                                             )}
                                         </div>
                                     </td>
@@ -469,11 +469,11 @@ const Subscribers = () => {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th scope="col" className="manage-column column-email column-primary">Email</th>
-                        <th scope="col" className="manage-column column-status">Status</th>
-                        <th scope="col" className="manage-column column-date">Subscribed</th>
-                        <th scope="col" className="manage-column column-date">Confirmed</th>
-                        <th scope="col" className="manage-column column-preferences">Preferences</th>
+                        <th scope="col" className="manage-column column-email column-primary">{__('Email', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-status">{__('Status', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-date">{__('Subscribed', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-date">{__('Confirmed', 'mayo-events-manager')}</th>
+                        <th scope="col" className="manage-column column-preferences">{__('Preferences', 'mayo-events-manager')}</th>
                     </tr>
                 </tfoot>
             </table>
