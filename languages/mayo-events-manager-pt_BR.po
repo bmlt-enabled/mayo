@@ -52,11 +52,14 @@ msgstr "12 horas (ex., 2:30 PM)"
 msgid "24-hour (e.g., 14:30)"
 msgstr "24 horas (ex., 14:30)"
 
-#: includes/Subscriber.php:129
-#: includes/Subscriber.php:157
+#: includes/Subscriber.php:129 includes/Subscriber.php:157
 #: includes/Subscriber.php:194
-msgid "A confirmation email has been sent. Please check your inbox (and spam folder)."
-msgstr "Um e-mail de confirmação foi enviado. Por favor, verifique sua caixa de entrada (e a pasta de spam)."
+msgid ""
+"A confirmation email has been sent. Please check your inbox (and spam "
+"folder)."
+msgstr ""
+"Um e-mail de confirmação foi enviado. Por favor, verifique sua caixa de "
+"entrada (e a pasta de spam)."
 
 #: includes/Rest/AnnouncementsController.php:372
 msgid "A new announcement has been submitted and is pending review."
@@ -70,8 +73,7 @@ msgstr "API"
 msgid "API Documentation"
 msgstr "Documentação da API"
 
-#: includes/Announcement.php:300
-#: includes/Announcement.php:389
+#: includes/Announcement.php:300 includes/Announcement.php:389
 msgid "Active"
 msgstr "Ativo"
 
@@ -79,19 +81,19 @@ msgstr "Ativo"
 msgid "Activity"
 msgstr "Atividade"
 
-#: includes/Announcement.php:36
-#: includes/Announcement.php:37
+#: includes/Announcement.php:36 includes/Announcement.php:37
 msgid "Add New Announcement"
 msgstr "Adicionar novo comunicado"
 
-#: includes/Admin.php:42
-#: includes/Admin.php:43
+#: includes/Admin.php:42 includes/Admin.php:43
 msgid "Add New Event"
 msgstr "Adicionar novo evento"
 
 #: assets/js/src/components/public/EventForm.js:908
 msgid "Additional details about the location (e.g., parking, entrance info)"
-msgstr "Detalhes adicionais sobre o local (ex., estacionamento, informações de entrada)"
+msgstr ""
+"Detalhes adicionais sobre o local (ex., estacionamento, informações de "
+"entrada)"
 
 #: assets/js/src/components/public/EventForm.js:891
 msgid "Address"
@@ -145,8 +147,7 @@ msgstr "Comunicado enviado com sucesso"
 msgid "Announcement submitted successfully!"
 msgstr "Comunicado enviado com sucesso!"
 
-#: includes/Announcement.php:34
-#: includes/Announcement.php:40
+#: includes/Announcement.php:34 includes/Announcement.php:40
 #: assets/js/src/components/public/AnnouncementModal.js:85
 msgid "Announcements"
 msgstr "Comunicados"
@@ -191,8 +192,7 @@ msgstr "Cor de fundo (hex):"
 msgid "Banner (sticky top)"
 msgstr "Banner (fixo no topo)"
 
-#: includes/Admin.php:104
-#: includes/Admin.php:105
+#: includes/Admin.php:104 includes/Admin.php:105
 msgid "CSS Classes"
 msgstr "Classes CSS"
 
@@ -267,8 +267,7 @@ msgstr "Nome de contato: %s"
 msgid "Control when this announcement is visible on the site."
 msgstr "Controle quando este comunicado fica visível no site."
 
-#: includes/Admin.php:602
-#: assets/js/src/components/public/EventList.js:637
+#: includes/Admin.php:602 assets/js/src/components/public/EventList.js:637
 msgid "Copy"
 msgstr "Copiar"
 
@@ -289,13 +288,11 @@ msgstr "Link personalizado"
 msgid "Daily"
 msgstr "Diário"
 
-#: includes/Admin.php:221
-#: assets/js/src/components/public/EventDetails.js:181
+#: includes/Admin.php:221 assets/js/src/components/public/EventDetails.js:181
 msgid "Date & Time"
 msgstr "Data e hora"
 
-#: includes/Subscriber.php:900
-#: assets/js/src/components/public/EventList.js:502
+#: includes/Subscriber.php:900 assets/js/src/components/public/EventList.js:502
 msgid "Date:"
 msgstr "Data:"
 
@@ -334,8 +331,7 @@ msgstr "Descrição"
 msgid "Description:"
 msgstr "Descrição:"
 
-#: includes/Rest/EventsController.php:738
-#: includes/Subscriber.php:920
+#: includes/Rest/EventsController.php:738 includes/Subscriber.php:920
 msgid "Details:"
 msgstr "Detalhes:"
 
@@ -375,8 +371,7 @@ msgstr "Editar comunicado"
 msgid "Edit Event"
 msgstr "Editar evento"
 
-#: includes/Rest/AnnouncementsController.php:400
-#: mayo-events-manager.php:657
+#: includes/Rest/AnnouncementsController.php:400 mayo-events-manager.php:657
 msgid "Email: %s"
 msgstr "E-mail: %s"
 
@@ -413,8 +408,7 @@ msgstr "Término:"
 msgid "Enter your email address"
 msgstr "Digite seu endereço de e-mail"
 
-#: mayo-events-manager.php:239
-#: mayo-events-manager.php:291
+#: mayo-events-manager.php:239 mayo-events-manager.php:291
 #: mayo-events-manager.php:419
 msgid "Error"
 msgstr "Erro"
@@ -441,8 +435,7 @@ msgstr "Evento #%d"
 msgid "Event Flyer"
 msgstr "Folheto do evento"
 
-#: includes/Admin.php:219
-#: assets/js/src/components/public/EventForm.js:499
+#: includes/Admin.php:219 assets/js/src/components/public/EventForm.js:499
 msgid "Event Name"
 msgstr "Nome do evento"
 
@@ -480,26 +473,27 @@ msgstr "Evento não encontrado"
 msgid "Event submitted successfully!"
 msgstr "Evento enviado com sucesso!"
 
-#: includes/Admin.php:40
-#: assets/js/src/components/public/EventArchive.js:53
+#: includes/Admin.php:40 assets/js/src/components/public/EventArchive.js:53
 msgid "Events"
 msgstr "Eventos"
 
 #: includes/Widgets/AnnouncementWidget.php:201
-msgid "Events will show as announcements when today's date is between the event's start and end dates."
-msgstr "Os eventos serão exibidos como comunicados quando a data de hoje estiver entre as datas de início e término do evento."
+msgid ""
+"Events will show as announcements when today's date is between the event's "
+"start and end dates."
+msgstr ""
+"Os eventos serão exibidos como comunicados quando a data de hoje estiver "
+"entre as datas de início e término do evento."
 
 #: assets/js/src/components/public/EventList.js:588
 msgid "Expand All"
 msgstr "Expandir tudo"
 
-#: includes/Announcement.php:309
-#: includes/Announcement.php:391
+#: includes/Announcement.php:309 includes/Announcement.php:391
 msgid "Expired"
 msgstr "Expirado"
 
-#: includes/Announcement.php:329
-#: includes/Announcement.php:601
+#: includes/Announcement.php:329 includes/Announcement.php:601
 #: includes/Subscriber.php:924
 msgid "External"
 msgstr "Externo"
@@ -560,8 +554,7 @@ msgstr "Quarto"
 msgid "Fri"
 msgstr "Sex"
 
-#: includes/Rest/EventsController.php:694
-#: assets/js/src/util.js:9
+#: includes/Rest/EventsController.php:694 assets/js/src/util.js:9
 #: assets/js/src/components/public/EventForm.js:478
 msgid "Friday"
 msgstr "Sexta-feira"
@@ -583,8 +576,12 @@ msgid "If you didn't request this, you can safely ignore this email."
 msgstr "Se você não solicitou isso, pode ignorar este e-mail com segurança."
 
 #: mayo-events-manager.php:803
-msgid "If you no longer want to receive announcements from %s, you can unsubscribe below."
-msgstr "Se você não deseja mais receber comunicados de %s, pode cancelar sua inscrição abaixo."
+msgid ""
+"If you no longer want to receive announcements from %s, you can unsubscribe "
+"below."
+msgstr ""
+"Se você não deseja mais receber comunicados de %s, pode cancelar sua "
+"inscrição abaixo."
 
 #: assets/js/src/components/public/AnnouncementForm.js:586
 msgid "Image/Flyer"
@@ -685,8 +682,7 @@ msgstr "Carregando mais eventos..."
 msgid "Loading..."
 msgstr "Carregando..."
 
-#: includes/Announcement.php:584
-#: includes/Announcement.php:887
+#: includes/Announcement.php:584 includes/Announcement.php:887
 msgid "Local"
 msgstr "Local"
 
@@ -702,8 +698,7 @@ msgstr "Detalhes do local"
 msgid "Location Name"
 msgstr "Nome do local"
 
-#: includes/Rest/EventsController.php:730
-#: includes/Subscriber.php:917
+#: includes/Rest/EventsController.php:730 includes/Subscriber.php:917
 #: assets/js/src/components/public/EventList.js:504
 msgid "Location:"
 msgstr "Local:"
@@ -716,8 +711,7 @@ msgstr "Gerenciar inscrição - %s"
 msgid "Manage Your Subscription"
 msgstr "Gerenciar sua inscrição"
 
-#: includes/Subscriber.php:682
-#: includes/Subscriber.php:746
+#: includes/Subscriber.php:682 includes/Subscriber.php:746
 msgid "Manage preferences / Unsubscribe:"
 msgstr "Gerenciar preferências / Cancelar inscrição:"
 
@@ -729,13 +723,11 @@ msgstr "Mar"
 msgid "March"
 msgstr "Março"
 
-#: assets/js/src/util.js:17
-#: assets/js/src/components/public/CalendarView.js:69
+#: assets/js/src/util.js:17 assets/js/src/components/public/CalendarView.js:69
 msgid "May"
 msgstr "Mai"
 
-#: includes/Admin.php:64
-#: includes/Admin.php:65
+#: includes/Admin.php:64 includes/Admin.php:65
 msgid "Mayo"
 msgstr "Mayo"
 
@@ -755,8 +747,7 @@ msgstr "Janela pop-up (popup)"
 msgid "Mon"
 msgstr "Seg"
 
-#: includes/Rest/EventsController.php:690
-#: assets/js/src/util.js:5
+#: includes/Rest/EventsController.php:690 assets/js/src/util.js:5
 #: assets/js/src/components/public/EventForm.js:474
 msgid "Monday"
 msgstr "Segunda-feira"
@@ -832,8 +823,11 @@ msgid "Not set"
 msgstr "Não definido"
 
 #: includes/Subscriber.php:650
-msgid "Note: If you don't see our emails, please check your spam or junk folder."
-msgstr "Nota: Se você não encontrar nossos e-mails, verifique sua pasta de spam ou lixo eletrônico."
+msgid ""
+"Note: If you don't see our emails, please check your spam or junk folder."
+msgstr ""
+"Nota: Se você não encontrar nossos e-mails, verifique sua pasta de spam ou "
+"lixo eletrônico."
 
 #: assets/js/src/util.js:23
 msgid "Nov"
@@ -985,8 +979,7 @@ msgstr "Revisar e editar este comunicado:"
 msgid "Sat"
 msgstr "Sáb"
 
-#: includes/Rest/EventsController.php:695
-#: assets/js/src/util.js:10
+#: includes/Rest/EventsController.php:695 assets/js/src/util.js:10
 #: assets/js/src/components/public/EventForm.js:479
 msgid "Saturday"
 msgstr "Sábado"
@@ -995,8 +988,7 @@ msgstr "Sábado"
 msgid "Save Preferences"
 msgstr "Salvar preferências"
 
-#: includes/Announcement.php:305
-#: includes/Announcement.php:390
+#: includes/Announcement.php:305 includes/Announcement.php:390
 msgid "Scheduled"
 msgstr "Agendado"
 
@@ -1048,8 +1040,7 @@ msgstr "Serviço"
 msgid "Service Bodies"
 msgstr "Corpos de serviço"
 
-#: includes/Announcement.php:213
-#: includes/Admin.php:224
+#: includes/Announcement.php:213 includes/Admin.php:224
 #: assets/js/src/components/public/AnnouncementForm.js:451
 #: assets/js/src/components/public/EventForm.js:531
 #: assets/js/src/components/public/EventDetails.js:175
@@ -1057,8 +1048,7 @@ msgstr "Corpos de serviço"
 msgid "Service Body"
 msgstr "Corpo de serviço"
 
-#: includes/Announcement.php:268
-#: includes/Admin.php:282
+#: includes/Announcement.php:268 includes/Admin.php:282
 msgid "Service Body (%s)"
 msgstr "Corpo de serviço (%s)"
 
@@ -1082,8 +1072,7 @@ msgstr "Configurações"
 msgid "Shortcode for this event list:"
 msgstr "Shortcode para esta lista de eventos:"
 
-#: includes/Admin.php:86
-#: includes/Admin.php:87
+#: includes/Admin.php:86 includes/Admin.php:87
 msgid "Shortcodes"
 msgstr "Shortcodes"
 
@@ -1124,8 +1113,7 @@ msgstr "Hora de início: %s"
 msgid "Start:"
 msgstr "Início:"
 
-#: includes/Announcement.php:215
-#: includes/Admin.php:223
+#: includes/Announcement.php:215 includes/Admin.php:223
 msgid "Status"
 msgstr "Status"
 
@@ -1150,8 +1138,7 @@ msgstr "Enviando..."
 msgid "Subscribe"
 msgstr "Inscrever-se"
 
-#: includes/Admin.php:76
-#: includes/Admin.php:77
+#: includes/Admin.php:76 includes/Admin.php:77
 msgid "Subscribers"
 msgstr "Inscritos"
 
@@ -1171,8 +1158,7 @@ msgstr "Inscrição não encontrada."
 msgid "Sun"
 msgstr "Dom"
 
-#: includes/Rest/EventsController.php:689
-#: assets/js/src/util.js:4
+#: includes/Rest/EventsController.php:689 assets/js/src/util.js:4
 #: assets/js/src/components/public/EventForm.js:473
 msgid "Sunday"
 msgstr "Domingo"
@@ -1208,20 +1194,36 @@ msgid "Text Color (hex):"
 msgstr "Cor do texto (hex):"
 
 #: assets/js/src/components/public/EventForm.js:392
-msgid "The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)"
-msgstr "O arquivo selecionado não é uma imagem válida, portanto não será enviado. Por favor, escolha um arquivo de imagem válido (JPG, PNG ou GIF)"
+msgid ""
+"The selected file is not a valid image, so one will not be submitted.  "
+"Please choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+"O arquivo selecionado não é uma imagem válida, portanto não será enviado. "
+"Por favor, escolha um arquivo de imagem válido (JPG, PNG ou GIF)"
 
 #: assets/js/src/components/public/EventForm.js:364
-msgid "The selected file is not a valid image, so one will not be submitted.  Please use a valid image file (JPG, PNG, or GIF)"
-msgstr "O arquivo selecionado não é uma imagem válida, portanto não será enviado. Por favor, use um arquivo de imagem válido (JPG, PNG ou GIF)"
+msgid ""
+"The selected file is not a valid image, so one will not be submitted.  "
+"Please use a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+"O arquivo selecionado não é uma imagem válida, portanto não será enviado. "
+"Por favor, use um arquivo de imagem válido (JPG, PNG ou GIF)"
 
 #: assets/js/src/components/public/AnnouncementForm.js:379
-msgid "The selected file is not a valid image. Please choose a valid image file (JPG, PNG, or GIF)"
-msgstr "O arquivo selecionado não é uma imagem válida. Por favor, escolha um arquivo de imagem válido (JPG, PNG ou GIF)"
+msgid ""
+"The selected file is not a valid image. Please choose a valid image file "
+"(JPG, PNG, or GIF)"
+msgstr ""
+"O arquivo selecionado não é uma imagem válida. Por favor, escolha um arquivo "
+"de imagem válido (JPG, PNG ou GIF)"
 
 #: assets/js/src/components/public/AnnouncementForm.js:353
-msgid "The selected file is not a valid image. Please use a valid image file (JPG, PNG, or GIF)"
-msgstr "O arquivo selecionado não é uma imagem válida. Por favor, use um arquivo de imagem válido (JPG, PNG ou GIF)"
+msgid ""
+"The selected file is not a valid image. Please use a valid image file (JPG, "
+"PNG, or GIF)"
+msgstr ""
+"O arquivo selecionado não é uma imagem válida. Por favor, use um arquivo de "
+"imagem válido (JPG, PNG ou GIF)"
 
 #: assets/js/src/components/public/EventForm.js:486
 msgid "Third"
@@ -1265,8 +1267,7 @@ msgstr "Este evento se repete semanalmente"
 msgid "Thu"
 msgstr "Qui"
 
-#: includes/Rest/EventsController.php:693
-#: assets/js/src/util.js:8
+#: includes/Rest/EventsController.php:693 assets/js/src/util.js:8
 #: assets/js/src/components/public/EventForm.js:477
 msgid "Thursday"
 msgstr "Quinta-feira"
@@ -1287,8 +1288,7 @@ msgstr "Fuso horário"
 msgid "Timezone: %s"
 msgstr "Fuso horário: %s"
 
-#: includes/Announcement.php:211
-#: includes/Widgets/AnnouncementWidget.php:173
+#: includes/Announcement.php:211 includes/Widgets/AnnouncementWidget.php:173
 msgid "Title"
 msgstr "Título"
 
@@ -1304,8 +1304,7 @@ msgstr "Hoje"
 msgid "Tue"
 msgstr "Ter"
 
-#: includes/Rest/EventsController.php:691
-#: assets/js/src/util.js:6
+#: includes/Rest/EventsController.php:691 assets/js/src/util.js:6
 #: assets/js/src/components/public/EventForm.js:475
 msgid "Tuesday"
 msgstr "Terça-feira"
@@ -1319,8 +1318,7 @@ msgstr "Tipo"
 msgid "Type:"
 msgstr "Tipo:"
 
-#: includes/Announcement.php:238
-#: includes/Admin.php:273
+#: includes/Announcement.php:238 includes/Admin.php:273
 #: assets/js/src/components/public/AnnouncementForm.js:461
 #: assets/js/src/components/public/EventForm.js:541
 msgid "Unaffiliated (0)"
@@ -1340,8 +1338,7 @@ msgstr "Categoria sem nome"
 msgid "Unnamed Tag"
 msgstr "Tag sem nome"
 
-#: mayo-events-manager.php:798
-#: mayo-events-manager.php:812
+#: mayo-events-manager.php:798 mayo-events-manager.php:812
 msgid "Unsubscribe"
 msgstr "Cancelar inscrição"
 
@@ -1401,8 +1398,7 @@ msgstr "Ver o evento: %s"
 msgid "Wed"
 msgstr "Qua"
 
-#: includes/Rest/EventsController.php:692
-#: assets/js/src/util.js:7
+#: includes/Rest/EventsController.php:692 assets/js/src/util.js:7
 #: assets/js/src/components/public/EventForm.js:476
 msgid "Wednesday"
 msgstr "Quarta-feira"
@@ -1429,20 +1425,30 @@ msgid "Where:"
 msgstr "Onde:"
 
 #: assets/js/src/components/public/EventForm.js:239
-msgid "You did not attach a valid image file, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)"
-msgstr "Você não anexou um arquivo de imagem válido, portanto nenhum será enviado. Por favor, escolha um arquivo de imagem válido (JPG, PNG ou GIF)"
+msgid ""
+"You did not attach a valid image file, so one will not be submitted.  Please "
+"choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+"Você não anexou um arquivo de imagem válido, portanto nenhum será enviado. "
+"Por favor, escolha um arquivo de imagem válido (JPG, PNG ou GIF)"
 
 #: assets/js/src/components/public/AnnouncementForm.js:253
-msgid "You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)"
-msgstr "Você não anexou um arquivo de imagem válido. Por favor, escolha um arquivo de imagem válido (JPG, PNG ou GIF)"
+msgid ""
+"You did not attach a valid image file. Please choose a valid image file "
+"(JPG, PNG, or GIF)"
+msgstr ""
+"Você não anexou um arquivo de imagem válido. Por favor, escolha um arquivo "
+"de imagem válido (JPG, PNG ou GIF)"
 
 #: includes/Subscriber.php:327
 msgid "You have already been unsubscribed."
 msgstr "Sua inscrição já foi cancelada."
 
 #: includes/Subscriber.php:342
-msgid "You have been unsubscribed and will no longer receive announcement emails."
-msgstr "Sua inscrição foi cancelada e você não receberá mais e-mails de comunicados."
+msgid ""
+"You have been unsubscribed and will no longer receive announcement emails."
+msgstr ""
+"Sua inscrição foi cancelada e você não receberá mais e-mails de comunicados."
 
 #: includes/Subscriber.php:646
 msgid "You have requested to subscribe to announcements from %s."
@@ -1475,8 +1481,11 @@ msgid "Your name (will not be displayed publicly)"
 msgstr "Seu nome (não será exibido publicamente)"
 
 #: includes/Subscriber.php:293
-msgid "Your subscription has been confirmed! You will now receive announcement emails."
-msgstr "Sua inscrição foi confirmada! Agora você receberá e-mails de comunicados."
+msgid ""
+"Your subscription has been confirmed! You will now receive announcement "
+"emails."
+msgstr ""
+"Sua inscrição foi confirmada! Agora você receberá e-mails de comunicados."
 
 #: includes/Subscriber.php:272
 msgid "Your subscription is already confirmed."
@@ -1532,13 +1541,11 @@ msgid "months"
 msgstr "meses"
 
 #: includes/Rest/EventsController.php:701
-#: includes/Rest/EventsController.php:715
-#: assets/js/src/util.js:125
+#: includes/Rest/EventsController.php:715 assets/js/src/util.js:125
 msgid "on %s"
 msgstr "em %s"
 
-#: includes/Rest/EventsController.php:712
-#: assets/js/src/util.js:141
+#: includes/Rest/EventsController.php:712 assets/js/src/util.js:141
 msgid "on day %s"
 msgstr "no dia %s"
 
@@ -1554,8 +1561,7 @@ msgstr "segundo"
 msgid "third"
 msgstr "terceiro"
 
-#: includes/Rest/EventsController.php:722
-#: assets/js/src/util.js:169
+#: includes/Rest/EventsController.php:722 assets/js/src/util.js:169
 msgid "until %s"
 msgstr "até %s"
 
@@ -1625,7 +1631,8 @@ msgstr "Comunicados vinculados"
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js
 msgid "Manage specific dates when this recurring event should not occur."
-msgstr "Gerencie datas específicas em que este evento recorrente não deve ocorrer."
+msgstr ""
+"Gerencie datas específicas em que este evento recorrente não deve ocorrer."
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js
 msgid "No announcements linked to this event."
@@ -1658,3 +1665,220 @@ msgstr "Ocorrências omitidas"
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js
 msgid "e.g., Community Center"
 msgstr "ex., Centro comunitário"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Add New External Source"
+msgstr "Adicionar nova fonte externa"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "All"
+msgstr "Todos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "All Event Types"
+msgstr "Todos os tipos de evento"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "All announcements"
+msgstr "Todos os comunicados"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Are you sure you want to delete this external source?"
+msgstr "Tem certeza de que deseja excluir esta fonte externa?"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Auto-include: Automatically add to existing subscribers"
+msgstr ""
+"Inclusão automática: adicionar automaticamente aos inscritos existentes"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "BMLT Root Server URL"
+msgstr "URL do servidor raiz BMLT"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "BMLT Root Server URL must use HTTPS protocol."
+msgstr "A URL do servidor raiz BMLT deve usar o protocolo HTTPS."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "BMLT Settings"
+msgstr "Configurações do BMLT"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Categories available for subscription:"
+msgstr "Categorias disponíveis para inscrição:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Confirmed"
+msgstr "Confirmado"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Copy ID"
+msgstr "Copiar ID"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Copy ID to clipboard"
+msgstr "Copiar ID para a área de transferência"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Delete"
+msgstr "Excluir"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Disabled"
+msgstr "Desativado"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Email"
+msgstr "E-mail"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Enable Source"
+msgstr "Ativar fonte"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Enabled"
+msgstr "Ativado"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "External Event Sources"
+msgstr "Fontes de eventos externos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "External source deleted successfully!"
+msgstr "Fonte externa excluída com sucesso!"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "External source saved successfully!"
+msgstr "Fonte externa salva com sucesso!"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Failed to load subscribers"
+msgstr "Falha ao carregar os inscritos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Loading settings..."
+msgstr "Carregando configurações..."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Mayo Events Manager Settings"
+msgstr "Configurações do Mayo Events Manager"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "No subscribers found."
+msgstr "Nenhum inscrito encontrado."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Notification Email"
+msgstr "E-mail de notificação"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Pending"
+msgstr "Pendente"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Preferences"
+msgstr "Preferências"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Restricted Service Bodies"
+msgstr "Corpos de serviço restritos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Save Changes"
+msgstr "Salvar alterações"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Save Settings"
+msgstr "Salvar configurações"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Saving..."
+msgstr "Salvando..."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Search Subscribers:"
+msgstr "Buscar inscritos:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Search by email..."
+msgstr "Buscar por e-mail..."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Service Bodies available for subscription:"
+msgstr "Corpos de serviço disponíveis para inscrição:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Service Body Configuration"
+msgstr "Configuração de corpos de serviço"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Settings saved successfully!"
+msgstr "Configurações salvas com sucesso!"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Site URL"
+msgstr "URL do site"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Source Name"
+msgstr "Nome da fonte"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Subscribed"
+msgstr "Inscrito"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Subscription Preferences"
+msgstr "Preferências de inscrição"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Tags available for subscription:"
+msgstr "Tags disponíveis para inscrição:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "When new options are added:"
+msgstr "Quando novas opções são adicionadas:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "e.g., 1,2,3,0"
+msgstr "ex., 1,2,3,0"
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"Email addresses to receive event submission notifications. Multiple emails "
+"can be separated by commas or semicolons. Leave empty to send to all admins."
+msgstr ""
+"Endereços de e-mail para receber notificações de envio de eventos. Vários e-"
+"mails podem ser separados por vírgulas ou ponto e vírgula. Deixe vazio para "
+"enviar a todos os administradores."
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"Configure which categories, tags, and service bodies are available for "
+"subscribers to choose from when signing up for announcement notifications."
+msgstr ""
+"Configure quais categorias, tags e corpos de serviço estão disponíveis para "
+"os inscritos escolherem ao se registrar para notificações."
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"Select which categories, tags, and service bodies this subscriber should "
+"receive notifications for. If none are selected, they will receive all "
+"announcements."
+msgstr ""
+"Selecione quais categorias, tags e corpos de serviço este inscrito deve "
+"receber notificações. Se nenhum for selecionado, receberá todos os "
+"comunicados."
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"No subscription options configured. Configure them in the Settings page."
+msgstr ""
+"Nenhuma opção de inscrição configurada. Configure-as na página de "
+"Configurações."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Opt-in: Existing subscribers must manually add new options"
+msgstr ""
+"Inclusão voluntária: os inscritos existentes devem adicionar novas opções "
+"manualmente"

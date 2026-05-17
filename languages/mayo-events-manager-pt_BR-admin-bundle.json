@@ -690,6 +690,153 @@
             ],
             "e.g., Community Center": [
                 "ex., Centro comunitário"
+            ],
+            "Add New External Source": [
+                "Adicionar nova fonte externa"
+            ],
+            "All": [
+                "Todos"
+            ],
+            "All Event Types": [
+                "Todos os tipos de evento"
+            ],
+            "All announcements": [
+                "Todos os comunicados"
+            ],
+            "Are you sure you want to delete this external source?": [
+                "Tem certeza de que deseja excluir esta fonte externa?"
+            ],
+            "Auto-include: Automatically add to existing subscribers": [
+                "Inclusão automática: adicionar automaticamente aos inscritos existentes"
+            ],
+            "BMLT Root Server URL": [
+                "URL do servidor raiz BMLT"
+            ],
+            "BMLT Root Server URL must use HTTPS protocol.": [
+                "A URL do servidor raiz BMLT deve usar o protocolo HTTPS."
+            ],
+            "BMLT Settings": [
+                "Configurações do BMLT"
+            ],
+            "Categories available for subscription:": [
+                "Categorias disponíveis para inscrição:"
+            ],
+            "Confirmed": [
+                "Confirmado"
+            ],
+            "Copy ID": [
+                "Copiar ID"
+            ],
+            "Copy ID to clipboard": [
+                "Copiar ID para a área de transferência"
+            ],
+            "Delete": [
+                "Excluir"
+            ],
+            "Disabled": [
+                "Desativado"
+            ],
+            "Email": [
+                "E-mail"
+            ],
+            "Enable Source": [
+                "Ativar fonte"
+            ],
+            "Enabled": [
+                "Ativado"
+            ],
+            "External Event Sources": [
+                "Fontes de eventos externos"
+            ],
+            "External source deleted successfully!": [
+                "Fonte externa excluída com sucesso!"
+            ],
+            "External source saved successfully!": [
+                "Fonte externa salva com sucesso!"
+            ],
+            "Failed to load subscribers": [
+                "Falha ao carregar os inscritos"
+            ],
+            "Loading settings...": [
+                "Carregando configurações..."
+            ],
+            "Mayo Events Manager Settings": [
+                "Configurações do Mayo Events Manager"
+            ],
+            "No subscribers found.": [
+                "Nenhum inscrito encontrado."
+            ],
+            "Notification Email": [
+                "E-mail de notificação"
+            ],
+            "Pending": [
+                "Pendente"
+            ],
+            "Preferences": [
+                "Preferências"
+            ],
+            "Restricted Service Bodies": [
+                "Corpos de serviço restritos"
+            ],
+            "Save Changes": [
+                "Salvar alterações"
+            ],
+            "Save Settings": [
+                "Salvar configurações"
+            ],
+            "Saving...": [
+                "Salvando..."
+            ],
+            "Search Subscribers:": [
+                "Buscar inscritos:"
+            ],
+            "Search by email...": [
+                "Buscar por e-mail..."
+            ],
+            "Service Bodies available for subscription:": [
+                "Corpos de serviço disponíveis para inscrição:"
+            ],
+            "Service Body Configuration": [
+                "Configuração de corpos de serviço"
+            ],
+            "Settings saved successfully!": [
+                "Configurações salvas com sucesso!"
+            ],
+            "Site URL": [
+                "URL do site"
+            ],
+            "Source Name": [
+                "Nome da fonte"
+            ],
+            "Subscribed": [
+                "Inscrito"
+            ],
+            "Subscription Preferences": [
+                "Preferências de inscrição"
+            ],
+            "Tags available for subscription:": [
+                "Tags disponíveis para inscrição:"
+            ],
+            "When new options are added:": [
+                "Quando novas opções são adicionadas:"
+            ],
+            "e.g., 1,2,3,0": [
+                "ex., 1,2,3,0"
+            ],
+            "Email addresses to receive event submission notifications. Multiple emails can be separated by commas or semicolons. Leave empty to send to all admins.": [
+                "Endereços de e-mail para receber notificações de envio de eventos. Vários e-mails podem ser separados por vírgulas ou ponto e vírgula. Deixe vazio para enviar a todos os administradores."
+            ],
+            "Configure which categories, tags, and service bodies are available for subscribers to choose from when signing up for announcement notifications.": [
+                "Configure quais categorias, tags e corpos de serviço estão disponíveis para os inscritos escolherem ao se registrar para notificações."
+            ],
+            "Select which categories, tags, and service bodies this subscriber should receive notifications for. If none are selected, they will receive all announcements.": [
+                "Selecione quais categorias, tags e corpos de serviço este inscrito deve receber notificações. Se nenhum for selecionado, receberá todos os comunicados."
+            ],
+            "No subscription options configured. Configure them in the Settings page.": [
+                "Nenhuma opção de inscrição configurada. Configure-as na página de Configurações."
+            ],
+            "Opt-in: Existing subscribers must manually add new options": [
+                "Inclusão voluntária: os inscritos existentes devem adicionar novas opções manualmente"
             ]
         }
     }

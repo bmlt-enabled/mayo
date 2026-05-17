@@ -690,6 +690,153 @@
             ],
             "e.g., Community Center": [
                 "ex. Centre communautaire"
+            ],
+            "Add New External Source": [
+                "Ajouter une nouvelle source externe"
+            ],
+            "All": [
+                "Tous"
+            ],
+            "All Event Types": [
+                "Tous les types d'événement"
+            ],
+            "All announcements": [
+                "Toutes les annonces"
+            ],
+            "Are you sure you want to delete this external source?": [
+                "Êtes-vous sûr de vouloir supprimer cette source externe ?"
+            ],
+            "Auto-include: Automatically add to existing subscribers": [
+                "Inclusion automatique : ajouter automatiquement aux abonnés existants"
+            ],
+            "BMLT Root Server URL": [
+                "URL du serveur racine BMLT"
+            ],
+            "BMLT Root Server URL must use HTTPS protocol.": [
+                "L'URL du serveur racine BMLT doit utiliser le protocole HTTPS."
+            ],
+            "BMLT Settings": [
+                "Paramètres BMLT"
+            ],
+            "Categories available for subscription:": [
+                "Catégories disponibles pour l'abonnement :"
+            ],
+            "Confirmed": [
+                "Confirmé"
+            ],
+            "Copy ID": [
+                "Copier l'ID"
+            ],
+            "Copy ID to clipboard": [
+                "Copier l'ID dans le presse-papiers"
+            ],
+            "Delete": [
+                "Supprimer"
+            ],
+            "Disabled": [
+                "Désactivé"
+            ],
+            "Email": [
+                "E-mail"
+            ],
+            "Enable Source": [
+                "Activer la source"
+            ],
+            "Enabled": [
+                "Activé"
+            ],
+            "External Event Sources": [
+                "Sources d'événements externes"
+            ],
+            "External source deleted successfully!": [
+                "Source externe supprimée avec succès !"
+            ],
+            "External source saved successfully!": [
+                "Source externe enregistrée avec succès !"
+            ],
+            "Failed to load subscribers": [
+                "Échec du chargement des abonnés"
+            ],
+            "Loading settings...": [
+                "Chargement des paramètres..."
+            ],
+            "Mayo Events Manager Settings": [
+                "Paramètres de Mayo Events Manager"
+            ],
+            "No subscribers found.": [
+                "Aucun abonné trouvé."
+            ],
+            "Notification Email": [
+                "E-mail de notification"
+            ],
+            "Pending": [
+                "En attente"
+            ],
+            "Preferences": [
+                "Préférences"
+            ],
+            "Restricted Service Bodies": [
+                "Organismes de service restreints"
+            ],
+            "Save Changes": [
+                "Enregistrer les modifications"
+            ],
+            "Save Settings": [
+                "Enregistrer les paramètres"
+            ],
+            "Saving...": [
+                "Enregistrement..."
+            ],
+            "Search Subscribers:": [
+                "Rechercher des abonnés :"
+            ],
+            "Search by email...": [
+                "Rechercher par e-mail..."
+            ],
+            "Service Bodies available for subscription:": [
+                "Organismes de service disponibles pour l'abonnement :"
+            ],
+            "Service Body Configuration": [
+                "Configuration des organismes de service"
+            ],
+            "Settings saved successfully!": [
+                "Paramètres enregistrés avec succès !"
+            ],
+            "Site URL": [
+                "URL du site"
+            ],
+            "Source Name": [
+                "Nom de la source"
+            ],
+            "Subscribed": [
+                "Abonné"
+            ],
+            "Subscription Preferences": [
+                "Préférences d'abonnement"
+            ],
+            "Tags available for subscription:": [
+                "Étiquettes disponibles pour l'abonnement :"
+            ],
+            "When new options are added:": [
+                "Lorsque de nouvelles options sont ajoutées :"
+            ],
+            "e.g., 1,2,3,0": [
+                "ex. 1,2,3,0"
+            ],
+            "Email addresses to receive event submission notifications. Multiple emails can be separated by commas or semicolons. Leave empty to send to all admins.": [
+                "Adresses e-mail pour recevoir les notifications de soumission d'événements. Plusieurs e-mails peuvent être séparés par des virgules ou des points-virgules. Laisser vide pour envoyer à tous les administrateurs."
+            ],
+            "Configure which categories, tags, and service bodies are available for subscribers to choose from when signing up for announcement notifications.": [
+                "Configurez les catégories, étiquettes et organismes de service disponibles pour les abonnés lors de leur inscription aux notifications."
+            ],
+            "Select which categories, tags, and service bodies this subscriber should receive notifications for. If none are selected, they will receive all announcements.": [
+                "Sélectionnez les catégories, étiquettes et organismes de service pour lesquels cet abonné doit recevoir des notifications. Si aucun n'est sélectionné, il recevra toutes les annonces."
+            ],
+            "No subscription options configured. Configure them in the Settings page.": [
+                "Aucune option d'abonnement configurée. Configurez-les dans la page Paramètres."
+            ],
+            "Opt-in: Existing subscribers must manually add new options": [
+                "Inclusion volontaire : les abonnés existants doivent ajouter manuellement les nouvelles options"
             ]
         }
     }
