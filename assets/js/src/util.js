@@ -1,5 +1,28 @@
-export const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-export const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { __, sprintf, _n } from '@wordpress/i18n';
+
+export const dayNames = [
+    __('Sunday', 'mayo-events-manager'),
+    __('Monday', 'mayo-events-manager'),
+    __('Tuesday', 'mayo-events-manager'),
+    __('Wednesday', 'mayo-events-manager'),
+    __('Thursday', 'mayo-events-manager'),
+    __('Friday', 'mayo-events-manager'),
+    __('Saturday', 'mayo-events-manager')
+];
+export const monthNames = [
+    __('Jan', 'mayo-events-manager'),
+    __('Feb', 'mayo-events-manager'),
+    __('Mar', 'mayo-events-manager'),
+    __('Apr', 'mayo-events-manager'),
+    __('May', 'mayo-events-manager'),
+    __('Jun', 'mayo-events-manager'),
+    __('Jul', 'mayo-events-manager'),
+    __('Aug', 'mayo-events-manager'),
+    __('Sep', 'mayo-events-manager'),
+    __('Oct', 'mayo-events-manager'),
+    __('Nov', 'mayo-events-manager'),
+    __('Dec', 'mayo-events-manager')
+];
 
 // Helper function to convert emoji and special characters to Unicode for CSS class names
 export const convertToUnicode = (str) => {
@@ -73,43 +96,81 @@ export const formatDateTimeDisplay = (event, timeFormat) => {
 
 export const formatRecurringPattern = (pattern) => {
     if (!pattern || pattern.type === 'none') return '';
-    
+
     const { type, interval, weekdays = [], endDate, monthlyType, monthlyWeekday, monthlyDate } = pattern;
-    let text = "This event repeats ";
-    
+    let text = '';
+
     switch (type) {
         case 'daily':
-            text += interval > 1 ? `every ${interval} days` : "daily";
+            text = interval > 1
+                ? sprintf(
+                    /* translators: %d: number of days */
+                    _n('This event repeats every %d day', 'This event repeats every %d days', interval, 'mayo-events-manager'),
+                    interval
+                )
+                : __('This event repeats daily', 'mayo-events-manager');
             break;
         case 'weekly':
-            text += interval > 1 ? `every ${interval} weeks` : "weekly";
+            text = interval > 1
+                ? sprintf(
+                    /* translators: %d: number of weeks */
+                    _n('This event repeats every %d week', 'This event repeats every %d weeks', interval, 'mayo-events-manager'),
+                    interval
+                )
+                : __('This event repeats weekly', 'mayo-events-manager');
             if (weekdays && weekdays.length) {
-                const days = weekdays.map(day => {
-                    return dayNames[parseInt(day)];
-                });
-                text += ` on ${days.join(', ')}`;
+                const days = weekdays.map(day => dayNames[parseInt(day)]);
+                text += ' ' + sprintf(
+                    /* translators: %s: comma-separated weekday names */
+                    __('on %s', 'mayo-events-manager'),
+                    days.join(', ')
+                );
             }
             break;
         case 'monthly':
-            text += interval > 1 ? `every ${interval} months` : "monthly";
+            text = interval > 1
+                ? sprintf(
+                    /* translators: %d: number of months */
+                    _n('This event repeats every %d month', 'This event repeats every %d months', interval, 'mayo-events-manager'),
+                    interval
+                )
+                : __('This event repeats monthly', 'mayo-events-manager');
             if (monthlyType === 'date' && monthlyDate) {
-                text += ` on day ${monthlyDate}`;
+                text += ' ' + sprintf(
+                    /* translators: %s: day-of-month number */
+                    __('on day %s', 'mayo-events-manager'),
+                    monthlyDate
+                );
             } else if (monthlyType === 'weekday' && monthlyWeekday) {
                 const [week, weekday] = monthlyWeekday.split(',').map(Number);
-                const weekText = week > 0 
-                    ? ['first', 'second', 'third', 'fourth', 'fifth'][week - 1] 
-                    : 'last';
-                text += ` on the ${weekText} ${dayNames[weekday]}`;
+                const weekTexts = [
+                    __('first', 'mayo-events-manager'),
+                    __('second', 'mayo-events-manager'),
+                    __('third', 'mayo-events-manager'),
+                    __('fourth', 'mayo-events-manager'),
+                    __('fifth', 'mayo-events-manager')
+                ];
+                const weekText = week > 0 ? weekTexts[week - 1] : __('last', 'mayo-events-manager');
+                text += ' ' + sprintf(
+                    /* translators: 1: ordinal week (e.g. "first"), 2: weekday name */
+                    __('on the %1$s %2$s', 'mayo-events-manager'),
+                    weekText,
+                    dayNames[weekday]
+                );
             }
             break;
         default:
             return '';
     }
-    
+
     if (endDate) {
-        text += ` until ${endDate}`;
+        text += ' ' + sprintf(
+            /* translators: %s: end date */
+            __('until %s', 'mayo-events-manager'),
+            endDate
+        );
     }
-    
+
     return text;
 };
 

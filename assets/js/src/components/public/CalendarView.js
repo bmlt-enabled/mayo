@@ -1,4 +1,5 @@
 import { useState, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import EventModal from './EventModal';
 import { useEventProvider } from '../providers/EventProvider';
 import { convertToUnicode } from '../../util';
@@ -61,11 +62,29 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
     const startingDayOfWeek = firstDayOfMonth.getDay();
 
     const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
+        __('January', 'mayo-events-manager'),
+        __('February', 'mayo-events-manager'),
+        __('March', 'mayo-events-manager'),
+        __('April', 'mayo-events-manager'),
+        __('May', 'mayo-events-manager'),
+        __('June', 'mayo-events-manager'),
+        __('July', 'mayo-events-manager'),
+        __('August', 'mayo-events-manager'),
+        __('September', 'mayo-events-manager'),
+        __('October', 'mayo-events-manager'),
+        __('November', 'mayo-events-manager'),
+        __('December', 'mayo-events-manager')
     ];
 
-    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekDays = [
+        __('Sun', 'mayo-events-manager'),
+        __('Mon', 'mayo-events-manager'),
+        __('Tue', 'mayo-events-manager'),
+        __('Wed', 'mayo-events-manager'),
+        __('Thu', 'mayo-events-manager'),
+        __('Fri', 'mayo-events-manager'),
+        __('Sat', 'mayo-events-manager')
+    ];
 
     // Helper to generate date key
     const getDateKey = (date) => {
@@ -285,7 +304,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
                 <div className="mayo-calendar-header">
                     <button
                         onClick={goToPreviousMonth}
-                        title="Previous Month"
+                        title={__('Previous Month', 'mayo-events-manager')}
                     >
                         <span className="dashicons dashicons-arrow-left-alt2"></span>
                     </button>
@@ -294,13 +313,13 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
                         <button
                             onClick={goToToday}
                             className="mayo-calendar-today-button"
-                            title="Go to Today"
+                            title={__('Go to Today', 'mayo-events-manager')}
                         >
-                            Today
+                            {__('Today', 'mayo-events-manager')}
                         </button>
                         <button
                             onClick={goToNextMonth}
-                            title="Next Month"
+                            title={__('Next Month', 'mayo-events-manager')}
                         >
                             <span className="dashicons dashicons-arrow-right-alt2"></span>
                         </button>
@@ -317,7 +336,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
                     </div>
                     {loading && (
                         <div className="mayo-calendar-loading">
-                            <span>Loading events...</span>
+                            <span>{__('Loading events...', 'mayo-events-manager')}</span>
                         </div>
                     )}
                 </div>

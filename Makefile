@@ -51,3 +51,11 @@ test: composer ## PHP Unit Test
 .PHONY: coverage
 coverage: composer ## PHP Unit Test with Coverage
 	XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover coverage.xml
+
+.PHONY: pot
+pot: ## Regenerate languages/mayo-events-manager.pot from source
+	php scripts/generate-pot.php > languages/mayo-events-manager.pot
+
+.PHONY: translations
+translations: ## Generate JSON translation files for JS bundles from .po files
+	php scripts/generate-json-translations.php

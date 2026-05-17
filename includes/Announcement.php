@@ -31,16 +31,16 @@ class Announcement {
     public static function register_post_type() {
         register_post_type('mayo_announcement', [
             'labels' => [
-                'name' => 'Announcements',
-                'singular_name' => 'Announcement',
-                'add_new' => 'Add New Announcement',
-                'add_new_item' => 'Add New Announcement',
-                'edit_item' => 'Edit Announcement',
-                'view_item' => 'View Announcement',
-                'all_items' => 'Announcements',
-                'search_items' => 'Search Announcements',
-                'not_found' => 'No announcements found',
-                'not_found_in_trash' => 'No announcements found in trash',
+                'name' => __('Announcements', 'mayo-events-manager'),
+                'singular_name' => __('Announcement', 'mayo-events-manager'),
+                'add_new' => __('Add New Announcement', 'mayo-events-manager'),
+                'add_new_item' => __('Add New Announcement', 'mayo-events-manager'),
+                'edit_item' => __('Edit Announcement', 'mayo-events-manager'),
+                'view_item' => __('View Announcement', 'mayo-events-manager'),
+                'all_items' => __('Announcements', 'mayo-events-manager'),
+                'search_items' => __('Search Announcements', 'mayo-events-manager'),
+                'not_found' => __('No announcements found', 'mayo-events-manager'),
+                'not_found_in_trash' => __('No announcements found in trash', 'mayo-events-manager'),
             ],
             'public' => true,
             'show_in_menu' => 'mayo-events',
@@ -235,7 +235,7 @@ class Announcement {
             case 'service_body':
                 $service_body_id = get_post_meta($post_id, 'service_body', true);
                 if ($service_body_id === '0') {
-                    echo esc_html('Unaffiliated (0)');
+                    echo esc_html__('Unaffiliated (0)', 'mayo-events-manager');
                 } elseif (empty($service_body_id)) {
                     echo '—';
                 } else {
@@ -264,7 +264,8 @@ class Announcement {
 
                     // Fallback if we couldn't get the name
                     if (!$found) {
-                        echo esc_html('Service Body (' . $service_body_id . ')');
+                        /* translators: %s: service body ID */
+                        echo esc_html(sprintf(__('Service Body (%s)', 'mayo-events-manager'), $service_body_id));
                     }
                 }
                 break;
@@ -276,17 +277,17 @@ class Announcement {
                 $end_time = get_post_meta($post_id, 'display_end_time', true);
 
                 if ($start_date || $end_date) {
-                    $start_formatted = $start_date ? date_i18n('M j, Y', strtotime($start_date)) : 'Now';
+                    $start_formatted = $start_date ? date_i18n('M j, Y', strtotime($start_date)) : __('Now', 'mayo-events-manager');
                     if ($start_date && $start_time) {
                         $start_formatted .= ' ' . date_i18n('g:i A', strtotime($start_time));
                     }
-                    $end_formatted = $end_date ? date_i18n('M j, Y', strtotime($end_date)) : 'Indefinite';
+                    $end_formatted = $end_date ? date_i18n('M j, Y', strtotime($end_date)) : __('Indefinite', 'mayo-events-manager');
                     if ($end_date && $end_time) {
                         $end_formatted .= ' ' . date_i18n('g:i A', strtotime($end_time));
                     }
                     echo esc_html($start_formatted . ' - ' . $end_formatted);
                 } else {
-                    echo '<em>Always visible</em>';
+                    echo '<em>' . esc_html__('Always visible', 'mayo-events-manager') . '</em>';
                 }
                 break;
 
@@ -296,16 +297,16 @@ class Announcement {
                 $today = current_time('Y-m-d');
 
                 $is_active = true;
-                $status_label = 'Active';
+                $status_label = __('Active', 'mayo-events-manager');
                 $status_color = '#46b450';
 
                 if ($start_date && $start_date > $today) {
                     $is_active = false;
-                    $status_label = 'Scheduled';
+                    $status_label = __('Scheduled', 'mayo-events-manager');
                     $status_color = '#0073aa';
                 } elseif ($end_date && $end_date < $today) {
                     $is_active = false;
-                    $status_label = 'Expired';
+                    $status_label = __('Expired', 'mayo-events-manager');
                     $status_color = '#dc3545';
                 }
 
@@ -325,8 +326,12 @@ class Announcement {
                         } else if ($ref['type'] === 'external' && !empty($ref['source_id'])) {
                             // For external events, show source name badge
                             $source = self::get_external_source($ref['source_id']);
-                            $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
-                            $event_links[] = '<span class="mayo-external-event-badge" style="display: inline-block; background: #fff3e0; color: #e65100; padding: 2px 6px; border-radius: 3px; font-size: 11px;">Event #' . intval($ref['id']) . ' <small>(' . esc_html($source_name) . ')</small></span>';
+                            $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : __('External', 'mayo-events-manager');
+                            $event_links[] = '<span class="mayo-external-event-badge" style="display: inline-block; background: #fff3e0; color: #e65100; padding: 2px 6px; border-radius: 3px; font-size: 11px;">' . esc_html(sprintf(
+                                /* translators: %d: external event ID */
+                                __('Event #%d', 'mayo-events-manager'),
+                                intval($ref['id'])
+                            )) . ' <small>(' . esc_html($source_name) . ')</small></span>';
                         }
                     }
                     echo !empty($event_links) ? implode(', ', $event_links) : '—';
@@ -563,7 +568,7 @@ class Announcement {
                     // Handle both 'link' (from external API) and 'permalink' (from local)
                     $permalink = $resolved['permalink'] ?? $resolved['link'] ?? '#';
                     // Handle title - may be string or {rendered: "..."} object from WP REST API
-                    $title = $resolved['title'] ?? 'Unknown Event';
+                    $title = $resolved['title'] ?? __('Unknown Event', 'mayo-events-manager');
                     if (is_array($title) && isset($title['rendered'])) {
                         $title = $title['rendered'];
                     }
@@ -576,7 +581,7 @@ class Announcement {
                         'title' => $title,
                         'permalink' => $permalink,
                         'start_date' => $start_date,
-                        'source' => $resolved['source'] ?? ['type' => 'local', 'id' => 'local', 'name' => 'Local'],
+                        'source' => $resolved['source'] ?? ['type' => 'local', 'id' => 'local', 'name' => __('Local', 'mayo-events-manager')],
                     ];
 
                     // Include icon for custom links
@@ -593,10 +598,10 @@ class Announcement {
                 } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
                     // External event unavailable - include placeholder with source info
                     $source = self::get_external_source($ref['source_id']);
-                    $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
+                    $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : __('External', 'mayo-events-manager');
                     $event_links[] = [
                         'id' => $ref['id'],
-                        'title' => 'Event details unavailable',
+                        'title' => __('Event details unavailable', 'mayo-events-manager'),
                         'permalink' => '#',
                         'start_date' => '',
                         'unavailable' => true,
@@ -849,7 +854,7 @@ class Announcement {
                 'source' => [
                     'type' => 'custom',
                     'id' => 'custom',
-                    'name' => 'Custom Link',
+                    'name' => __('Custom Link', 'mayo-events-manager'),
                 ],
             ];
         }
@@ -879,7 +884,7 @@ class Announcement {
                 'source' => [
                     'type' => 'local',
                     'id' => 'local',
-                    'name' => 'Local',
+                    'name' => __('Local', 'mayo-events-manager'),
                 ],
             ];
         }

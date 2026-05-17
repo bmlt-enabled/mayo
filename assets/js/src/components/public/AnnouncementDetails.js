@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { apiFetch } from '../../util';
 import { useEventProvider } from '../providers/EventProvider';
 
@@ -31,11 +32,11 @@ const AnnouncementDetails = () => {
                 if (response) {
                     setAnnouncement(response);
                 } else {
-                    throw new Error('Announcement not found');
+                    throw new Error(__('Announcement not found', 'mayo-events-manager'));
                 }
             } catch (err) {
                 console.error('Error fetching announcement:', err);
-                setError('Failed to load announcement');
+                setError(__('Failed to load announcement', 'mayo-events-manager'));
             } finally {
                 setLoading(false);
             }
@@ -47,7 +48,7 @@ const AnnouncementDetails = () => {
     if (loading) {
         return (
             <div className="mayo-single-container">
-                <div className="mayo-loading">Loading announcement...</div>
+                <div className="mayo-loading">{__('Loading announcement...', 'mayo-events-manager')}</div>
             </div>
         );
     }
@@ -61,7 +62,7 @@ const AnnouncementDetails = () => {
     if (!announcement) {
         return (
             <div className="mayo-single-container">
-                <div className="mayo-error">Announcement not found</div>
+                <div className="mayo-error">{__('Announcement not found', 'mayo-events-manager')}</div>
             </div>
         );
     }
@@ -94,7 +95,7 @@ const AnnouncementDetails = () => {
         if (!date) return null;
         let formatted = date;
         if (time) {
-            formatted += ` at ${formatTime(time)}`;
+            formatted += ` ${__('at', 'mayo-events-manager')} ${formatTime(time)}`;
         }
         return formatted;
     };
@@ -133,7 +134,7 @@ const AnnouncementDetails = () => {
                     <div className="mayo-single-announcement-events">
                         <h3>
                             <span className="dashicons dashicons-admin-links"></span>
-                            Related Links & Events
+                            {__('Related Links & Events', 'mayo-events-manager')}
                         </h3>
                         <ul>
                             {announcement.linked_events.map((event) => {
@@ -170,7 +171,7 @@ const AnnouncementDetails = () => {
                                                     <span className="mayo-event-date">{event.start_date}</span>
                                                 )}
                                                 {isCustom && (
-                                                    <span className="mayo-custom-link-badge">Link</span>
+                                                    <span className="mayo-custom-link-badge">{__('Link', 'mayo-events-manager')}</span>
                                                 )}
                                                 {isExternal && event.source?.name && (
                                                     <span className="mayo-event-source-badge">{event.source.name}</span>
@@ -187,19 +188,19 @@ const AnnouncementDetails = () => {
                 <div className="mayo-single-announcement-meta">
                     {announcement.service_body && (
                         <div className="mayo-announcement-service-body">
-                            <h3>Service Body</h3>
+                            <h3>{__('Service Body', 'mayo-events-manager')}</h3>
                             <p>{getServiceBodyName(announcement.service_body)}</p>
                         </div>
                     )}
 
                     {(announcement.display_start_date || announcement.display_end_date) && (
                         <div className="mayo-announcement-display-window">
-                            <h3>Display Window</h3>
+                            <h3>{__('Display Window', 'mayo-events-manager')}</h3>
                             {announcement.display_start_date && (
-                                <p><strong>From:</strong> {formatDateTime(announcement.display_start_date, announcement.display_start_time)}</p>
+                                <p><strong>{__('From:', 'mayo-events-manager')}</strong> {formatDateTime(announcement.display_start_date, announcement.display_start_time)}</p>
                             )}
                             {announcement.display_end_date && (
-                                <p><strong>Until:</strong> {formatDateTime(announcement.display_end_date, announcement.display_end_time)}</p>
+                                <p><strong>{__('Until:', 'mayo-events-manager')}</strong> {formatDateTime(announcement.display_end_date, announcement.display_end_time)}</p>
                             )}
                         </div>
                     )}
@@ -208,7 +209,7 @@ const AnnouncementDetails = () => {
                 <div className="mayo-single-announcement-taxonomies">
                     {announcement.categories?.length > 0 && (
                         <div className="mayo-single-announcement-categories">
-                            <h3>Categories</h3>
+                            <h3>{__('Categories', 'mayo-events-manager')}</h3>
                             {announcement.categories.map(cat => (
                                 <a key={cat.id} href={cat.link}>{cat.name}</a>
                             ))}
@@ -217,7 +218,7 @@ const AnnouncementDetails = () => {
 
                     {announcement.tags?.length > 0 && (
                         <div className="mayo-single-announcement-tags">
-                            <h3>Tags</h3>
+                            <h3>{__('Tags', 'mayo-events-manager')}</h3>
                             {announcement.tags.map(tag => (
                                 <a key={tag.id} href={tag.link}>{tag.name}</a>
                             ))}

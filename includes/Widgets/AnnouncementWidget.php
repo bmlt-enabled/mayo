@@ -9,9 +9,9 @@ class AnnouncementWidget extends \WP_Widget {
     public function __construct() {
         parent::__construct(
             'mayo_announcement_widget',
-            'Mayo Event Announcements',
+            __('Mayo Event Announcements', 'mayo-events-manager'),
             [
-                'description' => 'Display event-based announcements as a banner or modal.',
+                'description' => __('Display event-based announcements as a banner or modal.', 'mayo-events-manager'),
                 'classname' => 'mayo-announcement-widget',
             ]
         );
@@ -73,7 +73,7 @@ class AnnouncementWidget extends \WP_Widget {
         ?>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'mode' ) ); ?>">
-                Display Mode:
+                <?php esc_html_e( 'Display Mode:', 'mayo-events-manager' ); ?>
             </label>
             <select
                 class="widefat"
@@ -81,16 +81,16 @@ class AnnouncementWidget extends \WP_Widget {
                 name="<?php echo esc_attr( $this->get_field_name( 'mode' ) ); ?>"
             >
                 <option value="banner" <?php selected( $mode, 'banner' ); ?>>
-                    Banner (sticky top)
+                    <?php esc_html_e( 'Banner (sticky top)', 'mayo-events-manager' ); ?>
                 </option>
                 <option value="modal" <?php selected( $mode, 'modal' ); ?>>
-                    Modal (popup)
+                    <?php esc_html_e( 'Modal (popup)', 'mayo-events-manager' ); ?>
                 </option>
             </select>
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'categories' ) ); ?>">
-                Categories (comma-separated slugs):
+                <?php esc_html_e( 'Categories (comma-separated slugs):', 'mayo-events-manager' ); ?>
             </label>
             <input
                 class="widefat"
@@ -98,12 +98,12 @@ class AnnouncementWidget extends \WP_Widget {
                 name="<?php echo esc_attr( $this->get_field_name( 'categories' ) ); ?>"
                 type="text"
                 value="<?php echo esc_attr( $categories ); ?>"
-                placeholder="e.g., announcements, alerts"
+                placeholder="<?php esc_attr_e( 'e.g., announcements, alerts', 'mayo-events-manager' ); ?>"
             />
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'tags' ) ); ?>">
-                Tags (comma-separated slugs):
+                <?php esc_html_e( 'Tags (comma-separated slugs):', 'mayo-events-manager' ); ?>
             </label>
             <input
                 class="widefat"
@@ -111,12 +111,12 @@ class AnnouncementWidget extends \WP_Widget {
                 name="<?php echo esc_attr( $this->get_field_name( 'tags' ) ); ?>"
                 type="text"
                 value="<?php echo esc_attr( $tags ); ?>"
-                placeholder="e.g., featured, urgent"
+                placeholder="<?php esc_attr_e( 'e.g., featured, urgent', 'mayo-events-manager' ); ?>"
             />
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'time_format' ) ); ?>">
-                Time Format:
+                <?php esc_html_e( 'Time Format:', 'mayo-events-manager' ); ?>
             </label>
             <select
                 class="widefat"
@@ -124,16 +124,16 @@ class AnnouncementWidget extends \WP_Widget {
                 name="<?php echo esc_attr( $this->get_field_name( 'time_format' ) ); ?>"
             >
                 <option value="12hour" <?php selected( $time_format, '12hour' ); ?>>
-                    12-hour (e.g., 2:30 PM)
+                    <?php esc_html_e( '12-hour (e.g., 2:30 PM)', 'mayo-events-manager' ); ?>
                 </option>
                 <option value="24hour" <?php selected( $time_format, '24hour' ); ?>>
-                    24-hour (e.g., 14:30)
+                    <?php esc_html_e( '24-hour (e.g., 14:30)', 'mayo-events-manager' ); ?>
                 </option>
             </select>
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'background_color' ) ); ?>">
-                Background Color (hex):
+                <?php esc_html_e( 'Background Color (hex):', 'mayo-events-manager' ); ?>
             </label>
             <input
                 class="widefat"
@@ -146,7 +146,7 @@ class AnnouncementWidget extends \WP_Widget {
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'text_color' ) ); ?>">
-                Text Color (hex):
+                <?php esc_html_e( 'Text Color (hex):', 'mayo-events-manager' ); ?>
             </label>
             <input
                 class="widefat"
@@ -159,7 +159,7 @@ class AnnouncementWidget extends \WP_Widget {
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>">
-                Sort By:
+                <?php esc_html_e( 'Sort By:', 'mayo-events-manager' ); ?>
             </label>
             <select
                 class="widefat"
@@ -167,19 +167,19 @@ class AnnouncementWidget extends \WP_Widget {
                 name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>"
             >
                 <option value="date" <?php selected( $orderby, 'date' ); ?>>
-                    Display Start Date
+                    <?php esc_html_e( 'Display Start Date', 'mayo-events-manager' ); ?>
                 </option>
                 <option value="title" <?php selected( $orderby, 'title' ); ?>>
-                    Title
+                    <?php esc_html_e( 'Title', 'mayo-events-manager' ); ?>
                 </option>
                 <option value="created" <?php selected( $orderby, 'created' ); ?>>
-                    Created Date
+                    <?php esc_html_e( 'Created Date', 'mayo-events-manager' ); ?>
                 </option>
             </select>
         </p>
         <p>
             <label for="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>">
-                Order:
+                <?php esc_html_e( 'Order:', 'mayo-events-manager' ); ?>
             </label>
             <select
                 class="widefat"
@@ -187,18 +187,18 @@ class AnnouncementWidget extends \WP_Widget {
                 name="<?php echo esc_attr( $this->get_field_name( 'order' ) ); ?>"
             >
                 <option value="" <?php selected( $order, '' ); ?>>
-                    Default
+                    <?php esc_html_e( 'Default', 'mayo-events-manager' ); ?>
                 </option>
                 <option value="ASC" <?php selected( $order, 'ASC' ); ?>>
-                    Ascending
+                    <?php esc_html_e( 'Ascending', 'mayo-events-manager' ); ?>
                 </option>
                 <option value="DESC" <?php selected( $order, 'DESC' ); ?>>
-                    Descending
+                    <?php esc_html_e( 'Descending', 'mayo-events-manager' ); ?>
                 </option>
             </select>
         </p>
         <p class="description">
-            Events will show as announcements when today's date is between the event's start and end dates.
+            <?php esc_html_e( "Events will show as announcements when today's date is between the event's start and end dates.", 'mayo-events-manager' ); ?>
         </p>
         <?php
     }

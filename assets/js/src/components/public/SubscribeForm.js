@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { apiFetch } from '../../util';
 import { useEventProvider } from '../providers/EventProvider';
 
@@ -81,7 +82,7 @@ const SubscribeForm = () => {
         if (hasOptions() && !hasSelection()) {
             setMessage({
                 type: 'error',
-                text: 'Please select at least one preference to subscribe.'
+                text: __('Please select at least one preference to subscribe.', 'mayo-events-manager')
             });
             return;
         }
@@ -114,13 +115,13 @@ const SubscribeForm = () => {
             } else {
                 setMessage({
                     type: 'error',
-                    text: result.message || 'An error occurred. Please try again.'
+                    text: result.message || __('An error occurred. Please try again.', 'mayo-events-manager')
                 });
             }
         } catch (error) {
             setMessage({
                 type: 'error',
-                text: error.message || 'An error occurred. Please try again.'
+                text: error.message || __('An error occurred. Please try again.', 'mayo-events-manager')
             });
         } finally {
             setIsSubmitting(false);
@@ -130,7 +131,7 @@ const SubscribeForm = () => {
     if (isLoading) {
         return (
             <div className="mayo-subscribe-form">
-                <p>Loading...</p>
+                <p>{__('Loading...', 'mayo-events-manager')}</p>
             </div>
         );
     }
@@ -143,7 +144,7 @@ const SubscribeForm = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email address"
+                        placeholder={__('Enter your email address', 'mayo-events-manager')}
                         required
                         disabled={isSubmitting}
                         className="mayo-subscribe-email"
@@ -153,12 +154,12 @@ const SubscribeForm = () => {
                 {hasOptions() && (
                     <div className="mayo-subscribe-preferences">
                         <p className="mayo-subscribe-preferences-label">
-                            Select what you'd like to receive notifications about:
+                            {__("Select what you'd like to receive notifications about:", 'mayo-events-manager')}
                         </p>
 
                         {options.categories.length > 0 && (
                             <div className="mayo-subscribe-preference-group">
-                                <span className="mayo-subscribe-preference-heading">Categories</span>
+                                <span className="mayo-subscribe-preference-heading">{__('Categories', 'mayo-events-manager')}</span>
                                 <div className="mayo-subscribe-checkboxes">
                                     {options.categories.map(cat => (
                                         <label key={cat.id} className="mayo-subscribe-checkbox">
@@ -177,7 +178,7 @@ const SubscribeForm = () => {
 
                         {options.tags.length > 0 && (
                             <div className="mayo-subscribe-preference-group">
-                                <span className="mayo-subscribe-preference-heading">Tags</span>
+                                <span className="mayo-subscribe-preference-heading">{__('Tags', 'mayo-events-manager')}</span>
                                 <div className="mayo-subscribe-checkboxes">
                                     {options.tags.map(tag => (
                                         <label key={tag.id} className="mayo-subscribe-checkbox">
@@ -196,7 +197,7 @@ const SubscribeForm = () => {
 
                         {options.service_bodies.length > 0 && (
                             <div className="mayo-subscribe-preference-group">
-                                <span className="mayo-subscribe-preference-heading">Service Bodies</span>
+                                <span className="mayo-subscribe-preference-heading">{__('Service Bodies', 'mayo-events-manager')}</span>
                                 <div className="mayo-subscribe-checkboxes">
                                     {options.service_bodies.map(sb => (
                                         <label key={sb.id} className="mayo-subscribe-checkbox">
@@ -220,7 +221,7 @@ const SubscribeForm = () => {
                     disabled={isSubmitting || (hasOptions() && !hasSelection())}
                     className="mayo-subscribe-button"
                 >
-                    {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                    {isSubmitting ? __('Subscribing...', 'mayo-events-manager') : __('Subscribe', 'mayo-events-manager')}
                 </button>
 
                 {message && (

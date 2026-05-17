@@ -89,8 +89,8 @@ const EventBlockEditorSidebar = () => {
     };
 
     const updateRecurringPattern = (updates) => {
-        const newPattern = { 
-            ...recurringPattern, 
+        const newPattern = {
+            ...recurringPattern,
             ...updates,
             // Ensure weekdays is always an array
             weekdays: updates.weekdays || recurringPattern.weekdays || []
@@ -100,7 +100,7 @@ const EventBlockEditorSidebar = () => {
 
     // Helper functions for skipped occurrences
     const skippedOccurrences = meta.skipped_occurrences || [];
-    
+
     const addSkippedOccurrence = () => {
         if (skipDate) {
             // Ensure the date is stored in YYYY-MM-DD format without timezone issues
@@ -120,32 +120,32 @@ const EventBlockEditorSidebar = () => {
         // Parse the date string as local date to avoid timezone issues
         const [year, month, day] = dateString.split('-').map(Number);
         const date = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
-        
-        return date.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
     };
 
     const weekdays = [
-        { value: 0, label: 'Sunday' },
-        { value: 1, label: 'Monday' },
-        { value: 2, label: 'Tuesday' },
-        { value: 3, label: 'Wednesday' },
-        { value: 4, label: 'Thursday' },
-        { value: 5, label: 'Friday' },
-        { value: 6, label: 'Saturday' }
+        { value: 0, label: __('Sunday', 'mayo-events-manager') },
+        { value: 1, label: __('Monday', 'mayo-events-manager') },
+        { value: 2, label: __('Tuesday', 'mayo-events-manager') },
+        { value: 3, label: __('Wednesday', 'mayo-events-manager') },
+        { value: 4, label: __('Thursday', 'mayo-events-manager') },
+        { value: 5, label: __('Friday', 'mayo-events-manager') },
+        { value: 6, label: __('Saturday', 'mayo-events-manager') }
     ];
 
     const weekNumbers = [
-        { value: '1', label: 'First' },
-        { value: '2', label: 'Second' },
-        { value: '3', label: 'Third' },
-        { value: '4', label: 'Fourth' },
-        { value: '5', label: 'Fifth' },
-        { value: '-1', label: 'Last' }
+        { value: '1', label: __('First', 'mayo-events-manager') },
+        { value: '2', label: __('Second', 'mayo-events-manager') },
+        { value: '3', label: __('Third', 'mayo-events-manager') },
+        { value: '4', label: __('Fourth', 'mayo-events-manager') },
+        { value: '5', label: __('Fifth', 'mayo-events-manager') },
+        { value: '-1', label: __('Last', 'mayo-events-manager') }
     ];
 
     // Helper function to get initial date from event start date
@@ -171,26 +171,26 @@ const EventBlockEditorSidebar = () => {
         <>
             <PluginDocumentSettingPanel
                 name="mayo-event-details"
-                title="Event Details"
+                title={__('Event Details', 'mayo-events-manager')}
                 className="mayo-event-details"
             >
                 <SelectControl
-                    label="Event Type"
+                    label={__('Event Type', 'mayo-events-manager')}
                     value={meta.event_type}
                     options={[
-                        { label: 'Select Event Type', value: '' },
-                        { label: 'Service', value: 'Service' },
-                        { label: 'Activity', value: 'Activity' },
-                        { label: 'Celebration', value: 'Celebration' }
+                        { label: __('Select Event Type', 'mayo-events-manager'), value: '' },
+                        { label: __('Service', 'mayo-events-manager'), value: 'Service' },
+                        { label: __('Activity', 'mayo-events-manager'), value: 'Activity' },
+                        { label: __('Celebration', 'mayo-events-manager'), value: 'Celebration' }
                     ]}
                     onChange={value => updateMetaValue('event_type', value)}
                     __nextHasNoMarginBottom={true}
                     __next40pxDefaultSize={true}
                 />
 
-                <PanelBody title="Event Date & Time" initialOpen={true}>
+                <PanelBody title={__('Date & Time', 'mayo-events-manager')} initialOpen={true}>
                     <div className="mayo-sidebar-datetime">
-                        <p className="mayo-sidebar-label">Start Date/Time</p>
+                        <p className="mayo-sidebar-label">{__('Start Date/Time', 'mayo-events-manager')}</p>
                         <div className="mayo-sidebar-datetime-inputs">
                             <TextControl
                                 type="date"
@@ -208,7 +208,7 @@ const EventBlockEditorSidebar = () => {
                             />
                         </div>
 
-                        <p className="mayo-sidebar-label">End Date/Time</p>
+                        <p className="mayo-sidebar-label">{__('End Date/Time', 'mayo-events-manager')}</p>
                         <div className="mayo-sidebar-datetime-inputs">
                             <TextControl
                                 type="date"
@@ -227,10 +227,10 @@ const EventBlockEditorSidebar = () => {
                         </div>
                     </div>
                     <SelectControl
-                        label="Timezone"
+                        label={__('Timezone', 'mayo-events-manager')}
                         value={meta.timezone || ''}
                         options={[
-                            { label: '-- No timezone set --', value: '' },
+                            { label: __('-- No timezone set --', 'mayo-events-manager'), value: '' },
                             ...getTimezoneOptions()
                         ]}
                         onChange={value => updateMetaValue('timezone', value)}
@@ -239,15 +239,15 @@ const EventBlockEditorSidebar = () => {
                     />
                 </PanelBody>
 
-                <PanelBody title="Recurring Pattern" initialOpen={true}>
+                <PanelBody title={__('Recurring Pattern', 'mayo-events-manager')} initialOpen={true}>
                     <SelectControl
-                        label="Repeat"
+                        label={__('Repeat', 'mayo-events-manager')}
                         value={recurringPattern.type}
                         options={[
-                            { label: 'No Recurrence', value: 'none' },
-                            { label: 'Daily', value: 'daily' },
-                            { label: 'Weekly', value: 'weekly' },
-                            { label: 'Monthly', value: 'monthly' }
+                            { label: __('No Recurrence', 'mayo-events-manager'), value: 'none' },
+                            { label: __('Daily', 'mayo-events-manager'), value: 'daily' },
+                            { label: __('Weekly', 'mayo-events-manager'), value: 'weekly' },
+                            { label: __('Monthly', 'mayo-events-manager'), value: 'monthly' }
                         ]}
                         onChange={value => updateRecurringPattern({ type: value })}
                         __nextHasNoMarginBottom={true}
@@ -258,20 +258,20 @@ const EventBlockEditorSidebar = () => {
                         <>
                             <div className="mayo-recurring-interval">
                                 <NumberControl
-                                    label="Repeat every"
+                                    label={__('Repeat every', 'mayo-events-manager')}
                                     min={1}
                                     value={recurringPattern.interval}
                                     onChange={value => updateRecurringPattern({ interval: value })}
                                 />
                                 <span>
-                                    {recurringPattern.type === 'daily' ? 'days' : 
-                                     recurringPattern.type === 'weekly' ? 'weeks' : 'months'}
+                                    {recurringPattern.type === 'daily' ? __('days', 'mayo-events-manager') :
+                                     recurringPattern.type === 'weekly' ? __('weeks', 'mayo-events-manager') : __('months', 'mayo-events-manager')}
                                 </span>
                             </div>
 
                             {recurringPattern.type === 'weekly' && (
                                 <div className="mayo-weekday-controls">
-                                    <p className="components-base-control__label">On these days</p>
+                                    <p className="components-base-control__label">{__('On these days', 'mayo-events-manager')}</p>
                                     {weekdays.map(day => (
                                         <CheckboxControl
                                             key={day.value}
@@ -289,7 +289,7 @@ const EventBlockEditorSidebar = () => {
                             )}
 
                             <TextControl
-                                label="End Date (optional)"
+                                label={__('End Date (optional)', 'mayo-events-manager')}
                                 type="date"
                                 value={recurringPattern.endDate}
                                 onChange={value => updateRecurringPattern({ endDate: value })}
@@ -302,13 +302,13 @@ const EventBlockEditorSidebar = () => {
                     {recurringPattern.type === 'monthly' && (
                         <div className="mayo-monthly-pattern">
                             <RadioControl
-                                label="Monthly Pattern"
+                                label={__('Monthly Pattern', 'mayo-events-manager')}
                                 selected={recurringPattern.monthlyType || 'date'}
                                 options={[
-                                    { label: 'On a specific date', value: 'date' },
-                                    { label: 'On a specific day', value: 'weekday' }
+                                    { label: __('On a specific date', 'mayo-events-manager'), value: 'date' },
+                                    { label: __('On a specific day', 'mayo-events-manager'), value: 'weekday' }
                                 ]}
-                                onChange={value => updateRecurringPattern({ 
+                                onChange={value => updateRecurringPattern({
                                     monthlyType: value,
                                     monthlyDate: value === 'date' ? getInitialMonthlyDate() : '',
                                     monthlyWeekday: value === 'weekday' ? getInitialWeekdayPattern() : ''
@@ -317,7 +317,7 @@ const EventBlockEditorSidebar = () => {
 
                             {recurringPattern.monthlyType === 'date' && (
                                 <NumberControl
-                                    label="Day of month"
+                                    label={__('Day of month', 'mayo-events-manager')}
                                     value={recurringPattern.monthlyDate || getInitialMonthlyDate()}
                                     onChange={value => updateRecurringPattern({ monthlyDate: value })}
                                     min={1}
@@ -328,7 +328,7 @@ const EventBlockEditorSidebar = () => {
                             {recurringPattern.monthlyType === 'weekday' && (
                                 <div className="mayo-monthly-weekday">
                                     <SelectControl
-                                        label="Week"
+                                        label={__('Week', 'mayo-events-manager')}
                                         value={recurringPattern.monthlyWeekday?.split(',')[0] || '1'}
                                         options={weekNumbers}
                                         onChange={value => {
@@ -341,7 +341,7 @@ const EventBlockEditorSidebar = () => {
                                         __next40pxDefaultSize={true}
                                     />
                                     <SelectControl
-                                        label="Day"
+                                        label={__('Day', 'mayo-events-manager')}
                                         value={recurringPattern.monthlyWeekday?.split(',')[1] || '0'}
                                         options={weekdays}
                                         onChange={value => {
@@ -361,14 +361,14 @@ const EventBlockEditorSidebar = () => {
 
                 {/* Skipped Occurrences Management */}
                 {recurringPattern.type !== 'none' && (
-                    <PanelBody title="Skipped Occurrences" initialOpen={false}>
+                    <PanelBody title={__('Skipped Occurrences', 'mayo-events-manager')} initialOpen={false}>
                         <p className="components-base-control__help">
-                            Manage specific dates when this recurring event should not occur.
+                            {__('Manage specific dates when this recurring event should not occur.', 'mayo-events-manager')}
                         </p>
-                        
+
                         {skippedOccurrences.length > 0 && (
                             <div className="mayo-skipped-occurrences-list">
-                                <p className="components-base-control__label">Skipped Dates:</p>
+                                <p className="components-base-control__label">{__('Skipped Dates:', 'mayo-events-manager')}</p>
                                 {skippedOccurrences.map((date, index) => (
                                     <div key={index} className="mayo-skipped-occurrence-item">
                                         <span>{formatDate(date)}</span>
@@ -377,7 +377,7 @@ const EventBlockEditorSidebar = () => {
                                             isDestructive
                                             onClick={() => removeSkippedOccurrence(date)}
                                         >
-                                            Remove
+                                            {__('Remove', 'mayo-events-manager')}
                                         </Button>
                                     </div>
                                 ))}
@@ -388,7 +388,7 @@ const EventBlockEditorSidebar = () => {
                             <div className="mayo-add-skip-form">
                                 <TextControl
                                     type="date"
-                                    label="Date to skip"
+                                    label={__('Date to skip', 'mayo-events-manager')}
                                     value={skipDate}
                                     onChange={setSkipDate}
                                     __nextHasNoMarginBottom={true}
@@ -401,7 +401,7 @@ const EventBlockEditorSidebar = () => {
                                         onClick={addSkippedOccurrence}
                                         disabled={!skipDate}
                                     >
-                                        Add Skip
+                                        {__('Add Skip', 'mayo-events-manager')}
                                     </Button>
                                     <Button
                                         isSecondary
@@ -411,7 +411,7 @@ const EventBlockEditorSidebar = () => {
                                             setSkipDate('');
                                         }}
                                     >
-                                        Cancel
+                                        {__('Cancel', 'mayo-events-manager')}
                                     </Button>
                                 </div>
                             </div>
@@ -421,19 +421,19 @@ const EventBlockEditorSidebar = () => {
                                 isSmall
                                 onClick={() => setIsAddingSkip(true)}
                             >
-                                Add Skipped Date
+                                {__('Add Skipped Date', 'mayo-events-manager')}
                             </Button>
                         )}
                     </PanelBody>
                 )}
 
-                <PanelBody title="Service Body" initialOpen={true}>
+                <PanelBody title={__('Service Body', 'mayo-events-manager')} initialOpen={true}>
                     <SelectControl
-                        label="Service Body"
+                        label={__('Service Body', 'mayo-events-manager')}
                         value={meta.service_body}
                         options={[
-                            { label: 'Select a service body', value: '' },
-                            { label: 'Unaffiliated (0)', value: '0' },
+                            { label: __('Select a service body', 'mayo-events-manager'), value: '' },
+                            { label: __('Unaffiliated (0)', 'mayo-events-manager'), value: '0' },
                             ...serviceBodies.map(body => ({
                                 label: `${body.name} (${body.id})`,
                                 value: body.id
@@ -446,30 +446,30 @@ const EventBlockEditorSidebar = () => {
                 </PanelBody>
 
                 <PanelBody
-                    title="Location Details"
+                    title={__('Location Details', 'mayo-events-manager')}
                     initialOpen={true}
                 >
                     <TextControl
-                        label="Location Name"
+                        label={__('Location Name', 'mayo-events-manager')}
                         value={meta.location_name}
                         onChange={(value) => updateMetaValue('location_name', value)}
-                        placeholder="e.g., Community Center"
+                        placeholder={__('e.g., Community Center', 'mayo-events-manager')}
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
                     <TextControl
-                        label="Address"
+                        label={__('Address', 'mayo-events-manager')}
                         value={meta.location_address}
                         onChange={(value) => updateMetaValue('location_address', value)}
-                        placeholder="Full address"
+                        placeholder={__('Full address', 'mayo-events-manager')}
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
                     <TextControl
-                        label="Location Details"
+                        label={__('Location Details', 'mayo-events-manager')}
                         value={meta.location_details}
                         onChange={(value) => updateMetaValue('location_details', value)}
-                        placeholder="Parking info, entrance details, etc."
+                        placeholder={__('Parking info, entrance details, etc.', 'mayo-events-manager')}
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
@@ -478,26 +478,26 @@ const EventBlockEditorSidebar = () => {
 
             <PluginDocumentSettingPanel
                 name="mayo-point-of-contact"
-                title="Point of Contact"
+                title={__('Point of Contact', 'mayo-events-manager')}
                 className="mayo-private-contact"
             >
                 <PanelBody
-                    title="Contact Information (Private)"
+                    title={__('Contact Information (Private)', 'mayo-events-manager')}
                     initialOpen={true}
                 >
                     <TextControl
-                        label="Contact Name"
+                        label={__('Contact Name', 'mayo-events-manager')}
                         value={meta.contact_name}
                         onChange={(value) => updateMetaValue('contact_name', value)}
-                        placeholder="Full name of the contact person"
+                        placeholder={__('Full name of the contact person', 'mayo-events-manager')}
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
                     <TextControl
-                        label="Contact Email"
+                        label={__('Contact Email', 'mayo-events-manager')}
                         value={meta.email}
                         onChange={(value) => updateMetaValue('email', value)}
-                        placeholder="Email address"
+                        placeholder={__('Email address', 'mayo-events-manager')}
                         type="email"
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
@@ -509,11 +509,11 @@ const EventBlockEditorSidebar = () => {
             {!isNewEvent && (
                 <PluginDocumentSettingPanel
                     name="mayo-linked-announcements"
-                    title="Linked Announcements"
+                    title={__('Linked Announcements', 'mayo-events-manager')}
                     className="mayo-linked-announcements"
                 >
                     <p className="components-base-control__help" style={{ marginTop: 0 }}>
-                        Announcements that reference this event.
+                        {__('Announcements that reference this event.', 'mayo-events-manager')}
                     </p>
 
                     {isLoadingAnnouncements && (
@@ -524,7 +524,7 @@ const EventBlockEditorSidebar = () => {
 
                     {!isLoadingAnnouncements && linkedAnnouncements.length === 0 && (
                         <p style={{ color: '#666', fontStyle: 'italic' }}>
-                            No announcements linked to this event.
+                            {__('No announcements linked to this event.', 'mayo-events-manager')}
                         </p>
                     )}
 
@@ -533,8 +533,8 @@ const EventBlockEditorSidebar = () => {
                             {linkedAnnouncements.map(announcement => {
                                 const statusColor = announcement.is_active ? '#46b450' :
                                     (announcement.display_start_date && announcement.display_start_date > new Date().toISOString().split('T')[0]) ? '#0073aa' : '#dc3545';
-                                const statusLabel = announcement.is_active ? 'Active' :
-                                    (announcement.display_start_date && announcement.display_start_date > new Date().toISOString().split('T')[0]) ? 'Scheduled' : 'Expired';
+                                const statusLabel = announcement.is_active ? __('Active', 'mayo-events-manager') :
+                                    (announcement.display_start_date && announcement.display_start_date > new Date().toISOString().split('T')[0]) ? __('Scheduled', 'mayo-events-manager') : __('Expired', 'mayo-events-manager');
 
                                 return (
                                     <div
@@ -554,7 +554,7 @@ const EventBlockEditorSidebar = () => {
                                             </span>
                                         </div>
                                         <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                                            Priority: <span style={{
+                                            {__('Priority', 'mayo-events-manager')}: <span style={{
                                                 color: announcement.priority === 'urgent' ? '#dc3545' :
                                                     announcement.priority === 'high' ? '#ff9800' :
                                                     announcement.priority === 'low' ? '#6c757d' : '#0073aa',
@@ -581,7 +581,7 @@ const EventBlockEditorSidebar = () => {
                                                     }}
                                                 >
                                                     <span className="dashicons dashicons-edit" style={{ fontSize: '14px', marginRight: '4px', width: '14px', height: '14px' }}></span>
-                                                    Edit
+                                                    {__('Edit', 'mayo-events-manager')}
                                                 </a>
                                             )}
                                         </div>
@@ -597,7 +597,7 @@ const EventBlockEditorSidebar = () => {
                             href={`${window.location.origin}/wp-admin/post-new.php?post_type=mayo_announcement&linked_event=${postId}`}
                             target="_blank"
                         >
-                            Create Announcement
+                            {__('Create Announcement', 'mayo-events-manager')}
                         </Button>
                     </div>
                 </PluginDocumentSettingPanel>

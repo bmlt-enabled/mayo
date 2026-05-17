@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { formatTime, formatTimezone, formatRecurringPattern, apiFetch } from '../../util';
 import LocationAddress from './LocationAddress';
@@ -24,11 +25,11 @@ const EventDetails = () => {
                         setLinkedAnnouncements(response.linked_announcements);
                     }
                 } else {
-                    throw new Error('Event not found');
+                    throw new Error(__('Event not found', 'mayo-events-manager'));
                 }
             } catch (err) {
                 console.error('Error fetching event:', err);
-                setError('Failed to load event details');
+                setError(__('Failed to load event details', 'mayo-events-manager'));
             } finally {
                 setLoading(false);
             }
@@ -37,9 +38,9 @@ const EventDetails = () => {
         fetchEvent();
     }, []);
 
-    if (loading) return <div>Loading event details...</div>;
+    if (loading) return <div>{__('Loading event details...', 'mayo-events-manager')}</div>;
     if (error) return <div className="mayo-error">{error}</div>;
-    if (!event) return <div>Event not found</div>;
+    if (!event) return <div>{__('Event not found', 'mayo-events-manager')}</div>;
 
     const {
         title,
@@ -125,12 +126,12 @@ const EventDetails = () => {
                     {event.featured_image && (
                         <div className="mayo-single-event-image">
                             <div className="mayo-image-actions">
-                            <a 
+                            <a
                                 href={event.featured_image}
                                 download
                                 className="mayo-image-link"
                             >
-                                Download Flyer
+                                {__('Download Flyer', 'mayo-events-manager')}
                             </a>
                         </div>
                             <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
@@ -140,13 +141,13 @@ const EventDetails = () => {
                     )}
 
                     <div className="mayo-single-event-description">
-                        <h3>Description</h3>
+                        <h3>{__('Description', 'mayo-events-manager')}</h3>
                         <div dangerouslySetInnerHTML={{ __html: content.rendered }} />
                     </div>
 
                     {(location_name || location_address || location_details) && (
                             <div className="mayo-single-event-location">
-                                <h3>Location</h3>
+                                <h3>{__('Location', 'mayo-events-manager')}</h3>
                                 {location_name && (
                                     <p className="mayo-location-name">{location_name}</p>
                                 )}
@@ -164,34 +165,34 @@ const EventDetails = () => {
                     <div className="mayo-single-event-meta">
                         {event_type && (
                             <div className="mayo-single-event-type">
-                                <h3>Event Type</h3>
+                                <h3>{__('Event Type', 'mayo-events-manager')}</h3>
                                 <p>{event_type}</p>
                             </div>
                         )}
 
                         {service_body && (
                             <div className="mayo-single-event-service-body">
-                                <h3>Service Body</h3>
+                                <h3>{__('Service Body', 'mayo-events-manager')}</h3>
                                 <p>{getServiceBodyName(service_body)}</p>
                             </div>
                         )}
 
                         <div className="mayo-single-event-datetime">
-                            <h3>Date & Time</h3>
+                            <h3>{__('Date & Time', 'mayo-events-manager')}</h3>
                             <p>
-                                <strong>Start:</strong> {event.meta.event_start_date} at {formatTime(event.meta.event_start_time, '12hour')}
+                                <strong>{__('Start:', 'mayo-events-manager')}</strong> {event.meta.event_start_date} {__('at', 'mayo-events-manager')} {formatTime(event.meta.event_start_time, '12hour')}
                                 {event.meta.timezone && ` (${formatTimezone(event.meta.timezone)})`}
                             </p>
                             {(event.meta.event_end_date || event.meta.event_end_time) && (
                                 <p>
-                                    <strong>End:</strong> {event.meta.event_end_date || event.meta.event_start_date} at {formatTime(event.meta.event_end_time, '12hour')}
+                                    <strong>{__('End:', 'mayo-events-manager')}</strong> {event.meta.event_end_date || event.meta.event_start_date} {__('at', 'mayo-events-manager')} {formatTime(event.meta.event_end_time, '12hour')}
                                 </p>
                             )}
                         </div>
 
                         {recurring_pattern && recurring_pattern.type !== 'none' && (
                             <div className="mayo-single-event-recurrence">
-                                <h3>Recurring Event</h3>
+                                <h3>{__('Recurring Event', 'mayo-events-manager')}</h3>
                                 <p>{formatRecurringPattern(recurring_pattern)}</p>
                             </div>
                         )}
@@ -199,7 +200,7 @@ const EventDetails = () => {
                         <div className="mayo-single-event-taxonomies">
                             {event.categories?.length > 0 && (
                                 <div className="mayo-single-event-categories">
-                                    <h3>Categories</h3>
+                                    <h3>{__('Categories', 'mayo-events-manager')}</h3>
                                     {event.categories.map(cat => (
                                         <a key={cat.id} href={cat.link}>{cat.name}</a>
                                     ))}
@@ -208,7 +209,7 @@ const EventDetails = () => {
 
                             {event.tags?.length > 0 && (
                                 <div className="mayo-single-event-tags">
-                                    <h3>Tags</h3>
+                                    <h3>{__('Tags', 'mayo-events-manager')}</h3>
                                     {event.tags.map(tag => (
                                         <a key={tag.id} href={tag.link}>{tag.name}</a>
                                     ))}

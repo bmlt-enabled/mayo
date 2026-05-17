@@ -1,0 +1,1934 @@
+# Spanish (Spain) translation for Mayo Events Manager.
+# Copyright (C) bmlt-enabled
+# This file is distributed under the GPLv2 or later license.
+# Auto-generated best-guess translations — review by a native speaker is recommended.
+msgid ""
+msgstr ""
+"Project-Id-Version: Mayo Events Manager\n"
+"Report-Msgid-Bugs-To: https://github.com/bmlt-enabled/mayo/issues\n"
+"POT-Creation-Date: 2026-05-09 04:23+0000\n"
+"PO-Revision-Date: 2026-05-15 00:00+0000\n"
+"Last-Translator: auto-generated\n"
+"Language-Team: Spanish (Spain)\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: mayo-events-manager\n"
+
+#: includes/Admin.php:365
+msgid "%d skipped"
+msgid_plural "%d skipped"
+msgstr[0] "%d omitido"
+msgstr[1] "%d omitidos"
+
+#: includes/Admin.php:623
+msgid "%s (Copy)"
+msgstr "%s (Copia)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:605
+#: assets/js/src/components/public/EventForm.js:848
+msgid "(Required)"
+msgstr "(Obligatorio)"
+
+#: includes/Rest/EventsController.php:678
+msgid "(every %d days)"
+msgstr "(cada %d días)"
+
+#: includes/Rest/EventsController.php:708
+msgid "(every %d months)"
+msgstr "(cada %d meses)"
+
+#: includes/Rest/EventsController.php:685
+msgid "(every %d weeks)"
+msgstr "(cada %d semanas)"
+
+#: includes/Widgets/AnnouncementWidget.php:127
+msgid "12-hour (e.g., 2:30 PM)"
+msgstr "12 horas (ej., 2:30 PM)"
+
+#: includes/Widgets/AnnouncementWidget.php:130
+msgid "24-hour (e.g., 14:30)"
+msgstr "24 horas (ej., 14:30)"
+
+#: includes/Subscriber.php:129 includes/Subscriber.php:157
+#: includes/Subscriber.php:194
+msgid ""
+"A confirmation email has been sent. Please check your inbox (and spam "
+"folder)."
+msgstr ""
+"Se ha enviado un correo de confirmación. Por favor, revisa tu bandeja de "
+"entrada (y la carpeta de spam)."
+
+#: includes/Rest/AnnouncementsController.php:372
+msgid "A new announcement has been submitted and is pending review."
+msgstr "Se ha enviado un nuevo anuncio y está pendiente de revisión."
+
+#: includes/Admin.php:114
+msgid "API"
+msgstr "API"
+
+#: includes/Admin.php:113
+msgid "API Documentation"
+msgstr "Documentación de la API"
+
+#: includes/Announcement.php:300 includes/Announcement.php:389
+msgid "Active"
+msgstr "Activo"
+
+#: assets/js/src/components/public/EventForm.js:524
+msgid "Activity"
+msgstr "Actividad"
+
+#: includes/Announcement.php:36 includes/Announcement.php:37
+msgid "Add New Announcement"
+msgstr "Añadir nuevo anuncio"
+
+#: includes/Admin.php:42 includes/Admin.php:43
+msgid "Add New Event"
+msgstr "Añadir nuevo evento"
+
+#: assets/js/src/components/public/EventForm.js:908
+msgid "Additional details about the location (e.g., parking, entrance info)"
+msgstr ""
+"Detalles adicionales sobre la ubicación (ej., estacionamiento, información "
+"de entrada)"
+
+#: assets/js/src/components/public/EventForm.js:891
+msgid "Address"
+msgstr "Dirección"
+
+#: includes/Rest/EventsController.php:735
+msgid "Address:"
+msgstr "Dirección:"
+
+#: includes/Admin.php:826
+msgid "All events"
+msgstr "Todos los eventos"
+
+#: includes/Announcement.php:388
+msgid "All statuses"
+msgstr "Todos los estados"
+
+#: includes/Announcement.php:290
+msgid "Always visible"
+msgstr "Siempre visible"
+
+#: assets/js/src/components/public/AnnouncementForm.js:688
+#: assets/js/src/components/public/EventForm.js:964
+msgid "An error occurred while submitting the form. Please try again."
+msgstr ""
+"Ocurrió un error al enviar el formulario. Por favor, inténtalo de nuevo."
+
+#: includes/Subscriber.php:184
+#: assets/js/src/components/public/SubscribeForm.js:118
+#: assets/js/src/components/public/SubscribeForm.js:124
+msgid "An error occurred. Please try again."
+msgstr "Ocurrió un error. Por favor, inténtalo de nuevo."
+
+#: includes/Announcement.php:35
+msgid "Announcement"
+msgstr "Anuncio"
+
+#: assets/js/src/components/public/AnnouncementForm.js:437
+msgid "Announcement Title"
+msgstr "Título del anuncio"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:35
+#: assets/js/src/components/public/AnnouncementDetails.js:65
+msgid "Announcement not found"
+msgstr "Anuncio no encontrado"
+
+#: includes/Rest/AnnouncementsController.php:348
+msgid "Announcement submitted successfully"
+msgstr "Anuncio enviado con éxito"
+
+#: assets/js/src/components/public/AnnouncementForm.js:306
+msgid "Announcement submitted successfully!"
+msgstr "¡Anuncio enviado con éxito!"
+
+#: includes/Announcement.php:34 includes/Announcement.php:40
+#: assets/js/src/components/public/AnnouncementModal.js:85
+msgid "Announcements"
+msgstr "Anuncios"
+
+#: assets/js/src/util.js:16
+msgid "Apr"
+msgstr "Abr"
+
+#: assets/js/src/components/public/CalendarView.js:68
+msgid "April"
+msgstr "Abril"
+
+#: includes/Admin.php:189
+msgid "Are you sure you want to copy this event?"
+msgstr "¿Estás seguro de que deseas copiar este evento?"
+
+#: includes/Widgets/AnnouncementWidget.php:193
+msgid "Ascending"
+msgstr "Ascendente"
+
+#: includes/Admin.php:222
+msgid "Attachments"
+msgstr "Archivos adjuntos"
+
+#: includes/Rest/EventsController.php:757
+msgid "Attachments:"
+msgstr "Archivos adjuntos:"
+
+#: assets/js/src/util.js:20
+msgid "Aug"
+msgstr "Ago"
+
+#: assets/js/src/components/public/CalendarView.js:72
+msgid "August"
+msgstr "Agosto"
+
+#: includes/Widgets/AnnouncementWidget.php:136
+msgid "Background Color (hex):"
+msgstr "Color de fondo (hex):"
+
+#: includes/Widgets/AnnouncementWidget.php:84
+msgid "Banner (sticky top)"
+msgstr "Banner (fijo arriba)"
+
+#: includes/Admin.php:104 includes/Admin.php:105
+msgid "CSS Classes"
+msgstr "Clases CSS"
+
+#: assets/js/src/components/public/EventList.js:605
+msgid "Calendar Feed (ICS)"
+msgstr "Feed de calendario (ICS)"
+
+#: assets/js/src/components/public/EventList.js:578
+msgid "Calendar View"
+msgstr "Vista de calendario"
+
+#: mayo-events-manager.php:791
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: assets/js/src/components/public/AnnouncementForm.js:634
+#: assets/js/src/components/public/EventForm.js:913
+#: assets/js/src/components/public/EventDetails.js:203
+#: assets/js/src/components/public/AnnouncementDetails.js:212
+#: assets/js/src/components/public/SubscribeForm.js:162
+#: mayo-events-manager.php:685
+msgid "Categories"
+msgstr "Categorías"
+
+#: includes/Widgets/AnnouncementWidget.php:93
+msgid "Categories (comma-separated slugs):"
+msgstr "Categorías (slugs separados por comas):"
+
+#: includes/Rest/EventsController.php:745
+msgid "Categories:"
+msgstr "Categorías:"
+
+#: includes/Rest/AnnouncementsController.php:414
+msgid "Categories: %s"
+msgstr "Categorías: %s"
+
+#: assets/js/src/components/public/EventForm.js:525
+msgid "Celebration"
+msgstr "Celebración"
+
+#: assets/js/src/components/public/AnnouncementForm.js:624
+#: assets/js/src/components/public/EventForm.js:872
+msgid "Clear Upload"
+msgstr "Eliminar archivo"
+
+#: includes/Subscriber.php:647
+msgid "Click the link below to confirm your subscription:"
+msgstr "Haz clic en el enlace de abajo para confirmar tu suscripción:"
+
+#: assets/js/src/components/public/EventModal.js:51
+#: assets/js/src/components/public/AnnouncementModal.js:79
+msgid "Close"
+msgstr "Cerrar"
+
+#: assets/js/src/components/public/EventList.js:588
+msgid "Collapse All"
+msgstr "Contraer todo"
+
+#: mayo-events-manager.php:222
+msgid "Confirmation Error"
+msgstr "Error de confirmación"
+
+#: includes/Rest/EventsController.php:783
+msgid "Contact Email: %s"
+msgstr "Correo de contacto: %s"
+
+#: includes/Rest/EventsController.php:781
+msgid "Contact Name: %s"
+msgstr "Nombre de contacto: %s"
+
+#: assets/js/src/components/public/AnnouncementForm.js:501
+msgid "Control when this announcement is visible on the site."
+msgstr "Controla cuándo este anuncio es visible en el sitio."
+
+#: includes/Admin.php:602 assets/js/src/components/public/EventList.js:637
+msgid "Copy"
+msgstr "Copiar"
+
+#: assets/js/src/components/public/EventList.js:634
+msgid "Copy to Clipboard"
+msgstr "Copiar al portapapeles"
+
+#: includes/Widgets/AnnouncementWidget.php:176
+msgid "Created Date"
+msgstr "Fecha de creación"
+
+#: includes/Announcement.php:857
+msgid "Custom Link"
+msgstr "Enlace personalizado"
+
+#: includes/Rest/EventsController.php:675
+#: assets/js/src/components/public/EventForm.js:667
+msgid "Daily"
+msgstr "Diario"
+
+#: includes/Admin.php:221 assets/js/src/components/public/EventDetails.js:181
+msgid "Date & Time"
+msgstr "Fecha y hora"
+
+#: includes/Subscriber.php:900 assets/js/src/components/public/EventList.js:502
+msgid "Date:"
+msgstr "Fecha:"
+
+#: assets/js/src/components/public/EventForm.js:779
+msgid "Day"
+msgstr "Día"
+
+#: assets/js/src/components/public/EventForm.js:747
+msgid "Day of month"
+msgstr "Día del mes"
+
+#: assets/js/src/util.js:24
+msgid "Dec"
+msgstr "Dic"
+
+#: assets/js/src/components/public/CalendarView.js:76
+msgid "December"
+msgstr "Diciembre"
+
+#: includes/Widgets/AnnouncementWidget.php:190
+msgid "Default"
+msgstr "Predeterminado"
+
+#: includes/Widgets/AnnouncementWidget.php:196
+msgid "Descending"
+msgstr "Descendente"
+
+#: assets/js/src/components/public/AnnouncementForm.js:571
+#: assets/js/src/components/public/EventForm.js:816
+#: assets/js/src/components/public/EventDetails.js:144
+msgid "Description"
+msgstr "Descripción"
+
+#: includes/Rest/EventsController.php:792
+#: includes/Rest/AnnouncementsController.php:386
+msgid "Description:"
+msgstr "Descripción:"
+
+#: includes/Rest/EventsController.php:738 includes/Subscriber.php:920
+msgid "Details:"
+msgstr "Detalles:"
+
+#: assets/js/src/components/public/AnnouncementModal.js:173
+#: assets/js/src/components/public/AnnouncementBanner.js:196
+msgid "Dismiss"
+msgstr "Descartar"
+
+#: includes/Widgets/AnnouncementWidget.php:76
+msgid "Display Mode:"
+msgstr "Modo de visualización:"
+
+#: includes/Widgets/AnnouncementWidget.php:170
+msgid "Display Start Date"
+msgstr "Fecha de inicio de visualización"
+
+#: includes/Announcement.php:214
+#: assets/js/src/components/public/AnnouncementForm.js:499
+#: assets/js/src/components/public/AnnouncementDetails.js:198
+msgid "Display Window"
+msgstr "Período de visualización"
+
+#: includes/Widgets/AnnouncementWidget.php:14
+msgid "Display event-based announcements as a banner or modal."
+msgstr "Muestra anuncios basados en eventos como banner o ventana emergente."
+
+#: assets/js/src/components/public/EventModal.js:140
+#: assets/js/src/components/public/EventDetails.js:134
+msgid "Download Flyer"
+msgstr "Descargar volante"
+
+#: includes/Announcement.php:38
+msgid "Edit Announcement"
+msgstr "Editar anuncio"
+
+#: includes/Admin.php:44
+msgid "Edit Event"
+msgstr "Editar evento"
+
+#: includes/Rest/AnnouncementsController.php:400 mayo-events-manager.php:657
+msgid "Email: %s"
+msgstr "Correo electrónico: %s"
+
+#: assets/js/src/components/public/AnnouncementForm.js:539
+msgid "End Date"
+msgstr "Fecha de fin"
+
+#: assets/js/src/components/public/EventForm.js:802
+msgid "End Date (optional)"
+msgstr "Fecha de fin (opcional)"
+
+#: assets/js/src/components/public/EventForm.js:602
+msgid "End Date/Time"
+msgstr "Fecha/hora de fin"
+
+#: includes/Rest/EventsController.php:775
+#: includes/Rest/AnnouncementsController.php:383
+msgid "End Date: %s"
+msgstr "Fecha de fin: %s"
+
+#: assets/js/src/components/public/AnnouncementForm.js:553
+msgid "End Time"
+msgstr "Hora de fin"
+
+#: includes/Rest/EventsController.php:777
+msgid "End Time: %s"
+msgstr "Hora de fin: %s"
+
+#: assets/js/src/components/public/EventDetails.js:188
+msgid "End:"
+msgstr "Fin:"
+
+#: assets/js/src/components/public/SubscribeForm.js:147
+msgid "Enter your email address"
+msgstr "Ingresa tu correo electrónico"
+
+#: mayo-events-manager.php:239 mayo-events-manager.php:291
+#: mayo-events-manager.php:419
+msgid "Error"
+msgstr "Error"
+
+#: assets/js/src/components/public/AnnouncementForm.js:393
+#: assets/js/src/components/public/EventForm.js:406
+msgid "Error reading the file"
+msgstr "Error al leer el archivo"
+
+#: assets/js/src/components/public/AnnouncementForm.js:334
+#: assets/js/src/components/public/EventForm.js:343
+msgid "Error submitting form"
+msgstr "Error al enviar el formulario"
+
+#: includes/Admin.php:41
+msgid "Event"
+msgstr "Evento"
+
+#: includes/Announcement.php:332
+msgid "Event #%d"
+msgstr "Evento #%d"
+
+#: assets/js/src/components/public/EventForm.js:829
+msgid "Event Flyer"
+msgstr "Volante del evento"
+
+#: includes/Admin.php:219 assets/js/src/components/public/EventForm.js:499
+msgid "Event Name"
+msgstr "Nombre del evento"
+
+#: includes/Rest/EventsController.php:765
+msgid "Event Name: %s"
+msgstr "Nombre del evento: %s"
+
+#: assets/js/src/components/public/EventForm.js:513
+#: assets/js/src/components/public/EventDetails.js:168
+msgid "Event Type"
+msgstr "Tipo de evento"
+
+#: includes/Rest/EventsController.php:767
+msgid "Event Type: %s"
+msgstr "Tipo de evento: %s"
+
+#: includes/Admin.php:674
+msgid "Event copied successfully"
+msgstr "Evento copiado con éxito"
+
+#: includes/Announcement.php:604
+msgid "Event details unavailable"
+msgstr "Detalles del evento no disponibles"
+
+#: includes/Subscriber.php:926
+msgid "Event details unavailable from %s"
+msgstr "Detalles del evento no disponibles de %s"
+
+#: assets/js/src/components/public/EventDetails.js:28
+#: assets/js/src/components/public/EventDetails.js:43
+msgid "Event not found"
+msgstr "Evento no encontrado"
+
+#: assets/js/src/components/public/EventForm.js:296
+msgid "Event submitted successfully!"
+msgstr "¡Evento enviado con éxito!"
+
+#: includes/Admin.php:40 assets/js/src/components/public/EventArchive.js:53
+msgid "Events"
+msgstr "Eventos"
+
+#: includes/Widgets/AnnouncementWidget.php:201
+msgid ""
+"Events will show as announcements when today's date is between the event's "
+"start and end dates."
+msgstr ""
+"Los eventos se mostrarán como anuncios cuando la fecha de hoy esté entre las "
+"fechas de inicio y fin del evento."
+
+#: assets/js/src/components/public/EventList.js:588
+msgid "Expand All"
+msgstr "Expandir todo"
+
+#: includes/Announcement.php:309 includes/Announcement.php:391
+msgid "Expired"
+msgstr "Expirado"
+
+#: includes/Announcement.php:329 includes/Announcement.php:601
+#: includes/Subscriber.php:924
+msgid "External"
+msgstr "Externo"
+
+#: includes/Admin.php:190
+msgid "Failed to copy event. Please try again."
+msgstr "No se pudo copiar el evento. Por favor, inténtalo de nuevo."
+
+#: includes/Admin.php:679
+msgid "Failed to create copy"
+msgstr "No se pudo crear la copia"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:39
+msgid "Failed to load announcement"
+msgstr "No se pudo cargar el anuncio"
+
+#: assets/js/src/components/public/EventDetails.js:32
+msgid "Failed to load event details"
+msgstr "No se pudieron cargar los detalles del evento"
+
+#: assets/js/src/components/public/EventArchive.js:35
+msgid "Failed to load events"
+msgstr "No se pudieron cargar los eventos"
+
+#: assets/js/src/components/public/AnnouncementForm.js:329
+msgid "Failed to submit announcement"
+msgstr "No se pudo enviar el anuncio"
+
+#: assets/js/src/components/public/EventForm.js:337
+msgid "Failed to submit event"
+msgstr "No se pudo enviar el evento"
+
+#: mayo-events-manager.php:293
+msgid "Failed to update preferences. Please try again."
+msgstr ""
+"No se pudieron actualizar las preferencias. Por favor, inténtalo de nuevo."
+
+#: assets/js/src/util.js:14
+msgid "Feb"
+msgstr "Feb"
+
+#: assets/js/src/components/public/CalendarView.js:66
+msgid "February"
+msgstr "Febrero"
+
+#: assets/js/src/components/public/EventForm.js:488
+msgid "Fifth"
+msgstr "Quinto"
+
+#: assets/js/src/components/public/EventForm.js:484
+msgid "First"
+msgstr "Primero"
+
+#: assets/js/src/components/public/EventForm.js:487
+msgid "Fourth"
+msgstr "Cuarto"
+
+#: assets/js/src/components/public/CalendarView.js:85
+msgid "Fri"
+msgstr "Vie"
+
+#: includes/Rest/EventsController.php:694 assets/js/src/util.js:9
+#: assets/js/src/components/public/EventForm.js:478
+msgid "Friday"
+msgstr "Viernes"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:200
+msgid "From:"
+msgstr "Desde:"
+
+#: assets/js/src/components/public/CalendarView.js:316
+msgid "Go to Today"
+msgstr "Ir a hoy"
+
+#: assets/js/src/components/public/EventList.js:621
+msgid "Hide Shortcode"
+msgstr "Ocultar shortcode"
+
+#: includes/Subscriber.php:649
+msgid "If you didn't request this, you can safely ignore this email."
+msgstr "Si no solicitaste esto, puedes ignorar este correo electrónico."
+
+#: mayo-events-manager.php:803
+msgid ""
+"If you no longer want to receive announcements from %s, you can unsubscribe "
+"below."
+msgstr ""
+"Si ya no deseas recibir anuncios de %s, puedes cancelar tu suscripción a "
+"continuación."
+
+#: assets/js/src/components/public/AnnouncementForm.js:586
+msgid "Image/Flyer"
+msgstr "Imagen/Volante"
+
+#: includes/Announcement.php:284
+msgid "Indefinite"
+msgstr "Indefinido"
+
+#: includes/Admin.php:617
+msgid "Invalid event"
+msgstr "Evento no válido"
+
+#: includes/Subscriber.php:264
+msgid "Invalid or expired confirmation link."
+msgstr "Enlace de confirmación no válido o expirado."
+
+#: includes/Admin.php:682
+msgid "Invalid post ID or insufficient permissions"
+msgstr "ID de publicación no válido o permisos insuficientes"
+
+#: mayo-events-manager.php:240
+msgid "Invalid request. Please try again."
+msgstr "Solicitud no válida. Por favor, inténtalo de nuevo."
+
+#: includes/Subscriber.php:319
+msgid "Invalid unsubscribe link."
+msgstr "Enlace de cancelación de suscripción no válido."
+
+#: assets/js/src/util.js:13
+msgid "Jan"
+msgstr "Ene"
+
+#: assets/js/src/components/public/CalendarView.js:65
+msgid "January"
+msgstr "Enero"
+
+#: assets/js/src/util.js:19
+msgid "Jul"
+msgstr "Jul"
+
+#: assets/js/src/components/public/CalendarView.js:71
+msgid "July"
+msgstr "Julio"
+
+#: assets/js/src/util.js:18
+msgid "Jun"
+msgstr "Jun"
+
+#: assets/js/src/components/public/CalendarView.js:70
+msgid "June"
+msgstr "Junio"
+
+#: assets/js/src/components/public/EventForm.js:489
+msgid "Last"
+msgstr "Último"
+
+#: assets/js/src/components/public/AnnouncementForm.js:565
+msgid "Leave empty to show indefinitely"
+msgstr "Dejar vacío para mostrar indefinidamente"
+
+#: assets/js/src/components/public/AnnouncementForm.js:534
+msgid "Leave empty to start showing immediately"
+msgstr "Dejar vacío para mostrar inmediatamente"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:174
+msgid "Link"
+msgstr "Enlace"
+
+#: includes/Announcement.php:216
+msgid "Linked Events"
+msgstr "Eventos vinculados"
+
+#: assets/js/src/components/public/EventList.js:571
+msgid "List View"
+msgstr "Vista de lista"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:51
+msgid "Loading announcement..."
+msgstr "Cargando anuncio..."
+
+#: assets/js/src/components/public/EventDetails.js:41
+msgid "Loading event details..."
+msgstr "Cargando detalles del evento..."
+
+#: assets/js/src/components/public/EventList.js:537
+#: assets/js/src/components/public/EventArchive.js:45
+#: assets/js/src/components/public/CalendarView.js:339
+msgid "Loading events..."
+msgstr "Cargando eventos..."
+
+#: assets/js/src/components/public/EventList.js:667
+#: assets/js/src/components/public/EventList.js:672
+msgid "Loading more events..."
+msgstr "Cargando más eventos..."
+
+#: assets/js/src/components/public/SubscribeForm.js:134
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: includes/Announcement.php:584 includes/Announcement.php:887
+msgid "Local"
+msgstr "Local"
+
+#: assets/js/src/components/public/EventDetails.js:150
+msgid "Location"
+msgstr "Ubicación"
+
+#: assets/js/src/components/public/EventForm.js:902
+msgid "Location Details"
+msgstr "Detalles de la ubicación"
+
+#: assets/js/src/components/public/EventForm.js:880
+msgid "Location Name"
+msgstr "Nombre de la ubicación"
+
+#: includes/Rest/EventsController.php:730 includes/Subscriber.php:917
+#: assets/js/src/components/public/EventList.js:504
+msgid "Location:"
+msgstr "Ubicación:"
+
+#: mayo-events-manager.php:514
+msgid "Manage Subscription - %s"
+msgstr "Gestionar suscripción - %s"
+
+#: mayo-events-manager.php:651
+msgid "Manage Your Subscription"
+msgstr "Gestionar tu suscripción"
+
+#: includes/Subscriber.php:682 includes/Subscriber.php:746
+msgid "Manage preferences / Unsubscribe:"
+msgstr "Gestionar preferencias / Cancelar suscripción:"
+
+#: assets/js/src/util.js:15
+msgid "Mar"
+msgstr "Mar"
+
+#: assets/js/src/components/public/CalendarView.js:67
+msgid "March"
+msgstr "Marzo"
+
+#: assets/js/src/util.js:17 assets/js/src/components/public/CalendarView.js:69
+msgid "May"
+msgstr "May"
+
+#: includes/Admin.php:64 includes/Admin.php:65
+msgid "Mayo"
+msgstr "Mayo"
+
+#: includes/Widgets/AnnouncementWidget.php:12
+msgid "Mayo Event Announcements"
+msgstr "Anuncios de eventos Mayo"
+
+#: includes/Admin.php:95
+msgid "Mayo Settings"
+msgstr "Ajustes de Mayo"
+
+#: includes/Widgets/AnnouncementWidget.php:87
+msgid "Modal (popup)"
+msgstr "Ventana emergente (popup)"
+
+#: assets/js/src/components/public/CalendarView.js:81
+msgid "Mon"
+msgstr "Lun"
+
+#: includes/Rest/EventsController.php:690 assets/js/src/util.js:5
+#: assets/js/src/components/public/EventForm.js:474
+msgid "Monday"
+msgstr "Lunes"
+
+#: includes/Rest/EventsController.php:705
+#: assets/js/src/components/public/EventForm.js:669
+msgid "Monthly"
+msgstr "Mensual"
+
+#: assets/js/src/components/public/EventForm.js:712
+msgid "Monthly Pattern"
+msgstr "Patrón mensual"
+
+#: includes/Rest/EventsController.php:732
+msgid "Name:"
+msgstr "Nombre:"
+
+#: includes/Rest/AnnouncementsController.php:398
+msgid "Name: %s"
+msgstr "Nombre: %s"
+
+#: includes/Rest/EventsController.php:813
+msgid "New Event Submission: %s"
+msgstr "Nuevo evento enviado: %s"
+
+#: assets/js/src/components/public/AnnouncementBanner.js:186
+msgid "Next"
+msgstr "Siguiente"
+
+#: assets/js/src/components/public/CalendarView.js:322
+msgid "Next Month"
+msgstr "Mes siguiente"
+
+#: assets/js/src/components/public/EventModal.js:70
+msgid "No Date Set"
+msgstr "Sin fecha establecida"
+
+#: assets/js/src/components/public/EventForm.js:666
+msgid "No Recurrence"
+msgstr "Sin recurrencia"
+
+#: includes/Announcement.php:42
+msgid "No announcements found"
+msgstr "No se encontraron anuncios"
+
+#: includes/Announcement.php:43
+msgid "No announcements found in trash"
+msgstr "No se encontraron anuncios en la papelera"
+
+#: assets/js/src/components/public/EventArchive.js:47
+msgid "No archived events found."
+msgstr "No se encontraron eventos archivados."
+
+#: assets/js/src/components/public/EventList.js:541
+msgid "No events found in the archive."
+msgstr "No se encontraron eventos en el archivo."
+
+#: assets/js/src/components/public/AnnouncementForm.js:616
+#: assets/js/src/components/public/EventForm.js:864
+msgid "No file selected"
+msgstr "Ningún archivo seleccionado"
+
+#: assets/js/src/components/public/EventList.js:544
+msgid "No upcoming events found."
+msgstr "No se encontraron próximos eventos."
+
+#: includes/Rest/AnnouncementsController.php:369
+msgid "Not provided"
+msgstr "No proporcionado"
+
+#: includes/Rest/AnnouncementsController.php:370
+msgid "Not set"
+msgstr "No establecido"
+
+#: includes/Subscriber.php:650
+msgid ""
+"Note: If you don't see our emails, please check your spam or junk folder."
+msgstr ""
+"Nota: Si no ves nuestros correos, revisa tu carpeta de spam o correo no "
+"deseado."
+
+#: assets/js/src/util.js:23
+msgid "Nov"
+msgstr "Nov"
+
+#: assets/js/src/components/public/CalendarView.js:75
+msgid "November"
+msgstr "Noviembre"
+
+#: includes/Announcement.php:280
+msgid "Now"
+msgstr "Ahora"
+
+#: assets/js/src/util.js:22
+msgid "Oct"
+msgstr "Oct"
+
+#: assets/js/src/components/public/CalendarView.js:74
+msgid "October"
+msgstr "Octubre"
+
+#: assets/js/src/components/public/EventForm.js:726
+msgid "On a specific date"
+msgstr "En una fecha específica"
+
+#: assets/js/src/components/public/EventForm.js:740
+msgid "On a specific day"
+msgstr "En un día específico"
+
+#: assets/js/src/components/public/EventForm.js:690
+msgid "On these days"
+msgstr "En estos días"
+
+#: includes/Widgets/AnnouncementWidget.php:182
+msgid "Order:"
+msgstr "Orden:"
+
+#: includes/Admin.php:828
+msgid "Past events"
+msgstr "Eventos pasados"
+
+#: includes/Subscriber.php:643
+msgid "Please confirm your subscription to %s announcements"
+msgstr "Por favor, confirma tu suscripción a los anuncios de %s"
+
+#: includes/Subscriber.php:94
+msgid "Please enter a valid email address."
+msgstr "Por favor, ingresa una dirección de correo electrónico válida."
+
+#: assets/js/src/components/public/AnnouncementForm.js:268
+#: assets/js/src/components/public/EventForm.js:254
+msgid "Please fill in all required fields: %s"
+msgstr "Por favor, completa todos los campos obligatorios: %s"
+
+#: assets/js/src/components/public/SubscribeForm.js:85
+msgid "Please select at least one preference to subscribe."
+msgstr "Por favor, selecciona al menos una preferencia para suscribirte."
+
+#: assets/js/src/components/public/AnnouncementForm.js:486
+#: assets/js/src/components/public/EventForm.js:566
+msgid "Point of Contact Email (Private)"
+msgstr "Correo electrónico de contacto (Privado)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:473
+#: assets/js/src/components/public/EventForm.js:553
+msgid "Point of Contact Name (Private)"
+msgstr "Nombre de contacto (Privado)"
+
+#: mayo-events-manager.php:280
+msgid "Preferences Saved"
+msgstr "Preferencias guardadas"
+
+#: assets/js/src/components/public/AnnouncementBanner.js:109
+msgid "Previous"
+msgstr "Anterior"
+
+#: assets/js/src/components/public/CalendarView.js:307
+msgid "Previous Month"
+msgstr "Mes anterior"
+
+#: assets/js/src/components/public/EventList.js:596
+msgid "Print Events"
+msgstr "Imprimir eventos"
+
+#: assets/js/src/components/public/EventList.js:496
+msgid "Printed on"
+msgstr "Impreso el"
+
+#: includes/Announcement.php:212
+msgid "Priority"
+msgstr "Prioridad"
+
+#: includes/Subscriber.php:864
+msgid "RELATED EVENT"
+msgid_plural "RELATED EVENTS"
+msgstr[0] "EVENTO RELACIONADO"
+msgstr[1] "EVENTOS RELACIONADOS"
+
+#: assets/js/src/components/public/cards/EventCard.js:250
+#: assets/js/src/components/public/cards/EventWidgetCard.js:66
+msgid "Read More"
+msgstr "Leer más"
+
+#: assets/js/src/components/public/EventList.js:614
+msgid "RSS Feed"
+msgstr "Feed RSS"
+
+#: includes/Admin.php:359
+msgid "Recurring"
+msgstr "Recurrente"
+
+#: assets/js/src/components/public/EventDetails.js:195
+msgid "Recurring Event"
+msgstr "Evento recurrente"
+
+#: assets/js/src/components/public/EventForm.js:647
+msgid "Recurring Pattern"
+msgstr "Patrón de recurrencia"
+
+#: includes/Rest/EventsController.php:672
+msgid "Recurring Pattern:"
+msgstr "Patrón de recurrencia:"
+
+#: includes/Admin.php:829
+msgid "Recurring events"
+msgstr "Eventos recurrentes"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:137
+msgid "Related Links & Events"
+msgstr "Enlaces y eventos relacionados"
+
+#: assets/js/src/components/public/AnnouncementModal.js:110
+msgid "Related:"
+msgstr "Relacionado:"
+
+#: assets/js/src/components/public/EventForm.js:675
+msgid "Repeat every"
+msgstr "Repetir cada"
+
+#: mayo-events-manager.php:392
+msgid "Return to %s"
+msgstr "Volver a %s"
+
+#: includes/Rest/AnnouncementsController.php:426
+msgid "Review and edit this announcement:"
+msgstr "Revisar y editar este anuncio:"
+
+#: assets/js/src/components/public/CalendarView.js:86
+msgid "Sat"
+msgstr "Sáb"
+
+#: includes/Rest/EventsController.php:695 assets/js/src/util.js:10
+#: assets/js/src/components/public/EventForm.js:479
+msgid "Saturday"
+msgstr "Sábado"
+
+#: mayo-events-manager.php:786
+msgid "Save Preferences"
+msgstr "Guardar preferencias"
+
+#: includes/Announcement.php:305 includes/Announcement.php:390
+msgid "Scheduled"
+msgstr "Programado"
+
+#: includes/Announcement.php:41
+msgid "Search Announcements"
+msgstr "Buscar anuncios"
+
+#: assets/js/src/components/public/EventForm.js:485
+msgid "Second"
+msgstr "Segundo"
+
+#: includes/Admin.php:610
+msgid "Security check failed"
+msgstr "Verificación de seguridad fallida"
+
+#: assets/js/src/components/public/EventForm.js:522
+msgid "Select Event Type"
+msgstr "Seleccionar tipo de evento"
+
+#: assets/js/src/components/public/AnnouncementForm.js:459
+#: assets/js/src/components/public/EventForm.js:539
+msgid "Select a service body"
+msgstr "Seleccionar un cuerpo de servicio"
+
+#: assets/js/src/components/public/SubscribeForm.js:157
+#: mayo-events-manager.php:676
+msgid "Select what you'd like to receive notifications about:"
+msgstr "Selecciona sobre qué te gustaría recibir notificaciones:"
+
+#: assets/js/src/components/public/AnnouncementForm.js:615
+#: assets/js/src/components/public/EventForm.js:863
+msgid "Selected: %s"
+msgstr "Seleccionado: %s"
+
+#: assets/js/src/util.js:21
+msgid "Sep"
+msgstr "Sep"
+
+#: assets/js/src/components/public/CalendarView.js:73
+msgid "September"
+msgstr "Septiembre"
+
+#: assets/js/src/components/public/EventForm.js:523
+msgid "Service"
+msgstr "Servicio"
+
+#: assets/js/src/components/public/SubscribeForm.js:200
+#: mayo-events-manager.php:752
+msgid "Service Bodies"
+msgstr "Cuerpos de servicio"
+
+#: includes/Announcement.php:213 includes/Admin.php:224
+#: assets/js/src/components/public/AnnouncementForm.js:451
+#: assets/js/src/components/public/EventForm.js:531
+#: assets/js/src/components/public/EventDetails.js:175
+#: assets/js/src/components/public/AnnouncementDetails.js:191
+msgid "Service Body"
+msgstr "Cuerpo de servicio"
+
+#: includes/Announcement.php:268 includes/Admin.php:282
+msgid "Service Body (%s)"
+msgstr "Cuerpo de servicio (%s)"
+
+#: includes/Rest/AnnouncementsController.php:392
+msgid "Service Body ID: %s"
+msgstr "ID del cuerpo de servicio: %s"
+
+#: assets/js/src/components/public/EventArchive.js:127
+msgid "Service Body:"
+msgstr "Cuerpo de servicio:"
+
+#: includes/Rest/EventsController.php:769
+msgid "Service Body: %1$s (ID: %2$s)"
+msgstr "Cuerpo de servicio: %1$s (ID: %2$s)"
+
+#: includes/Admin.php:96
+msgid "Settings"
+msgstr "Ajustes"
+
+#: assets/js/src/components/public/EventList.js:630
+msgid "Shortcode for this event list:"
+msgstr "Shortcode para esta lista de eventos:"
+
+#: includes/Admin.php:86 includes/Admin.php:87
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+#: assets/js/src/components/public/EventList.js:621
+msgid "Show Shortcode"
+msgstr "Mostrar shortcode"
+
+#: includes/Widgets/AnnouncementWidget.php:162
+msgid "Sort By:"
+msgstr "Ordenar por:"
+
+#: includes/Subscriber.php:883
+msgid "Source:"
+msgstr "Fuente:"
+
+#: assets/js/src/components/public/AnnouncementForm.js:508
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+#: assets/js/src/components/public/EventForm.js:580
+msgid "Start Date/Time"
+msgstr "Fecha/hora de inicio"
+
+#: includes/Rest/EventsController.php:771
+#: includes/Rest/AnnouncementsController.php:381
+msgid "Start Date: %s"
+msgstr "Fecha de inicio: %s"
+
+#: assets/js/src/components/public/AnnouncementForm.js:522
+msgid "Start Time"
+msgstr "Hora de inicio"
+
+#: includes/Rest/EventsController.php:773
+msgid "Start Time: %s"
+msgstr "Hora de inicio: %s"
+
+#: assets/js/src/components/public/EventDetails.js:183
+msgid "Start:"
+msgstr "Inicio:"
+
+#: includes/Announcement.php:215 includes/Admin.php:223
+msgid "Status"
+msgstr "Estado"
+
+#: assets/js/src/components/public/AnnouncementForm.js:683
+msgid "Submit Announcement"
+msgstr "Enviar anuncio"
+
+#: assets/js/src/components/public/EventForm.js:959
+msgid "Submit Event"
+msgstr "Enviar evento"
+
+#: includes/Rest/AnnouncementsController.php:396
+msgid "Submitted by:"
+msgstr "Enviado por:"
+
+#: assets/js/src/components/public/AnnouncementForm.js:683
+#: assets/js/src/components/public/EventForm.js:959
+msgid "Submitting..."
+msgstr "Enviando..."
+
+#: assets/js/src/components/public/SubscribeForm.js:224
+msgid "Subscribe"
+msgstr "Suscribirse"
+
+#: includes/Admin.php:76 includes/Admin.php:77
+msgid "Subscribers"
+msgstr "Suscriptores"
+
+#: assets/js/src/components/public/SubscribeForm.js:224
+msgid "Subscribing..."
+msgstr "Suscribiendo..."
+
+#: mayo-events-manager.php:221
+msgid "Subscription Confirmed"
+msgstr "Suscripción confirmada"
+
+#: mayo-events-manager.php:420
+msgid "Subscription not found."
+msgstr "Suscripción no encontrada."
+
+#: assets/js/src/components/public/CalendarView.js:80
+msgid "Sun"
+msgstr "Dom"
+
+#: includes/Rest/EventsController.php:689 assets/js/src/util.js:4
+#: assets/js/src/components/public/EventForm.js:473
+msgid "Sunday"
+msgstr "Domingo"
+
+#: assets/js/src/components/public/AnnouncementForm.js:604
+#: assets/js/src/components/public/EventForm.js:847
+msgid "Supported file types: Images (.jpg, .jpeg, .png, .gif)"
+msgstr "Tipos de archivo compatibles: Imágenes (.jpg, .jpeg, .png, .gif)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:657
+#: assets/js/src/components/public/EventForm.js:934
+#: assets/js/src/components/public/EventDetails.js:212
+#: assets/js/src/components/public/AnnouncementDetails.js:221
+#: assets/js/src/components/public/SubscribeForm.js:181
+#: mayo-events-manager.php:718
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: includes/Widgets/AnnouncementWidget.php:106
+msgid "Tags (comma-separated slugs):"
+msgstr "Etiquetas (slugs separados por comas):"
+
+#: includes/Rest/EventsController.php:750
+msgid "Tags:"
+msgstr "Etiquetas:"
+
+#: includes/Rest/AnnouncementsController.php:421
+msgid "Tags: %s"
+msgstr "Etiquetas: %s"
+
+#: includes/Widgets/AnnouncementWidget.php:149
+msgid "Text Color (hex):"
+msgstr "Color del texto (hex):"
+
+#: assets/js/src/components/public/EventForm.js:392
+msgid ""
+"The selected file is not a valid image, so one will not be submitted.  "
+"Please choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+"El archivo seleccionado no es una imagen válida, por lo que no se enviará. "
+"Por favor, elige un archivo de imagen válido (JPG, PNG o GIF)"
+
+#: assets/js/src/components/public/EventForm.js:364
+msgid ""
+"The selected file is not a valid image, so one will not be submitted.  "
+"Please use a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+"El archivo seleccionado no es una imagen válida, por lo que no se enviará. "
+"Por favor, usa un archivo de imagen válido (JPG, PNG o GIF)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:379
+msgid ""
+"The selected file is not a valid image. Please choose a valid image file "
+"(JPG, PNG, or GIF)"
+msgstr ""
+"El archivo seleccionado no es una imagen válida. Por favor, elige un archivo "
+"de imagen válido (JPG, PNG o GIF)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:353
+msgid ""
+"The selected file is not a valid image. Please use a valid image file (JPG, "
+"PNG, or GIF)"
+msgstr ""
+"El archivo seleccionado no es una imagen válida. Por favor, usa un archivo "
+"de imagen válido (JPG, PNG o GIF)"
+
+#: assets/js/src/components/public/EventForm.js:486
+msgid "Third"
+msgstr "Tercero"
+
+#: includes/Subscriber.php:112
+msgid "This email is already subscribed."
+msgstr "Este correo electrónico ya está suscrito."
+
+#: assets/js/src/util.js:111
+msgid "This event repeats daily"
+msgstr "Este evento se repite diariamente"
+
+#: assets/js/src/util.js:108
+msgid "This event repeats every %d day"
+msgid_plural "This event repeats every %d days"
+msgstr[0] "Este evento se repite cada %d día"
+msgstr[1] "Este evento se repite cada %d días"
+
+#: assets/js/src/util.js:134
+msgid "This event repeats every %d month"
+msgid_plural "This event repeats every %d months"
+msgstr[0] "Este evento se repite cada %d mes"
+msgstr[1] "Este evento se repite cada %d meses"
+
+#: assets/js/src/util.js:117
+msgid "This event repeats every %d week"
+msgid_plural "This event repeats every %d weeks"
+msgstr[0] "Este evento se repite cada %d semana"
+msgstr[1] "Este evento se repite cada %d semanas"
+
+#: assets/js/src/util.js:137
+msgid "This event repeats monthly"
+msgstr "Este evento se repite mensualmente"
+
+#: assets/js/src/util.js:120
+msgid "This event repeats weekly"
+msgstr "Este evento se repite semanalmente"
+
+#: assets/js/src/components/public/CalendarView.js:84
+msgid "Thu"
+msgstr "Jue"
+
+#: includes/Rest/EventsController.php:693 assets/js/src/util.js:8
+#: assets/js/src/components/public/EventForm.js:477
+msgid "Thursday"
+msgstr "Jueves"
+
+#: includes/Widgets/AnnouncementWidget.php:119
+msgid "Time Format:"
+msgstr "Formato de hora:"
+
+#: includes/Subscriber.php:908
+msgid "Time:"
+msgstr "Hora:"
+
+#: assets/js/src/components/public/EventForm.js:625
+msgid "Timezone"
+msgstr "Zona horaria"
+
+#: includes/Rest/EventsController.php:779
+msgid "Timezone: %s"
+msgstr "Zona horaria: %s"
+
+#: includes/Announcement.php:211 includes/Widgets/AnnouncementWidget.php:173
+msgid "Title"
+msgstr "Título"
+
+#: includes/Rest/AnnouncementsController.php:374
+msgid "Title: %s"
+msgstr "Título: %s"
+
+#: assets/js/src/components/public/CalendarView.js:318
+msgid "Today"
+msgstr "Hoy"
+
+#: assets/js/src/components/public/CalendarView.js:82
+msgid "Tue"
+msgstr "Mar"
+
+#: includes/Rest/EventsController.php:691 assets/js/src/util.js:6
+#: assets/js/src/components/public/EventForm.js:475
+msgid "Tuesday"
+msgstr "Martes"
+
+#: includes/Admin.php:220
+msgid "Type"
+msgstr "Tipo"
+
+#: assets/js/src/components/public/EventList.js:503
+#: assets/js/src/components/public/EventArchive.js:77
+msgid "Type:"
+msgstr "Tipo:"
+
+#: includes/Announcement.php:238 includes/Admin.php:273
+#: assets/js/src/components/public/AnnouncementForm.js:461
+#: assets/js/src/components/public/EventForm.js:541
+msgid "Unaffiliated (0)"
+msgstr "Sin afiliación (0)"
+
+#: includes/Announcement.php:571
+msgid "Unknown Event"
+msgstr "Evento desconocido"
+
+#: assets/js/src/components/public/AnnouncementForm.js:648
+#: assets/js/src/components/public/EventForm.js:927
+msgid "Unnamed Category"
+msgstr "Categoría sin nombre"
+
+#: assets/js/src/components/public/AnnouncementForm.js:671
+#: assets/js/src/components/public/EventForm.js:948
+msgid "Unnamed Tag"
+msgstr "Etiqueta sin nombre"
+
+#: mayo-events-manager.php:798 mayo-events-manager.php:812
+msgid "Unsubscribe"
+msgstr "Cancelar suscripción"
+
+#: mayo-events-manager.php:253
+msgid "Unsubscribe Error"
+msgstr "Error al cancelar suscripción"
+
+#: mayo-events-manager.php:252
+msgid "Unsubscribed"
+msgstr "Suscripción cancelada"
+
+#: assets/js/src/components/public/AnnouncementDetails.js:203
+msgid "Until:"
+msgstr "Hasta:"
+
+#: includes/Admin.php:827
+msgid "Upcoming events"
+msgstr "Próximos eventos"
+
+#: assets/js/src/components/public/EventForm.js:844
+msgid "Upload Flyer"
+msgstr "Subir volante"
+
+#: assets/js/src/components/public/AnnouncementForm.js:601
+msgid "Upload Image"
+msgstr "Subir imagen"
+
+#: includes/Announcement.php:39
+msgid "View Announcement"
+msgstr "Ver anuncio"
+
+#: includes/Admin.php:45
+msgid "View Event"
+msgstr "Ver evento"
+
+#: assets/js/src/components/public/EventArchive.js:131
+msgid "View Event Details"
+msgstr "Ver detalles del evento"
+
+#: assets/js/src/components/public/EventModal.js:170
+msgid "View Full Details"
+msgstr "Ver detalles completos"
+
+#: includes/Subscriber.php:744
+msgid "View online:"
+msgstr "Ver en línea:"
+
+#: assets/js/src/components/public/EventList.js:546
+msgid "View past events"
+msgstr "Ver eventos pasados"
+
+#: includes/Rest/EventsController.php:795
+msgid "View the event: %s"
+msgstr "Ver el evento: %s"
+
+#: assets/js/src/components/public/CalendarView.js:83
+msgid "Wed"
+msgstr "Mié"
+
+#: includes/Rest/EventsController.php:692 assets/js/src/util.js:7
+#: assets/js/src/components/public/EventForm.js:476
+msgid "Wednesday"
+msgstr "Miércoles"
+
+#: assets/js/src/components/public/EventForm.js:761
+msgid "Week"
+msgstr "Semana"
+
+#: includes/Rest/EventsController.php:682
+#: assets/js/src/components/public/EventForm.js:668
+msgid "Weekly"
+msgstr "Semanal"
+
+#: includes/Subscriber.php:676
+msgid "Welcome to %s announcements"
+msgstr "Bienvenido a los anuncios de %s"
+
+#: assets/js/src/components/public/EventArchive.js:82
+msgid "When:"
+msgstr "Cuándo:"
+
+#: assets/js/src/components/public/EventArchive.js:93
+msgid "Where:"
+msgstr "Dónde:"
+
+#: assets/js/src/components/public/EventForm.js:239
+msgid ""
+"You did not attach a valid image file, so one will not be submitted.  Please "
+"choose a valid image file (JPG, PNG, or GIF)"
+msgstr ""
+"No adjuntaste un archivo de imagen válido, por lo que no se enviará. Por "
+"favor, elige un archivo de imagen válido (JPG, PNG o GIF)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:253
+msgid ""
+"You did not attach a valid image file. Please choose a valid image file "
+"(JPG, PNG, or GIF)"
+msgstr ""
+"No adjuntaste un archivo de imagen válido. Por favor, elige un archivo de "
+"imagen válido (JPG, PNG o GIF)"
+
+#: includes/Subscriber.php:327
+msgid "You have already been unsubscribed."
+msgstr "Ya se ha cancelado tu suscripción."
+
+#: includes/Subscriber.php:342
+msgid ""
+"You have been unsubscribed and will no longer receive announcement emails."
+msgstr "Se ha cancelado tu suscripción y ya no recibirás correos de anuncios."
+
+#: includes/Subscriber.php:646
+msgid "You have requested to subscribe to announcements from %s."
+msgstr "Has solicitado suscribirte a los anuncios de %s."
+
+#: includes/Subscriber.php:680
+msgid "You'll receive an email whenever a new announcement is published."
+msgstr ""
+"Recibirás un correo electrónico cada vez que se publique un nuevo anuncio."
+
+#: includes/Subscriber.php:679
+msgid "You're now subscribed to announcements from %s."
+msgstr "Ahora estás suscrito a los anuncios de %s."
+
+#: includes/Admin.php:762
+msgid "Your Event Has Been Published: %s"
+msgstr "Tu evento ha sido publicado: %s"
+
+#: mayo-events-manager.php:670
+msgid "Your Preferences"
+msgstr "Tus preferencias"
+
+#: assets/js/src/components/public/AnnouncementForm.js:494
+#: assets/js/src/components/public/EventForm.js:574
+msgid "Your email address (will not be displayed publicly)"
+msgstr "Tu correo electrónico (no se mostrará públicamente)"
+
+#: assets/js/src/components/public/AnnouncementForm.js:481
+#: assets/js/src/components/public/EventForm.js:561
+msgid "Your name (will not be displayed publicly)"
+msgstr "Tu nombre (no se mostrará públicamente)"
+
+#: includes/Subscriber.php:293
+msgid ""
+"Your subscription has been confirmed! You will now receive announcement "
+"emails."
+msgstr ""
+"¡Tu suscripción ha sido confirmada! Ahora recibirás correos de anuncios."
+
+#: includes/Subscriber.php:272
+msgid "Your subscription is already confirmed."
+msgstr "Tu suscripción ya está confirmada."
+
+#: mayo-events-manager.php:282
+msgid "Your subscription preferences have been updated."
+msgstr "Tus preferencias de suscripción han sido actualizadas."
+
+#: includes/Rest/AnnouncementsController.php:367
+msgid "[%1$s] New Announcement Submission: %2$s"
+msgstr "[%1$s] Nuevo anuncio enviado: %2$s"
+
+#: assets/js/src/components/public/EventList.js:502
+#: assets/js/src/components/public/EventArchive.js:84
+#: assets/js/src/components/public/EventArchive.js:87
+#: assets/js/src/components/public/EventDetails.js:183
+#: assets/js/src/components/public/EventDetails.js:188
+#: assets/js/src/components/public/AnnouncementDetails.js:98
+msgid "at"
+msgstr "a las"
+
+#: assets/js/src/components/public/EventForm.js:683
+msgid "days"
+msgstr "días"
+
+#: includes/Widgets/AnnouncementWidget.php:101
+msgid "e.g., announcements, alerts"
+msgstr "ej., anuncios, alertas"
+
+#: includes/Widgets/AnnouncementWidget.php:114
+msgid "e.g., featured, urgent"
+msgstr "ej., destacados, urgentes"
+
+#: assets/js/src/util.js:151
+msgid "fifth"
+msgstr "quinto"
+
+#: assets/js/src/util.js:147
+msgid "first"
+msgstr "primero"
+
+#: assets/js/src/util.js:150
+msgid "fourth"
+msgstr "cuarto"
+
+#: assets/js/src/util.js:153
+msgid "last"
+msgstr "último"
+
+#: assets/js/src/components/public/EventForm.js:684
+msgid "months"
+msgstr "meses"
+
+#: includes/Rest/EventsController.php:701
+#: includes/Rest/EventsController.php:715 assets/js/src/util.js:125
+msgid "on %s"
+msgstr "en %s"
+
+#: includes/Rest/EventsController.php:712 assets/js/src/util.js:141
+msgid "on day %s"
+msgstr "el día %s"
+
+#: assets/js/src/util.js:156
+msgid "on the %1$s %2$s"
+msgstr "el %1$s %2$s"
+
+#: assets/js/src/util.js:148
+msgid "second"
+msgstr "segundo"
+
+#: assets/js/src/util.js:149
+msgid "third"
+msgstr "tercero"
+
+#: includes/Rest/EventsController.php:722 assets/js/src/util.js:169
+msgid "until %s"
+msgstr "hasta %s"
+
+#: assets/js/src/components/public/EventForm.js:684
+msgid "weeks"
+msgstr "semanas"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "-- No timezone set --"
+msgstr "-- Sin zona horaria --"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Add Skip"
+msgstr "Añadir omisión"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Add Skipped Date"
+msgstr "Añadir fecha omitida"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Announcements that reference this event."
+msgstr "Anuncios que hacen referencia a este evento."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Contact Email"
+msgstr "Correo de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Contact Information (Private)"
+msgstr "Información de contacto (Privada)"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Contact Name"
+msgstr "Nombre de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Create Announcement"
+msgstr "Crear anuncio"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Date to skip"
+msgstr "Fecha a omitir"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Edit"
+msgstr "Editar"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Email address"
+msgstr "Correo electrónico"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Event Details"
+msgstr "Detalles del evento"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Full address"
+msgstr "Dirección completa"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Full name of the contact person"
+msgstr "Nombre completo de la persona de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Linked Announcements"
+msgstr "Anuncios vinculados"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Manage specific dates when this recurring event should not occur."
+msgstr ""
+"Gestiona fechas específicas en las que este evento recurrente no debe "
+"ocurrir."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "No announcements linked to this event."
+msgstr "No hay anuncios vinculados a este evento."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Parking info, entrance details, etc."
+msgstr "Información de estacionamiento, detalles de entrada, etc."
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Point of Contact"
+msgstr "Punto de contacto"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Remove"
+msgstr "Eliminar"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Repeat"
+msgstr "Repetir"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Skipped Dates:"
+msgstr "Fechas omitidas:"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "Skipped Occurrences"
+msgstr "Ocurrencias omitidas"
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js
+msgid "e.g., Community Center"
+msgstr "ej., Centro comunitario"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Add New External Source"
+msgstr "Añadir nueva fuente externa"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "All"
+msgstr "Todos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "All Event Types"
+msgstr "Todos los tipos de evento"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "All announcements"
+msgstr "Todos los anuncios"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Are you sure you want to delete this external source?"
+msgstr "¿Estás seguro de que deseas eliminar esta fuente externa?"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Auto-include: Automatically add to existing subscribers"
+msgstr ""
+"Inclusión automática: añadir automáticamente a los suscriptores existentes"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "BMLT Root Server URL"
+msgstr "URL del servidor raíz BMLT"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "BMLT Root Server URL must use HTTPS protocol."
+msgstr "La URL del servidor raíz BMLT debe usar el protocolo HTTPS."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "BMLT Settings"
+msgstr "Ajustes de BMLT"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Categories available for subscription:"
+msgstr "Categorías disponibles para suscripción:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Confirmed"
+msgstr "Confirmado"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Copy ID"
+msgstr "Copiar ID"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Copy ID to clipboard"
+msgstr "Copiar ID al portapapeles"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Delete"
+msgstr "Eliminar"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Disabled"
+msgstr "Deshabilitado"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Enable Source"
+msgstr "Habilitar fuente"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Enabled"
+msgstr "Habilitado"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "External Event Sources"
+msgstr "Fuentes de eventos externos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "External source deleted successfully!"
+msgstr "¡Fuente externa eliminada con éxito!"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "External source saved successfully!"
+msgstr "¡Fuente externa guardada con éxito!"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Failed to load subscribers"
+msgstr "No se pudieron cargar los suscriptores"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Loading settings..."
+msgstr "Cargando ajustes..."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Mayo Events Manager Settings"
+msgstr "Ajustes de Mayo Events Manager"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "No subscribers found."
+msgstr "No se encontraron suscriptores."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Notification Email"
+msgstr "Correo de notificación"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Pending"
+msgstr "Pendiente"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Preferences"
+msgstr "Preferencias"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Restricted Service Bodies"
+msgstr "Cuerpos de servicio restringidos"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Save Changes"
+msgstr "Guardar cambios"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Save Settings"
+msgstr "Guardar ajustes"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Saving..."
+msgstr "Guardando..."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Search Subscribers:"
+msgstr "Buscar suscriptores:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Search by email..."
+msgstr "Buscar por correo electrónico..."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Service Bodies available for subscription:"
+msgstr "Cuerpos de servicio disponibles para suscripción:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Service Body Configuration"
+msgstr "Configuración de cuerpos de servicio"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Settings saved successfully!"
+msgstr "¡Ajustes guardados con éxito!"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Site URL"
+msgstr "URL del sitio"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Source Name"
+msgstr "Nombre de la fuente"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Subscribed"
+msgstr "Suscrito"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Subscription Preferences"
+msgstr "Preferencias de suscripción"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Tags available for subscription:"
+msgstr "Etiquetas disponibles para suscripción:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "When new options are added:"
+msgstr "Cuando se añaden nuevas opciones:"
+
+#: assets/js/src/components/admin/Settings.js
+msgid "e.g., 1,2,3,0"
+msgstr "ej., 1,2,3,0"
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"Email addresses to receive event submission notifications. Multiple emails "
+"can be separated by commas or semicolons. Leave empty to send to all admins."
+msgstr ""
+"Correos electrónicos para recibir notificaciones de envío de eventos. Se "
+"pueden separar con comas o punto y coma. Dejar vacío para enviar a todos los "
+"administradores."
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"Configure which categories, tags, and service bodies are available for "
+"subscribers to choose from when signing up for announcement notifications."
+msgstr ""
+"Configura qué categorías, etiquetas y cuerpos de servicio están disponibles "
+"para que los suscriptores elijan al registrarse para recibir notificaciones."
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"Select which categories, tags, and service bodies this subscriber should "
+"receive notifications for. If none are selected, they will receive all "
+"announcements."
+msgstr ""
+"Selecciona qué categorías, etiquetas y cuerpos de servicio debe recibir este "
+"suscriptor. Si no se selecciona ninguna, recibirá todos los anuncios."
+
+#: assets/js/src/components/admin/Settings.js
+msgid ""
+"No subscription options configured. Configure them in the Settings page."
+msgstr ""
+"No hay opciones de suscripción configuradas. Configúralas en la página de "
+"Ajustes."
+
+#: assets/js/src/components/admin/Settings.js
+msgid "Opt-in: Existing subscribers must manually add new options"
+msgstr ""
+"Inclusión voluntaria: los suscriptores existentes deben añadir las nuevas "
+"opciones manualmente"
+
+#: assets/js/src/components/admin/
+msgid "CSS Classes Documentation"
+msgstr "Documentación de clases CSS"
+
+#: assets/js/src/components/admin/
+msgid "Dynamic CSS Classes"
+msgstr "Clases CSS dinámicas"
+
+#: assets/js/src/components/admin/
+msgid "Overview"
+msgstr "Descripción general"
+
+#: assets/js/src/components/admin/
+msgid "Table of Contents"
+msgstr "Tabla de contenidos"
+
+#: assets/js/src/components/admin/
+msgid "Event Meta Fields"
+msgstr "Campos meta de evento"
+
+#: assets/js/src/components/admin/
+msgid "Announcement Response Object"
+msgstr "Objeto de respuesta de anuncio"
+
+#: assets/js/src/components/admin/
+msgid "Usage Examples"
+msgstr "Ejemplos de uso"
+
+#: assets/js/src/components/admin/
+msgid "Event List Shortcode"
+msgstr "Shortcode de lista de eventos"
+
+#: assets/js/src/components/admin/
+msgid "Event Submission Form Shortcode"
+msgstr "Shortcode de formulario de envío de evento"
+
+#: assets/js/src/components/admin/
+msgid "Announcement Shortcode"
+msgstr "Shortcode de anuncio"
+
+#: assets/js/src/components/admin/
+msgid "Announcement Submission Form Shortcode"
+msgstr "Shortcode de formulario de envío de anuncio"
+
+#: assets/js/src/components/admin/
+msgid "Email Subscription Form Shortcode"
+msgstr "Shortcode de formulario de suscripción por correo"

@@ -91,7 +91,7 @@ class Subscriber
             return [
                 'success' => false,
                 'code' => 'invalid_email',
-                'message' => 'Please enter a valid email address.'
+                'message' => __('Please enter a valid email address.', 'mayo-events-manager')
             ];
         }
 
@@ -109,7 +109,7 @@ class Subscriber
                 return [
                     'success' => false,
                     'code' => 'already_subscribed',
-                    'message' => 'This email is already subscribed.'
+                    'message' => __('This email is already subscribed.', 'mayo-events-manager')
                 ];
             } elseif ($existing->status === 'pending') {
                 // Update preferences and resend confirmation email
@@ -126,7 +126,7 @@ class Subscriber
                 return [
                     'success' => true,
                     'code' => 'confirmation_resent',
-                    'message' => 'A confirmation email has been sent. Please check your inbox (and spam folder).'
+                    'message' => __('A confirmation email has been sent. Please check your inbox (and spam folder).', 'mayo-events-manager')
                 ];
             } elseif ($existing->status === 'unsubscribed') {
                 // Re-subscribe: generate new token and set to pending
@@ -154,7 +154,7 @@ class Subscriber
                 return [
                     'success' => true,
                     'code' => 'resubscribed',
-                    'message' => 'A confirmation email has been sent. Please check your inbox (and spam folder).'
+                    'message' => __('A confirmation email has been sent. Please check your inbox (and spam folder).', 'mayo-events-manager')
                 ];
             }
         }
@@ -181,7 +181,7 @@ class Subscriber
             return [
                 'success' => false,
                 'code' => 'database_error',
-                'message' => 'An error occurred. Please try again.'
+                'message' => __('An error occurred. Please try again.', 'mayo-events-manager')
             ];
         }
 
@@ -191,7 +191,7 @@ class Subscriber
         return [
             'success' => true,
             'code' => 'confirmation_sent',
-            'message' => 'A confirmation email has been sent. Please check your inbox (and spam folder).'
+            'message' => __('A confirmation email has been sent. Please check your inbox (and spam folder).', 'mayo-events-manager')
         ];
     }
 
@@ -261,7 +261,7 @@ class Subscriber
             return [
                 'success' => false,
                 'code' => 'invalid_token',
-                'message' => 'Invalid or expired confirmation link.'
+                'message' => __('Invalid or expired confirmation link.', 'mayo-events-manager')
             ];
         }
 
@@ -269,7 +269,7 @@ class Subscriber
             return [
                 'success' => true,
                 'code' => 'already_confirmed',
-                'message' => 'Your subscription is already confirmed.'
+                'message' => __('Your subscription is already confirmed.', 'mayo-events-manager')
             ];
         }
 
@@ -290,7 +290,7 @@ class Subscriber
         return [
             'success' => true,
             'code' => 'confirmed',
-            'message' => 'Your subscription has been confirmed! You will now receive announcement emails.'
+            'message' => __('Your subscription has been confirmed! You will now receive announcement emails.', 'mayo-events-manager')
         ];
     }
 
@@ -316,7 +316,7 @@ class Subscriber
             return [
                 'success' => false,
                 'code' => 'invalid_token',
-                'message' => 'Invalid unsubscribe link.'
+                'message' => __('Invalid unsubscribe link.', 'mayo-events-manager')
             ];
         }
 
@@ -324,7 +324,7 @@ class Subscriber
             return [
                 'success' => true,
                 'code' => 'already_unsubscribed',
-                'message' => 'You have already been unsubscribed.'
+                'message' => __('You have already been unsubscribed.', 'mayo-events-manager')
             ];
         }
 
@@ -339,7 +339,7 @@ class Subscriber
         return [
             'success' => true,
             'code' => 'unsubscribed',
-            'message' => 'You have been unsubscribed and will no longer receive announcement emails.'
+            'message' => __('You have been unsubscribed and will no longer receive announcement emails.', 'mayo-events-manager')
         ];
     }
 
@@ -639,13 +639,15 @@ class Subscriber
 
         $site_name = get_bloginfo('name');
 
-        $subject = sprintf('Please confirm your subscription to %s announcements', $site_name);
+        /* translators: %s: site name */
+        $subject = sprintf(__('Please confirm your subscription to %s announcements', 'mayo-events-manager'), $site_name);
 
-        $message = "You have requested to subscribe to announcements from {$site_name}.\n\n";
-        $message .= "Click the link below to confirm your subscription:\n";
+        /* translators: %s: site name */
+        $message = sprintf(__('You have requested to subscribe to announcements from %s.', 'mayo-events-manager'), $site_name) . "\n\n";
+        $message .= __('Click the link below to confirm your subscription:', 'mayo-events-manager') . "\n";
         $message .= "{$confirm_url}\n\n";
-        $message .= "If you didn't request this, you can safely ignore this email.\n\n";
-        $message .= "Note: If you don't see our emails, please check your spam or junk folder.";
+        $message .= __("If you didn't request this, you can safely ignore this email.", 'mayo-events-manager') . "\n\n";
+        $message .= __("Note: If you don't see our emails, please check your spam or junk folder.", 'mayo-events-manager');
 
         $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
@@ -670,12 +672,14 @@ class Subscriber
 
         $site_name = get_bloginfo('name');
 
-        $subject = sprintf('Welcome to %s announcements', $site_name);
+        /* translators: %s: site name */
+        $subject = sprintf(__('Welcome to %s announcements', 'mayo-events-manager'), $site_name);
 
-        $message = "You're now subscribed to announcements from {$site_name}.\n\n";
-        $message .= "You'll receive an email whenever a new announcement is published.\n\n";
+        /* translators: %s: site name */
+        $message = sprintf(__("You're now subscribed to announcements from %s.", 'mayo-events-manager'), $site_name) . "\n\n";
+        $message .= __("You'll receive an email whenever a new announcement is published.", 'mayo-events-manager') . "\n\n";
         $message .= "---\n";
-        $message .= "Manage preferences / Unsubscribe: {$unsubscribe_url}\n";
+        $message .= __('Manage preferences / Unsubscribe:', 'mayo-events-manager') . " {$unsubscribe_url}\n";
 
         $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
@@ -737,9 +741,9 @@ class Subscriber
                 $message .= $linked_events_text . "\n";
             }
 
-            $message .= "View online: {$permalink}\n\n";
+            $message .= __('View online:', 'mayo-events-manager') . " {$permalink}\n\n";
             $message .= "---\n";
-            $message .= "Manage preferences / Unsubscribe: {$unsubscribe_url}\n";
+            $message .= __('Manage preferences / Unsubscribe:', 'mayo-events-manager') . " {$unsubscribe_url}\n";
 
             $headers = ['Content-Type: text/plain; charset=UTF-8'];
 
@@ -856,7 +860,12 @@ class Subscriber
         }
 
         $events_text = "---\n";
-        $events_text .= "RELATED EVENT" . (count($linked_refs) > 1 ? "S" : "") . "\n";
+        $events_text .= _n(
+            'RELATED EVENT',
+            'RELATED EVENTS',
+            count($linked_refs),
+            'mayo-events-manager'
+        ) . "\n";
         $events_text .= "---\n\n";
 
         foreach ($linked_refs as $ref) {
@@ -871,7 +880,7 @@ class Subscriber
 
                 // Add source indicator for external events
                 if ($is_external && !empty($resolved['source']['name'])) {
-                    $events_text .= "Source: " . $resolved['source']['name'] . "\n";
+                    $events_text .= __('Source:', 'mayo-events-manager') . ' ' . $resolved['source']['name'] . "\n";
                 }
 
                 // Get event meta (available for both local and external events from resolve_event_ref)
@@ -888,7 +897,7 @@ class Subscriber
                     if ($end_date && $end_date !== $start_date) {
                         $date_str .= ' - ' . self::format_date($end_date);
                     }
-                    $events_text .= "Date: {$date_str}\n";
+                    $events_text .= __('Date:', 'mayo-events-manager') . " {$date_str}\n";
                 }
 
                 if ($start_time) {
@@ -896,7 +905,7 @@ class Subscriber
                     if ($end_time) {
                         $time_str .= ' - ' . self::format_time($end_time);
                     }
-                    $events_text .= "Time: {$time_str}\n";
+                    $events_text .= __('Time:', 'mayo-events-manager') . " {$time_str}\n";
                 }
 
                 // Location
@@ -905,15 +914,16 @@ class Subscriber
                     if ($location_address) {
                         $location .= $location ? "\n       {$location_address}" : $location_address;
                     }
-                    $events_text .= "Location: {$location}\n";
+                    $events_text .= __('Location:', 'mayo-events-manager') . " {$location}\n";
                 }
 
-                $events_text .= "Details: {$event_permalink}\n\n";
+                $events_text .= __('Details:', 'mayo-events-manager') . " {$event_permalink}\n\n";
             } elseif ($ref['type'] === 'external' && !empty($ref['source_id'])) {
                 // External event unavailable - include note
                 $source = Announcement::get_external_source($ref['source_id']);
-                $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : 'External';
-                $events_text .= "Event details unavailable from {$source_name}\n\n";
+                $source_name = $source ? ($source['name'] ?? parse_url($source['url'], PHP_URL_HOST)) : __('External', 'mayo-events-manager');
+                /* translators: %s: external source name */
+                $events_text .= sprintf(__('Event details unavailable from %s', 'mayo-events-manager'), $source_name) . "\n\n";
             }
         }
 

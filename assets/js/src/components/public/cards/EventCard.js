@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../../providers/EventProvider';
 import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames, convertToUnicode } from '../../../util';
 import LocationAddress from '../LocationAddress';
@@ -91,14 +92,14 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                             )}
                         </>
                     ) : (
-                        <span className="mayo-event-date-error">No Date</span>
+                        <span className="mayo-event-date-error">{__('No Date Set', 'mayo-events-manager')}</span>
                     )}
                 </div>
                 <div className="mayo-event-summary">
                     <h3 dangerouslySetInnerHTML={{ __html: event.title.rendered }} />
                     {!hasValidDate && (
                         <div className="mayo-event-date-warning">
-                            This event has no date set
+                            {__('No Date Set', 'mayo-events-manager')}
                         </div>
                     )}
                     <div className="mayo-event-brief">
@@ -141,34 +142,34 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                     <div className="mayo-event-content">
                         <div className="mayo-event-metadata">
                             <div className="mayo-event-datetime-details">
-                                <h4>Date & Time</h4>
+                                <h4>{__('Date & Time', 'mayo-events-manager')}</h4>
                                 <p>
-                                    <strong>Start:</strong> {event.meta.event_start_date} at {formatTime(event.meta.event_start_time, timeFormat)}
+                                    <strong>{__('Start:', 'mayo-events-manager')}</strong> {event.meta.event_start_date} {__('at', 'mayo-events-manager')} {formatTime(event.meta.event_start_time, timeFormat)}
                                     {event.meta.timezone && ` (${formatTimezone(event.meta.timezone)})`}
                                 </p>
                                 {(event.meta.event_end_date || event.meta.event_end_time) && (
                                     <p>
-                                        <strong>End:</strong> {event.meta.event_end_date || event.meta.event_start_date} at {formatTime(event.meta.event_end_time, timeFormat)}
+                                        <strong>{__('End:', 'mayo-events-manager')}</strong> {event.meta.event_end_date || event.meta.event_start_date} {__('at', 'mayo-events-manager')} {formatTime(event.meta.event_end_time, timeFormat)}
                                     </p>
                                 )}
                             </div>
 
                             {event.meta.event_type && (
                                 <div className="mayo-event-type-details">
-                                    <h4>Event Type</h4>
-                                    <p>{event.meta.event_type}</p>
+                                    <h4>{__('Event Type', 'mayo-events-manager')}</h4>
+                                    <p>{__(event.meta.event_type, 'mayo-events-manager')}</p>
                                 </div>
                             )}
                         </div>
 
                         <div className="mayo-event-description">
-                            <h4>Description</h4>
+                            <h4>{__('Description', 'mayo-events-manager')}</h4>
                             <div dangerouslySetInnerHTML={{ __html: event.content.rendered }} />
                         </div>
 
                         {event.featured_image && (
                             <div className="mayo-event-attachments">
-                                <h4>Event Flyer</h4>
+                                <h4>{__('Event Flyer', 'mayo-events-manager')}</h4>
                                 <div className="mayo-event-image">
                                     <div className="mayo-image-actions">
                                         <a 
@@ -177,7 +178,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                             className="mayo-image-link"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            Download Flyer
+                                            {__('Download Flyer', 'mayo-events-manager')}
                                         </a>
                                     </div>
                                     <a href={event.featured_image} target="_blank" rel="noopener noreferrer">
@@ -191,7 +192,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
 
                         {(event.meta.location_name || event.meta.location_address || event.meta.location_details) && (
                             <div className="mayo-event-location">
-                                <h4>Location</h4>
+                                <h4>{__('Location', 'mayo-events-manager')}</h4>
                                 {event.meta.location_name && (
                                     <p className="mayo-location-name">{event.meta.location_name}</p>
                                 )}
@@ -208,7 +209,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
 
                         {event.meta.service_body && (
                             <div>
-                                <h4>Service Body</h4>
+                                <h4>{__('Service Body', 'mayo-events-manager')}</h4>
                                 <p>{getServiceBodyName(event.meta.service_body, sourceId)}</p>
                             </div>
                         )}
@@ -247,7 +248,7 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                                 className="mayo-read-more"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                Read More
+                                {__('Read More', 'mayo-events-manager')}
                             </a>
                         </div>
                 </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { formatTimezone, apiFetch } from '../../util'; // Import the helper function
 import { useEventProvider } from '../providers/EventProvider';
 import { getUserTimezone } from '../../timezones';
@@ -31,7 +32,7 @@ const EventArchive = () => {
                 }
             } catch (err) {
                 console.error('Error fetching events:', err);
-                setError('Failed to load events');
+                setError(__('Failed to load events', 'mayo-events-manager'));
                 setEvents([]);
             } finally {
                 setLoading(false);
@@ -41,15 +42,15 @@ const EventArchive = () => {
         fetchEvents();
     }, []);
 
-    if (loading) return <div>Loading events...</div>;
+    if (loading) return <div>{__('Loading events...', 'mayo-events-manager')}</div>;
     if (error) return <div className="mayo-error">{error}</div>;
-    if (!events.length) return <div className="mayo-no-events">No archived events found.</div>;
+    if (!events.length) return <div className="mayo-no-events">{__('No archived events found.', 'mayo-events-manager')}</div>;
 
     return (
         <div className="mayo-archive-container">
             <div className="mayo-archive-content">
                 <header className="mayo-archive-header">
-                    <h1 className="mayo-archive-title">Events</h1>
+                    <h1 className="mayo-archive-title">{__('Events', 'mayo-events-manager')}</h1>
                 </header>
 
                 <div className="mayo-archive-events">
@@ -73,23 +74,23 @@ const EventArchive = () => {
                                         <div className="mayo-archive-event-meta">
                                             {event.meta.event_type && (
                                                 <div className="mayo-archive-event-type">
-                                                    <strong>Type:</strong> {event.meta.event_type}
+                                                    <strong>{__('Type:', 'mayo-events-manager')}</strong> {event.meta.event_type}
                                                 </div>
                                             )}
 
                                             <div className="mayo-archive-event-datetime">
-                                                <strong>When:</strong>{' '}
+                                                <strong>{__('When:', 'mayo-events-manager')}</strong>{' '}
                                                 {event.meta.event_start_date}
-                                                {event.meta.event_start_time && ` at ${event.meta.event_start_time}`}
+                                                {event.meta.event_start_time && ` ${__('at', 'mayo-events-manager')} ${event.meta.event_start_time}`}
                                                 {(event.meta.event_end_date || event.meta.event_end_time) && ' - '}
                                                 {event.meta.event_end_date}
-                                                {event.meta.event_end_time && ` at ${event.meta.event_end_time}`}
+                                                {event.meta.event_end_time && ` ${__('at', 'mayo-events-manager')} ${event.meta.event_end_time}`}
                                                 {event.meta.timezone && ` (${formatTimezone(event.meta.timezone)})`}
                                             </div>
 
                                             {(event.meta.location_name || event.meta.location_address) && (
                                                 <div className="mayo-archive-event-location">
-                                                    <strong>Where:</strong>{' '}
+                                                    <strong>{__('Where:', 'mayo-events-manager')}</strong>{' '}
                                                     {event.meta.location_name}
                                                     {event.meta.location_name && event.meta.location_address && ', '}
                                                     {event.meta.location_address}
@@ -123,11 +124,11 @@ const EventArchive = () => {
                                         />
 
                                         {event.meta.service_body && (
-                                            <p><strong>Service Body:</strong> {getServiceBodyName(event.meta.service_body)}</p>
+                                            <p><strong>{__('Service Body:', 'mayo-events-manager')}</strong> {getServiceBodyName(event.meta.service_body)}</p>
                                         )}
 
                                         <a href={event.link} className="mayo-archive-event-link">
-                                            View Event Details
+                                            {__('View Event Details', 'mayo-events-manager')}
                                         </a>
                                     </div>
                                 </div>

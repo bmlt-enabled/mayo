@@ -37,12 +37,12 @@ class Admin {
     public static function register_post_type() {
             register_post_type('mayo_event', [
                 'labels' => [
-                    'name' => 'Events',
-                    'singular_name' => 'Event',
-                    'add_new' => 'Add New Event',
-                    'add_new_item' => 'Add New Event',
-                    'edit_item' => 'Edit Event',
-                    'view_item' => 'View Event',
+                    'name' => __('Events', 'mayo-events-manager'),
+                    'singular_name' => __('Event', 'mayo-events-manager'),
+                    'add_new' => __('Add New Event', 'mayo-events-manager'),
+                    'add_new_item' => __('Add New Event', 'mayo-events-manager'),
+                    'edit_item' => __('Edit Event', 'mayo-events-manager'),
+                    'view_item' => __('View Event', 'mayo-events-manager'),
                 ],
                 'public' => true,
                 'show_in_menu' => 'mayo-events',
@@ -61,8 +61,8 @@ class Admin {
 
     public static function add_menu() {
         add_menu_page(
-            'Mayo',
-            'Mayo',
+            __('Mayo', 'mayo-events-manager'),
+            __('Mayo', 'mayo-events-manager'),
             'manage_options',
             'mayo-events',
             [__CLASS__, 'render_admin_page'],
@@ -73,8 +73,8 @@ class Admin {
         // Subscribers submenu - positioned right after Announcements post type
         add_submenu_page(
             'mayo-events',
-            'Subscribers',
-            'Subscribers',
+            __('Subscribers', 'mayo-events-manager'),
+            __('Subscribers', 'mayo-events-manager'),
             'manage_options',
             'mayo-subscribers',
             [__CLASS__, 'render_subscribers_page'],
@@ -83,8 +83,8 @@ class Admin {
 
         add_submenu_page(
             'mayo-events',
-            'Shortcodes',
-            'Shortcodes',
+            __('Shortcodes', 'mayo-events-manager'),
+            __('Shortcodes', 'mayo-events-manager'),
             'manage_options',
             'mayo-shortcodes',
             [__CLASS__, 'render_shortcodes_page']
@@ -92,8 +92,8 @@ class Admin {
 
         add_submenu_page(
             'mayo-events',
-            'Mayo Settings',
-            'Settings',
+            __('Mayo Settings', 'mayo-events-manager'),
+            __('Settings', 'mayo-events-manager'),
             'manage_options',
             'mayo-settings',
             [__CLASS__, 'render_settings_page']
@@ -101,8 +101,8 @@ class Admin {
 
         add_submenu_page(
             'mayo-events',
-            'CSS Classes',
-            'CSS Classes',
+            __('CSS Classes', 'mayo-events-manager'),
+            __('CSS Classes', 'mayo-events-manager'),
             'manage_options',
             'mayo-css-classes',
             [__CLASS__, 'render_css_classes_page']
@@ -110,8 +110,8 @@ class Admin {
 
         add_submenu_page(
             'mayo-events',
-            'API Documentation',
-            'API',
+            __('API Documentation', 'mayo-events-manager'),
+            __('API', 'mayo-events-manager'),
             'manage_options',
             'mayo-api-docs',
             [__CLASS__, 'render_api_docs_page']
@@ -174,11 +174,20 @@ class Admin {
             ]
         );
         
+        // Set up translations for the script
+        wp_set_script_translations(
+            'mayo-admin',
+            'mayo-events-manager',
+            plugin_dir_path(__DIR__) . 'languages'
+        );
+
         // Now enqueue the script after localization
         wp_enqueue_script('mayo-admin');
-        
+
         // Add inline script for admin list functionality
         if ($hook === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'mayo_event') {
+            $confirm_copy = wp_json_encode(__('Are you sure you want to copy this event?', 'mayo-events-manager'));
+            $copy_failed = wp_json_encode(__('Failed to copy event. Please try again.', 'mayo-events-manager'));
             wp_add_inline_script('mayo-admin', '
                 jQuery(document).ready(function($) {
                     // Handle copy event links
@@ -186,8 +195,8 @@ class Admin {
                         e.preventDefault();
                         var href = $(this).attr("href");
                         var postId = href.match(/post=(\d+)/)[1];
-                        
-                        if (confirm("Are you sure you want to copy this event?")) {
+
+                        if (confirm(' . $confirm_copy . ')) {
                             $.post(mayoApiSettings.ajaxUrl, {
                                 action: "copy_event",
                                 post_id: postId,
@@ -195,7 +204,7 @@ class Admin {
                             }, function(response) {
                                 location.reload();
                             }).fail(function() {
-                                alert("Failed to copy event. Please try again.");
+                                alert(' . $copy_failed . ');
                             });
                         }
                     });
@@ -261,7 +270,7 @@ class Admin {
             case 'service_body':
                 $service_body_id = get_post_meta($post_id, 'service_body', true);
                 if ($service_body_id === '0') {
-                    echo esc_html('Unaffiliated (0)');
+                    echo esc_html__('Unaffiliated (0)', 'mayo-events-manager');
                 } elseif (empty($service_body_id)) {
                     echo esc_html('—');
                 } else {
@@ -269,7 +278,8 @@ class Admin {
                     if (isset($map[$service_body_id])) {
                         echo esc_html($map[$service_body_id] . ' (' . $service_body_id . ')');
                     } else {
-                        echo esc_html('Service Body (' . $service_body_id . ')');
+                        /* translators: %s: service body ID */
+                        echo esc_html(sprintf(__('Service Body (%s)', 'mayo-events-manager'), $service_body_id));
                     }
                 }
                 break;
@@ -346,11 +356,15 @@ class Admin {
                 // Add recurring information below the date/time
                 if ($recurring_pattern && $recurring_pattern['type'] !== 'none') {
                     echo '<br><small class="recurring-indicator">';
-                    echo '🔄 Recurring';
-                    
+                    echo '🔄 ' . esc_html__('Recurring', 'mayo-events-manager');
+
                     // Add skipped count if any
                     if (!empty($skipped_occurrences)) {
-                        echo ' • ' . count($skipped_occurrences) . ' skipped';
+                        echo ' • ' . esc_html(sprintf(
+                            /* translators: %d: number of skipped occurrences */
+                            _n('%d skipped', '%d skipped', count($skipped_occurrences), 'mayo-events-manager'),
+                            count($skipped_occurrences)
+                        ));
                     }
                     echo '</small>';
                 }
@@ -585,7 +599,7 @@ class Admin {
 
     public static function add_row_actions($actions, $post) {
         if ($post->post_type === 'mayo_event') {
-            $actions['copy'] = '<a href="' . esc_url(admin_url('admin-ajax.php?action=copy_event&post=' . $post->ID)) . '">Copy</a>';
+            $actions['copy'] = '<a href="' . esc_url(admin_url('admin-ajax.php?action=copy_event&post=' . $post->ID)) . '">' . esc_html__('Copy', 'mayo-events-manager') . '</a>';
         }
         return $actions;
     }
@@ -593,19 +607,20 @@ class Admin {
     public static function handle_copy_event() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['_ajax_nonce'], 'mayo_admin_nonce')) {
-            wp_die('Security check failed');
+            wp_die(esc_html__('Security check failed', 'mayo-events-manager'));
         }
-        
+
         $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         if ($post_id > 0 && current_user_can('edit_posts')) {
             $original_post = get_post($post_id);
             if (!$original_post || $original_post->post_type !== 'mayo_event') {
-                wp_send_json_error('Invalid event');
+                wp_send_json_error(__('Invalid event', 'mayo-events-manager'));
                 return;
             }
-            
+
             $new_post = [
-                'post_title' => $original_post->post_title . ' (Copy)',
+                /* translators: %s: original event title */
+                'post_title' => sprintf(__('%s (Copy)', 'mayo-events-manager'), $original_post->post_title),
                 'post_content' => $original_post->post_content,
                 'post_status' => 'draft',
                 'post_type' => 'mayo_event',
@@ -656,15 +671,15 @@ class Admin {
                 }
                 
                 wp_send_json_success([
-                    'message' => 'Event copied successfully',
+                    'message' => __('Event copied successfully', 'mayo-events-manager'),
                     'new_post_id' => $new_post_id,
                     'edit_url' => get_edit_post_link($new_post_id, 'raw')
                 ]);
             } else {
-                wp_send_json_error('Failed to create copy');
+                wp_send_json_error(__('Failed to create copy', 'mayo-events-manager'));
             }
         } else {
-            wp_send_json_error('Invalid post ID or insufficient permissions');
+            wp_send_json_error(__('Invalid post ID or insufficient permissions', 'mayo-events-manager'));
         }
     }
     
@@ -743,7 +758,8 @@ class Admin {
         ];
         
         // Build email content using shared method from Rest class
-        $subject_template = 'Your Event Has Been Published: %s';
+        /* translators: %s: event name */
+        $subject_template = __('Your Event Has Been Published: %s', 'mayo-events-manager');
         $view_url = get_permalink($post->ID);
         
         $email_content = \BmltEnabled\Mayo\Rest::build_event_email_content($params, $subject_template, $view_url);

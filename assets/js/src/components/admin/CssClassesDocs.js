@@ -1,4 +1,5 @@
 import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const CssClassesDocs = () => {
     const [lastUpdated] = useState(new Date().toLocaleString());
@@ -29,11 +30,11 @@ const CssClassesDocs = () => {
 
     return (
         <div className="wrap mayo-docs">
-            <h1>CSS Classes Documentation</h1>
+            <h1>{__('CSS Classes Documentation', 'mayo-events-manager')}</h1>
             
             <div className="card">
                 <div className="mayo-docs-header">
-                    <h2>Dynamic CSS Classes</h2>
+                    <h2>{__('Dynamic CSS Classes', 'mayo-events-manager')}</h2>
                     <div className="mayo-docs-meta">
                         <span className="mayo-docs-last-updated">Last updated: {lastUpdated}</span>
                     </div>

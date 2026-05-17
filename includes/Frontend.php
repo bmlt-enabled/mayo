@@ -27,7 +27,26 @@ class Frontend {
                 defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
                 true
             );
+            wp_set_script_translations(
+                'mayo-public',
+                'mayo-events-manager',
+                plugin_dir_path( __DIR__ ) . 'languages'
+            );
         });
+
+        // Resolve JSON translation files by script handle so they load
+        // regardless of the MD5 WordPress computes from the install path.
+        add_filter('load_script_translation_file', function ($file, $handle, $domain) {
+            if ('mayo-events-manager' !== $domain) {
+                return $file;
+            }
+            $lang_dir = plugin_dir_path(__DIR__) . 'languages';
+            $handle_file = "{$lang_dir}/mayo-events-manager-" . determine_locale() . "-{$handle}.json";
+            if (file_exists($handle_file)) {
+                return $handle_file;
+            }
+            return $file;
+        }, 10, 3);
     }
 
 
@@ -229,18 +248,7 @@ class Frontend {
         }
         
         if ($should_enqueue) {
-            wp_enqueue_script(
-                'mayo-public',
-                plugin_dir_url(__FILE__) . '../assets/js/dist/public.bundle.js',
-                [
-                    'wp-element',
-                    'wp-components',
-                    'wp-i18n',
-                    'wp-api-fetch'
-                ],
-                defined('MAYO_VERSION') ? MAYO_VERSION : '1.0',
-                true
-            );
+            wp_enqueue_script('mayo-public');
 
             wp_enqueue_style('wp-components');
             wp_enqueue_style(
