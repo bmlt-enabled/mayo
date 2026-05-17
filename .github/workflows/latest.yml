@@ -40,6 +40,9 @@ jobs:
         uses: actions/checkout@v6
         id: code-checkout
 
+      - name: Install gettext (for msgfmt) 🌐
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gettext
+
       - name: Prepare to deploy 🔧
         run: |
           export FILENAME=${PLUGIN}-build-${GITHUB_RUN_NUMBER}-${GITHUB_SHA}
