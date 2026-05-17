@@ -1893,12 +1893,12 @@
 }
 
 .mayo-event-filter-add {
-    padding: 0.3rem 0.5rem;
+    padding: 0.2rem 0.4rem;
     border: 1px solid #8c8f94;
     border-radius: 3px;
     background: #fff;
-    font-size: 0.9em;
-    line-height: 1.4;
+    font-size: 0.8em;
+    line-height: 1.3;
     color: #1d2327;
     max-width: 100%;
 }
@@ -1917,12 +1917,12 @@
 .mayo-event-filter-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.2rem 0.4rem 0.2rem 0.65rem;
+    gap: 0.2rem;
+    padding: 0.15rem 0.3rem 0.15rem 0.55rem;
     background: #2271b1;
     color: #fff;
     border-radius: 999px;
-    font-size: 0.85em;
+    font-size: 0.75em;
     line-height: 1.2;
 }
 
@@ -1936,9 +1936,9 @@
     border: none;
     color: #fff;
     cursor: pointer;
-    font-size: 1.1em;
+    font-size: 1em;
     line-height: 1;
-    padding: 0 0.25rem;
+    padding: 0 0.2rem;
     border-radius: 50%;
 }
 
@@ -1955,10 +1955,10 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: 3px;
-    padding: 0.2rem 0.4rem;
+    padding: 0.15rem 0.35rem;
     cursor: pointer;
     line-height: 1;
-    font-size: 1.05em;
+    font-size: 0.95em;
 }
 
 .mayo-event-filter-clear:hover {
