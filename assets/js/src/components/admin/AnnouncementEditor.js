@@ -78,7 +78,7 @@ const EventSearchModal = ({ isOpen, onClose, onSelectEvent, onRemoveEvent, linke
                 params.append('search', searchQuery);
             }
 
-            const response = await apiFetch(`/events/search-all?${params.toString()}`);
+            const response = await apiFetch(`/events/search-all?${params.toString()}`, { authenticated: true });
             const newEvents = response.events || [];
 
             if (append) {
@@ -752,7 +752,7 @@ const AnnouncementEditor = () => {
                     } else if (ref.type === 'external') {
                         // For external events, we need to fetch from the external source
                         try {
-                            const response = await apiFetch(`/events/search-all?per_page=100`);
+                            const response = await apiFetch(`/events/search-all?per_page=100`, { authenticated: true });
                             const externalEvent = (response.events || []).find(
                                 e => e.source.type === 'external' &&
                                     e.source.id === ref.source_id &&
