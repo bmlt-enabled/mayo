@@ -1,10 +1,30 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 const FACET_DEFS = [
-    { key: 'event_type', i18nLabel: () => __('Event Type', 'mayo-events-manager') },
-    { key: 'service_body', i18nLabel: () => __('Service Body', 'mayo-events-manager') },
-    { key: 'categories', i18nLabel: () => __('Category', 'mayo-events-manager') },
-    { key: 'tags', i18nLabel: () => __('Tag', 'mayo-events-manager') },
+    {
+        key: 'event_type',
+        i18nLabel: () => __('Event Type', 'mayo-events-manager'),
+        /* translators: dropdown placeholder for the event-type filter */
+        i18nPlaceholder: () => __('Filter by event type…', 'mayo-events-manager'),
+    },
+    {
+        key: 'service_body',
+        i18nLabel: () => __('Service Body', 'mayo-events-manager'),
+        /* translators: dropdown placeholder for the service-body filter */
+        i18nPlaceholder: () => __('Filter by service body…', 'mayo-events-manager'),
+    },
+    {
+        key: 'categories',
+        i18nLabel: () => __('Category', 'mayo-events-manager'),
+        /* translators: dropdown placeholder for the category filter */
+        i18nPlaceholder: () => __('Filter by category…', 'mayo-events-manager'),
+    },
+    {
+        key: 'tags',
+        i18nLabel: () => __('Tag', 'mayo-events-manager'),
+        /* translators: dropdown placeholder for the tag filter */
+        i18nPlaceholder: () => __('Filter by tag…', 'mayo-events-manager'),
+    },
 ];
 
 const normalizeOptions = (key, facets) => {
@@ -15,7 +35,6 @@ const normalizeOptions = (key, facets) => {
         return (facets?.service_bodies || []).map(body => ({
             value: String(body.id),
             label: body.name,
-            sourceId: body.source_id,
         }));
     }
     if (key === 'categories') {
@@ -27,7 +46,7 @@ const normalizeOptions = (key, facets) => {
     return [];
 };
 
-const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) => {
+const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilters }) => {
     const visibleFacets = FACET_DEFS.filter(def => {
         if (lockedFilters?.has(def.key)) {
             return false;
@@ -46,22 +65,52 @@ const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) =>
             {visibleFacets.map(def => {
                 const options = normalizeOptions(def.key, facets);
                 const activeValues = Array.isArray(selected?.[def.key]) ? selected[def.key] : [];
+                const availableOptions = options.filter(opt => !activeValues.includes(opt.value));
+                const valueToLabel = new Map(options.map(opt => [opt.value, opt.label]));
+                const selectId = `mayo-event-filter-${def.key}`;
                 return (
                     <div key={def.key} className="mayo-event-filter-group">
-                        <div className="mayo-event-filter-label">{def.i18nLabel()}</div>
-                        <div className="mayo-event-filter-pills">
-                            {options.map(option => {
-                                const isActive = activeValues.includes(option.value);
-                                return (
-                                    <button
-                                        key={`${option.value}-${option.sourceId || ''}`}
-                                        type="button"
-                                        className="mayo-event-filter-pill"
-                                        aria-pressed={isActive}
-                                        onClick={() => onToggle(def.key, option.value)}
-                                    >
+                        <label htmlFor={selectId} className="mayo-event-filter-label">
+                            {def.i18nLabel()}
+                        </label>
+                        <div className="mayo-event-filter-controls">
+                            <select
+                                id={selectId}
+                                className="mayo-event-filter-add"
+                                value=""
+                                onChange={(e) => {
+                                    if (e.target.value) {
+                                        onAdd(def.key, e.target.value);
+                                        e.target.value = '';
+                                    }
+                                }}
+                                disabled={availableOptions.length === 0}
+                            >
+                                <option value="">{def.i18nPlaceholder()}</option>
+                                {availableOptions.map(option => (
+                                    <option key={option.value} value={option.value}>
                                         {option.label}
-                                    </button>
+                                    </option>
+                                ))}
+                            </select>
+                            {activeValues.map(value => {
+                                const label = valueToLabel.get(value) || value;
+                                return (
+                                    <span key={value} className="mayo-event-filter-chip">
+                                        <span className="mayo-event-filter-chip-label">{label}</span>
+                                        <button
+                                            type="button"
+                                            className="mayo-event-filter-chip-remove"
+                                            onClick={() => onRemove(def.key, value)}
+                                            aria-label={sprintf(
+                                                /* translators: %s: filter value being removed */
+                                                __('Remove filter %s', 'mayo-events-manager'),
+                                                label
+                                            )}
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
                                 );
                             })}
                         </div>

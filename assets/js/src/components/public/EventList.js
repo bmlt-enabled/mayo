@@ -15,7 +15,6 @@ const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
     const loaderRef = useRef(null);
     const updateTimeout = useRef(null);
-    const isInitialFilterEffect = useRef(true);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [events, setEvents] = useState([]);
@@ -53,20 +52,15 @@ const EventList = ({ widget = false, settings = {} }) => {
     // Get user's current timezone
     const userTimezone = getUserTimezone();
 
-    // Initialize component
+    // Initialize component. Reset to the shortcode-provided defaults; the
+    // activeFilters useEffect below picks up the EMPTY_FILTERS reset (or the
+    // initial mount) and is solely responsible for fetching events.
     useEffect(() => {
         setIsWidget(widget);
         setTimeFormat(settings?.timeFormat || '12hour');
-        setCurrentPage(1);
-        setEvents([]);
-        setLoading(true);
         setError(null);
-        setHasMore(true);
         setTotalPages(1);
         setActiveFilters(EMPTY_FILTERS);
-        isInitialFilterEffect.current = true;
-
-        fetchEvents(1);
         if (!widget) {
             fetchFacets();
         }
@@ -462,28 +456,34 @@ const EventList = ({ widget = false, settings = {} }) => {
         }
     };
 
-    const handleToggleFilter = (key, value) => {
+    const handleAddFilter = (key, value) => {
+        if (lockedFilters.has(key) || !value) {
+            return;
+        }
+        const current = Array.isArray(activeFilters[key]) ? activeFilters[key] : [];
+        if (current.includes(value)) {
+            return;
+        }
+        setActiveFilters({ ...activeFilters, [key]: [...current, value] });
+    };
+
+    const handleRemoveFilter = (key, value) => {
         if (lockedFilters.has(key)) {
             return;
         }
         const current = Array.isArray(activeFilters[key]) ? activeFilters[key] : [];
-        const next = current.includes(value)
-            ? current.filter(v => v !== value)
-            : [...current, value];
-        setActiveFilters({ ...activeFilters, [key]: next });
+        setActiveFilters({ ...activeFilters, [key]: current.filter(v => v !== value) });
     };
 
     const handleClearFilters = () => {
         setActiveFilters(EMPTY_FILTERS);
     };
 
-    // Refetch whenever the user changes a filter. The init useEffect handles the
-    // first load; this one fires only on subsequent activeFilters changes.
+    // Single source of truth for refetching: any change to activeFilters
+    // (including the EMPTY_FILTERS reset that the init effect performs)
+    // resets paging and re-fetches the list, plus the calendar if open.
     useEffect(() => {
-        if (isInitialFilterEffect.current) {
-            isInitialFilterEffect.current = false;
-            return;
-        }
+        setLoading(true);
         setCurrentPage(1);
         setEvents([]);
         setHasMore(true);
@@ -622,7 +622,8 @@ const EventList = ({ widget = false, settings = {} }) => {
         <EventFilters
             facets={facets}
             selected={activeFilters}
-            onToggle={handleToggleFilter}
+            onAdd={handleAddFilter}
+            onRemove={handleRemoveFilter}
             onClear={handleClearFilters}
             lockedFilters={lockedFilters}
         />
