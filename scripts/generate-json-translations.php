@@ -35,15 +35,16 @@ foreach ($locales as $locale => $pluralForms) {
     $publicFile = "{$langDir}/mayo-events-manager-{$locale}-mayo-public.json";
     file_put_contents($publicFile, json_encode($publicJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
 
-    // Write JSON for admin handles — include ALL JS strings since admin
-    // and public bundles share many strings (Event Type, Service Body, etc.)
+    // Write JSON for admin handles — include ALL strings (not just JS-sourced)
+    // because admin components reuse strings defined in PHP files (e.g.
+    // "Subscribers" from Admin.php, "Active"/"Scheduled" from Announcement.php)
     // Both admin-bundle and mayo-admin handles load the same admin.bundle.js
-    $allJsJed = buildJed($locale, $pluralForms, $jsEntries);
-    $adminJson = json_encode($allJsJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";
+    $allJed = buildJed($locale, $pluralForms, $entries);
+    $adminJson = json_encode($allJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";
     file_put_contents("{$langDir}/mayo-events-manager-{$locale}-admin-bundle.json", $adminJson);
     file_put_contents("{$langDir}/mayo-events-manager-{$locale}-mayo-admin.json", $adminJson);
 
-    echo "{$locale}: wrote " . count($publicEntries) . " public + " . count($jsEntries) . " admin entries\n";
+    echo "{$locale}: wrote " . count($publicEntries) . " public + " . count($entries) . " admin entries\n";
 }
 
 /**

@@ -10,11 +10,54 @@
                 "lang": "fr_FR",
                 "plural_forms": "nplurals=2; plural=(n > 1);"
             },
+            "%d skipped": [
+                "%d ignoré",
+                "%d ignorés"
+            ],
+            "%s (Copy)": [
+                "%s (Copie)"
+            ],
             "(Required)": [
                 "(Obligatoire)"
             ],
+            "(every %d days)": [
+                "(tous les %d jours)"
+            ],
+            "(every %d months)": [
+                "(tous les %d mois)"
+            ],
+            "(every %d weeks)": [
+                "(toutes les %d semaines)"
+            ],
+            "12-hour (e.g., 2:30 PM)": [
+                "12 heures (ex. 2:30 PM)"
+            ],
+            "24-hour (e.g., 14:30)": [
+                "24 heures (ex. 14:30)"
+            ],
+            "A confirmation email has been sent. Please check your inbox (and spam folder).": [
+                "Un e-mail de confirmation a été envoyé. Veuillez vérifier votre boîte de réception (et votre dossier de spam)."
+            ],
+            "A new announcement has been submitted and is pending review.": [
+                "Une nouvelle annonce a été soumise et est en attente de validation."
+            ],
+            "API": [
+                "API"
+            ],
+            "API Documentation": [
+                "Documentation de l'API"
+            ],
+            "Active": [
+                "Actif"
+            ],
             "Activity": [
                 "Activité"
+            ],
+            "Add New Announcement": [
+                "Ajouter une nouvelle annonce"
+            ],
+            "Add New Event": [
+                "Ajouter un nouvel événement"
             ],
             "Additional details about the location (e.g., parking, entrance info)": [
                 "Détails supplémentaires sur le lieu (ex. stationnement, informations d'entrée)"
@@ -22,17 +65,35 @@
             "Address": [
                 "Adresse"
             ],
+            "Address:": [
+                "Adresse :"
+            ],
+            "All events": [
+                "Tous les événements"
+            ],
+            "All statuses": [
+                "Tous les statuts"
+            ],
+            "Always visible": [
+                "Toujours visible"
+            ],
             "An error occurred while submitting the form. Please try again.": [
                 "Une erreur est survenue lors de l'envoi du formulaire. Veuillez réessayer."
             ],
             "An error occurred. Please try again.": [
                 "Une erreur est survenue. Veuillez réessayer."
             ],
+            "Announcement": [
+                "Annonce"
+            ],
             "Announcement Title": [
                 "Titre de l'annonce"
             ],
             "Announcement not found": [
                 "Annonce introuvable"
+            ],
+            "Announcement submitted successfully": [
+                "Annonce soumise avec succès"
             ],
             "Announcement submitted successfully!": [
                 "Annonce soumise avec succès !"
@@ -46,11 +107,32 @@
             "April": [
                 "Avril"
             ],
+            "Are you sure you want to copy this event?": [
+                "Êtes-vous sûr de vouloir copier cet événement ?"
+            ],
+            "Ascending": [
+                "Ascendant"
+            ],
+            "Attachments": [
+                "Pièces jointes"
+            ],
+            "Attachments:": [
+                "Pièces jointes :"
+            ],
             "Aug": [
                 "Aoû"
             ],
             "August": [
                 "Août"
+            ],
+            "Background Color (hex):": [
+                "Couleur de fond (hex) :"
+            ],
+            "Banner (sticky top)": [
+                "Bannière (fixée en haut)"
+            ],
+            "CSS Classes": [
+                "Classes CSS"
             ],
             "Calendar Feed (ICS)": [
                 "Flux de calendrier (ICS)"
@@ -58,8 +140,20 @@
             "Calendar View": [
                 "Vue calendrier"
             ],
+            "Cancel": [
+                "Annuler"
+            ],
             "Categories": [
                 "Catégories"
+            ],
+            "Categories (comma-separated slugs):": [
+                "Catégories (slugs séparés par des virgules) :"
+            ],
+            "Categories:": [
+                "Catégories :"
+            ],
+            "Categories: %s": [
+                "Catégories : %s"
             ],
             "Celebration": [
                 "Célébration"
@@ -67,11 +161,23 @@
             "Clear Upload": [
                 "Supprimer le fichier"
             ],
+            "Click the link below to confirm your subscription:": [
+                "Cliquez sur le lien ci-dessous pour confirmer votre abonnement :"
+            ],
             "Close": [
                 "Fermer"
             ],
             "Collapse All": [
                 "Tout réduire"
+            ],
+            "Confirmation Error": [
+                "Erreur de confirmation"
+            ],
+            "Contact Email: %s": [
+                "E-mail de contact : %s"
+            ],
+            "Contact Name: %s": [
+                "Nom du contact : %s"
             ],
             "Control when this announcement is visible on the site.": [
                 "Contrôlez quand cette annonce est visible sur le site."
@@ -81,6 +187,12 @@
             ],
             "Copy to Clipboard": [
                 "Copier dans le presse-papiers"
+            ],
+            "Created Date": [
+                "Date de création"
+            ],
+            "Custom Link": [
+                "Lien personnalisé"
             ],
             "Daily": [
                 "Quotidien"
@@ -103,17 +215,47 @@
             "December": [
                 "Décembre"
             ],
+            "Default": [
+                "Par défaut"
+            ],
+            "Descending": [
+                "Descendant"
+            ],
             "Description": [
                 "Description"
+            ],
+            "Description:": [
+                "Description :"
+            ],
+            "Details:": [
+                "Détails :"
             ],
             "Dismiss": [
                 "Fermer"
             ],
+            "Display Mode:": [
+                "Mode d'affichage :"
+            ],
+            "Display Start Date": [
+                "Date de début d'affichage"
+            ],
             "Display Window": [
                 "Période d'affichage"
             ],
+            "Display event-based announcements as a banner or modal.": [
+                "Affiche les annonces basées sur les événements sous forme de bannière ou de fenêtre modale."
+            ],
             "Download Flyer": [
                 "Télécharger le flyer"
+            ],
+            "Edit Announcement": [
+                "Modifier l'annonce"
+            ],
+            "Edit Event": [
+                "Modifier l'événement"
+            ],
+            "Email: %s": [
+                "E-mail : %s"
             ],
             "End Date": [
                 "Date de fin"
@@ -124,8 +266,14 @@
             "End Date\/Time": [
                 "Date\/heure de fin"
             ],
+            "End Date: %s": [
+                "Date de fin : %s"
+            ],
             "End Time": [
                 "Heure de fin"
+            ],
+            "End Time: %s": [
+                "Heure de fin : %s"
             ],
             "End:": [
                 "Fin :"
@@ -133,11 +281,20 @@
             "Enter your email address": [
                 "Entrez votre adresse e-mail"
             ],
+            "Error": [
+                "Erreur"
+            ],
             "Error reading the file": [
                 "Erreur de lecture du fichier"
             ],
             "Error submitting form": [
                 "Erreur lors de l'envoi du formulaire"
+            ],
+            "Event": [
+                "Événement"
+            ],
+            "Event #%d": [
+                "Événement #%d"
             ],
             "Event Flyer": [
                 "Flyer de l'événement"
@@ -145,8 +302,23 @@
             "Event Name": [
                 "Nom de l'événement"
             ],
+            "Event Name: %s": [
+                "Nom de l'événement : %s"
+            ],
             "Event Type": [
                 "Type d'événement"
+            ],
+            "Event Type: %s": [
+                "Type d'événement : %s"
+            ],
+            "Event copied successfully": [
+                "Événement copié avec succès"
+            ],
+            "Event details unavailable": [
+                "Détails de l'événement indisponibles"
+            ],
+            "Event details unavailable from %s": [
+                "Détails de l'événement indisponibles depuis %s"
             ],
             "Event not found": [
                 "Événement introuvable"
@@ -157,8 +329,23 @@
             "Events": [
                 "Événements"
             ],
+            "Events will show as announcements when today's date is between the event's start and end dates.": [
+                "Les événements s'afficheront comme annonces lorsque la date du jour se situe entre les dates de début et de fin de l'événement."
+            ],
             "Expand All": [
                 "Tout développer"
+            ],
+            "Expired": [
+                "Expiré"
+            ],
+            "External": [
+                "Externe"
+            ],
+            "Failed to copy event. Please try again.": [
+                "Échec de la copie de l'événement. Veuillez réessayer."
+            ],
+            "Failed to create copy": [
+                "Échec de la création de la copie"
             ],
             "Failed to load announcement": [
                 "Échec du chargement de l'annonce"
@@ -174,6 +361,9 @@
             ],
             "Failed to submit event": [
                 "Échec de l'envoi de l'événement"
+            ],
+            "Failed to update preferences. Please try again.": [
+                "Échec de la mise à jour des préférences. Veuillez réessayer."
             ],
             "Feb": [
                 "Fév"
@@ -205,8 +395,32 @@
             "Hide Shortcode": [
                 "Masquer le shortcode"
             ],
+            "If you didn't request this, you can safely ignore this email.": [
+                "Si vous n'avez pas fait cette demande, vous pouvez ignorer cet e-mail en toute sécurité."
+            ],
+            "If you no longer want to receive announcements from %s, you can unsubscribe below.": [
+                "Si vous ne souhaitez plus recevoir les annonces de %s, vous pouvez vous désabonner ci-dessous."
+            ],
             "Image\/Flyer": [
                 "Image\/Flyer"
+            ],
+            "Indefinite": [
+                "Indéfini"
+            ],
+            "Invalid event": [
+                "Événement invalide"
+            ],
+            "Invalid or expired confirmation link.": [
+                "Lien de confirmation invalide ou expiré."
+            ],
+            "Invalid post ID or insufficient permissions": [
+                "ID de publication invalide ou permissions insuffisantes"
+            ],
+            "Invalid request. Please try again.": [
+                "Demande invalide. Veuillez réessayer."
+            ],
+            "Invalid unsubscribe link.": [
+                "Lien de désabonnement invalide."
             ],
             "Jan": [
                 "Jan"
@@ -238,6 +452,9 @@
             "Link": [
                 "Lien"
             ],
+            "Linked Events": [
+                "Événements liés"
+            ],
             "List View": [
                 "Vue liste"
             ],
@@ -256,6 +473,9 @@
             "Loading...": [
                 "Chargement..."
             ],
+            "Local": [
+                "Local"
+            ],
             "Location": [
                 "Lieu"
             ],
@@ -268,6 +488,15 @@
             "Location:": [
                 "Lieu :"
             ],
+            "Manage Subscription - %s": [
+                "Gérer l'abonnement - %s"
+            ],
+            "Manage Your Subscription": [
+                "Gérer votre abonnement"
+            ],
+            "Manage preferences \/ Unsubscribe:": [
+                "Gérer les préférences \/ Se désabonner :"
+            ],
             "Mar": [
                 "Mar"
             ],
@@ -276,6 +505,18 @@
             ],
             "May": [
                 "Mai"
+            ],
+            "Mayo": [
+                "Mayo"
+            ],
+            "Mayo Event Announcements": [
+                "Annonces d'événements Mayo"
+            ],
+            "Mayo Settings": [
+                "Paramètres de Mayo"
+            ],
+            "Modal (popup)": [
+                "Fenêtre modale (popup)"
             ],
             "Mon": [
                 "Lun"
@@ -289,6 +530,15 @@
             "Monthly Pattern": [
                 "Récurrence mensuelle"
             ],
+            "Name:": [
+                "Nom :"
+            ],
+            "Name: %s": [
+                "Nom : %s"
+            ],
+            "New Event Submission: %s": [
+                "Nouvel événement soumis : %s"
+            ],
             "Next": [
                 "Suivant"
             ],
@@ -300,6 +550,12 @@
             ],
             "No Recurrence": [
                 "Pas de récurrence"
+            ],
+            "No announcements found": [
+                "Aucune annonce trouvée"
+            ],
+            "No announcements found in trash": [
+                "Aucune annonce trouvée dans la corbeille"
             ],
             "No archived events found.": [
                 "Aucun événement archivé trouvé."
@@ -313,11 +569,23 @@
             "No upcoming events found.": [
                 "Aucun événement à venir trouvé."
             ],
+            "Not provided": [
+                "Non fourni"
+            ],
+            "Not set": [
+                "Non défini"
+            ],
+            "Note: If you don't see our emails, please check your spam or junk folder.": [
+                "Remarque : Si vous ne trouvez pas nos e-mails, veuillez vérifier votre dossier de spam ou courrier indésirable."
+            ],
             "Nov": [
                 "Nov"
             ],
             "November": [
                 "Novembre"
+            ],
+            "Now": [
+                "Maintenant"
             ],
             "Oct": [
                 "Oct"
@@ -334,6 +602,18 @@
             "On these days": [
                 "Ces jours-là"
             ],
+            "Order:": [
+                "Ordre :"
+            ],
+            "Past events": [
+                "Événements passés"
+            ],
+            "Please confirm your subscription to %s announcements": [
+                "Veuillez confirmer votre abonnement aux annonces de %s"
+            ],
+            "Please enter a valid email address.": [
+                "Veuillez entrer une adresse e-mail valide."
+            ],
             "Please fill in all required fields: %s": [
                 "Veuillez remplir tous les champs obligatoires : %s"
             ],
@@ -345,6 +625,9 @@
             ],
             "Point of Contact Name (Private)": [
                 "Nom du contact (Privé)"
+            ],
+            "Preferences Saved": [
+                "Préférences enregistrées"
             ],
             "Previous": [
                 "Précédent"
@@ -358,17 +641,33 @@
             "Printed on": [
                 "Imprimé le"
             ],
+            "Priority": [
+                "Priorité"
+            ],
+            "RELATED EVENT": [
+                "ÉVÉNEMENT ASSOCIÉ",
+                "ÉVÉNEMENTS ASSOCIÉS"
+            ],
             "Read More": [
                 "En savoir plus"
             ],
             "RSS Feed": [
                 "Flux RSS"
             ],
+            "Recurring": [
+                "Récurrent"
+            ],
             "Recurring Event": [
                 "Événement récurrent"
             ],
             "Recurring Pattern": [
                 "Récurrence"
+            ],
+            "Recurring Pattern:": [
+                "Récurrence :"
+            ],
+            "Recurring events": [
+                "Événements récurrents"
             ],
             "Related Links & Events": [
                 "Liens et événements associés"
@@ -379,14 +678,32 @@
             "Repeat every": [
                 "Répéter tous les"
             ],
+            "Return to %s": [
+                "Retour à %s"
+            ],
+            "Review and edit this announcement:": [
+                "Vérifier et modifier cette annonce :"
+            ],
             "Sat": [
                 "Sam"
             ],
             "Saturday": [
                 "Samedi"
             ],
+            "Save Preferences": [
+                "Enregistrer les préférences"
+            ],
+            "Scheduled": [
+                "Programmé"
+            ],
+            "Search Announcements": [
+                "Rechercher des annonces"
+            ],
             "Second": [
                 "Deuxième"
+            ],
+            "Security check failed": [
+                "Échec de la vérification de sécurité"
             ],
             "Select Event Type": [
                 "Sélectionner le type d'événement"
@@ -415,14 +732,35 @@
             "Service Body": [
                 "Organisme de service"
             ],
+            "Service Body (%s)": [
+                "Organisme de service (%s)"
+            ],
+            "Service Body ID: %s": [
+                "ID de l'organisme de service : %s"
+            ],
             "Service Body:": [
                 "Organisme de service :"
+            ],
+            "Service Body: %1$s (ID: %2$s)": [
+                "Organisme de service : %1$s (ID : %2$s)"
+            ],
+            "Settings": [
+                "Paramètres"
             ],
             "Shortcode for this event list:": [
                 "Shortcode pour cette liste d'événements :"
             ],
+            "Shortcodes": [
+                "Shortcodes"
+            ],
             "Show Shortcode": [
                 "Afficher le shortcode"
+            ],
+            "Sort By:": [
+                "Trier par :"
+            ],
+            "Source:": [
+                "Source :"
             ],
             "Start Date": [
                 "Date de début"
@@ -430,11 +768,20 @@
             "Start Date\/Time": [
                 "Date\/heure de début"
             ],
+            "Start Date: %s": [
+                "Date de début : %s"
+            ],
             "Start Time": [
                 "Heure de début"
             ],
+            "Start Time: %s": [
+                "Heure de début : %s"
+            ],
             "Start:": [
                 "Début :"
+            ],
+            "Status": [
+                "Statut"
             ],
             "Submit Announcement": [
                 "Soumettre l'annonce"
@@ -442,14 +789,26 @@
             "Submit Event": [
                 "Soumettre l'événement"
             ],
+            "Submitted by:": [
+                "Soumis par :"
+            ],
             "Submitting...": [
                 "Envoi en cours..."
             ],
             "Subscribe": [
                 "S'abonner"
             ],
+            "Subscribers": [
+                "Abonnés"
+            ],
             "Subscribing...": [
                 "Abonnement en cours..."
+            ],
+            "Subscription Confirmed": [
+                "Abonnement confirmé"
+            ],
+            "Subscription not found.": [
+                "Abonnement introuvable."
             ],
             "Sun": [
                 "Dim"
@@ -462,6 +821,18 @@
             ],
             "Tags": [
                 "Étiquettes"
+            ],
+            "Tags (comma-separated slugs):": [
+                "Étiquettes (slugs séparés par des virgules) :"
+            ],
+            "Tags:": [
+                "Étiquettes :"
+            ],
+            "Tags: %s": [
+                "Étiquettes : %s"
+            ],
+            "Text Color (hex):": [
+                "Couleur du texte (hex) :"
             ],
             "The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)": [
                 "Le fichier sélectionné n'est pas une image valide, il ne sera donc pas soumis. Veuillez choisir un fichier image valide (JPG, PNG ou GIF)"
@@ -477,6 +848,9 @@
             ],
             "Third": [
                 "Troisième"
+            ],
+            "This email is already subscribed.": [
+                "Cet e-mail est déjà abonné."
             ],
             "This event repeats daily": [
                 "Cet événement se répète quotidiennement"
@@ -505,8 +879,23 @@
             "Thursday": [
                 "Jeudi"
             ],
+            "Time Format:": [
+                "Format de l'heure :"
+            ],
+            "Time:": [
+                "Heure :"
+            ],
             "Timezone": [
                 "Fuseau horaire"
+            ],
+            "Timezone: %s": [
+                "Fuseau horaire : %s"
+            ],
+            "Title": [
+                "Titre"
+            ],
+            "Title: %s": [
+                "Titre : %s"
             ],
             "Today": [
                 "Aujourd'hui"
@@ -517,11 +906,17 @@
             "Tuesday": [
                 "Mardi"
             ],
+            "Type": [
+                "Type"
+            ],
             "Type:": [
                 "Type :"
             ],
             "Unaffiliated (0)": [
                 "Non affilié (0)"
+            ],
+            "Unknown Event": [
+                "Événement inconnu"
             ],
             "Unnamed Category": [
                 "Catégorie sans nom"
@@ -529,8 +924,20 @@
             "Unnamed Tag": [
                 "Étiquette sans nom"
             ],
+            "Unsubscribe": [
+                "Se désabonner"
+            ],
+            "Unsubscribe Error": [
+                "Erreur de désabonnement"
+            ],
+            "Unsubscribed": [
+                "Désabonné"
+            ],
             "Until:": [
                 "Jusqu'au :"
+            ],
+            "Upcoming events": [
+                "Événements à venir"
             ],
             "Upload Flyer": [
                 "Télécharger un flyer"
@@ -538,14 +945,26 @@
             "Upload Image": [
                 "Télécharger une image"
             ],
+            "View Announcement": [
+                "Voir l'annonce"
+            ],
+            "View Event": [
+                "Voir l'événement"
+            ],
             "View Event Details": [
                 "Voir les détails de l'événement"
             ],
             "View Full Details": [
                 "Voir tous les détails"
             ],
+            "View online:": [
+                "Voir en ligne :"
+            ],
             "View past events": [
                 "Voir les événements passés"
+            ],
+            "View the event: %s": [
+                "Voir l'événement : %s"
             ],
             "Wed": [
                 "Mer"
@@ -559,6 +978,9 @@
             "Weekly": [
                 "Hebdomadaire"
             ],
+            "Welcome to %s announcements": [
+                "Bienvenue dans les annonces de %s"
+            ],
             "When:": [
                 "Quand :"
             ],
@@ -571,17 +993,56 @@
             "You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)": [
                 "Vous n'avez pas joint un fichier image valide. Veuillez choisir un fichier image valide (JPG, PNG ou GIF)"
             ],
+            "You have already been unsubscribed.": [
+                "Vous êtes déjà désabonné."
+            ],
+            "You have been unsubscribed and will no longer receive announcement emails.": [
+                "Vous avez été désabonné et ne recevrez plus d'e-mails d'annonces."
+            ],
+            "You have requested to subscribe to announcements from %s.": [
+                "Vous avez demandé à vous abonner aux annonces de %s."
+            ],
+            "You'll receive an email whenever a new announcement is published.": [
+                "Vous recevrez un e-mail chaque fois qu'une nouvelle annonce sera publiée."
+            ],
+            "You're now subscribed to announcements from %s.": [
+                "Vous êtes maintenant abonné aux annonces de %s."
+            ],
+            "Your Event Has Been Published: %s": [
+                "Votre événement a été publié : %s"
+            ],
+            "Your Preferences": [
+                "Vos préférences"
+            ],
             "Your email address (will not be displayed publicly)": [
                 "Votre adresse e-mail (ne sera pas affichée publiquement)"
             ],
             "Your name (will not be displayed publicly)": [
                 "Votre nom (ne sera pas affiché publiquement)"
             ],
+            "Your subscription has been confirmed! You will now receive announcement emails.": [
+                "Votre abonnement a été confirmé ! Vous recevrez désormais les e-mails d'annonces."
+            ],
+            "Your subscription is already confirmed.": [
+                "Votre abonnement est déjà confirmé."
+            ],
+            "Your subscription preferences have been updated.": [
+                "Vos préférences d'abonnement ont été mises à jour."
+            ],
+            "[%1$s] New Announcement Submission: %2$s": [
+                "[%1$s] Nouvelle annonce soumise : %2$s"
+            ],
             "at": [
                 "à"
             ],
             "days": [
                 "jours"
+            ],
+            "e.g., announcements, alerts": [
+                "ex. annonces, alertes"
+            ],
+            "e.g., featured, urgent": [
+                "ex. en vedette, urgent"
             ],
             "fifth": [
                 "cinquième"

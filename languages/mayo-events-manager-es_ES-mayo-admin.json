@@ -10,11 +10,54 @@
                 "lang": "es_ES",
                 "plural_forms": "nplurals=2; plural=(n != 1);"
             },
+            "%d skipped": [
+                "%d omitido",
+                "%d omitidos"
+            ],
+            "%s (Copy)": [
+                "%s (Copia)"
+            ],
             "(Required)": [
                 "(Obligatorio)"
             ],
+            "(every %d days)": [
+                "(cada %d días)"
+            ],
+            "(every %d months)": [
+                "(cada %d meses)"
+            ],
+            "(every %d weeks)": [
+                "(cada %d semanas)"
+            ],
+            "12-hour (e.g., 2:30 PM)": [
+                "12 horas (ej., 2:30 PM)"
+            ],
+            "24-hour (e.g., 14:30)": [
+                "24 horas (ej., 14:30)"
+            ],
+            "A confirmation email has been sent. Please check your inbox (and spam folder).": [
+                "Se ha enviado un correo de confirmación. Por favor, revisa tu bandeja de entrada (y la carpeta de spam)."
+            ],
+            "A new announcement has been submitted and is pending review.": [
+                "Se ha enviado un nuevo anuncio y está pendiente de revisión."
+            ],
+            "API": [
+                "API"
+            ],
+            "API Documentation": [
+                "Documentación de la API"
+            ],
+            "Active": [
+                "Activo"
+            ],
             "Activity": [
                 "Actividad"
+            ],
+            "Add New Announcement": [
+                "Añadir nuevo anuncio"
+            ],
+            "Add New Event": [
+                "Añadir nuevo evento"
             ],
             "Additional details about the location (e.g., parking, entrance info)": [
                 "Detalles adicionales sobre la ubicación (ej., estacionamiento, información de entrada)"
@@ -22,17 +65,35 @@
             "Address": [
                 "Dirección"
             ],
+            "Address:": [
+                "Dirección:"
+            ],
+            "All events": [
+                "Todos los eventos"
+            ],
+            "All statuses": [
+                "Todos los estados"
+            ],
+            "Always visible": [
+                "Siempre visible"
+            ],
             "An error occurred while submitting the form. Please try again.": [
                 "Ocurrió un error al enviar el formulario. Por favor, inténtalo de nuevo."
             ],
             "An error occurred. Please try again.": [
                 "Ocurrió un error. Por favor, inténtalo de nuevo."
             ],
+            "Announcement": [
+                "Anuncio"
+            ],
             "Announcement Title": [
                 "Título del anuncio"
             ],
             "Announcement not found": [
                 "Anuncio no encontrado"
+            ],
+            "Announcement submitted successfully": [
+                "Anuncio enviado con éxito"
             ],
             "Announcement submitted successfully!": [
                 "¡Anuncio enviado con éxito!"
@@ -46,11 +107,32 @@
             "April": [
                 "Abril"
             ],
+            "Are you sure you want to copy this event?": [
+                "¿Estás seguro de que deseas copiar este evento?"
+            ],
+            "Ascending": [
+                "Ascendente"
+            ],
+            "Attachments": [
+                "Archivos adjuntos"
+            ],
+            "Attachments:": [
+                "Archivos adjuntos:"
+            ],
             "Aug": [
                 "Ago"
             ],
             "August": [
                 "Agosto"
+            ],
+            "Background Color (hex):": [
+                "Color de fondo (hex):"
+            ],
+            "Banner (sticky top)": [
+                "Banner (fijo arriba)"
+            ],
+            "CSS Classes": [
+                "Clases CSS"
             ],
             "Calendar Feed (ICS)": [
                 "Feed de calendario (ICS)"
@@ -58,8 +140,20 @@
             "Calendar View": [
                 "Vista de calendario"
             ],
+            "Cancel": [
+                "Cancelar"
+            ],
             "Categories": [
                 "Categorías"
+            ],
+            "Categories (comma-separated slugs):": [
+                "Categorías (slugs separados por comas):"
+            ],
+            "Categories:": [
+                "Categorías:"
+            ],
+            "Categories: %s": [
+                "Categorías: %s"
             ],
             "Celebration": [
                 "Celebración"
@@ -67,11 +161,23 @@
             "Clear Upload": [
                 "Eliminar archivo"
             ],
+            "Click the link below to confirm your subscription:": [
+                "Haz clic en el enlace de abajo para confirmar tu suscripción:"
+            ],
             "Close": [
                 "Cerrar"
             ],
             "Collapse All": [
                 "Contraer todo"
+            ],
+            "Confirmation Error": [
+                "Error de confirmación"
+            ],
+            "Contact Email: %s": [
+                "Correo de contacto: %s"
+            ],
+            "Contact Name: %s": [
+                "Nombre de contacto: %s"
             ],
             "Control when this announcement is visible on the site.": [
                 "Controla cuándo este anuncio es visible en el sitio."
@@ -81,6 +187,12 @@
             ],
             "Copy to Clipboard": [
                 "Copiar al portapapeles"
+            ],
+            "Created Date": [
+                "Fecha de creación"
+            ],
+            "Custom Link": [
+                "Enlace personalizado"
             ],
             "Daily": [
                 "Diario"
@@ -103,17 +215,47 @@
             "December": [
                 "Diciembre"
             ],
+            "Default": [
+                "Predeterminado"
+            ],
+            "Descending": [
+                "Descendente"
+            ],
             "Description": [
                 "Descripción"
+            ],
+            "Description:": [
+                "Descripción:"
+            ],
+            "Details:": [
+                "Detalles:"
             ],
             "Dismiss": [
                 "Descartar"
             ],
+            "Display Mode:": [
+                "Modo de visualización:"
+            ],
+            "Display Start Date": [
+                "Fecha de inicio de visualización"
+            ],
             "Display Window": [
                 "Período de visualización"
             ],
+            "Display event-based announcements as a banner or modal.": [
+                "Muestra anuncios basados en eventos como banner o ventana emergente."
+            ],
             "Download Flyer": [
                 "Descargar volante"
+            ],
+            "Edit Announcement": [
+                "Editar anuncio"
+            ],
+            "Edit Event": [
+                "Editar evento"
+            ],
+            "Email: %s": [
+                "Correo electrónico: %s"
             ],
             "End Date": [
                 "Fecha de fin"
@@ -124,8 +266,14 @@
             "End Date\/Time": [
                 "Fecha\/hora de fin"
             ],
+            "End Date: %s": [
+                "Fecha de fin: %s"
+            ],
             "End Time": [
                 "Hora de fin"
+            ],
+            "End Time: %s": [
+                "Hora de fin: %s"
             ],
             "End:": [
                 "Fin:"
@@ -133,11 +281,20 @@
             "Enter your email address": [
                 "Ingresa tu correo electrónico"
             ],
+            "Error": [
+                "Error"
+            ],
             "Error reading the file": [
                 "Error al leer el archivo"
             ],
             "Error submitting form": [
                 "Error al enviar el formulario"
+            ],
+            "Event": [
+                "Evento"
+            ],
+            "Event #%d": [
+                "Evento #%d"
             ],
             "Event Flyer": [
                 "Volante del evento"
@@ -145,8 +302,23 @@
             "Event Name": [
                 "Nombre del evento"
             ],
+            "Event Name: %s": [
+                "Nombre del evento: %s"
+            ],
             "Event Type": [
                 "Tipo de evento"
+            ],
+            "Event Type: %s": [
+                "Tipo de evento: %s"
+            ],
+            "Event copied successfully": [
+                "Evento copiado con éxito"
+            ],
+            "Event details unavailable": [
+                "Detalles del evento no disponibles"
+            ],
+            "Event details unavailable from %s": [
+                "Detalles del evento no disponibles de %s"
             ],
             "Event not found": [
                 "Evento no encontrado"
@@ -157,8 +329,23 @@
             "Events": [
                 "Eventos"
             ],
+            "Events will show as announcements when today's date is between the event's start and end dates.": [
+                "Los eventos se mostrarán como anuncios cuando la fecha de hoy esté entre las fechas de inicio y fin del evento."
+            ],
             "Expand All": [
                 "Expandir todo"
+            ],
+            "Expired": [
+                "Expirado"
+            ],
+            "External": [
+                "Externo"
+            ],
+            "Failed to copy event. Please try again.": [
+                "No se pudo copiar el evento. Por favor, inténtalo de nuevo."
+            ],
+            "Failed to create copy": [
+                "No se pudo crear la copia"
             ],
             "Failed to load announcement": [
                 "No se pudo cargar el anuncio"
@@ -174,6 +361,9 @@
             ],
             "Failed to submit event": [
                 "No se pudo enviar el evento"
+            ],
+            "Failed to update preferences. Please try again.": [
+                "No se pudieron actualizar las preferencias. Por favor, inténtalo de nuevo."
             ],
             "Feb": [
                 "Feb"
@@ -205,8 +395,32 @@
             "Hide Shortcode": [
                 "Ocultar shortcode"
             ],
+            "If you didn't request this, you can safely ignore this email.": [
+                "Si no solicitaste esto, puedes ignorar este correo electrónico."
+            ],
+            "If you no longer want to receive announcements from %s, you can unsubscribe below.": [
+                "Si ya no deseas recibir anuncios de %s, puedes cancelar tu suscripción a continuación."
+            ],
             "Image\/Flyer": [
                 "Imagen\/Volante"
+            ],
+            "Indefinite": [
+                "Indefinido"
+            ],
+            "Invalid event": [
+                "Evento no válido"
+            ],
+            "Invalid or expired confirmation link.": [
+                "Enlace de confirmación no válido o expirado."
+            ],
+            "Invalid post ID or insufficient permissions": [
+                "ID de publicación no válido o permisos insuficientes"
+            ],
+            "Invalid request. Please try again.": [
+                "Solicitud no válida. Por favor, inténtalo de nuevo."
+            ],
+            "Invalid unsubscribe link.": [
+                "Enlace de cancelación de suscripción no válido."
             ],
             "Jan": [
                 "Ene"
@@ -238,6 +452,9 @@
             "Link": [
                 "Enlace"
             ],
+            "Linked Events": [
+                "Eventos vinculados"
+            ],
             "List View": [
                 "Vista de lista"
             ],
@@ -256,6 +473,9 @@
             "Loading...": [
                 "Cargando..."
             ],
+            "Local": [
+                "Local"
+            ],
             "Location": [
                 "Ubicación"
             ],
@@ -268,6 +488,15 @@
             "Location:": [
                 "Ubicación:"
             ],
+            "Manage Subscription - %s": [
+                "Gestionar suscripción - %s"
+            ],
+            "Manage Your Subscription": [
+                "Gestionar tu suscripción"
+            ],
+            "Manage preferences \/ Unsubscribe:": [
+                "Gestionar preferencias \/ Cancelar suscripción:"
+            ],
             "Mar": [
                 "Mar"
             ],
@@ -276,6 +505,18 @@
             ],
             "May": [
                 "May"
+            ],
+            "Mayo": [
+                "Mayo"
+            ],
+            "Mayo Event Announcements": [
+                "Anuncios de eventos Mayo"
+            ],
+            "Mayo Settings": [
+                "Ajustes de Mayo"
+            ],
+            "Modal (popup)": [
+                "Ventana emergente (popup)"
             ],
             "Mon": [
                 "Lun"
@@ -289,6 +530,15 @@
             "Monthly Pattern": [
                 "Patrón mensual"
             ],
+            "Name:": [
+                "Nombre:"
+            ],
+            "Name: %s": [
+                "Nombre: %s"
+            ],
+            "New Event Submission: %s": [
+                "Nuevo evento enviado: %s"
+            ],
             "Next": [
                 "Siguiente"
             ],
@@ -300,6 +550,12 @@
             ],
             "No Recurrence": [
                 "Sin recurrencia"
+            ],
+            "No announcements found": [
+                "No se encontraron anuncios"
+            ],
+            "No announcements found in trash": [
+                "No se encontraron anuncios en la papelera"
             ],
             "No archived events found.": [
                 "No se encontraron eventos archivados."
@@ -313,11 +569,23 @@
             "No upcoming events found.": [
                 "No se encontraron próximos eventos."
             ],
+            "Not provided": [
+                "No proporcionado"
+            ],
+            "Not set": [
+                "No establecido"
+            ],
+            "Note: If you don't see our emails, please check your spam or junk folder.": [
+                "Nota: Si no ves nuestros correos, revisa tu carpeta de spam o correo no deseado."
+            ],
             "Nov": [
                 "Nov"
             ],
             "November": [
                 "Noviembre"
+            ],
+            "Now": [
+                "Ahora"
             ],
             "Oct": [
                 "Oct"
@@ -334,6 +602,18 @@
             "On these days": [
                 "En estos días"
             ],
+            "Order:": [
+                "Orden:"
+            ],
+            "Past events": [
+                "Eventos pasados"
+            ],
+            "Please confirm your subscription to %s announcements": [
+                "Por favor, confirma tu suscripción a los anuncios de %s"
+            ],
+            "Please enter a valid email address.": [
+                "Por favor, ingresa una dirección de correo electrónico válida."
+            ],
             "Please fill in all required fields: %s": [
                 "Por favor, completa todos los campos obligatorios: %s"
             ],
@@ -345,6 +625,9 @@
             ],
             "Point of Contact Name (Private)": [
                 "Nombre de contacto (Privado)"
+            ],
+            "Preferences Saved": [
+                "Preferencias guardadas"
             ],
             "Previous": [
                 "Anterior"
@@ -358,17 +641,33 @@
             "Printed on": [
                 "Impreso el"
             ],
+            "Priority": [
+                "Prioridad"
+            ],
+            "RELATED EVENT": [
+                "EVENTO RELACIONADO",
+                "EVENTOS RELACIONADOS"
+            ],
             "Read More": [
                 "Leer más"
             ],
             "RSS Feed": [
                 "Feed RSS"
             ],
+            "Recurring": [
+                "Recurrente"
+            ],
             "Recurring Event": [
                 "Evento recurrente"
             ],
             "Recurring Pattern": [
                 "Patrón de recurrencia"
+            ],
+            "Recurring Pattern:": [
+                "Patrón de recurrencia:"
+            ],
+            "Recurring events": [
+                "Eventos recurrentes"
             ],
             "Related Links & Events": [
                 "Enlaces y eventos relacionados"
@@ -379,14 +678,32 @@
             "Repeat every": [
                 "Repetir cada"
             ],
+            "Return to %s": [
+                "Volver a %s"
+            ],
+            "Review and edit this announcement:": [
+                "Revisar y editar este anuncio:"
+            ],
             "Sat": [
                 "Sáb"
             ],
             "Saturday": [
                 "Sábado"
             ],
+            "Save Preferences": [
+                "Guardar preferencias"
+            ],
+            "Scheduled": [
+                "Programado"
+            ],
+            "Search Announcements": [
+                "Buscar anuncios"
+            ],
             "Second": [
                 "Segundo"
+            ],
+            "Security check failed": [
+                "Verificación de seguridad fallida"
             ],
             "Select Event Type": [
                 "Seleccionar tipo de evento"
@@ -415,14 +732,35 @@
             "Service Body": [
                 "Cuerpo de servicio"
             ],
+            "Service Body (%s)": [
+                "Cuerpo de servicio (%s)"
+            ],
+            "Service Body ID: %s": [
+                "ID del cuerpo de servicio: %s"
+            ],
             "Service Body:": [
                 "Cuerpo de servicio:"
+            ],
+            "Service Body: %1$s (ID: %2$s)": [
+                "Cuerpo de servicio: %1$s (ID: %2$s)"
+            ],
+            "Settings": [
+                "Ajustes"
             ],
             "Shortcode for this event list:": [
                 "Shortcode para esta lista de eventos:"
             ],
+            "Shortcodes": [
+                "Shortcodes"
+            ],
             "Show Shortcode": [
                 "Mostrar shortcode"
+            ],
+            "Sort By:": [
+                "Ordenar por:"
+            ],
+            "Source:": [
+                "Fuente:"
             ],
             "Start Date": [
                 "Fecha de inicio"
@@ -430,11 +768,20 @@
             "Start Date\/Time": [
                 "Fecha\/hora de inicio"
             ],
+            "Start Date: %s": [
+                "Fecha de inicio: %s"
+            ],
             "Start Time": [
                 "Hora de inicio"
             ],
+            "Start Time: %s": [
+                "Hora de inicio: %s"
+            ],
             "Start:": [
                 "Inicio:"
+            ],
+            "Status": [
+                "Estado"
             ],
             "Submit Announcement": [
                 "Enviar anuncio"
@@ -442,14 +789,26 @@
             "Submit Event": [
                 "Enviar evento"
             ],
+            "Submitted by:": [
+                "Enviado por:"
+            ],
             "Submitting...": [
                 "Enviando..."
             ],
             "Subscribe": [
                 "Suscribirse"
             ],
+            "Subscribers": [
+                "Suscriptores"
+            ],
             "Subscribing...": [
                 "Suscribiendo..."
+            ],
+            "Subscription Confirmed": [
+                "Suscripción confirmada"
+            ],
+            "Subscription not found.": [
+                "Suscripción no encontrada."
             ],
             "Sun": [
                 "Dom"
@@ -462,6 +821,18 @@
             ],
             "Tags": [
                 "Etiquetas"
+            ],
+            "Tags (comma-separated slugs):": [
+                "Etiquetas (slugs separados por comas):"
+            ],
+            "Tags:": [
+                "Etiquetas:"
+            ],
+            "Tags: %s": [
+                "Etiquetas: %s"
+            ],
+            "Text Color (hex):": [
+                "Color del texto (hex):"
             ],
             "The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)": [
                 "El archivo seleccionado no es una imagen válida, por lo que no se enviará. Por favor, elige un archivo de imagen válido (JPG, PNG o GIF)"
@@ -477,6 +848,9 @@
             ],
             "Third": [
                 "Tercero"
+            ],
+            "This email is already subscribed.": [
+                "Este correo electrónico ya está suscrito."
             ],
             "This event repeats daily": [
                 "Este evento se repite diariamente"
@@ -505,8 +879,23 @@
             "Thursday": [
                 "Jueves"
             ],
+            "Time Format:": [
+                "Formato de hora:"
+            ],
+            "Time:": [
+                "Hora:"
+            ],
             "Timezone": [
                 "Zona horaria"
+            ],
+            "Timezone: %s": [
+                "Zona horaria: %s"
+            ],
+            "Title": [
+                "Título"
+            ],
+            "Title: %s": [
+                "Título: %s"
             ],
             "Today": [
                 "Hoy"
@@ -517,11 +906,17 @@
             "Tuesday": [
                 "Martes"
             ],
+            "Type": [
+                "Tipo"
+            ],
             "Type:": [
                 "Tipo:"
             ],
             "Unaffiliated (0)": [
                 "Sin afiliación (0)"
+            ],
+            "Unknown Event": [
+                "Evento desconocido"
             ],
             "Unnamed Category": [
                 "Categoría sin nombre"
@@ -529,8 +924,20 @@
             "Unnamed Tag": [
                 "Etiqueta sin nombre"
             ],
+            "Unsubscribe": [
+                "Cancelar suscripción"
+            ],
+            "Unsubscribe Error": [
+                "Error al cancelar suscripción"
+            ],
+            "Unsubscribed": [
+                "Suscripción cancelada"
+            ],
             "Until:": [
                 "Hasta:"
+            ],
+            "Upcoming events": [
+                "Próximos eventos"
             ],
             "Upload Flyer": [
                 "Subir volante"
@@ -538,14 +945,26 @@
             "Upload Image": [
                 "Subir imagen"
             ],
+            "View Announcement": [
+                "Ver anuncio"
+            ],
+            "View Event": [
+                "Ver evento"
+            ],
             "View Event Details": [
                 "Ver detalles del evento"
             ],
             "View Full Details": [
                 "Ver detalles completos"
             ],
+            "View online:": [
+                "Ver en línea:"
+            ],
             "View past events": [
                 "Ver eventos pasados"
+            ],
+            "View the event: %s": [
+                "Ver el evento: %s"
             ],
             "Wed": [
                 "Mié"
@@ -559,6 +978,9 @@
             "Weekly": [
                 "Semanal"
             ],
+            "Welcome to %s announcements": [
+                "Bienvenido a los anuncios de %s"
+            ],
             "When:": [
                 "Cuándo:"
             ],
@@ -571,17 +993,56 @@
             "You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)": [
                 "No adjuntaste un archivo de imagen válido. Por favor, elige un archivo de imagen válido (JPG, PNG o GIF)"
             ],
+            "You have already been unsubscribed.": [
+                "Ya se ha cancelado tu suscripción."
+            ],
+            "You have been unsubscribed and will no longer receive announcement emails.": [
+                "Se ha cancelado tu suscripción y ya no recibirás correos de anuncios."
+            ],
+            "You have requested to subscribe to announcements from %s.": [
+                "Has solicitado suscribirte a los anuncios de %s."
+            ],
+            "You'll receive an email whenever a new announcement is published.": [
+                "Recibirás un correo electrónico cada vez que se publique un nuevo anuncio."
+            ],
+            "You're now subscribed to announcements from %s.": [
+                "Ahora estás suscrito a los anuncios de %s."
+            ],
+            "Your Event Has Been Published: %s": [
+                "Tu evento ha sido publicado: %s"
+            ],
+            "Your Preferences": [
+                "Tus preferencias"
+            ],
             "Your email address (will not be displayed publicly)": [
                 "Tu correo electrónico (no se mostrará públicamente)"
             ],
             "Your name (will not be displayed publicly)": [
                 "Tu nombre (no se mostrará públicamente)"
             ],
+            "Your subscription has been confirmed! You will now receive announcement emails.": [
+                "¡Tu suscripción ha sido confirmada! Ahora recibirás correos de anuncios."
+            ],
+            "Your subscription is already confirmed.": [
+                "Tu suscripción ya está confirmada."
+            ],
+            "Your subscription preferences have been updated.": [
+                "Tus preferencias de suscripción han sido actualizadas."
+            ],
+            "[%1$s] New Announcement Submission: %2$s": [
+                "[%1$s] Nuevo anuncio enviado: %2$s"
+            ],
             "at": [
                 "a las"
             ],
             "days": [
                 "días"
+            ],
+            "e.g., announcements, alerts": [
+                "ej., anuncios, alertas"
+            ],
+            "e.g., featured, urgent": [
+                "ej., destacados, urgentes"
             ],
             "fifth": [
                 "quinto"
