@@ -1875,9 +1875,8 @@
 
 .mayo-event-filters {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1rem;
-    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.75rem;
     margin-bottom: 1rem;
     padding: 0.75rem;
     background: #f6f7f7;
@@ -1885,45 +1884,68 @@
     border-radius: 4px;
 }
 
-.mayo-event-filter {
+.mayo-event-filter-group {
     display: flex;
     flex-direction: column;
-    min-width: 160px;
-    flex: 1 1 160px;
+    gap: 0.375rem;
 }
 
 .mayo-event-filter-label {
     font-size: 0.85em;
     font-weight: 600;
-    margin-bottom: 0.25rem;
     color: #1d2327;
 }
 
-.mayo-event-filter-select {
-    padding: 0.4rem 0.5rem;
-    border: 1px solid #8c8f94;
-    border-radius: 3px;
-    background: #fff;
-    font-size: 0.95em;
-    line-height: 1.4;
-    max-width: 100%;
+.mayo-event-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
 }
 
-.mayo-event-filter-select:focus {
+.mayo-event-filter-pill {
+    appearance: none;
+    background: #fff;
+    border: 1px solid #8c8f94;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.9em;
+    line-height: 1.2;
+    color: #1d2327;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.mayo-event-filter-pill:hover {
     border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
-    outline: 2px solid transparent;
+    color: #2271b1;
+}
+
+.mayo-event-filter-pill:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+.mayo-event-filter-pill[aria-pressed="true"] {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.mayo-event-filter-pill[aria-pressed="true"]:hover {
+    background: #135e96;
+    border-color: #135e96;
+    color: #fff;
 }
 
 .mayo-event-filter-clear {
-    align-self: flex-end;
+    align-self: flex-start;
     background: transparent;
     border: 1px solid #8c8f94;
     border-radius: 3px;
-    padding: 0.4rem 0.75rem;
+    padding: 0.35rem 0.75rem;
     cursor: pointer;
     color: #1d2327;
-    font-size: 0.9em;
+    font-size: 0.85em;
 }
 
 .mayo-event-filter-clear:hover {

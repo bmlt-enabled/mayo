@@ -8,13 +8,14 @@ import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
 import { getUserTimezone } from '../../timezones';
 
-const EMPTY_FILTERS = { event_type: '', service_body: '', categories: '', tags: '' };
+const EMPTY_FILTERS = { event_type: [], service_body: [], categories: [], tags: [] };
 const EMPTY_FACETS = { event_types: [], service_bodies: [], categories: [], tags: [] };
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
     const loaderRef = useRef(null);
     const updateTimeout = useRef(null);
+    const isInitialFilterEffect = useRef(true);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [events, setEvents] = useState([]);
@@ -63,8 +64,9 @@ const EventList = ({ widget = false, settings = {} }) => {
         setHasMore(true);
         setTotalPages(1);
         setActiveFilters(EMPTY_FILTERS);
+        isInitialFilterEffect.current = true;
 
-        fetchEvents(1, EMPTY_FILTERS);
+        fetchEvents(1);
         if (!widget) {
             fetchFacets();
         }
@@ -281,53 +283,61 @@ const EventList = ({ widget = false, settings = {} }) => {
         return [...validEvents, ...invalidEvents];
     };
 
-    // Resolve a filter value with precedence: querystring > runtimeFilters > settings.
-    // Locked filters always use the settings value (the shortcode pin) so a user
-    // can't widen scope past what the site admin allowed.
-    const resolveFilter = (key, qsKey, settingsKey, runtimeFilters) => {
+    // Resolve a filter value with precedence: querystring > runtime selection > shortcode setting.
+    // Locked filters always use the settings value (the shortcode pin) so a user can't widen
+    // scope past what the site admin allowed. Runtime selection is an array (multi-select pills).
+    const resolveFilterValue = (key, qsKey, settingsKey) => {
         const qs = getQueryStringValue(qsKey);
         if (qs !== null) return qs;
-        if (!lockedFilters.has(key) && runtimeFilters && runtimeFilters[key]) {
-            return runtimeFilters[key];
+        if (lockedFilters.has(key)) {
+            return settings?.[settingsKey] || '';
+        }
+        const runtime = activeFilters[key];
+        if (Array.isArray(runtime) && runtime.length > 0) {
+            return runtime.join(',');
         }
         return settings?.[settingsKey] || '';
     };
 
+    const buildEventsQueryParams = (extra = {}) => {
+        const params = new URLSearchParams();
+        const status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
+        const relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
+        const categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
+        const sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
+        const archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
+        const order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
+
+        params.append('status', status);
+        params.append('event_type', resolveFilterValue('event_type', 'event_type', 'eventType'));
+        params.append('service_body', resolveFilterValue('service_body', 'service_body', 'serviceBody'));
+        params.append('relation', relation);
+        params.append('categories', resolveFilterValue('categories', 'categories', 'categories'));
+        params.append('category_relation', categoryRelation);
+        params.append('tags', resolveFilterValue('tags', 'tags', 'tags'));
+        params.append('source_ids', sourceIds);
+        params.append('timezone', userTimezone);
+        params.append('current_time', new Date().toISOString());
+        params.append('archive', archive);
+        params.append('order', order);
+
+        Object.entries(extra).forEach(([k, v]) => params.append(k, String(v)));
+        return params;
+    };
+
     // Update fetchEvents to use processEvents
-    const fetchEvents = async (page = 1, filterOverrides = null) => {
+    const fetchEvents = async (page = 1) => {
         setLoading(true);
         try {
-            const filters = filterOverrides || activeFilters;
-            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
-            let eventType = resolveFilter('event_type', 'event_type', 'eventType', filters);
-            let serviceBody = resolveFilter('service_body', 'service_body', 'serviceBody', filters);
-            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
-            let categories = resolveFilter('categories', 'categories', 'categories', filters);
-            let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
-            let tags = resolveFilter('tags', 'tags', 'tags', filters);
-            let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
-            let archive = getQueryStringValue('archive') !== null ? getQueryStringValue('archive') : (settings?.showArchived ? 'true' : 'false');
-            let infiniteScroll = getQueryStringValue('infinite_scroll') !== null ? getQueryStringValue('infinite_scroll') === 'true' : (settings?.infiniteScroll ?? true);
-            let perPage = getQueryStringValue('per_page') !== null ? parseInt(getQueryStringValue('per_page')) : (settings?.perPage || 10);
-            let order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
+            const infiniteScroll = getQueryStringValue('infinite_scroll') !== null
+                ? getQueryStringValue('infinite_scroll') === 'true'
+                : (settings?.infiniteScroll ?? true);
+            const perPage = getQueryStringValue('per_page') !== null
+                ? parseInt(getQueryStringValue('per_page'))
+                : (settings?.perPage || 10);
 
-            // Build the endpoint URL with query parameters
-            const endpoint = `/events?status=${status}`
-                + `&event_type=${eventType}`
-                + `&service_body=${serviceBody}`
-                + `&relation=${relation}`
-                + `&categories=${categories}`
-                + `&category_relation=${categoryRelation}`
-                + `&tags=${tags}`
-                + `&source_ids=${sourceIds}`
-                + `&page=${page}`
-                + `&per_page=${perPage}`
-                + `&timezone=${encodeURIComponent(userTimezone)}`
-                + `&current_time=${encodeURIComponent(new Date().toISOString())}`
-                + `&archive=${archive}`
-                + `&order=${order}`;
-            
-            const data = await apiFetch(endpoint);
+            const params = buildEventsQueryParams({ page, per_page: perPage });
+            const data = await apiFetch(`/events?${params.toString()}`);
 
             // Handle both old and new response formats
             const events = Array.isArray(data) ? data : (data.events || []);
@@ -376,42 +386,19 @@ const EventList = ({ widget = false, settings = {} }) => {
     };
 
     // Fetch events for calendar view by date range
-    const fetchCalendarEvents = async (year, month, filterOverrides = null) => {
+    const fetchCalendarEvents = async (year, month) => {
         setCalendarLoading(true);
         try {
-            const filters = filterOverrides || activeFilters;
-            let status = getQueryStringValue('status') !== null ? getQueryStringValue('status') : (settings?.status || 'publish');
-            let eventType = resolveFilter('event_type', 'event_type', 'eventType', filters);
-            let serviceBody = resolveFilter('service_body', 'service_body', 'serviceBody', filters);
-            let relation = getQueryStringValue('relation') !== null ? getQueryStringValue('relation') : (settings?.relation || 'AND');
-            let categories = resolveFilter('categories', 'categories', 'categories', filters);
-            let categoryRelation = getQueryStringValue('category_relation') !== null ? getQueryStringValue('category_relation') : (settings?.categoryRelation || 'OR');
-            let tags = resolveFilter('tags', 'tags', 'tags', filters);
-            let sourceIds = getQueryStringValue('source_ids') !== null ? getQueryStringValue('source_ids') : (settings?.sourceIds || '');
-            let order = getQueryStringValue('order') !== null ? getQueryStringValue('order') : (settings?.order || 'ASC');
-
-            // Calculate start and end dates for the month
             const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
             const lastDay = new Date(year, month + 1, 0).getDate();
             const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
-            // Build the endpoint URL with date range parameters
-            const endpoint = `/events?status=${status}`
-                + `&event_type=${eventType}`
-                + `&service_body=${serviceBody}`
-                + `&relation=${relation}`
-                + `&categories=${categories}`
-                + `&category_relation=${categoryRelation}`
-                + `&tags=${tags}`
-                + `&source_ids=${sourceIds}`
-                + `&timezone=${encodeURIComponent(userTimezone)}`
-                + `&current_time=${encodeURIComponent(new Date().toISOString())}`
-                + `&order=${order}`
-                + `&start_date=${startDate}`
-                + `&end_date=${endDate}`
-                + `&per_page=100`; // Get all events for the month
-
-            const data = await apiFetch(endpoint);
+            const params = buildEventsQueryParams({
+                start_date: startDate,
+                end_date: endDate,
+                per_page: 100,
+            });
+            const data = await apiFetch(`/events?${params.toString()}`);
 
             // Handle both old and new response formats
             const fetchedEvents = Array.isArray(data) ? data : (data.events || []);
@@ -475,17 +462,36 @@ const EventList = ({ widget = false, settings = {} }) => {
         }
     };
 
-    const handleFilterChange = (key, value) => {
-        const next = key === '__clear__' ? { ...EMPTY_FILTERS } : { ...activeFilters, [key]: value };
-        setActiveFilters(next);
+    const handleToggleFilter = (key, value) => {
+        if (lockedFilters.has(key)) {
+            return;
+        }
+        const current = Array.isArray(activeFilters[key]) ? activeFilters[key] : [];
+        const next = current.includes(value)
+            ? current.filter(v => v !== value)
+            : [...current, value];
+        setActiveFilters({ ...activeFilters, [key]: next });
+    };
+
+    const handleClearFilters = () => {
+        setActiveFilters(EMPTY_FILTERS);
+    };
+
+    // Refetch whenever the user changes a filter. The init useEffect handles the
+    // first load; this one fires only on subsequent activeFilters changes.
+    useEffect(() => {
+        if (isInitialFilterEffect.current) {
+            isInitialFilterEffect.current = false;
+            return;
+        }
         setCurrentPage(1);
         setEvents([]);
         setHasMore(true);
-        fetchEvents(1, next);
+        fetchEvents(1);
         if (viewMode === 'calendar' && !isWidget) {
-            fetchCalendarEvents(calendarDate.getFullYear(), calendarDate.getMonth(), next);
+            fetchCalendarEvents(calendarDate.getFullYear(), calendarDate.getMonth());
         }
-    };
+    }, [activeFilters]);
 
     const handlePrint = () => {
         // Create a new window for printing
@@ -610,13 +616,14 @@ const EventList = ({ widget = false, settings = {} }) => {
         };
     };
 
-    const hasActiveFilters = Object.values(activeFilters).some(v => v);
+    const hasActiveFilters = Object.values(activeFilters).some(arr => Array.isArray(arr) && arr.length > 0);
 
     const renderFilters = () => (!isWidget ? (
         <EventFilters
             facets={facets}
             selected={activeFilters}
-            onChange={handleFilterChange}
+            onToggle={handleToggleFilter}
+            onClear={handleClearFilters}
             lockedFilters={lockedFilters}
         />
     ) : null);
