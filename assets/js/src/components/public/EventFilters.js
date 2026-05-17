@@ -1,24 +1,25 @@
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 const FACET_DEFS = [
     {
         key: 'event_type',
-        /* translators: dropdown title/placeholder for the event-type filter */
+        /* translators: filter pill label and panel title for the event-type filter */
         i18nLabel: () => __('Event Type', 'mayo-events-manager'),
     },
     {
         key: 'service_body',
-        /* translators: dropdown title/placeholder for the service-body filter */
+        /* translators: filter pill label and panel title for the service-body filter */
         i18nLabel: () => __('Service Body', 'mayo-events-manager'),
     },
     {
         key: 'categories',
-        /* translators: dropdown title/placeholder for the category filter */
+        /* translators: filter pill label and panel title for the category filter */
         i18nLabel: () => __('Category', 'mayo-events-manager'),
     },
     {
         key: 'tags',
-        /* translators: dropdown title/placeholder for the tag filter */
+        /* translators: filter pill label and panel title for the tag filter */
         i18nLabel: () => __('Tag', 'mayo-events-manager'),
     },
 ];
@@ -42,13 +43,40 @@ const normalizeOptions = (key, facets) => {
     return [];
 };
 
-const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilters }) => {
+const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) => {
+    const containerRef = useRef(null);
+    const [openFacet, setOpenFacet] = useState(null);
+
     const visibleFacets = FACET_DEFS.filter(def => {
         if (lockedFilters?.has(def.key)) {
             return false;
         }
         return normalizeOptions(def.key, facets).length > 0;
     });
+
+    // Close the open panel when clicking outside, pressing Escape, or when the
+    // visible facets change underneath us.
+    useEffect(() => {
+        if (!openFacet) {
+            return undefined;
+        }
+        const onMouseDown = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setOpenFacet(null);
+            }
+        };
+        const onKey = (e) => {
+            if (e.key === 'Escape') {
+                setOpenFacet(null);
+            }
+        };
+        document.addEventListener('mousedown', onMouseDown);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('mousedown', onMouseDown);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [openFacet]);
 
     if (visibleFacets.length === 0) {
         return null;
@@ -57,56 +85,84 @@ const EventFilters = ({ facets, selected, onAdd, onRemove, onClear, lockedFilter
     const hasAnySelection = Object.values(selected || {}).some(arr => Array.isArray(arr) && arr.length > 0);
 
     return (
-        <div className="mayo-event-filters" role="region" aria-label={__('Event filters', 'mayo-events-manager')}>
+        <div
+            className="mayo-event-filters"
+            role="region"
+            aria-label={__('Event filters', 'mayo-events-manager')}
+            ref={containerRef}
+        >
             {visibleFacets.map(def => {
                 const options = normalizeOptions(def.key, facets);
                 const activeValues = Array.isArray(selected?.[def.key]) ? selected[def.key] : [];
-                const availableOptions = options.filter(opt => !activeValues.includes(opt.value));
-                const valueToLabel = new Map(options.map(opt => [opt.value, opt.label]));
-                const selectId = `mayo-event-filter-${def.key}`;
+                const isOpen = openFacet === def.key;
+                const count = activeValues.length;
+                const label = def.i18nLabel();
+                const panelId = `mayo-event-filter-panel-${def.key}`;
                 return (
-                    <div key={def.key} className="mayo-event-filter-group">
-                        <select
-                            id={selectId}
-                            className="mayo-event-filter-add"
-                            aria-label={def.i18nLabel()}
-                            title={def.i18nLabel()}
-                            value=""
-                            onChange={(e) => {
-                                if (e.target.value) {
-                                    onAdd(def.key, e.target.value);
-                                    e.target.value = '';
-                                }
-                            }}
-                            disabled={availableOptions.length === 0}
+                    <div key={def.key} className="mayo-event-filter-pill-wrap">
+                        <button
+                            type="button"
+                            className={
+                                'mayo-event-filter-pill'
+                                + (isOpen ? ' is-open' : '')
+                                + (count > 0 ? ' has-selection' : '')
+                            }
+                            aria-haspopup="listbox"
+                            aria-expanded={isOpen}
+                            aria-controls={panelId}
+                            onClick={() => setOpenFacet(isOpen ? null : def.key)}
                         >
-                            <option value="">{def.i18nLabel()}</option>
-                            {availableOptions.map(option => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                        {activeValues.map(value => {
-                            const label = valueToLabel.get(value) || value;
-                            return (
-                                <span key={value} className="mayo-event-filter-chip">
-                                    <span className="mayo-event-filter-chip-label">{label}</span>
+                            <span className="mayo-event-filter-pill-label">{label}</span>
+                            {count > 0 && (
+                                <span className="mayo-event-filter-pill-count">{count}</span>
+                            )}
+                        </button>
+                        {isOpen && (
+                            <div
+                                id={panelId}
+                                className="mayo-event-filter-panel"
+                                role="listbox"
+                                aria-multiselectable="true"
+                                aria-label={label}
+                            >
+                                <div className="mayo-event-filter-panel-header">
+                                    <span className="mayo-event-filter-panel-title">{label}</span>
                                     <button
                                         type="button"
-                                        className="mayo-event-filter-chip-remove"
-                                        onClick={() => onRemove(def.key, value)}
+                                        className="mayo-event-filter-panel-close"
+                                        onClick={() => setOpenFacet(null)}
                                         aria-label={sprintf(
-                                            /* translators: %s: filter value being removed */
-                                            __('Remove filter %s', 'mayo-events-manager'),
+                                            /* translators: %s: filter facet name being closed */
+                                            __('Close %s filter', 'mayo-events-manager'),
                                             label
                                         )}
                                     >
                                         ×
                                     </button>
-                                </span>
-                            );
-                        })}
+                                </div>
+                                <ul className="mayo-event-filter-panel-options">
+                                    {options.map(option => {
+                                        const isActive = activeValues.includes(option.value);
+                                        return (
+                                            <li key={option.value}>
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        'mayo-event-filter-option'
+                                                        + (isActive ? ' is-active' : '')
+                                                    }
+                                                    role="option"
+                                                    aria-selected={isActive}
+                                                    onClick={() => onToggle(def.key, option.value)}
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 );
             })}

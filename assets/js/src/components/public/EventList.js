@@ -456,23 +456,15 @@ const EventList = ({ widget = false, settings = {} }) => {
         }
     };
 
-    const handleAddFilter = (key, value) => {
+    const handleToggleFilter = (key, value) => {
         if (lockedFilters.has(key) || !value) {
             return;
         }
         const current = Array.isArray(activeFilters[key]) ? activeFilters[key] : [];
-        if (current.includes(value)) {
-            return;
-        }
-        setActiveFilters({ ...activeFilters, [key]: [...current, value] });
-    };
-
-    const handleRemoveFilter = (key, value) => {
-        if (lockedFilters.has(key)) {
-            return;
-        }
-        const current = Array.isArray(activeFilters[key]) ? activeFilters[key] : [];
-        setActiveFilters({ ...activeFilters, [key]: current.filter(v => v !== value) });
+        const next = current.includes(value)
+            ? current.filter(v => v !== value)
+            : [...current, value];
+        setActiveFilters({ ...activeFilters, [key]: next });
     };
 
     const handleClearFilters = () => {
@@ -622,8 +614,7 @@ const EventList = ({ widget = false, settings = {} }) => {
         <EventFilters
             facets={facets}
             selected={activeFilters}
-            onAdd={handleAddFilter}
-            onRemove={handleRemoveFilter}
+            onToggle={handleToggleFilter}
             onClear={handleClearFilters}
             lockedFilters={lockedFilters}
         />

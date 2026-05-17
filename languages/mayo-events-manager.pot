@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayo Events Manager\n"
 "Report-Msgid-Bugs-To: https://github.com/bmlt-enabled/mayo/issues\n"
-"POT-Creation-Date: 2026-05-17 18:17+0000\n"
+"POT-Creation-Date: 2026-05-17 18:24+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -292,11 +292,11 @@ msgstr ""
 msgid "Calendar"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:721
+#: assets/js/src/components/public/EventList.js:712
 msgid "Calendar Feed (ICS)"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:694
+#: assets/js/src/components/public/EventList.js:685
 msgid "Calendar View"
 msgstr ""
 
@@ -335,7 +335,7 @@ msgstr ""
 msgid "Categories: %s"
 msgstr ""
 
-#: assets/js/src/components/public/EventFilters.js:17
+#: assets/js/src/components/public/EventFilters.js:18
 msgid "Category"
 msgstr ""
 
@@ -350,8 +350,8 @@ msgstr ""
 msgid "Clear Upload"
 msgstr ""
 
-#: assets/js/src/components/public/EventFilters.js:118
-#: assets/js/src/components/public/EventFilters.js:119
+#: assets/js/src/components/public/EventFilters.js:174
+#: assets/js/src/components/public/EventFilters.js:175
 msgid "Clear filters"
 msgstr ""
 
@@ -370,7 +370,11 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:704
+#: assets/js/src/components/public/EventFilters.js:136
+msgid "Close %s filter"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:695
 msgid "Collapse All"
 msgstr ""
 
@@ -420,7 +424,7 @@ msgid "Control when this announcement is visible on the site."
 msgstr ""
 
 #: includes/Admin.php:602
-#: assets/js/src/components/public/EventList.js:753
+#: assets/js/src/components/public/EventList.js:744
 msgid "Copy"
 msgstr ""
 
@@ -432,7 +436,7 @@ msgstr ""
 msgid "Copy ID to clipboard"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:750
+#: assets/js/src/components/public/EventList.js:741
 msgid "Copy to Clipboard"
 msgstr ""
 
@@ -472,7 +476,7 @@ msgid "Date to skip"
 msgstr ""
 
 #: includes/Subscriber.php:900
-#: assets/js/src/components/public/EventList.js:584
+#: assets/js/src/components/public/EventList.js:576
 msgid "Date:"
 msgstr ""
 
@@ -725,7 +729,7 @@ msgstr ""
 #: assets/js/src/components/admin/Settings.js:522
 #: assets/js/src/components/public/EventForm.js:513
 #: assets/js/src/components/public/cards/EventCard.js:159
-#: assets/js/src/components/public/EventFilters.js:7
+#: assets/js/src/components/public/EventFilters.js:8
 #: assets/js/src/components/public/EventDetails.js:168
 msgid "Event Type"
 msgstr ""
@@ -746,7 +750,7 @@ msgstr ""
 msgid "Event details unavailable from %s"
 msgstr ""
 
-#: assets/js/src/components/public/EventFilters.js:60
+#: assets/js/src/components/public/EventFilters.js:91
 msgid "Event filters"
 msgstr ""
 
@@ -768,7 +772,7 @@ msgstr ""
 msgid "Events will show as announcements when today's date is between the event's start and end dates."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:704
+#: assets/js/src/components/public/EventList.js:695
 msgid "Expand All"
 msgstr ""
 
@@ -922,7 +926,7 @@ msgstr ""
 msgid "Go to Today"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:737
+#: assets/js/src/components/public/EventList.js:728
 msgid "Hide Shortcode"
 msgstr ""
 
@@ -1049,7 +1053,7 @@ msgstr ""
 msgid "Links & Events"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:687
+#: assets/js/src/components/public/EventList.js:678
 msgid "List View"
 msgstr ""
 
@@ -1067,13 +1071,13 @@ msgstr ""
 
 #: assets/js/src/components/admin/AnnouncementEditor.js:208
 #: assets/js/src/components/public/CalendarView.js:339
-#: assets/js/src/components/public/EventList.js:636
+#: assets/js/src/components/public/EventList.js:627
 #: assets/js/src/components/public/EventArchive.js:45
 msgid "Loading events..."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:783
-#: assets/js/src/components/public/EventList.js:788
+#: assets/js/src/components/public/EventList.js:774
+#: assets/js/src/components/public/EventList.js:779
 msgid "Loading more events..."
 msgstr ""
 
@@ -1117,7 +1121,7 @@ msgstr ""
 
 #: includes/Subscriber.php:917
 #: includes/Rest/EventsController.php:914
-#: assets/js/src/components/public/EventList.js:586
+#: assets/js/src/components/public/EventList.js:578
 msgid "Location:"
 msgstr ""
 
@@ -1255,11 +1259,11 @@ msgstr ""
 msgid "No events found"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:652
+#: assets/js/src/components/public/EventList.js:643
 msgid "No events found in the archive."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:650
+#: assets/js/src/components/public/EventList.js:641
 msgid "No events match the selected filters."
 msgstr ""
 
@@ -1280,7 +1284,7 @@ msgstr ""
 msgid "No subscription options configured. Configure them in the Settings page."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:654
+#: assets/js/src/components/public/EventList.js:645
 msgid "No upcoming events found."
 msgstr ""
 
@@ -1428,11 +1432,11 @@ msgstr ""
 msgid "Previous Month"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:712
+#: assets/js/src/components/public/EventList.js:703
 msgid "Print Events"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:578
+#: assets/js/src/components/public/EventList.js:570
 msgid "Printed on"
 msgstr ""
 
@@ -1452,7 +1456,7 @@ msgid_plural "RELATED EVENTS"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/src/components/public/EventList.js:730
+#: assets/js/src/components/public/EventList.js:721
 msgid "RSS Feed"
 msgstr ""
 
@@ -1497,10 +1501,6 @@ msgstr ""
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:380
 #: assets/js/src/components/admin/AnnouncementEditor.js:1133
 msgid "Remove"
-msgstr ""
-
-#: assets/js/src/components/public/EventFilters.js:101
-msgid "Remove filter %s"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:244
@@ -1653,7 +1653,7 @@ msgstr ""
 #: assets/js/src/components/public/EventForm.js:531
 #: assets/js/src/components/public/cards/EventCard.js:212
 #: assets/js/src/components/public/AnnouncementForm.js:451
-#: assets/js/src/components/public/EventFilters.js:12
+#: assets/js/src/components/public/EventFilters.js:13
 #: assets/js/src/components/public/EventDetails.js:175
 #: assets/js/src/components/public/AnnouncementDetails.js:191
 msgid "Service Body"
@@ -1689,7 +1689,7 @@ msgstr ""
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:746
+#: assets/js/src/components/public/EventList.js:737
 msgid "Shortcode for this event list:"
 msgstr ""
 
@@ -1699,7 +1699,7 @@ msgstr ""
 msgid "Shortcodes"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:737
+#: assets/js/src/components/public/EventList.js:728
 msgid "Show Shortcode"
 msgstr ""
 
@@ -1838,7 +1838,7 @@ msgstr ""
 msgid "Table of Contents"
 msgstr ""
 
-#: assets/js/src/components/public/EventFilters.js:22
+#: assets/js/src/components/public/EventFilters.js:23
 msgid "Tag"
 msgstr ""
 
@@ -1991,7 +1991,7 @@ msgid "Type"
 msgstr ""
 
 #: assets/js/src/components/admin/Settings.js:468
-#: assets/js/src/components/public/EventList.js:585
+#: assets/js/src/components/public/EventList.js:577
 #: assets/js/src/components/public/EventArchive.js:77
 msgid "Type:"
 msgstr ""
@@ -2102,7 +2102,7 @@ msgstr ""
 msgid "View online:"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:656
+#: assets/js/src/components/public/EventList.js:647
 msgid "View past events"
 msgstr ""
 
@@ -2212,7 +2212,7 @@ msgstr ""
 
 #: assets/js/src/components/public/cards/EventCard.js:147
 #: assets/js/src/components/public/cards/EventCard.js:152
-#: assets/js/src/components/public/EventList.js:584
+#: assets/js/src/components/public/EventList.js:576
 #: assets/js/src/components/public/EventDetails.js:183
 #: assets/js/src/components/public/EventDetails.js:188
 #: assets/js/src/components/public/AnnouncementDetails.js:98
