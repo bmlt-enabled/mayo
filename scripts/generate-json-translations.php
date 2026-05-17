@@ -35,12 +35,13 @@ foreach ($locales as $locale => $pluralForms) {
     $publicFile = "{$langDir}/mayo-events-manager-{$locale}-mayo-public.json";
     file_put_contents($publicFile, json_encode($publicJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
 
-    // Write JSON for admin-bundle handle (admin JS)
-    $adminJed = buildJed($locale, $pluralForms, $adminEntries);
+    // Write JSON for admin-bundle handle — include ALL JS strings since admin
+    // and public bundles share many strings (Event Type, Service Body, etc.)
+    $allJsJed = buildJed($locale, $pluralForms, $jsEntries);
     $adminFile = "{$langDir}/mayo-events-manager-{$locale}-admin-bundle.json";
-    file_put_contents($adminFile, json_encode($adminJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
+    file_put_contents($adminFile, json_encode($allJsJed, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n");
 
-    echo "{$locale}: wrote " . count($publicEntries) . " public + " . count($adminEntries) . " admin entries\n";
+    echo "{$locale}: wrote " . count($publicEntries) . " public + " . count($jsEntries) . " admin entries\n";
 }
 
 /**
