@@ -8,3 +8,5 @@ assets/js/dist
 coverage.xml
 coverage-report
 settings.local.json
+languages/*.mo
+languages/mayo-events-manager-*-*.json

@@ -18,9 +18,11 @@ help:  ## Print the help documentation
 $(ZIP_FILE): $(VENDOR_AUTOLOAD)
 	npm install
 	npm run build
+	$(MAKE) i18n
 	git archive --format=zip --output=${ZIP_FILENAME} $(COMMIT)
 	zip -r ${ZIP_FILENAME} vendor/ -x "*.neon" -x "*.toml" -x "*.stub" -x "*.bat" -x "**/carbon" -x "**/phpcs" -x "**/phpcbf"
 	zip -r ${ZIP_FILENAME} assets/js/dist
+	zip ${ZIP_FILENAME} languages/*.mo languages/mayo-events-manager-*-*.json
 	mkdir ${BUILD_DIR} && mv ${ZIP_FILENAME} ${BUILD_DIR}/
 
 .PHONY: build
@@ -59,3 +61,10 @@ pot: ## Regenerate languages/mayo-events-manager.pot from source
 .PHONY: translations
 translations: ## Generate JSON translation files for JS bundles from .po files
 	php scripts/generate-json-translations.php
+
+.PHONY: mo
+mo: ## Compile .po files to .mo
+	@cd languages && for f in *.po; do msgfmt --check "$$f" -o "$${f%.po}.mo"; done
+
+.PHONY: i18n
+i18n: translations mo ## Build all translation artifacts (.json + .mo) from .po files
