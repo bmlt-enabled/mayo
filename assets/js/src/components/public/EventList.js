@@ -732,7 +732,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                                 <span className="dashicons dashicons-printer"></span>
                             </button>
                             <button
-                                className="mayo-subscribe-button"
+                                className="mayo-cal-subscribe-button"
                                 onClick={() => setShowSubscribe(!showSubscribe)}
                                 title={showSubscribe ? __('Hide Calendar Subscription', 'mayo-events-manager') : __('Subscribe to Calendar', 'mayo-events-manager')}
                                 aria-expanded={showSubscribe}
