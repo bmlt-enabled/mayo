@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayo Events Manager\n"
 "Report-Msgid-Bugs-To: https://github.com/bmlt-enabled/mayo/issues\n"
-"POT-Creation-Date: 2026-05-17 18:24+0000\n"
+"POT-Creation-Date: 2026-05-20 03:28+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -293,10 +293,6 @@ msgid "Calendar"
 msgstr ""
 
 #: assets/js/src/components/public/EventList.js:712
-msgid "Calendar Feed (ICS)"
-msgstr ""
-
-#: assets/js/src/components/public/EventList.js:685
 msgid "Calendar View"
 msgstr ""
 
@@ -374,7 +370,7 @@ msgstr ""
 msgid "Close %s filter"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:695
+#: assets/js/src/components/public/EventList.js:722
 msgid "Collapse All"
 msgstr ""
 
@@ -423,8 +419,13 @@ msgstr ""
 msgid "Control when this announcement is visible on the site."
 msgstr ""
 
+#: assets/js/src/components/public/EventList.js:789
+msgid "Copied"
+msgstr ""
+
 #: includes/Admin.php:602
-#: assets/js/src/components/public/EventList.js:744
+#: assets/js/src/components/public/EventList.js:770
+#: assets/js/src/components/public/EventList.js:790
 msgid "Copy"
 msgstr ""
 
@@ -436,7 +437,8 @@ msgstr ""
 msgid "Copy ID to clipboard"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:741
+#: assets/js/src/components/public/EventList.js:767
+#: assets/js/src/components/public/EventList.js:785
 msgid "Copy to Clipboard"
 msgstr ""
 
@@ -476,7 +478,7 @@ msgid "Date to skip"
 msgstr ""
 
 #: includes/Subscriber.php:900
-#: assets/js/src/components/public/EventList.js:576
+#: assets/js/src/components/public/EventList.js:603
 msgid "Date:"
 msgstr ""
 
@@ -556,10 +558,18 @@ msgstr ""
 msgid "Display event-based announcements as a banner or modal."
 msgstr ""
 
+#: assets/js/src/components/public/EventList.js:814
+msgid "Download .ics file"
+msgstr ""
+
 #: assets/js/src/components/public/EventModal.js:140
 #: assets/js/src/components/public/cards/EventCard.js:181
 #: assets/js/src/components/public/EventDetails.js:134
 msgid "Download Flyer"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:811
+msgid "Download a one-time snapshot (.ics file)"
 msgstr ""
 
 #: assets/js/src/components/admin/CssClassesDocs.js:37
@@ -772,7 +782,7 @@ msgstr ""
 msgid "Events will show as announcements when today's date is between the event's start and end dates."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:695
+#: assets/js/src/components/public/EventList.js:722
 msgid "Expand All"
 msgstr ""
 
@@ -926,7 +936,11 @@ msgstr ""
 msgid "Go to Today"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:728
+#: assets/js/src/components/public/EventList.js:737
+msgid "Hide Calendar Subscription"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:754
 msgid "Hide Shortcode"
 msgstr ""
 
@@ -1053,7 +1067,7 @@ msgstr ""
 msgid "Links & Events"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:678
+#: assets/js/src/components/public/EventList.js:705
 msgid "List View"
 msgstr ""
 
@@ -1071,13 +1085,13 @@ msgstr ""
 
 #: assets/js/src/components/admin/AnnouncementEditor.js:208
 #: assets/js/src/components/public/CalendarView.js:339
-#: assets/js/src/components/public/EventList.js:627
+#: assets/js/src/components/public/EventList.js:654
 #: assets/js/src/components/public/EventArchive.js:45
 msgid "Loading events..."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:774
-#: assets/js/src/components/public/EventList.js:779
+#: assets/js/src/components/public/EventList.js:844
+#: assets/js/src/components/public/EventList.js:849
 msgid "Loading more events..."
 msgstr ""
 
@@ -1121,7 +1135,7 @@ msgstr ""
 
 #: includes/Subscriber.php:917
 #: includes/Rest/EventsController.php:914
-#: assets/js/src/components/public/EventList.js:578
+#: assets/js/src/components/public/EventList.js:605
 msgid "Location:"
 msgstr ""
 
@@ -1259,11 +1273,11 @@ msgstr ""
 msgid "No events found"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:643
+#: assets/js/src/components/public/EventList.js:670
 msgid "No events found in the archive."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:641
+#: assets/js/src/components/public/EventList.js:668
 msgid "No events match the selected filters."
 msgstr ""
 
@@ -1284,7 +1298,7 @@ msgstr ""
 msgid "No subscription options configured. Configure them in the Settings page."
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:645
+#: assets/js/src/components/public/EventList.js:672
 msgid "No upcoming events found."
 msgstr ""
 
@@ -1345,6 +1359,10 @@ msgstr ""
 
 #: assets/js/src/components/admin/AnnouncementEditor.js:1093
 msgid "Open Link"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:800
+msgid "Open in your default calendar app (Apple Calendar, Outlook, etc.)"
 msgstr ""
 
 #: assets/js/src/components/admin/Settings.js:651
@@ -1432,11 +1450,11 @@ msgstr ""
 msgid "Previous Month"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:703
+#: assets/js/src/components/public/EventList.js:730
 msgid "Print Events"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:570
+#: assets/js/src/components/public/EventList.js:597
 msgid "Printed on"
 msgstr ""
 
@@ -1456,7 +1474,7 @@ msgid_plural "RELATED EVENTS"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/src/components/public/EventList.js:721
+#: assets/js/src/components/public/EventList.js:747
 msgid "RSS Feed"
 msgstr ""
 
@@ -1689,7 +1707,7 @@ msgstr ""
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:737
+#: assets/js/src/components/public/EventList.js:763
 msgid "Shortcode for this event list:"
 msgstr ""
 
@@ -1699,7 +1717,7 @@ msgstr ""
 msgid "Shortcodes"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:728
+#: assets/js/src/components/public/EventList.js:754
 msgid "Show Shortcode"
 msgstr ""
 
@@ -1785,6 +1803,18 @@ msgstr ""
 
 #: assets/js/src/components/public/SubscribeForm.js:224
 msgid "Subscribe"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:803
+msgid "Subscribe in default calendar app"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:737
+msgid "Subscribe to Calendar"
+msgstr ""
+
+#: assets/js/src/components/public/EventList.js:781
+msgid "Subscribe to this calendar:"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:390
@@ -1971,6 +2001,10 @@ msgstr ""
 msgid "Title: %s"
 msgstr ""
 
+#: assets/js/src/components/public/EventList.js:818
+msgid "To subscribe in Google Calendar: open Other calendars → From URL, then paste the link above. New events will sync automatically."
+msgstr ""
+
 #: assets/js/src/components/public/CalendarView.js:318
 msgid "Today"
 msgstr ""
@@ -1991,7 +2025,7 @@ msgid "Type"
 msgstr ""
 
 #: assets/js/src/components/admin/Settings.js:468
-#: assets/js/src/components/public/EventList.js:577
+#: assets/js/src/components/public/EventList.js:604
 #: assets/js/src/components/public/EventArchive.js:77
 msgid "Type:"
 msgstr ""
@@ -2102,7 +2136,7 @@ msgstr ""
 msgid "View online:"
 msgstr ""
 
-#: assets/js/src/components/public/EventList.js:647
+#: assets/js/src/components/public/EventList.js:674
 msgid "View past events"
 msgstr ""
 
@@ -2212,7 +2246,7 @@ msgstr ""
 
 #: assets/js/src/components/public/cards/EventCard.js:147
 #: assets/js/src/components/public/cards/EventCard.js:152
-#: assets/js/src/components/public/EventList.js:576
+#: assets/js/src/components/public/EventList.js:603
 #: assets/js/src/components/public/EventDetails.js:183
 #: assets/js/src/components/public/EventDetails.js:188
 #: assets/js/src/components/public/AnnouncementDetails.js:98

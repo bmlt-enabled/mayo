@@ -30,6 +30,8 @@ const EventList = ({ widget = false, settings = {} }) => {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [autoexpand, setAutoexpand] = useState(false);
     const [showShortcode, setShowShortcode] = useState(false);
+    const [showSubscribe, setShowSubscribe] = useState(false);
+    const [subscribeCopyState, setSubscribeCopyState] = useState('idle');
     const [viewMode, setViewMode] = useState(settings?.defaultView || 'list'); // 'list' or 'calendar'
     const [calendarDate, setCalendarDate] = useState(new Date()); // Current month for calendar view
     const [calendarEvents, setCalendarEvents] = useState([]); // Events for calendar view
@@ -243,6 +245,31 @@ const EventList = ({ widget = false, settings = {} }) => {
                 console.log('Shortcode copied to clipboard (fallback):', shortcode);
             } catch (fallbackErr) {
                 console.error('Fallback copy failed:', fallbackErr);
+            }
+            document.body.removeChild(textArea);
+        }
+    };
+
+    const getWebcalUrl = () => getIcsUrl().replace(/^https?:\/\//i, 'webcal://');
+
+    const handleCopySubscribeUrl = async () => {
+        const url = getIcsUrl();
+        try {
+            await navigator.clipboard.writeText(url);
+            setSubscribeCopyState('copied');
+            setTimeout(() => setSubscribeCopyState('idle'), 2000);
+        } catch (err) {
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                setSubscribeCopyState('copied');
+                setTimeout(() => setSubscribeCopyState('idle'), 2000);
+            } catch (fallbackErr) {
+                console.error('Failed to copy subscribe URL:', fallbackErr);
             }
             document.body.removeChild(textArea);
         }
@@ -704,15 +731,14 @@ const EventList = ({ widget = false, settings = {} }) => {
                             >
                                 <span className="dashicons dashicons-printer"></span>
                             </button>
-                            <a
-                                href={getIcsUrl()}
-                                className="mayo-rss-link"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                title={__('Calendar Feed (ICS)', 'mayo-events-manager')}
+                            <button
+                                className="mayo-cal-subscribe-button"
+                                onClick={() => setShowSubscribe(!showSubscribe)}
+                                title={showSubscribe ? __('Hide Calendar Subscription', 'mayo-events-manager') : __('Subscribe to Calendar', 'mayo-events-manager')}
+                                aria-expanded={showSubscribe}
                             >
                                 <span className="dashicons dashicons-calendar"></span>
-                            </a>
+                            </button>
                             <a
                                 href={getRssUrl()}
                                 className="mayo-rss-link"
@@ -747,6 +773,50 @@ const EventList = ({ widget = false, settings = {} }) => {
                             <div className="mayo-shortcode-text">
                                 <code>{generateShortcode()}</code>
                             </div>
+                        </div>
+                    )}
+                    {showSubscribe && (
+                        <div className="mayo-shortcode-display mayo-subscribe-display">
+                            <div className="mayo-shortcode-header">
+                                <strong>{__('Subscribe to this calendar:', 'mayo-events-manager')}</strong>
+                                <button
+                                    className="mayo-copy-shortcode"
+                                    onClick={handleCopySubscribeUrl}
+                                    title={__('Copy to Clipboard', 'mayo-events-manager')}
+                                >
+                                    <span className="dashicons dashicons-clipboard"></span>
+                                    {subscribeCopyState === 'copied'
+                                        ? __('Copied', 'mayo-events-manager')
+                                        : __('Copy', 'mayo-events-manager')}
+                                </button>
+                            </div>
+                            <div className="mayo-shortcode-text">
+                                <code>{getIcsUrl()}</code>
+                            </div>
+                            <div className="mayo-subscribe-actions">
+                                <a
+                                    href={getWebcalUrl()}
+                                    className="mayo-subscribe-action"
+                                    title={__('Open in your default calendar app (Apple Calendar, Outlook, etc.)', 'mayo-events-manager')}
+                                >
+                                    <span className="dashicons dashicons-calendar-alt"></span>
+                                    {__('Subscribe in default calendar app', 'mayo-events-manager')}
+                                </a>
+                                <a
+                                    href={getIcsUrl()}
+                                    className="mayo-subscribe-action"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download="mayo_events.ics"
+                                    title={__('Download a one-time snapshot (.ics file)', 'mayo-events-manager')}
+                                >
+                                    <span className="dashicons dashicons-download"></span>
+                                    {__('Download .ics file', 'mayo-events-manager')}
+                                </a>
+                            </div>
+                            <p className="mayo-subscribe-help">
+                                {__('To subscribe in Google Calendar: open Other calendars → From URL, then paste the link above. New events will sync automatically.', 'mayo-events-manager')}
+                            </p>
                         </div>
                     )}
                     {viewMode === 'calendar' ? (

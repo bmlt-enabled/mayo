@@ -2110,7 +2110,8 @@
 
 .mayo-expand-all-button,
 .mayo-print-button,
-.mayo-shortcode-button {
+.mayo-shortcode-button,
+.mayo-cal-subscribe-button {
     background: none;
     border: none;
     cursor: pointer;
@@ -2124,14 +2125,16 @@
 
 .mayo-expand-all-button:hover,
 .mayo-print-button:hover,
-.mayo-shortcode-button:hover {
+.mayo-shortcode-button:hover,
+.mayo-cal-subscribe-button:hover {
     color: #333;
 }
 
 .mayo-expand-all-button .dashicons,
 .mayo-print-button .dashicons,
 .mayo-rss-link .dashicons,
-.mayo-shortcode-button .dashicons {
+.mayo-shortcode-button .dashicons,
+.mayo-cal-subscribe-button .dashicons {
     font-size: 1.25rem;
     width: 1.25rem;
     height: 1.25rem;
@@ -2268,6 +2271,47 @@
     white-space: pre-wrap;
     background: none;
     padding: 0;
+}
+
+.mayo-subscribe-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.mayo-subscribe-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.75rem;
+    background: #f0f0f1;
+    color: #2271b1;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.mayo-subscribe-action:hover {
+    background: #e0e0e1;
+    border-color: #8c8f94;
+    color: #135e96;
+    text-decoration: none;
+}
+
+.mayo-subscribe-action .dashicons {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.mayo-subscribe-help {
+    margin: 0.75rem 0 0;
+    font-size: 0.85em;
+    color: #555;
+    line-height: 1.4;
 }
 
 /* =============================================
