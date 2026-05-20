@@ -341,6 +341,83 @@ class CalendarFeedTest extends TestCase {
         $this->assertEmpty($result);
     }
 
+    public function testBuildVeventSkipsPastNonRecurringEvent(): void {
+        $post = $this->createMockPost(['ID' => 200]);
+        $this->setPostMeta(200, [
+            'event_start_date' => '2020-01-01',
+            'event_end_date'   => '2020-01-01',
+            'event_start_time' => '10:00:00',
+            'event_end_time'   => '11:00:00',
+            'timezone'         => 'UTC',
+        ]);
+
+        $this->assertNull($this->buildVevent($post));
+    }
+
+    public function testBuildVeventSkipsPastEventWithTypeNonePattern(): void {
+        $post = $this->createMockPost(['ID' => 201]);
+        $this->setPostMeta(201, [
+            'event_start_date'   => '2020-01-01',
+            'event_end_date'     => '2020-01-01',
+            'event_start_time'   => '10:00:00',
+            'event_end_time'     => '11:00:00',
+            'timezone'           => 'UTC',
+            'recurring_pattern'  => ['type' => 'none', 'interval' => 1],
+        ]);
+
+        $this->assertNull($this->buildVevent($post));
+    }
+
+    public function testBuildVeventKeepsRealRecurrenceWithPastStartDate(): void {
+        $post = $this->createMockPost(['ID' => 202]);
+        $this->setPostMeta(202, [
+            'event_start_date'   => '2020-01-06',
+            'event_end_date'     => '2020-01-06',
+            'event_start_time'   => '19:00:00',
+            'event_end_time'     => '20:00:00',
+            'timezone'           => 'UTC',
+            'recurring_pattern'  => ['type' => 'weekly', 'interval' => 1, 'weekdays' => [1]],
+        ]);
+
+        $result = $this->buildVevent($post);
+        $this->assertNotNull($result);
+        $this->assertStringContainsString('RRULE:FREQ=WEEKLY;BYDAY=MO', $result['ics']);
+    }
+
+    public function testBuildVeventLocationWithOnlyAddressHasNoLeadingComma(): void {
+        $post = $this->createMockPost(['ID' => 203]);
+        $this->setPostMeta(203, [
+            'event_start_date' => '2030-01-01',
+            'event_end_date'   => '2030-01-01',
+            'event_start_time' => '10:00:00',
+            'event_end_time'   => '11:00:00',
+            'timezone'         => 'UTC',
+            'location_name'    => '',
+            'location_address' => 'https://us06web.zoom.us/j/12345',
+        ]);
+
+        $result = $this->buildVevent($post);
+        $this->assertStringContainsString('LOCATION:https://us06web.zoom.us/j/12345', $result['ics']);
+        $this->assertStringNotContainsString('LOCATION:\\, ', $result['ics']);
+        $this->assertStringNotContainsString('LOCATION:, ',   $result['ics']);
+    }
+
+    public function testBuildVeventLocationCombinesNameAndAddress(): void {
+        $post = $this->createMockPost(['ID' => 204]);
+        $this->setPostMeta(204, [
+            'event_start_date' => '2030-01-01',
+            'event_end_date'   => '2030-01-01',
+            'event_start_time' => '10:00:00',
+            'event_end_time'   => '11:00:00',
+            'timezone'         => 'UTC',
+            'location_name'    => 'Main Hall',
+            'location_address' => '123 Main St',
+        ]);
+
+        $result = $this->buildVevent($post);
+        $this->assertStringContainsString('LOCATION:Main Hall\\, 123 Main St', $result['ics']);
+    }
+
     /**
      * Helper: invoke build_vevent with the standard host.
      */

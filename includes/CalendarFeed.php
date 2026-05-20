@@ -135,15 +135,19 @@ class CalendarFeed {
             ],
         ];
 
+        $combined_meta_query = ['relation' => 'AND'];
         if (!empty($facet_query)) {
-            $combined_meta_query = [
-                'relation' => 'AND',
-                $facet_query,
-                $date_or_recurring,
-            ];
-        } else {
-            $combined_meta_query = $date_or_recurring;
+            if (count($facet_query) === 1) {
+                // Single-clause facet: flatten into the top-level AND group.
+                // Wrapping a one-element array as a nested meta_query group
+                // confuses WP_Meta_Query on some sites and yields zero matches.
+                $combined_meta_query[] = $facet_query[0];
+            } else {
+                $facet_query['relation'] = $relation;
+                $combined_meta_query[] = $facet_query;
+            }
         }
+        $combined_meta_query[] = $date_or_recurring;
 
         $args = [
             'post_type'        => 'mayo_event',
@@ -196,6 +200,16 @@ class CalendarFeed {
         $pattern             = get_post_meta($post->ID, 'recurring_pattern', true);
         $skipped_occurrences = get_post_meta($post->ID, 'skipped_occurrences', true) ?: [];
 
+        // recurring_pattern EXISTS matches even {type:'none'} rows, so filter past
+        // non-recurring events out here. Real recurring series with past start dates
+        // stay in — the RRULE controls which occurrences clients render.
+        $is_real_recurrence = is_array($pattern)
+            && isset($pattern['type'])
+            && $pattern['type'] !== 'none';
+        if (!$is_real_recurrence && $start_date < current_time('Y-m-d')) {
+            return null;
+        }
+
         $rrule = null;
         $exdates = [];
         $expand_fallback = false;
@@ -229,7 +243,13 @@ class CalendarFeed {
         $created       = gmdate('Ymd\THis\Z', strtotime($post->post_date_gmt));
         $last_modified = gmdate('Ymd\THis\Z', strtotime($post->post_modified_gmt));
         $dtstamp       = gmdate('Ymd\THis\Z');
-        $location_full = trim($location . ($location_addr ? (', ' . $location_addr) : ''));
+        if ($location && $location_addr) {
+            $location_full = $location . ', ' . $location_addr;
+        } elseif ($location) {
+            $location_full = $location;
+        } else {
+            $location_full = $location_addr;
+        }
 
         $common = [
             'dtstamp'       => $dtstamp,

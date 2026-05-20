@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.9.1 =
 * Added a subscribable ICS calendar feed so Google Calendar, Apple Calendar, and Outlook keep syncing newly approved events automatically. The calendar icon on the event list now opens a Subscribe panel with the feed URL, a webcal:// quick-subscribe link, a one-time .ics download, and Google Calendar instructions. Recurring events now emit proper RRULE/EXDATE so series display as a single repeating event in subscribers' calendars instead of one-shot duplicates, and each event's original timezone is preserved via VTIMEZONE blocks. [#277]
+* Fixed the ICS calendar feed returning zero events when a single filter (event_type or service_body) was applied, and stopped leaking past one-shot events into subscribers' calendars. Also fixed location lines rendering with a stray leading comma when only an address (not a venue name) was set. [#277]
 
 = 1.9.0 =
 * Added a filter bar above the event list and calendar. Visitors pick filters from compact dropdowns (event type, service body, category, tag); selected values appear as removable chips and combine with OR semantics within a facet and AND across facets. Options are populated from the actual events in scope, including service bodies surfaced by external feeds, and any filter pinned by a shortcode attribute stays locked. [#251]
