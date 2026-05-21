@@ -1513,47 +1513,12 @@ class EventsController {
     }
 
     /**
-     * Merge an external source's admin-configured filter with the user's
-     * runtime $_GET filter for a single facet.
+     * Build the filter params for an external feed request.
      *
-     * Both inputs are comma-separated strings. When both are non-empty, the
-     * result is their intersection so an admin's pin cannot be widened by
-     * the visitor. When only one is set, that one wins. When the user's
-     * selection has no overlap with the admin pin, the admin pin is kept
-     * (avoid widening scope).
-     *
-     * @param string $source_value Admin-configured value (may be empty)
-     * @param string $user_value   $_GET-provided value (may be empty)
-     * @return string Combined filter value (empty if neither set)
-     */
-    private static function merge_filter_value($source_value, $user_value) {
-        $source_value = is_string($source_value) ? trim($source_value) : '';
-        $user_value = is_string($user_value) ? trim($user_value) : '';
-
-        if ($source_value === '') {
-            return $user_value;
-        }
-        if ($user_value === '') {
-            return $source_value;
-        }
-
-        $source_list = array_filter(array_map('trim', explode(',', $source_value)), function ($v) {
-            return $v !== '';
-        });
-        $user_list = array_filter(array_map('trim', explode(',', $user_value)), function ($v) {
-            return $v !== '';
-        });
-        $intersection = array_values(array_intersect($source_list, $user_list));
-        if (!empty($intersection)) {
-            return implode(',', $intersection);
-        }
-        return $source_value;
-    }
-
-    /**
-     * Build the filter params (event_type, service_body, categories, tags) for
-     * an external feed request by merging the source's admin pin with the
-     * current visitor's $_GET selection.
+     * The visitor's live $_GET selection wins over the source's admin-configured
+     * default for each facet. Source defaults apply only when the visitor has
+     * not set that filter. `source_ids` is intentionally not forwarded — it is
+     * a local-only facet that selects which sources to query.
      *
      * @param array $source Source configuration entry
      * @return array Associative array of filter params (only set keys are returned)
@@ -1562,15 +1527,20 @@ class EventsController {
         $get_param = function ($key) {
             return isset($_GET[$key]) ? sanitize_text_field(wp_unslash($_GET[$key])) : '';
         };
-        $merged = [
-            'event_type' => self::merge_filter_value($source['event_type'] ?? '', $get_param('event_type')),
-            'service_body' => self::merge_filter_value($source['service_body'] ?? '', $get_param('service_body')),
-            'categories' => self::merge_filter_value($source['categories'] ?? '', $get_param('categories')),
-            'tags' => self::merge_filter_value($source['tags'] ?? '', $get_param('tags')),
+
+        $defaults = [
+            'event_type'        => $source['event_type'] ?? '',
+            'service_body'      => $source['service_body'] ?? '',
+            'relation'          => $source['relation'] ?? '',
+            'categories'        => $source['categories'] ?? '',
+            'category_relation' => $source['category_relation'] ?? '',
+            'tags'              => $source['tags'] ?? '',
         ];
 
         $params = [];
-        foreach ($merged as $key => $value) {
+        foreach ($defaults as $key => $source_value) {
+            $user_value = $get_param($key);
+            $value = $user_value !== '' ? $user_value : (string) $source_value;
             if ($value !== '') {
                 $params[$key] = $value;
             }

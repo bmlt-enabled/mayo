@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.1 =
+* Fixed external feed sources ignoring the visitor's event type and service body filters; user-selected filters now override each source's admin-pinned defaults so a "Service" filter no longer surfaces "Activity" events pulled from a remote feed. [#279]
 * Added a subscribable ICS calendar feed so Google Calendar, Apple Calendar, and Outlook keep syncing newly approved events automatically. The calendar icon on the event list now opens a Subscribe panel with the feed URL, a webcal:// quick-subscribe link, a one-time .ics download, and Google Calendar instructions. Recurring events now emit proper RRULE/EXDATE so series display as a single repeating event in subscribers' calendars instead of one-shot duplicates, and each event's original timezone is preserved via VTIMEZONE blocks. [#277]
 
 = 1.9.0 =
