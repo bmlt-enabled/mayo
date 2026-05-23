@@ -78,6 +78,7 @@ const Settings = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isTesting, setIsTesting] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
     const [externalSources, setExternalSources] = useState([]);
@@ -338,6 +339,30 @@ const Settings = () => {
         }
     };
 
+    const handleTestConnection = async () => {
+        try {
+            setIsTesting(true);
+            setError(null);
+            setSuccessMessage(null);
+
+            if (!isValidHttpsUrl(settings.bmlt_root_server)) {
+                throw new Error(__('BMLT Root Server URL must use HTTPS protocol.', 'mayo-events-manager'));
+            }
+
+            await apiFetch('/validate-root-server', {
+                method: 'POST',
+                body: JSON.stringify({ bmlt_root_server: settings.bmlt_root_server })
+            });
+
+            setSuccessMessage(__('Successfully connected to the BMLT root server.', 'mayo-events-manager'));
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            setError(err.message || __('Could not reach the BMLT root server.', 'mayo-events-manager'));
+        } finally {
+            setIsTesting(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="mayo-settings-loading">
@@ -397,6 +422,17 @@ const Settings = () => {
                             }
                             __next40pxDefaultSize={true}
                         />
+                    </PanelRow>
+
+                    <PanelRow>
+                        <Button
+                            isSecondary
+                            onClick={handleTestConnection}
+                            isBusy={isTesting}
+                            disabled={isTesting || !isValidHttpsUrl(settings.bmlt_root_server)}
+                        >
+                            {isTesting ? __('Testing…', 'mayo-events-manager') : __('Test connection', 'mayo-events-manager')}
+                        </Button>
                     </PanelRow>
 
                     <PanelRow>

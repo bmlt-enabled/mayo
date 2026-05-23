@@ -2,6 +2,8 @@
 
 namespace BmltEnabled\Mayo\Rest;
 
+use BmltEnabled\Mayo\Rest\Helpers\RootServerValidator;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
@@ -22,6 +24,14 @@ class SettingsController {
         register_rest_route('event-manager/v1', '/settings', [
             'methods' => 'POST',
             'callback' => [__CLASS__, 'update_settings'],
+            'permission_callback' => function() {
+                return current_user_can('manage_options');
+            }
+        ]);
+
+        register_rest_route('event-manager/v1', '/validate-root-server', [
+            'methods' => 'POST',
+            'callback' => [__CLASS__, 'validate_root_server'],
             'permission_callback' => function() {
                 return current_user_can('manage_options');
             }
@@ -78,9 +88,25 @@ class SettingsController {
         $params = $request->get_params();
         $settings = get_option('mayo_settings', []);
 
-        // Update BMLT root server
+        // Update BMLT root server. Validate only when the value actually
+        // changes so saving unrelated settings (or re-saving an already-valid
+        // root that is momentarily unreachable) never triggers a network call
+        // or blocks the save. The bad value is never persisted: an invalid
+        // root server returns early before any update_option(), preserving the
+        // previously stored value.
         if (isset($params['bmlt_root_server'])) {
-            $settings['bmlt_root_server'] = sanitize_text_field($params['bmlt_root_server']);
+            $new_root = sanitize_text_field($params['bmlt_root_server']);
+            $current_root = $settings['bmlt_root_server'] ?? '';
+
+            if ($new_root === '') {
+                $settings['bmlt_root_server'] = '';
+            } elseif ($new_root !== $current_root) {
+                $validated = RootServerValidator::validate($new_root);
+                if (is_wp_error($validated)) {
+                    return $validated;
+                }
+                $settings['bmlt_root_server'] = $validated;
+            }
         }
 
         // Update notification email
@@ -153,6 +179,36 @@ class SettingsController {
                 'subscription_service_bodies' => $settings['subscription_service_bodies'] ?? [],
                 'subscription_new_option_behavior' => $settings['subscription_new_option_behavior'] ?? 'opt_in'
             ]
+        ]);
+    }
+
+    /**
+     * Validate a BMLT root server URL without saving it.
+     *
+     * Backs the "Test connection" affordance in the admin Settings UI.
+     *
+     * @param \WP_REST_Request $request
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public static function validate_root_server($request) {
+        if (!current_user_can('manage_options')) {
+            return new \WP_Error(
+                'rest_forbidden',
+                __('Sorry, you are not allowed to validate settings.', 'mayo-events-manager'),
+                ['status' => 401]
+            );
+        }
+
+        $url = sanitize_text_field($request->get_param('bmlt_root_server') ?? '');
+        $result = RootServerValidator::validate($url);
+
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return new \WP_REST_Response([
+            'success' => true,
+            'bmlt_root_server' => $result,
         ]);
     }
 

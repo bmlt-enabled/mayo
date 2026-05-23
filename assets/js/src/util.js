@@ -217,7 +217,18 @@ export const apiFetch = async (endpoint, options = {}) => {
         const response = await fetch(url, fetchOptions);
 
         if (!response.ok) {
-            throw new Error(`API error: ${response.status} ${response.statusText}`);
+            // Prefer the REST API error message (e.g. WP_Error) when present
+            // so callers can show a meaningful reason instead of a bare status.
+            let message = `API error: ${response.status} ${response.statusText}`;
+            try {
+                const errorBody = await response.json();
+                if (errorBody && errorBody.message) {
+                    message = errorBody.message;
+                }
+            } catch (e) {
+                // Response body wasn't JSON; keep the status-based message.
+            }
+            throw new Error(message);
         }
 
         return await response.json();
