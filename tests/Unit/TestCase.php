@@ -111,6 +111,24 @@ abstract class TestCase extends PHPUnitTestCase {
             return filter_var($email, FILTER_VALIDATE_EMAIL) !== false ? $email : false;
         });
 
+        // URL parsing/validation helpers
+        Functions\when('wp_parse_url')->alias(function($url, $component = -1) {
+            return parse_url($url, $component);
+        });
+        Functions\when('untrailingslashit')->alias(function($string) {
+            return rtrim($string, '/\\');
+        });
+        Functions\when('wp_http_validate_url')->alias(function($url) {
+            $parsed = parse_url($url);
+            if (empty($parsed['scheme']) || empty($parsed['host'])) {
+                return false;
+            }
+            if (!in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
+                return false;
+            }
+            return $url;
+        });
+
         // URL functions
         Functions\stubs([
             'home_url' => 'https://example.com',

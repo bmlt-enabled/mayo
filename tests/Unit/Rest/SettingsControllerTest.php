@@ -87,6 +87,15 @@ class SettingsControllerTest extends TestCase {
     public function testAdminCanUpdateSettings(): void {
         $this->loginAsAdmin();
 
+        // The new root server differs from the stored value, so the save path
+        // validates it via a GetServerInfo handshake.
+        $this->mockWpRemoteGet([
+            'GetServerInfo' => [
+                'code' => 200,
+                'body' => [['version' => '3.0.0']],
+            ],
+        ]);
+
         $request = $this->createRestRequest('POST', '/event-manager/v1/settings', [
             'bmlt_root_server' => 'https://updated.bmlt.com',
             'notification_email' => 'updated@example.com',
@@ -241,5 +250,107 @@ class SettingsControllerTest extends TestCase {
         $this->assertStringContainsString('email1@example.com', $data['settings']['notification_email']);
         $this->assertStringContainsString('email2@example.com', $data['settings']['notification_email']);
         $this->assertStringContainsString('email3@example.com', $data['settings']['notification_email']);
+    }
+
+    /**
+     * Test a malformed root server is rejected and the previous value is preserved
+     */
+    public function testUpdateSettingsRejectsMalformedRootServer(): void {
+        $this->loginAsAdmin();
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/settings', [
+            'bmlt_root_server' => 'not a valid url'
+        ]);
+
+        $response = SettingsController::update_settings($request);
+
+        $this->assertInstanceOf(\WP_Error::class, $response);
+        $this->assertEquals('invalid_root_server_url', $response->get_error_code());
+
+        // Previous value preserved (nothing persisted)
+        $this->assertEquals('https://bmlt.example.com', $this->options['mayo_settings']['bmlt_root_server']);
+    }
+
+    /**
+     * Test an unreachable root server is rejected and the previous value is preserved
+     */
+    public function testUpdateSettingsRejectsUnreachableRootServer(): void {
+        $this->loginAsAdmin();
+
+        // Empty response map => wp_remote_get returns a WP_Error for any URL.
+        $this->mockWpRemoteGet([]);
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/settings', [
+            'bmlt_root_server' => 'https://unreachable.bmlt.com'
+        ]);
+
+        $response = SettingsController::update_settings($request);
+
+        $this->assertInstanceOf(\WP_Error::class, $response);
+        $this->assertEquals('root_server_unreachable', $response->get_error_code());
+
+        // Previous value preserved (nothing persisted)
+        $this->assertEquals('https://bmlt.example.com', $this->options['mayo_settings']['bmlt_root_server']);
+    }
+
+    /**
+     * Test the validate-root-server endpoint succeeds for a valid BMLT root
+     */
+    public function testValidateRootServerEndpointSucceeds(): void {
+        $this->loginAsAdmin();
+
+        $this->mockWpRemoteGet([
+            'GetServerInfo' => [
+                'code' => 200,
+                'body' => [['version' => '3.0.0']],
+            ],
+        ]);
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/validate-root-server', [
+            'bmlt_root_server' => 'https://valid.bmlt.com'
+        ]);
+
+        $response = SettingsController::validate_root_server($request);
+
+        $this->assertInstanceOf(\WP_REST_Response::class, $response);
+        $this->assertEquals(200, $response->get_status());
+
+        $data = $response->get_data();
+        $this->assertTrue($data['success']);
+        $this->assertEquals('https://valid.bmlt.com', $data['bmlt_root_server']);
+    }
+
+    /**
+     * Test the validate-root-server endpoint returns an error for an unreachable host
+     */
+    public function testValidateRootServerEndpointFailsForUnreachableHost(): void {
+        $this->loginAsAdmin();
+
+        $this->mockWpRemoteGet([]);
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/validate-root-server', [
+            'bmlt_root_server' => 'https://unreachable.bmlt.com'
+        ]);
+
+        $response = SettingsController::validate_root_server($request);
+
+        $this->assertInstanceOf(\WP_Error::class, $response);
+        $this->assertEquals('root_server_unreachable', $response->get_error_code());
+    }
+
+    /**
+     * Test the validate-root-server endpoint requires admin permissions
+     */
+    public function testValidateRootServerEndpointRequiresAdmin(): void {
+        $this->logoutUser();
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/validate-root-server', [
+            'bmlt_root_server' => 'https://valid.bmlt.com'
+        ]);
+
+        $response = SettingsController::validate_root_server($request);
+
+        $this->assertInstanceOf(\WP_Error::class, $response);
+        $this->assertEquals('rest_forbidden', $response->get_error_code());
     }
 }

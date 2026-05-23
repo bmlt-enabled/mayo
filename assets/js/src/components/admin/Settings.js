@@ -78,6 +78,7 @@ const Settings = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isTesting, setIsTesting] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
     const [externalSources, setExternalSources] = useState([]);
@@ -338,6 +339,30 @@ const Settings = () => {
         }
     };
 
+    const handleTestConnection = async () => {
+        try {
+            setIsTesting(true);
+            setError(null);
+            setSuccessMessage(null);
+
+            if (!isValidHttpsUrl(settings.bmlt_root_server)) {
+                throw new Error(__('BMLT Root Server URL must use HTTPS protocol.', 'mayo-events-manager'));
+            }
+
+            await apiFetch('/validate-root-server', {
+                method: 'POST',
+                body: JSON.stringify({ bmlt_root_server: settings.bmlt_root_server })
+            });
+
+            setSuccessMessage(__('Successfully connected to the BMLT root server.', 'mayo-events-manager'));
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            setError(err.message || __('Could not reach the BMLT root server.', 'mayo-events-manager'));
+        } finally {
+            setIsTesting(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="mayo-settings-loading">
@@ -381,22 +406,34 @@ const Settings = () => {
             <Panel>
                 <PanelBody title={__('BMLT Settings', 'mayo-events-manager')} initialOpen={true}>
                     <PanelRow>
-                        <TextControl
-                            label={__('BMLT Root Server URL', 'mayo-events-manager')}
-                            value={settings.bmlt_root_server}
-                            onChange={(value) => handleChange('bmlt_root_server', value)}
-                            help={
-                                settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)
-                                    ? __("URL must start with 'https://'", 'mayo-events-manager')
-                                    : __('Enter the URL of your BMLT root server (e.g., https://bmlt.example.org/main_server)', 'mayo-events-manager')
-                            }
-                            className={
-                                settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)
-                                    ? 'mayo-invalid-url'
-                                    : ''
-                            }
-                            __next40pxDefaultSize={true}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                            <div style={{ flex: 1 }}>
+                                <TextControl
+                                    label={__('BMLT Root Server URL', 'mayo-events-manager')}
+                                    value={settings.bmlt_root_server}
+                                    onChange={(value) => handleChange('bmlt_root_server', value)}
+                                    help={
+                                        settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)
+                                            ? __("URL must start with 'https://'", 'mayo-events-manager')
+                                            : __('Enter the URL of your BMLT root server (e.g., https://bmlt.example.org/main_server)', 'mayo-events-manager')
+                                    }
+                                    className={
+                                        settings.bmlt_root_server && !isValidHttpsUrl(settings.bmlt_root_server)
+                                            ? 'mayo-invalid-url'
+                                            : ''
+                                    }
+                                    __next40pxDefaultSize={true}
+                                />
+                            </div>
+                            <Button
+                                isSecondary
+                                onClick={handleTestConnection}
+                                isBusy={isTesting}
+                                disabled={isTesting || !isValidHttpsUrl(settings.bmlt_root_server)}
+                            >
+                                {isTesting ? __('Testing…', 'mayo-events-manager') : __('Test connection', 'mayo-events-manager')}
+                            </Button>
+                        </div>
                     </PanelRow>
 
                     <PanelRow>
