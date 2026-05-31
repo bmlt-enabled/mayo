@@ -4,6 +4,8 @@
  * Plugin Name: Mayo Events Manager
  * Description: A plugin for managing and displaying events.
  * Version: 1.9.1
+ * Requires at least: 6.7
+ * Tested up to: 7.0
  * Author: bmlt-enabled
  * License: GPLv2 or later
  * Author URI: https://bmlt.app

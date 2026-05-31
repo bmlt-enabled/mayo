@@ -4,7 +4,7 @@ Contributors: bmltenabled, radius314
 Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.1 =
+* Bumped declared WordPress compatibility to 7.0 (Tested up to) and added matching `Requires at least` and `Tested up to` headers to the main plugin file so the WordPress.org parser sees consistent values. [#286]
 * Updated the build-time axios dependency to resolve npm security advisories. The dependency is dev-only and never ships to site visitors. [#284]
 * Added validation of the BMLT root server URL on save: malformed URLs and hosts that aren't a reachable BMLT root server are now rejected with a clear error instead of being saved silently, plus a "Test connection" button in Settings to verify the server without saving. [#282]
 * Fixed external feed sources ignoring the visitor's event type and service body filters; user-selected filters now override each source's admin-pinned defaults so a "Service" filter no longer surfaces "Activity" events pulled from a remote feed. [#279]
