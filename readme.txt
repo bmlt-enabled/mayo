@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.1 =
+* Added an optional private phone-number contact field to the event and announcement submission forms. It is hidden by default and enabled per-form with the new `show_phone` shortcode option; add `phone` to `additional_required_fields` to make it mandatory. Like the contact email, the number is stored privately for organizers and is never displayed publicly. [#288]
 * Bumped declared WordPress compatibility to 7.0 (Tested up to) and added matching `Requires at least` and `Tested up to` headers to the main plugin file so the WordPress.org parser sees consistent values. [#286]
 * Updated the build-time axios dependency to resolve npm security advisories. The dependency is dev-only and never ships to site visitors. [#284]
 * Added validation of the BMLT root server URL on save: malformed URLs and hosts that aren't a reachable BMLT root server are now rejected with a clear error instead of being saved silently, plus a "Test connection" button in Settings to verify the server without saving. [#282]
