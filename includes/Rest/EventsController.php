@@ -19,6 +19,18 @@ use BmltEnabled\Mayo\Rest\Helpers\ServiceBodyLookup;
 class EventsController {
 
     /**
+     * Canonical set of event types. This is a fixed enumeration (not data-derived),
+     * so the filter facet always offers the full set regardless of which events are
+     * currently scheduled. Keep in sync with the JS dropdowns that submit/edit events:
+     *   assets/js/src/components/public/EventForm.js
+     *   assets/js/src/components/admin/Settings.js
+     *   assets/js/src/components/admin/EventBlockEditorSidebar.js
+     *
+     * @var string[]
+     */
+    const EVENT_TYPES = ['Service', 'Activity', 'Celebration'];
+
+    /**
      * Register REST API routes for events
      */
     public static function register_routes() {
@@ -377,7 +389,11 @@ class EventsController {
             }
         }
 
-        $event_types = [];
+        // Event type is a fixed enumeration, so the facet is always the canonical
+        // list (not scanned from event meta) — otherwise types with no scheduled
+        // events would silently drop out of the filter. service_body / categories /
+        // tags below remain legitimately data-derived.
+        $event_types = self::EVENT_TYPES;
         $service_bodies = [];
         $service_body_seen = [];
         $categories = [];
@@ -386,11 +402,6 @@ class EventsController {
         $tag_seen = [];
 
         foreach ($events as $event) {
-            $type = isset($event['meta']['event_type']) ? trim((string) $event['meta']['event_type']) : '';
-            if ($type !== '' && !in_array($type, $event_types, true)) {
-                $event_types[] = $type;
-            }
-
             $service_body_id = isset($event['meta']['service_body']) ? trim((string) $event['meta']['service_body']) : '';
             if ($service_body_id !== '') {
                 $source_id = isset($event['source_id']) ? (string) $event['source_id'] : 'local';
