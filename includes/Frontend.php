@@ -204,7 +204,8 @@ class Frontend {
             'categories' => '',
             'tags' => '',
             'default_service_bodies' => '',
-            'show_flyer' => 'false'
+            'show_flyer' => 'false',
+            'show_phone' => 'false'
         ];
         $atts = shortcode_atts($defaults, $atts);
 
@@ -216,7 +217,8 @@ class Frontend {
         wp_localize_script('mayo-public', $settings_key, [
             'additionalRequiredFields' => $atts['additional_required_fields'],
             'defaultServiceBodies' => $atts['default_service_bodies'],
-            'showFlyer' => $atts['show_flyer']
+            'showFlyer' => $atts['show_flyer'],
+            'showPhone' => $atts['show_phone']
         ]);
 
         return sprintf(

@@ -103,6 +103,8 @@ const AnnouncementForm = () => {
 
     // Check if flyer upload should be shown (via shortcode param)
     const showFlyer = settings.showFlyer === 'true';
+    // Check if the private phone contact field should be shown (via shortcode param)
+    const showPhone = settings.showPhone === 'true';
 
     const [formData, setFormData] = useState({
         title: '',
@@ -116,7 +118,8 @@ const AnnouncementForm = () => {
         tags: [],
         service_body: '',
         email: '',
-        contact_name: ''
+        contact_name: '',
+        phone: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState(null);
@@ -322,7 +325,8 @@ const AnnouncementForm = () => {
                     tags: [],
                     service_body: preservedServiceBody,
                     email: '',
-                    contact_name: ''
+                    contact_name: '',
+                    phone: ''
                 });
                 setUploadType(null);
             } else {
@@ -494,6 +498,23 @@ const AnnouncementForm = () => {
                         placeholder={__('Your email address (will not be displayed publicly)', 'mayo-events-manager')}
                     />
                 </div>
+
+                {showPhone && (
+                    <div className="mayo-form-field">
+                        <label htmlFor="phone">
+                            {__('Point of Contact Phone (Private)', 'mayo-events-manager')} {isFieldRequired('phone') && '*'}
+                        </label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            required={isFieldRequired('phone')}
+                            placeholder={__('Your phone number (will not be displayed publicly)', 'mayo-events-manager')}
+                        />
+                    </div>
+                )}
 
                 <fieldset className="mayo-display-window-fieldset">
                     <legend>{__('Display Window', 'mayo-events-manager')}</legend>
