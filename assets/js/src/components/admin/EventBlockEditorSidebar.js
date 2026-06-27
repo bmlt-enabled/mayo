@@ -502,6 +502,15 @@ const EventBlockEditorSidebar = () => {
                         __nextHasNoMarginBottom={true}
                         __next40pxDefaultSize={true}
                     />
+                    <TextControl
+                        label={__('Contact Phone', 'mayo-events-manager')}
+                        value={meta.phone}
+                        onChange={(value) => updateMetaValue('phone', value)}
+                        placeholder={__('Phone number', 'mayo-events-manager')}
+                        type="tel"
+                        __nextHasNoMarginBottom={true}
+                        __next40pxDefaultSize={true}
+                    />
                 </PanelBody>
             </PluginDocumentSettingPanel>
 
