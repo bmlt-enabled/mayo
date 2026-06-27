@@ -567,8 +567,19 @@ class Admin {
             'type' => 'string',
             'default' => '',
             'sanitize_callback' => 'sanitize_email',
-            'auth_callback' => function() { 
-                return current_user_can('edit_posts'); 
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ]);
+
+        register_post_meta('mayo_event', 'phone', [
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
             }
         ]);
     }
@@ -643,7 +654,8 @@ class Admin {
                     'location_details',
                     'recurring_pattern',
                     'contact_name',
-                    'email'
+                    'email',
+                    'phone'
                 ];
 
                 foreach ($meta_fields as $meta_field) {
@@ -712,6 +724,7 @@ class Admin {
         // Get submitter email from post meta
         $submitter_email = get_post_meta($post->ID, 'email', true);
         $contact_name = get_post_meta($post->ID, 'contact_name', true);
+        $phone = get_post_meta($post->ID, 'phone', true);
         
         // If no email found, don't send notification
         if (empty($submitter_email) || !is_email($submitter_email)) {
@@ -748,6 +761,7 @@ class Admin {
             'service_body' => $service_body,
             'contact_name' => $contact_name,
             'email' => $submitter_email,
+            'phone' => $phone,
             'description' => $post->post_content,
             'location_name' => $location_name,
             'location_address' => $location_address,

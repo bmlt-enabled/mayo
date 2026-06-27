@@ -314,6 +314,9 @@ class AnnouncementsController {
         if (!empty($params['contact_name'])) {
             add_post_meta($post_id, 'contact_name', sanitize_text_field($params['contact_name']));
         }
+        if (!empty($params['phone'])) {
+            add_post_meta($post_id, 'phone', sanitize_text_field($params['phone']));
+        }
         if (!empty($params['start_date'])) {
             add_post_meta($post_id, 'display_start_date', sanitize_text_field($params['start_date']));
         }
@@ -397,7 +400,9 @@ class AnnouncementsController {
         /* translators: %s: contact name */
         $message .= sprintf(__('Name: %s', 'mayo-events-manager'), sanitize_text_field($params['contact_name'] ?? $not_provided)) . "\n";
         /* translators: %s: email address */
-        $message .= sprintf(__('Email: %s', 'mayo-events-manager'), sanitize_email($params['email'] ?? $not_provided)) . "\n\n";
+        $message .= sprintf(__('Email: %s', 'mayo-events-manager'), sanitize_email($params['email'] ?? $not_provided)) . "\n";
+        /* translators: %s: phone number */
+        $message .= sprintf(__('Phone: %s', 'mayo-events-manager'), sanitize_text_field($params['phone'] ?? $not_provided)) . "\n\n";
 
         // Categories
         if (!empty($params['categories'])) {

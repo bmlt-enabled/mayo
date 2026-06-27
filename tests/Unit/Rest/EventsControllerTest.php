@@ -79,6 +79,102 @@ class EventsControllerTest extends TestCase {
     }
 
     /**
+     * Test submit_event stores the private phone contact meta when provided
+     */
+    public function testSubmitEventStoresPhone(): void {
+        $this->mockWpRemoteGet([
+            'GetServiceBodies' => [
+                'code' => 200,
+                'body' => [['id' => '1', 'name' => 'Test Region']]
+            ]
+        ]);
+
+        Functions\expect('wp_insert_post')->once()->andReturn(123);
+
+        $capturedMeta = [];
+        Functions\when('add_post_meta')->alias(function ($post_id, $key, $value) use (&$capturedMeta) {
+            $capturedMeta[$key] = $value;
+            return true;
+        });
+
+        $post = $this->createMockPost(['ID' => 123, 'post_title' => 'Test Event']);
+        $this->mockGetPost($post);
+        $this->mockGetTheTitle('Test Event');
+        $this->mockHasPostThumbnail(false);
+
+        Functions\when('wp_get_post_terms')->justReturn([]);
+        Functions\when('get_term_link')->justReturn('https://example.com/category/test');
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/submit-event', [
+            'event_name' => 'Test Event',
+            'event_type' => 'Meeting',
+            'event_start_date' => '2024-06-15',
+            'event_end_date' => '2024-06-15',
+            'event_start_time' => '18:00',
+            'event_end_time' => '19:00',
+            'timezone' => 'America/New_York',
+            'service_body' => '1',
+            'email' => 'contact@example.com',
+            'contact_name' => 'John Doe',
+            'phone' => '555-123-4567'
+        ]);
+
+        $response = EventsController::submit_event($request);
+
+        $this->assertEquals(200, $response->get_status());
+        $this->assertArrayHasKey('phone', $capturedMeta);
+        $this->assertEquals('555-123-4567', $capturedMeta['phone']);
+    }
+
+    /**
+     * Test submit_event succeeds when phone is omitted (phone is optional by default)
+     */
+    public function testSubmitEventSucceedsWithoutPhone(): void {
+        $this->mockWpRemoteGet([
+            'GetServiceBodies' => [
+                'code' => 200,
+                'body' => [['id' => '1', 'name' => 'Test Region']]
+            ]
+        ]);
+
+        Functions\expect('wp_insert_post')->once()->andReturn(123);
+
+        $capturedMeta = [];
+        Functions\when('add_post_meta')->alias(function ($post_id, $key, $value) use (&$capturedMeta) {
+            $capturedMeta[$key] = $value;
+            return true;
+        });
+
+        $post = $this->createMockPost(['ID' => 123, 'post_title' => 'Test Event']);
+        $this->mockGetPost($post);
+        $this->mockGetTheTitle('Test Event');
+        $this->mockHasPostThumbnail(false);
+
+        Functions\when('wp_get_post_terms')->justReturn([]);
+        Functions\when('get_term_link')->justReturn('https://example.com/category/test');
+
+        $request = $this->createRestRequest('POST', '/event-manager/v1/submit-event', [
+            'event_name' => 'Test Event',
+            'event_type' => 'Meeting',
+            'event_start_date' => '2024-06-15',
+            'event_end_date' => '2024-06-15',
+            'event_start_time' => '18:00',
+            'event_end_time' => '19:00',
+            'timezone' => 'America/New_York',
+            'service_body' => '1',
+            'email' => 'contact@example.com',
+            'contact_name' => 'John Doe'
+        ]);
+
+        $response = EventsController::submit_event($request);
+
+        $this->assertEquals(200, $response->get_status());
+        // Phone meta is still written (as an empty string) without raising an error.
+        $this->assertArrayHasKey('phone', $capturedMeta);
+        $this->assertSame('', $capturedMeta['phone']);
+    }
+
+    /**
      * Test submit_event handles wp_insert_post error
      */
     public function testSubmitEventHandlesInsertError(): void {

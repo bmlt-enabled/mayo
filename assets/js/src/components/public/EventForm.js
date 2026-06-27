@@ -60,6 +60,9 @@ const EventForm = () => {
     // Combine both arrays for all required fields
     const allRequiredFields = [...defaultRequiredFields, ...additionalRequiredFields];
 
+    // Whether the private phone contact field should be shown (via shortcode param)
+    const showPhone = settings.showPhone === 'true';
+
     // Filter service bodies based on configuration
     const getFilteredServiceBodies = () => {
         if (!serviceBodySettings.default_service_bodies) {
@@ -108,6 +111,7 @@ const EventForm = () => {
         service_body: '',
         email: '',
         contact_name: '',
+        phone: '',
         // Add recurring pattern fields
         recurring_pattern: {
             type: 'none',
@@ -322,6 +326,7 @@ const EventForm = () => {
                     service_body: preservedServiceBody,
                     email: '',
                     contact_name: '',
+                    phone: '',
                     recurring_pattern: {
                         type: 'none',
                         interval: 1,
@@ -574,6 +579,23 @@ const EventForm = () => {
                         placeholder={__('Your email address (will not be displayed publicly)', 'mayo-events-manager')}
                     />
                 </div>
+
+                {showPhone && (
+                    <div className="mayo-form-field">
+                        <label htmlFor="phone">
+                            {__('Point of Contact Phone (Private)', 'mayo-events-manager')} {isFieldRequired('phone') && '*'}
+                        </label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            required={isFieldRequired('phone')}
+                            placeholder={__('Your phone number (will not be displayed publicly)', 'mayo-events-manager')}
+                        />
+                    </div>
+                )}
 
                 <div className="mayo-datetime-group">
                     <div className="mayo-form-field">

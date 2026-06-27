@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayo Events Manager\n"
 "Report-Msgid-Bugs-To: https://github.com/bmlt-enabled/mayo/issues\n"
-"POT-Creation-Date: 2026-05-23 14:55+0000\n"
+"POT-Creation-Date: 2026-06-27 16:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,24 +21,24 @@ msgid_plural "%d skipped"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin.php:623
+#: includes/Admin.php:634
 msgid "%s (Copy)"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:848
-#: assets/js/src/components/public/AnnouncementForm.js:605
+#: assets/js/src/components/public/EventForm.js:870
+#: assets/js/src/components/public/AnnouncementForm.js:626
 msgid "(Required)"
 msgstr ""
 
-#: includes/Rest/EventsController.php:862
+#: includes/Rest/EventsController.php:863
 msgid "(every %d days)"
 msgstr ""
 
-#: includes/Rest/EventsController.php:892
+#: includes/Rest/EventsController.php:893
 msgid "(every %d months)"
 msgstr ""
 
-#: includes/Rest/EventsController.php:869
+#: includes/Rest/EventsController.php:870
 msgid "(every %d weeks)"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid "A confirmation email has been sent. Please check your inbox (and spam folder)."
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:372
+#: includes/Rest/AnnouncementsController.php:375
 msgid "A new announcement has been submitted and is pending review."
 msgstr ""
 
@@ -76,15 +76,15 @@ msgstr ""
 
 #: includes/Announcement.php:300
 #: includes/Announcement.php:389
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:536
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:545
 #: assets/js/src/components/admin/Subscribers.js:65
 #: assets/js/src/components/admin/Subscribers.js:346
 msgid "Active"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:183
-#: assets/js/src/components/admin/Settings.js:562
-#: assets/js/src/components/public/EventForm.js:524
+#: assets/js/src/components/admin/Settings.js:563
+#: assets/js/src/components/public/EventForm.js:529
 msgid "Activity"
 msgstr ""
 
@@ -107,7 +107,7 @@ msgstr ""
 msgid "Add New Event"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:537
+#: assets/js/src/components/admin/Settings.js:538
 msgid "Add New External Source"
 msgstr ""
 
@@ -123,25 +123,25 @@ msgstr ""
 msgid "Add custom links or link to events. Custom links appear first."
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:908
+#: assets/js/src/components/public/EventForm.js:930
 msgid "Additional details about the location (e.g., parking, entrance info)"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:461
-#: assets/js/src/components/public/EventForm.js:891
+#: assets/js/src/components/public/EventForm.js:913
 msgid "Address"
 msgstr ""
 
-#: includes/Rest/EventsController.php:919
+#: includes/Rest/EventsController.php:920
 msgid "Address:"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:337
-#: assets/js/src/components/admin/Settings.js:504
+#: assets/js/src/components/admin/Settings.js:505
 msgid "All"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:561
+#: assets/js/src/components/admin/Settings.js:562
 msgid "All Event Types"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "All announcements"
 msgstr ""
 
-#: includes/Admin.php:826
+#: includes/Admin.php:840
 msgid "All events"
 msgstr ""
 
@@ -161,8 +161,8 @@ msgstr ""
 msgid "Always visible"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:964
-#: assets/js/src/components/public/AnnouncementForm.js:688
+#: assets/js/src/components/public/EventForm.js:986
+#: assets/js/src/components/public/AnnouncementForm.js:709
 msgid "An error occurred while submitting the form. Please try again."
 msgstr ""
 
@@ -184,15 +184,15 @@ msgstr ""
 msgid "Announcement Settings"
 msgstr ""
 
-#: assets/js/src/components/admin/ShortcodesDocs.js:265
+#: assets/js/src/components/admin/ShortcodesDocs.js:276
 msgid "Announcement Shortcode"
 msgstr ""
 
-#: assets/js/src/components/admin/ShortcodesDocs.js:434
+#: assets/js/src/components/admin/ShortcodesDocs.js:445
 msgid "Announcement Submission Form Shortcode"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:437
+#: assets/js/src/components/public/AnnouncementForm.js:441
 msgid "Announcement Title"
 msgstr ""
 
@@ -201,11 +201,11 @@ msgstr ""
 msgid "Announcement not found"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:348
+#: includes/Rest/AnnouncementsController.php:351
 msgid "Announcement submitted successfully"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:306
+#: assets/js/src/components/public/AnnouncementForm.js:309
 msgid "Announcement submitted successfully!"
 msgstr ""
 
@@ -215,7 +215,7 @@ msgstr ""
 msgid "Announcements"
 msgstr ""
 
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:516
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:525
 msgid "Announcements that reference this event."
 msgstr ""
 
@@ -243,7 +243,7 @@ msgstr ""
 msgid "Attachments"
 msgstr ""
 
-#: includes/Rest/EventsController.php:941
+#: includes/Rest/EventsController.php:942
 msgid "Attachments:"
 msgstr ""
 
@@ -255,11 +255,11 @@ msgstr ""
 msgid "August"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:686
+#: assets/js/src/components/admin/Settings.js:687
 msgid "Auto-include: Automatically add to existing subscribers"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:410
+#: assets/js/src/components/admin/Settings.js:412
 msgid "BMLT Root Server URL"
 msgstr ""
 
@@ -304,19 +304,19 @@ msgstr ""
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:414
 #: assets/js/src/components/admin/AnnouncementEditor.js:463
 #: assets/js/src/components/admin/Subscribers.js:129
-#: assets/js/src/components/admin/Settings.js:614
-#: mayo-events-manager.php:791
+#: assets/js/src/components/admin/Settings.js:615
+#: mayo-events-manager.php:793
 msgid "Cancel"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:80
-#: assets/js/src/components/admin/Settings.js:580
-#: assets/js/src/components/public/EventForm.js:913
-#: assets/js/src/components/public/AnnouncementForm.js:634
+#: assets/js/src/components/admin/Settings.js:581
+#: assets/js/src/components/public/EventForm.js:935
+#: assets/js/src/components/public/AnnouncementForm.js:655
 #: assets/js/src/components/public/SubscribeForm.js:162
 #: assets/js/src/components/public/EventDetails.js:203
 #: assets/js/src/components/public/AnnouncementDetails.js:212
-#: mayo-events-manager.php:685
+#: mayo-events-manager.php:687
 msgid "Categories"
 msgstr ""
 
@@ -324,15 +324,15 @@ msgstr ""
 msgid "Categories (comma-separated slugs):"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:630
+#: assets/js/src/components/admin/Settings.js:631
 msgid "Categories available for subscription:"
 msgstr ""
 
-#: includes/Rest/EventsController.php:929
+#: includes/Rest/EventsController.php:930
 msgid "Categories:"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:414
+#: includes/Rest/AnnouncementsController.php:419
 msgid "Categories: %s"
 msgstr ""
 
@@ -341,13 +341,13 @@ msgid "Category"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:184
-#: assets/js/src/components/admin/Settings.js:564
-#: assets/js/src/components/public/EventForm.js:525
+#: assets/js/src/components/admin/Settings.js:565
+#: assets/js/src/components/public/EventForm.js:530
 msgid "Celebration"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:872
-#: assets/js/src/components/public/AnnouncementForm.js:624
+#: assets/js/src/components/public/EventForm.js:894
+#: assets/js/src/components/public/AnnouncementForm.js:645
 msgid "Clear Upload"
 msgstr ""
 
@@ -379,15 +379,15 @@ msgstr ""
 msgid "Collapse All"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:464
+#: assets/js/src/components/admin/Settings.js:465
 msgid "Comma-separated list of service body IDs (e.g., 1,2,3). When specified, only these service bodies will be available for event submission. Leave empty to allow all service bodies."
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:625
+#: assets/js/src/components/admin/Settings.js:626
 msgid "Configure which categories, tags, and service bodies are available for subscribers to choose from when signing up for announcement notifications."
 msgstr ""
 
-#: mayo-events-manager.php:222
+#: mayo-events-manager.php:224
 msgid "Confirmation Error"
 msgstr ""
 
@@ -400,7 +400,7 @@ msgstr ""
 msgid "Contact Email"
 msgstr ""
 
-#: includes/Rest/EventsController.php:967
+#: includes/Rest/EventsController.php:968
 msgid "Contact Email: %s"
 msgstr ""
 
@@ -412,15 +412,23 @@ msgstr ""
 msgid "Contact Name"
 msgstr ""
 
-#: includes/Rest/EventsController.php:965
+#: includes/Rest/EventsController.php:966
 msgid "Contact Name: %s"
+msgstr ""
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:506
+msgid "Contact Phone"
+msgstr ""
+
+#: includes/Rest/EventsController.php:970
+msgid "Contact Phone: %s"
 msgstr ""
 
 #: assets/js/src/components/admin/AnnouncementEditor.js:848
 msgid "Control when this announcement is visible on the frontend."
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:501
+#: assets/js/src/components/public/AnnouncementForm.js:522
 msgid "Control when this announcement is visible on the site."
 msgstr ""
 
@@ -428,17 +436,17 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: includes/Admin.php:602
+#: includes/Admin.php:613
 #: assets/js/src/components/public/EventList.js:770
 #: assets/js/src/components/public/EventList.js:790
 msgid "Copy"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:498
+#: assets/js/src/components/admin/Settings.js:499
 msgid "Copy ID"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:500
+#: assets/js/src/components/admin/Settings.js:501
 msgid "Copy ID to clipboard"
 msgstr ""
 
@@ -459,7 +467,7 @@ msgstr ""
 msgid "Could not reach the BMLT root server."
 msgstr ""
 
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:600
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:609
 msgid "Create Announcement"
 msgstr ""
 
@@ -472,9 +480,9 @@ msgstr ""
 msgid "Custom Link"
 msgstr ""
 
-#: includes/Rest/EventsController.php:859
+#: includes/Rest/EventsController.php:860
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:248
-#: assets/js/src/components/public/EventForm.js:667
+#: assets/js/src/components/public/EventForm.js:689
 msgid "Daily"
 msgstr ""
 
@@ -500,12 +508,12 @@ msgid "Date:"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:344
-#: assets/js/src/components/public/EventForm.js:779
+#: assets/js/src/components/public/EventForm.js:801
 msgid "Day"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:320
-#: assets/js/src/components/public/EventForm.js:747
+#: assets/js/src/components/public/EventForm.js:769
 msgid "Day of month"
 msgstr ""
 
@@ -522,7 +530,7 @@ msgid "Default"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:424
-#: assets/js/src/components/admin/Settings.js:523
+#: assets/js/src/components/admin/Settings.js:524
 msgid "Delete"
 msgstr ""
 
@@ -530,24 +538,24 @@ msgstr ""
 msgid "Descending"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:816
+#: assets/js/src/components/public/EventForm.js:838
 #: assets/js/src/components/public/cards/EventCard.js:166
-#: assets/js/src/components/public/AnnouncementForm.js:571
+#: assets/js/src/components/public/AnnouncementForm.js:592
 #: assets/js/src/components/public/EventDetails.js:144
 msgid "Description"
 msgstr ""
 
-#: includes/Rest/EventsController.php:976
-#: includes/Rest/AnnouncementsController.php:386
+#: includes/Rest/EventsController.php:979
+#: includes/Rest/AnnouncementsController.php:389
 msgid "Description:"
 msgstr ""
 
 #: includes/Subscriber.php:920
-#: includes/Rest/EventsController.php:922
+#: includes/Rest/EventsController.php:923
 msgid "Details:"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:507
+#: assets/js/src/components/admin/Settings.js:508
 msgid "Disabled"
 msgstr ""
 
@@ -566,7 +574,7 @@ msgstr ""
 
 #: includes/Announcement.php:214
 #: assets/js/src/components/admin/AnnouncementEditor.js:846
-#: assets/js/src/components/public/AnnouncementForm.js:499
+#: assets/js/src/components/public/AnnouncementForm.js:520
 #: assets/js/src/components/public/AnnouncementDetails.js:198
 msgid "Display Window"
 msgstr ""
@@ -593,10 +601,10 @@ msgstr ""
 msgid "Dynamic CSS Classes"
 msgstr ""
 
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:584
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:593
 #: assets/js/src/components/admin/AnnouncementEditor.js:1115
 #: assets/js/src/components/admin/Subscribers.js:414
-#: assets/js/src/components/admin/Settings.js:517
+#: assets/js/src/components/admin/Settings.js:518
 msgid "Edit"
 msgstr ""
 
@@ -617,7 +625,7 @@ msgstr ""
 msgid "Email Recipients"
 msgstr ""
 
-#: assets/js/src/components/admin/ShortcodesDocs.js:553
+#: assets/js/src/components/admin/ShortcodesDocs.js:570
 msgid "Email Subscription Form Shortcode"
 msgstr ""
 
@@ -625,20 +633,20 @@ msgstr ""
 msgid "Email address"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:446
+#: assets/js/src/components/admin/Settings.js:447
 msgid "Email addresses to receive event submission notifications. Multiple emails can be separated by commas or semicolons. Leave empty to send to all admins."
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:400
-#: mayo-events-manager.php:657
+#: includes/Rest/AnnouncementsController.php:403
+#: mayo-events-manager.php:659
 msgid "Email: %s"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:594
+#: assets/js/src/components/admin/Settings.js:595
 msgid "Enable Source"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:507
+#: assets/js/src/components/admin/Settings.js:508
 msgid "Enabled"
 msgstr ""
 
@@ -646,30 +654,30 @@ msgstr ""
 msgid "End"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:539
+#: assets/js/src/components/public/AnnouncementForm.js:560
 msgid "End Date"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:292
-#: assets/js/src/components/public/EventForm.js:802
+#: assets/js/src/components/public/EventForm.js:824
 msgid "End Date (optional)"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:211
-#: assets/js/src/components/public/EventForm.js:602
+#: assets/js/src/components/public/EventForm.js:624
 msgid "End Date/Time"
 msgstr ""
 
-#: includes/Rest/EventsController.php:959
-#: includes/Rest/AnnouncementsController.php:383
+#: includes/Rest/EventsController.php:960
+#: includes/Rest/AnnouncementsController.php:386
 msgid "End Date: %s"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:553
+#: assets/js/src/components/public/AnnouncementForm.js:574
 msgid "End Time"
 msgstr ""
 
-#: includes/Rest/EventsController.php:961
+#: includes/Rest/EventsController.php:962
 msgid "End Time: %s"
 msgstr ""
 
@@ -682,15 +690,15 @@ msgstr ""
 msgid "End:"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:554
+#: assets/js/src/components/admin/Settings.js:555
 msgid "Enter a friendly name for this source (e.g., District 5 Website)"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:547
+#: assets/js/src/components/admin/Settings.js:548
 msgid "Enter the URL of the WordPress site (e.g., https://example.com)"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:416
+#: assets/js/src/components/admin/Settings.js:418
 msgid "Enter the URL of your BMLT root server (e.g., https://bmlt.example.org/main_server)"
 msgstr ""
 
@@ -698,19 +706,19 @@ msgstr ""
 msgid "Enter your email address"
 msgstr ""
 
-#: mayo-events-manager.php:239
-#: mayo-events-manager.php:291
-#: mayo-events-manager.php:419
+#: mayo-events-manager.php:241
+#: mayo-events-manager.php:293
+#: mayo-events-manager.php:421
 msgid "Error"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:406
-#: assets/js/src/components/public/AnnouncementForm.js:393
+#: assets/js/src/components/public/EventForm.js:411
+#: assets/js/src/components/public/AnnouncementForm.js:397
 msgid "Error reading the file"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:343
-#: assets/js/src/components/public/AnnouncementForm.js:334
+#: assets/js/src/components/public/EventForm.js:348
+#: assets/js/src/components/public/AnnouncementForm.js:338
 msgid "Error submitting form"
 msgstr ""
 
@@ -726,7 +734,7 @@ msgstr ""
 msgid "Event Details"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:829
+#: assets/js/src/components/public/EventForm.js:851
 #: assets/js/src/components/public/cards/EventCard.js:172
 msgid "Event Flyer"
 msgstr ""
@@ -740,11 +748,11 @@ msgid "Event Meta Fields"
 msgstr ""
 
 #: includes/Admin.php:219
-#: assets/js/src/components/public/EventForm.js:499
+#: assets/js/src/components/public/EventForm.js:504
 msgid "Event Name"
 msgstr ""
 
-#: includes/Rest/EventsController.php:949
+#: includes/Rest/EventsController.php:950
 msgid "Event Name: %s"
 msgstr ""
 
@@ -753,19 +761,19 @@ msgid "Event Submission Form Shortcode"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:178
-#: assets/js/src/components/admin/Settings.js:558
-#: assets/js/src/components/public/EventForm.js:513
+#: assets/js/src/components/admin/Settings.js:559
+#: assets/js/src/components/public/EventForm.js:518
 #: assets/js/src/components/public/cards/EventCard.js:159
 #: assets/js/src/components/public/EventFilters.js:8
 #: assets/js/src/components/public/EventDetails.js:168
 msgid "Event Type"
 msgstr ""
 
-#: includes/Rest/EventsController.php:951
+#: includes/Rest/EventsController.php:952
 msgid "Event Type: %s"
 msgstr ""
 
-#: includes/Admin.php:674
+#: includes/Admin.php:686
 msgid "Event copied successfully"
 msgstr ""
 
@@ -786,7 +794,7 @@ msgstr ""
 msgid "Event not found"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:296
+#: assets/js/src/components/public/EventForm.js:300
 msgid "Event submitted successfully!"
 msgstr ""
 
@@ -805,7 +813,7 @@ msgstr ""
 
 #: includes/Announcement.php:309
 #: includes/Announcement.php:391
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:537
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:546
 msgid "Expired"
 msgstr ""
 
@@ -815,7 +823,7 @@ msgstr ""
 msgid "External"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:486
+#: assets/js/src/components/admin/Settings.js:487
 msgid "External Event Sources"
 msgstr ""
 
@@ -839,7 +847,7 @@ msgstr ""
 msgid "Failed to copy event. Please try again."
 msgstr ""
 
-#: includes/Admin.php:679
+#: includes/Admin.php:691
 msgid "Failed to create copy"
 msgstr ""
 
@@ -875,15 +883,15 @@ msgstr ""
 msgid "Failed to save settings."
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:329
+#: assets/js/src/components/public/AnnouncementForm.js:333
 msgid "Failed to submit announcement"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:337
+#: assets/js/src/components/public/EventForm.js:342
 msgid "Failed to submit event"
 msgstr ""
 
-#: mayo-events-manager.php:293
+#: mayo-events-manager.php:295
 msgid "Failed to update preferences. Please try again."
 msgstr ""
 
@@ -896,29 +904,29 @@ msgid "February"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:147
-#: assets/js/src/components/public/EventForm.js:488
+#: assets/js/src/components/public/EventForm.js:493
 msgid "Fifth"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:583
+#: assets/js/src/components/admin/Settings.js:584
 msgid "Filter by categories (comma-separated)"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:576
+#: assets/js/src/components/admin/Settings.js:577
 msgid "Filter by service body (optional)"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:590
+#: assets/js/src/components/admin/Settings.js:591
 msgid "Filter by tags (comma-separated)"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:143
-#: assets/js/src/components/public/EventForm.js:484
+#: assets/js/src/components/public/EventForm.js:489
 msgid "First"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:146
-#: assets/js/src/components/public/EventForm.js:487
+#: assets/js/src/components/public/EventForm.js:492
 msgid "Fourth"
 msgstr ""
 
@@ -926,10 +934,10 @@ msgstr ""
 msgid "Fri"
 msgstr ""
 
-#: includes/Rest/EventsController.php:878
+#: includes/Rest/EventsController.php:879
 #: assets/js/src/util.js:9
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:138
-#: assets/js/src/components/public/EventForm.js:478
+#: assets/js/src/components/public/EventForm.js:483
 msgid "Friday"
 msgstr ""
 
@@ -981,11 +989,11 @@ msgstr ""
 msgid "If you didn't request this, you can safely ignore this email."
 msgstr ""
 
-#: mayo-events-manager.php:803
+#: mayo-events-manager.php:805
 msgid "If you no longer want to receive announcements from %s, you can unsubscribe below."
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:586
+#: assets/js/src/components/public/AnnouncementForm.js:607
 msgid "Image/Flyer"
 msgstr ""
 
@@ -997,7 +1005,7 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#: includes/Admin.php:617
+#: includes/Admin.php:628
 msgid "Invalid event"
 msgstr ""
 
@@ -1005,11 +1013,11 @@ msgstr ""
 msgid "Invalid or expired confirmation link."
 msgstr ""
 
-#: includes/Admin.php:682
+#: includes/Admin.php:694
 msgid "Invalid post ID or insufficient permissions"
 msgstr ""
 
-#: mayo-events-manager.php:240
+#: mayo-events-manager.php:242
 msgid "Invalid request. Please try again."
 msgstr ""
 
@@ -1042,17 +1050,17 @@ msgid "June"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:148
-#: assets/js/src/components/public/EventForm.js:489
+#: assets/js/src/components/public/EventForm.js:494
 msgid "Last"
 msgstr ""
 
 #: assets/js/src/components/admin/AnnouncementEditor.js:910
-#: assets/js/src/components/public/AnnouncementForm.js:565
+#: assets/js/src/components/public/AnnouncementForm.js:586
 msgid "Leave empty to show indefinitely"
 msgstr ""
 
 #: assets/js/src/components/admin/AnnouncementEditor.js:879
-#: assets/js/src/components/public/AnnouncementForm.js:534
+#: assets/js/src/components/public/AnnouncementForm.js:555
 msgid "Leave empty to start showing immediately"
 msgstr ""
 
@@ -1072,7 +1080,7 @@ msgstr ""
 msgid "Link Title"
 msgstr ""
 
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:512
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:521
 msgid "Linked Announcements"
 msgstr ""
 
@@ -1141,17 +1149,17 @@ msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:449
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:469
-#: assets/js/src/components/public/EventForm.js:902
+#: assets/js/src/components/public/EventForm.js:924
 msgid "Location Details"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:453
-#: assets/js/src/components/public/EventForm.js:880
+#: assets/js/src/components/public/EventForm.js:902
 msgid "Location Name"
 msgstr ""
 
 #: includes/Subscriber.php:917
-#: includes/Rest/EventsController.php:914
+#: includes/Rest/EventsController.php:915
 #: assets/js/src/components/public/EventList.js:605
 msgid "Location:"
 msgstr ""
@@ -1160,11 +1168,11 @@ msgstr ""
 msgid "Low"
 msgstr ""
 
-#: mayo-events-manager.php:514
+#: mayo-events-manager.php:516
 msgid "Manage Subscription - %s"
 msgstr ""
 
-#: mayo-events-manager.php:651
+#: mayo-events-manager.php:653
 msgid "Manage Your Subscription"
 msgstr ""
 
@@ -1215,33 +1223,33 @@ msgstr ""
 msgid "Mon"
 msgstr ""
 
-#: includes/Rest/EventsController.php:874
+#: includes/Rest/EventsController.php:875
 #: assets/js/src/util.js:5
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:134
-#: assets/js/src/components/public/EventForm.js:474
+#: assets/js/src/components/public/EventForm.js:479
 msgid "Monday"
 msgstr ""
 
-#: includes/Rest/EventsController.php:889
+#: includes/Rest/EventsController.php:890
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:250
-#: assets/js/src/components/public/EventForm.js:669
+#: assets/js/src/components/public/EventForm.js:691
 msgid "Monthly"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:305
-#: assets/js/src/components/public/EventForm.js:712
+#: assets/js/src/components/public/EventForm.js:734
 msgid "Monthly Pattern"
 msgstr ""
 
-#: includes/Rest/EventsController.php:916
+#: includes/Rest/EventsController.php:917
 msgid "Name:"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:398
+#: includes/Rest/AnnouncementsController.php:401
 msgid "Name: %s"
 msgstr ""
 
-#: includes/Rest/EventsController.php:997
+#: includes/Rest/EventsController.php:1000
 msgid "New Event Submission: %s"
 msgstr ""
 
@@ -1262,7 +1270,7 @@ msgid "No Date Set"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:247
-#: assets/js/src/components/public/EventForm.js:666
+#: assets/js/src/components/public/EventForm.js:688
 msgid "No Recurrence"
 msgstr ""
 
@@ -1274,7 +1282,7 @@ msgstr ""
 msgid "No announcements found in trash"
 msgstr ""
 
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:527
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:536
 msgid "No announcements linked to this event."
 msgstr ""
 
@@ -1298,8 +1306,8 @@ msgstr ""
 msgid "No events match the selected filters."
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:864
-#: assets/js/src/components/public/AnnouncementForm.js:616
+#: assets/js/src/components/public/EventForm.js:886
+#: assets/js/src/components/public/AnnouncementForm.js:637
 msgid "No file selected"
 msgstr ""
 
@@ -1323,11 +1331,11 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:369
+#: includes/Rest/AnnouncementsController.php:372
 msgid "Not provided"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:370
+#: includes/Rest/AnnouncementsController.php:373
 msgid "Not set"
 msgstr ""
 
@@ -1335,7 +1343,7 @@ msgstr ""
 msgid "Note: If you don't see our emails, please check your spam or junk folder."
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:440
+#: assets/js/src/components/admin/Settings.js:441
 msgid "Notification Email"
 msgstr ""
 
@@ -1360,17 +1368,17 @@ msgid "October"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:308
-#: assets/js/src/components/public/EventForm.js:726
+#: assets/js/src/components/public/EventForm.js:748
 msgid "On a specific date"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:309
-#: assets/js/src/components/public/EventForm.js:740
+#: assets/js/src/components/public/EventForm.js:762
 msgid "On a specific day"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:274
-#: assets/js/src/components/public/EventForm.js:690
+#: assets/js/src/components/public/EventForm.js:712
 msgid "On these days"
 msgstr ""
 
@@ -1382,7 +1390,7 @@ msgstr ""
 msgid "Open in your default calendar app (Apple Calendar, Outlook, etc.)"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:687
+#: assets/js/src/components/admin/Settings.js:688
 msgid "Opt-in: Existing subscribers must manually add new options"
 msgstr ""
 
@@ -1398,13 +1406,21 @@ msgstr ""
 msgid "Parking info, entrance details, etc."
 msgstr ""
 
-#: includes/Admin.php:828
+#: includes/Admin.php:842
 msgid "Past events"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:66
 #: assets/js/src/components/admin/Subscribers.js:355
 msgid "Pending"
+msgstr ""
+
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:509
+msgid "Phone number"
+msgstr ""
+
+#: includes/Rest/AnnouncementsController.php:405
+msgid "Phone: %s"
 msgstr ""
 
 #: includes/Subscriber.php:643
@@ -1427,12 +1443,12 @@ msgstr ""
 msgid "Please enter valid email addresses for notifications. Multiple emails can be separated by commas or semicolons."
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:445
+#: assets/js/src/components/admin/Settings.js:446
 msgid "Please enter valid email addresses. Multiple emails can be separated by commas or semicolons."
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:254
-#: assets/js/src/components/public/AnnouncementForm.js:268
+#: assets/js/src/components/public/EventForm.js:258
+#: assets/js/src/components/public/AnnouncementForm.js:271
 msgid "Please fill in all required fields: %s"
 msgstr ""
 
@@ -1444,14 +1460,19 @@ msgstr ""
 msgid "Point of Contact"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:566
-#: assets/js/src/components/public/AnnouncementForm.js:486
+#: assets/js/src/components/public/EventForm.js:571
+#: assets/js/src/components/public/AnnouncementForm.js:490
 msgid "Point of Contact Email (Private)"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:553
-#: assets/js/src/components/public/AnnouncementForm.js:473
+#: assets/js/src/components/public/EventForm.js:558
+#: assets/js/src/components/public/AnnouncementForm.js:477
 msgid "Point of Contact Name (Private)"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:586
+#: assets/js/src/components/public/AnnouncementForm.js:505
+msgid "Point of Contact Phone (Private)"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:392
@@ -1459,7 +1480,7 @@ msgstr ""
 msgid "Preferences"
 msgstr ""
 
-#: mayo-events-manager.php:280
+#: mayo-events-manager.php:282
 msgid "Preferences Saved"
 msgstr ""
 
@@ -1480,7 +1501,7 @@ msgid "Printed on"
 msgstr ""
 
 #: includes/Announcement.php:212
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:557
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:566
 #: assets/js/src/components/admin/AnnouncementEditor.js:928
 msgid "Priority"
 msgstr ""
@@ -1517,15 +1538,15 @@ msgid "Recurring Event"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:242
-#: assets/js/src/components/public/EventForm.js:647
+#: assets/js/src/components/public/EventForm.js:669
 msgid "Recurring Pattern"
 msgstr ""
 
-#: includes/Rest/EventsController.php:856
+#: includes/Rest/EventsController.php:857
 msgid "Recurring Pattern:"
 msgstr ""
 
-#: includes/Admin.php:829
+#: includes/Admin.php:843
 msgid "Recurring events"
 msgstr ""
 
@@ -1547,19 +1568,19 @@ msgid "Repeat"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:261
-#: assets/js/src/components/public/EventForm.js:675
+#: assets/js/src/components/public/EventForm.js:697
 msgid "Repeat every"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:461
+#: assets/js/src/components/admin/Settings.js:462
 msgid "Restricted Service Bodies"
 msgstr ""
 
-#: mayo-events-manager.php:392
+#: mayo-events-manager.php:394
 msgid "Return to %s"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:426
+#: includes/Rest/AnnouncementsController.php:431
 msgid "Review and edit this announcement:"
 msgstr ""
 
@@ -1567,10 +1588,10 @@ msgstr ""
 msgid "Sat"
 msgstr ""
 
-#: includes/Rest/EventsController.php:879
+#: includes/Rest/EventsController.php:880
 #: assets/js/src/util.js:10
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:139
-#: assets/js/src/components/public/EventForm.js:479
+#: assets/js/src/components/public/EventForm.js:484
 msgid "Saturday"
 msgstr ""
 
@@ -1578,24 +1599,24 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
-#: mayo-events-manager.php:786
+#: mayo-events-manager.php:788
 msgid "Save Preferences"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:479
-#: assets/js/src/components/admin/Settings.js:702
+#: assets/js/src/components/admin/Settings.js:480
+#: assets/js/src/components/admin/Settings.js:703
 msgid "Save Settings"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:132
-#: assets/js/src/components/admin/Settings.js:479
-#: assets/js/src/components/admin/Settings.js:702
+#: assets/js/src/components/admin/Settings.js:480
+#: assets/js/src/components/admin/Settings.js:703
 msgid "Saving..."
 msgstr ""
 
 #: includes/Announcement.php:305
 #: includes/Announcement.php:390
-#: assets/js/src/components/admin/EventBlockEditorSidebar.js:537
+#: assets/js/src/components/admin/EventBlockEditorSidebar.js:546
 msgid "Scheduled"
 msgstr ""
 
@@ -1620,32 +1641,32 @@ msgid "Search by event name..."
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:144
-#: assets/js/src/components/public/EventForm.js:485
+#: assets/js/src/components/public/EventForm.js:490
 msgid "Second"
 msgstr ""
 
-#: includes/Admin.php:610
+#: includes/Admin.php:621
 msgid "Security check failed"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:181
-#: assets/js/src/components/public/EventForm.js:522
+#: assets/js/src/components/public/EventForm.js:527
 msgid "Select Event Type"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:435
 #: assets/js/src/components/admin/AnnouncementEditor.js:960
-#: assets/js/src/components/public/EventForm.js:539
-#: assets/js/src/components/public/AnnouncementForm.js:459
+#: assets/js/src/components/public/EventForm.js:544
+#: assets/js/src/components/public/AnnouncementForm.js:463
 msgid "Select a service body"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:569
+#: assets/js/src/components/admin/Settings.js:570
 msgid "Select the event type"
 msgstr ""
 
 #: assets/js/src/components/public/SubscribeForm.js:157
-#: mayo-events-manager.php:676
+#: mayo-events-manager.php:678
 msgid "Select what you'd like to receive notifications about:"
 msgstr ""
 
@@ -1653,8 +1674,8 @@ msgstr ""
 msgid "Select which categories, tags, and service bodies this subscriber should receive notifications for. If none are selected, they will receive all announcements."
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:863
-#: assets/js/src/components/public/AnnouncementForm.js:615
+#: assets/js/src/components/public/EventForm.js:885
+#: assets/js/src/components/public/AnnouncementForm.js:636
 msgid "Selected: %s"
 msgstr ""
 
@@ -1667,18 +1688,18 @@ msgid "September"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:182
-#: assets/js/src/components/admin/Settings.js:563
-#: assets/js/src/components/public/EventForm.js:523
+#: assets/js/src/components/admin/Settings.js:564
+#: assets/js/src/components/public/EventForm.js:528
 msgid "Service"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:108
 #: assets/js/src/components/public/SubscribeForm.js:200
-#: mayo-events-manager.php:752
+#: mayo-events-manager.php:754
 msgid "Service Bodies"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:662
+#: assets/js/src/components/admin/Settings.js:663
 msgid "Service Bodies available for subscription:"
 msgstr ""
 
@@ -1688,10 +1709,10 @@ msgstr ""
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:432
 #: assets/js/src/components/admin/AnnouncementEditor.js:955
 #: assets/js/src/components/admin/AnnouncementEditor.js:957
-#: assets/js/src/components/admin/Settings.js:573
-#: assets/js/src/components/public/EventForm.js:531
+#: assets/js/src/components/admin/Settings.js:574
+#: assets/js/src/components/public/EventForm.js:536
 #: assets/js/src/components/public/cards/EventCard.js:212
-#: assets/js/src/components/public/AnnouncementForm.js:451
+#: assets/js/src/components/public/AnnouncementForm.js:455
 #: assets/js/src/components/public/EventFilters.js:13
 #: assets/js/src/components/public/EventDetails.js:175
 #: assets/js/src/components/public/AnnouncementDetails.js:191
@@ -1703,20 +1724,20 @@ msgstr ""
 msgid "Service Body (%s)"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:458
+#: assets/js/src/components/admin/Settings.js:459
 msgid "Service Body Configuration"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:392
+#: includes/Rest/AnnouncementsController.php:395
 msgid "Service Body ID: %s"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:505
+#: assets/js/src/components/admin/Settings.js:506
 #: assets/js/src/components/public/EventArchive.js:127
 msgid "Service Body:"
 msgstr ""
 
-#: includes/Rest/EventsController.php:953
+#: includes/Rest/EventsController.php:954
 msgid "Service Body: %1$s (ID: %2$s)"
 msgstr ""
 
@@ -1742,7 +1763,7 @@ msgstr ""
 msgid "Show Shortcode"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:544
+#: assets/js/src/components/admin/Settings.js:545
 msgid "Site URL"
 msgstr ""
 
@@ -1762,7 +1783,7 @@ msgstr ""
 msgid "Sort By:"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:551
+#: assets/js/src/components/admin/Settings.js:552
 msgid "Source Name"
 msgstr ""
 
@@ -1774,25 +1795,25 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:508
+#: assets/js/src/components/public/AnnouncementForm.js:529
 msgid "Start Date"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:193
-#: assets/js/src/components/public/EventForm.js:580
+#: assets/js/src/components/public/EventForm.js:602
 msgid "Start Date/Time"
 msgstr ""
 
-#: includes/Rest/EventsController.php:955
-#: includes/Rest/AnnouncementsController.php:381
+#: includes/Rest/EventsController.php:956
+#: includes/Rest/AnnouncementsController.php:384
 msgid "Start Date: %s"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:522
+#: assets/js/src/components/public/AnnouncementForm.js:543
 msgid "Start Time"
 msgstr ""
 
-#: includes/Rest/EventsController.php:957
+#: includes/Rest/EventsController.php:958
 msgid "Start Time: %s"
 msgstr ""
 
@@ -1809,20 +1830,20 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:683
+#: assets/js/src/components/public/AnnouncementForm.js:704
 msgid "Submit Announcement"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:959
+#: assets/js/src/components/public/EventForm.js:981
 msgid "Submit Event"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:396
+#: includes/Rest/AnnouncementsController.php:399
 msgid "Submitted by:"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:959
-#: assets/js/src/components/public/AnnouncementForm.js:683
+#: assets/js/src/components/public/EventForm.js:981
+#: assets/js/src/components/public/AnnouncementForm.js:704
 msgid "Submitting..."
 msgstr ""
 
@@ -1859,16 +1880,16 @@ msgstr ""
 msgid "Subscribing..."
 msgstr ""
 
-#: mayo-events-manager.php:221
+#: mayo-events-manager.php:223
 msgid "Subscription Confirmed"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:73
-#: assets/js/src/components/admin/Settings.js:623
+#: assets/js/src/components/admin/Settings.js:624
 msgid "Subscription Preferences"
 msgstr ""
 
-#: mayo-events-manager.php:420
+#: mayo-events-manager.php:422
 msgid "Subscription not found."
 msgstr ""
 
@@ -1880,15 +1901,15 @@ msgstr ""
 msgid "Sun"
 msgstr ""
 
-#: includes/Rest/EventsController.php:873
+#: includes/Rest/EventsController.php:874
 #: assets/js/src/util.js:4
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:133
-#: assets/js/src/components/public/EventForm.js:473
+#: assets/js/src/components/public/EventForm.js:478
 msgid "Sunday"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:847
-#: assets/js/src/components/public/AnnouncementForm.js:604
+#: assets/js/src/components/public/EventForm.js:869
+#: assets/js/src/components/public/AnnouncementForm.js:625
 msgid "Supported file types: Images (.jpg, .jpeg, .png, .gif)"
 msgstr ""
 
@@ -1902,13 +1923,13 @@ msgid "Tag"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:94
-#: assets/js/src/components/admin/Settings.js:587
-#: assets/js/src/components/public/EventForm.js:934
-#: assets/js/src/components/public/AnnouncementForm.js:657
+#: assets/js/src/components/admin/Settings.js:588
+#: assets/js/src/components/public/EventForm.js:956
+#: assets/js/src/components/public/AnnouncementForm.js:678
 #: assets/js/src/components/public/SubscribeForm.js:181
 #: assets/js/src/components/public/EventDetails.js:212
 #: assets/js/src/components/public/AnnouncementDetails.js:221
-#: mayo-events-manager.php:718
+#: mayo-events-manager.php:720
 msgid "Tags"
 msgstr ""
 
@@ -1916,15 +1937,15 @@ msgstr ""
 msgid "Tags (comma-separated slugs):"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:646
+#: assets/js/src/components/admin/Settings.js:647
 msgid "Tags available for subscription:"
 msgstr ""
 
-#: includes/Rest/EventsController.php:934
+#: includes/Rest/EventsController.php:935
 msgid "Tags:"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:421
+#: includes/Rest/AnnouncementsController.php:426
 msgid "Tags: %s"
 msgstr ""
 
@@ -1948,24 +1969,24 @@ msgstr ""
 msgid "The URL %s did not respond like a BMLT root server."
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:392
+#: assets/js/src/components/public/EventForm.js:397
 msgid "The selected file is not a valid image, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:364
+#: assets/js/src/components/public/EventForm.js:369
 msgid "The selected file is not a valid image, so one will not be submitted.  Please use a valid image file (JPG, PNG, or GIF)"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:379
+#: assets/js/src/components/public/AnnouncementForm.js:383
 msgid "The selected file is not a valid image. Please choose a valid image file (JPG, PNG, or GIF)"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:353
+#: assets/js/src/components/public/AnnouncementForm.js:357
 msgid "The selected file is not a valid image. Please use a valid image file (JPG, PNG, or GIF)"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:145
-#: assets/js/src/components/public/EventForm.js:486
+#: assets/js/src/components/public/EventForm.js:491
 msgid "Third"
 msgstr ""
 
@@ -2007,10 +2028,10 @@ msgstr ""
 msgid "Thu"
 msgstr ""
 
-#: includes/Rest/EventsController.php:877
+#: includes/Rest/EventsController.php:878
 #: assets/js/src/util.js:8
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:137
-#: assets/js/src/components/public/EventForm.js:477
+#: assets/js/src/components/public/EventForm.js:482
 msgid "Thursday"
 msgstr ""
 
@@ -2029,11 +2050,11 @@ msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:230
 #: assets/js/src/components/admin/AnnouncementEditor.js:915
-#: assets/js/src/components/public/EventForm.js:625
+#: assets/js/src/components/public/EventForm.js:647
 msgid "Timezone"
 msgstr ""
 
-#: includes/Rest/EventsController.php:963
+#: includes/Rest/EventsController.php:964
 msgid "Timezone: %s"
 msgstr ""
 
@@ -2042,7 +2063,7 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:374
+#: includes/Rest/AnnouncementsController.php:377
 msgid "Title: %s"
 msgstr ""
 
@@ -2058,10 +2079,10 @@ msgstr ""
 msgid "Tue"
 msgstr ""
 
-#: includes/Rest/EventsController.php:875
+#: includes/Rest/EventsController.php:876
 #: assets/js/src/util.js:6
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:135
-#: assets/js/src/components/public/EventForm.js:475
+#: assets/js/src/components/public/EventForm.js:480
 msgid "Tuesday"
 msgstr ""
 
@@ -2069,7 +2090,7 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:504
+#: assets/js/src/components/admin/Settings.js:505
 #: assets/js/src/components/public/EventList.js:604
 #: assets/js/src/components/public/EventArchive.js:77
 msgid "Type:"
@@ -2083,7 +2104,7 @@ msgstr ""
 msgid "URL is required"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:415
+#: assets/js/src/components/admin/Settings.js:417
 msgid "URL must start with 'https://'"
 msgstr ""
 
@@ -2091,8 +2112,8 @@ msgstr ""
 #: includes/Admin.php:273
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:436
 #: assets/js/src/components/admin/AnnouncementEditor.js:961
-#: assets/js/src/components/public/EventForm.js:541
-#: assets/js/src/components/public/AnnouncementForm.js:461
+#: assets/js/src/components/public/EventForm.js:546
+#: assets/js/src/components/public/AnnouncementForm.js:465
 msgid "Unaffiliated (0)"
 msgstr ""
 
@@ -2104,28 +2125,28 @@ msgstr ""
 msgid "Unlink"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:927
-#: assets/js/src/components/public/AnnouncementForm.js:648
+#: assets/js/src/components/public/EventForm.js:949
+#: assets/js/src/components/public/AnnouncementForm.js:669
 msgid "Unnamed Category"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:948
-#: assets/js/src/components/public/AnnouncementForm.js:671
+#: assets/js/src/components/public/EventForm.js:970
+#: assets/js/src/components/public/AnnouncementForm.js:692
 msgid "Unnamed Tag"
 msgstr ""
 
-#: mayo-events-manager.php:798
-#: mayo-events-manager.php:812
+#: mayo-events-manager.php:800
+#: mayo-events-manager.php:814
 msgid "Unsubscribe"
 msgstr ""
 
-#: mayo-events-manager.php:253
+#: mayo-events-manager.php:255
 msgid "Unsubscribe Error"
 msgstr ""
 
 #: assets/js/src/components/admin/Subscribers.js:67
 #: assets/js/src/components/admin/Subscribers.js:364
-#: mayo-events-manager.php:252
+#: mayo-events-manager.php:254
 msgid "Unsubscribed"
 msgstr ""
 
@@ -2133,15 +2154,15 @@ msgstr ""
 msgid "Until:"
 msgstr ""
 
-#: includes/Admin.php:827
+#: includes/Admin.php:841
 msgid "Upcoming events"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:844
+#: assets/js/src/components/public/EventForm.js:866
 msgid "Upload Flyer"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:601
+#: assets/js/src/components/public/AnnouncementForm.js:622
 msgid "Upload Image"
 msgstr ""
 
@@ -2185,7 +2206,7 @@ msgstr ""
 msgid "View past events"
 msgstr ""
 
-#: includes/Rest/EventsController.php:979
+#: includes/Rest/EventsController.php:982
 msgid "View the event: %s"
 msgstr ""
 
@@ -2193,21 +2214,21 @@ msgstr ""
 msgid "Wed"
 msgstr ""
 
-#: includes/Rest/EventsController.php:876
+#: includes/Rest/EventsController.php:877
 #: assets/js/src/util.js:7
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:136
-#: assets/js/src/components/public/EventForm.js:476
+#: assets/js/src/components/public/EventForm.js:481
 msgid "Wednesday"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:331
-#: assets/js/src/components/public/EventForm.js:761
+#: assets/js/src/components/public/EventForm.js:783
 msgid "Week"
 msgstr ""
 
-#: includes/Rest/EventsController.php:866
+#: includes/Rest/EventsController.php:867
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:249
-#: assets/js/src/components/public/EventForm.js:668
+#: assets/js/src/components/public/EventForm.js:690
 msgid "Weekly"
 msgstr ""
 
@@ -2215,7 +2236,7 @@ msgstr ""
 msgid "Welcome to %s announcements"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:682
+#: assets/js/src/components/admin/Settings.js:683
 msgid "When new options are added:"
 msgstr ""
 
@@ -2227,11 +2248,11 @@ msgstr ""
 msgid "Where:"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:239
+#: assets/js/src/components/public/EventForm.js:243
 msgid "You did not attach a valid image file, so one will not be submitted.  Please choose a valid image file (JPG, PNG, or GIF)"
 msgstr ""
 
-#: assets/js/src/components/public/AnnouncementForm.js:253
+#: assets/js/src/components/public/AnnouncementForm.js:256
 msgid "You did not attach a valid image file. Please choose a valid image file (JPG, PNG, or GIF)"
 msgstr ""
 
@@ -2255,22 +2276,27 @@ msgstr ""
 msgid "You're now subscribed to announcements from %s."
 msgstr ""
 
-#: includes/Admin.php:762
+#: includes/Admin.php:776
 msgid "Your Event Has Been Published: %s"
 msgstr ""
 
-#: mayo-events-manager.php:670
+#: mayo-events-manager.php:672
 msgid "Your Preferences"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:574
-#: assets/js/src/components/public/AnnouncementForm.js:494
+#: assets/js/src/components/public/EventForm.js:579
+#: assets/js/src/components/public/AnnouncementForm.js:498
 msgid "Your email address (will not be displayed publicly)"
 msgstr ""
 
-#: assets/js/src/components/public/EventForm.js:561
-#: assets/js/src/components/public/AnnouncementForm.js:481
+#: assets/js/src/components/public/EventForm.js:566
+#: assets/js/src/components/public/AnnouncementForm.js:485
 msgid "Your name (will not be displayed publicly)"
+msgstr ""
+
+#: assets/js/src/components/public/EventForm.js:595
+#: assets/js/src/components/public/AnnouncementForm.js:514
+msgid "Your phone number (will not be displayed publicly)"
 msgstr ""
 
 #: includes/Subscriber.php:293
@@ -2281,11 +2307,11 @@ msgstr ""
 msgid "Your subscription is already confirmed."
 msgstr ""
 
-#: mayo-events-manager.php:282
+#: mayo-events-manager.php:284
 msgid "Your subscription preferences have been updated."
 msgstr ""
 
-#: includes/Rest/AnnouncementsController.php:367
+#: includes/Rest/AnnouncementsController.php:370
 msgid "[%1$s] New Announcement Submission: %2$s"
 msgstr ""
 
@@ -2301,11 +2327,11 @@ msgid "at"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:267
-#: assets/js/src/components/public/EventForm.js:683
+#: assets/js/src/components/public/EventForm.js:705
 msgid "days"
 msgstr ""
 
-#: assets/js/src/components/admin/Settings.js:465
+#: assets/js/src/components/admin/Settings.js:466
 msgid "e.g., 1,2,3,0"
 msgstr ""
 
@@ -2342,17 +2368,17 @@ msgid "last"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:268
-#: assets/js/src/components/public/EventForm.js:684
+#: assets/js/src/components/public/EventForm.js:706
 msgid "months"
 msgstr ""
 
-#: includes/Rest/EventsController.php:885
-#: includes/Rest/EventsController.php:899
+#: includes/Rest/EventsController.php:886
+#: includes/Rest/EventsController.php:900
 #: assets/js/src/util.js:125
 msgid "on %s"
 msgstr ""
 
-#: includes/Rest/EventsController.php:896
+#: includes/Rest/EventsController.php:897
 #: assets/js/src/util.js:141
 msgid "on day %s"
 msgstr ""
@@ -2369,13 +2395,13 @@ msgstr ""
 msgid "third"
 msgstr ""
 
-#: includes/Rest/EventsController.php:906
+#: includes/Rest/EventsController.php:907
 #: assets/js/src/util.js:169
 msgid "until %s"
 msgstr ""
 
 #: assets/js/src/components/admin/EventBlockEditorSidebar.js:268
-#: assets/js/src/components/public/EventForm.js:684
+#: assets/js/src/components/public/EventForm.js:706
 msgid "weeks"
 msgstr ""
 

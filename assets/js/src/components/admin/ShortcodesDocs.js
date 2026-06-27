@@ -216,6 +216,7 @@ const ShortcodesDocs = () => {
                                     <li>location_address</li>
                                     <li>location_details</li>
                                     <li>flyer</li>
+                                    <li>phone (only when show_phone="true")</li>
                                 </ul>
                             </td>
                         </tr>
@@ -237,14 +238,24 @@ const ShortcodesDocs = () => {
                             <td>empty (all service bodies)</td>
                             <td>e.g., <pre>1,2,3</pre> to allow only service bodies 1, 2, and 3, or <pre>0</pre> for only Unaffiliated events. If only one service body is specified, the field will be hidden and auto-selected.</td>
                         </tr>
+                        <tr>
+                            <td>show_phone</td>
+                            <td>Show a private phone-number contact field on the form. The phone number is stored privately for organizers and is never displayed publicly. Make it required by adding <code>phone</code> to <code>additional_required_fields</code>.</td>
+                            <td>false</td>
+                            <td>e.g., <pre>show_phone="true"</pre></td>
+                        </tr>
                     </tbody>
                 </table>
-                
+
                 <h3>Examples</h3>
-                
+
                 <h4>Standard Form with Additional Requirements</h4>
                 <pre><code>[mayo_event_form additional_required_fields="flyer,location_name,location_address" categories="meetings,workshops" tags="featured,-ticketed"]</code></pre>
-                
+
+                <h4>Collecting a Private Phone Number</h4>
+                <pre><code>[mayo_event_form show_phone="true" additional_required_fields="phone"]</code></pre>
+                <p><em>Shows the private phone field and makes it required. Drop <code>phone</code> from <code>additional_required_fields</code> to keep it optional.</em></p>
+
                 <h4>Multi-Site Configuration - Restrict to Specific Service Bodies</h4>
                 <pre><code>[mayo_event_form default_service_bodies="1,2,5" categories="meetings"]</code></pre>
                 <p><em>Perfect for multi-site setups where each subsite should only allow events for specific service bodies.</em></p>
@@ -508,6 +519,12 @@ const ShortcodesDocs = () => {
                         <tr>
                             <td>show_flyer</td>
                             <td>Show the image/flyer upload field</td>
+                            <td>false</td>
+                            <td>true, false</td>
+                        </tr>
+                        <tr>
+                            <td>show_phone</td>
+                            <td>Show a private phone-number contact field. Stored privately for organizers and never displayed publicly. Make it required by adding <code>phone</code> to <code>additional_required_fields</code>.</td>
                             <td>false</td>
                             <td>true, false</td>
                         </tr>

@@ -105,6 +105,7 @@ class EventsController {
         add_post_meta($post_id, 'service_body', sanitize_text_field($params['service_body']));
         add_post_meta($post_id, 'email', sanitize_email($params['email']));
         add_post_meta($post_id, 'contact_name', sanitize_text_field($params['contact_name']));
+        add_post_meta($post_id, 'phone', sanitize_text_field($params['phone'] ?? ''));
 
         // Add recurring pattern metadata if provided
         if (!empty($params['recurring_pattern'])) {
@@ -965,6 +966,8 @@ class EventsController {
         $lines[] = sprintf(__('Contact Name: %s', 'mayo-events-manager'), sanitize_text_field($params['contact_name']));
         /* translators: %s: contact email */
         $lines[] = sprintf(__('Contact Email: %s', 'mayo-events-manager'), sanitize_email($params['email']));
+        /* translators: %s: contact phone */
+        $lines[] = sprintf(__('Contact Phone: %s', 'mayo-events-manager'), sanitize_text_field($params['phone'] ?? ''));
 
         $message = implode("\n", $lines)
             . $recurring_info
