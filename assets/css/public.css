@@ -1885,6 +1885,16 @@
     border-radius: 4px;
 }
 
+/* Inert while the event list is fetching, so toggling can't race the response. */
+.mayo-event-filters.is-disabled {
+    opacity: 0.55;
+}
+
+.mayo-event-filters.is-disabled .mayo-event-filter-pill,
+.mayo-event-filters.is-disabled .mayo-event-filter-clear {
+    cursor: not-allowed;
+}
+
 .mayo-event-filter-pill-wrap {
     position: relative;
     display: inline-flex;

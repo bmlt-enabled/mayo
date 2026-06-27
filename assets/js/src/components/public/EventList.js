@@ -644,6 +644,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             onToggle={handleToggleFilter}
             onClear={handleClearFilters}
             lockedFilters={lockedFilters}
+            disabled={loading}
         />
     ) : null);
 

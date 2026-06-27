@@ -43,7 +43,7 @@ const normalizeOptions = (key, facets) => {
     return [];
 };
 
-const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) => {
+const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters, disabled = false }) => {
     const containerRef = useRef(null);
     const [openFacet, setOpenFacet] = useState(null);
 
@@ -86,9 +86,10 @@ const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) =>
 
     return (
         <div
-            className="mayo-event-filters"
+            className={'mayo-event-filters' + (disabled ? ' is-disabled' : '')}
             role="region"
             aria-label={__('Event filters', 'mayo-events-manager')}
+            aria-busy={disabled}
             ref={containerRef}
         >
             {visibleFacets.map(def => {
@@ -110,7 +111,13 @@ const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) =>
                             aria-haspopup="listbox"
                             aria-expanded={isOpen}
                             aria-controls={panelId}
-                            onClick={() => setOpenFacet(isOpen ? null : def.key)}
+                            disabled={disabled}
+                            onClick={() => {
+                                if (disabled) {
+                                    return;
+                                }
+                                setOpenFacet(isOpen ? null : def.key);
+                            }}
                         >
                             <span className="mayo-event-filter-pill-label">{label}</span>
                             {count > 0 && (
@@ -153,7 +160,12 @@ const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) =>
                                                     }
                                                     role="option"
                                                     aria-selected={isActive}
-                                                    onClick={() => onToggle(def.key, option.value)}
+                                                    disabled={disabled}
+                                                    onClick={() => {
+                                                        if (!disabled) {
+                                                            onToggle(def.key, option.value);
+                                                        }
+                                                    }}
                                                 >
                                                     {option.label}
                                                 </button>
@@ -170,7 +182,12 @@ const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters }) =>
                 <button
                     type="button"
                     className="mayo-event-filter-clear"
-                    onClick={onClear}
+                    disabled={disabled}
+                    onClick={() => {
+                        if (!disabled) {
+                            onClear();
+                        }
+                    }}
                     title={__('Clear filters', 'mayo-events-manager')}
                     aria-label={__('Clear filters', 'mayo-events-manager')}
                 >
