@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.1 =
+* Fixed external feed sources ignoring their configured category filter: a category set on an external source now actually narrows which events are imported, even when the remote site runs an older version, isn't a Mayo site, or uses different category slugs. Previously an unmatched category was silently dropped and the source returned all of its events. Sources with no category configured are unaffected. [#292]
 * Fixed the event list filter bar omitting event types that had no currently scheduled events; the Event Type filter now always offers the full set (Service, Activity, Celebration) regardless of what's on the calendar. [#290]
 * Fixed a race where toggling filters while the event list was still loading could leave the selection in an inconsistent state; the filter bar is now disabled (greyed out) while a request is in flight. [#290]
 * Added an optional private phone-number contact field to the event and announcement submission forms. It is hidden by default and enabled per-form with the new `show_phone` shortcode option; add `phone` to `additional_required_fields` to make it mandatory. Like the contact email, the number is stored privately for organizers and is never displayed publicly. [#288]
