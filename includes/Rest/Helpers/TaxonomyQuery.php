@@ -139,6 +139,86 @@ class TaxonomyQuery {
     }
 
     /**
+     * Check whether an event's category payload satisfies a filter string.
+     *
+     * Used as a local backstop when consuming external feeds: a remote that
+     * runs an older Mayo, isn't Mayo, or uses different category slugs may
+     * silently ignore the forwarded `categories` param and return everything
+     * (build_taxonomy_args adds no tax_query when no slug resolves). This
+     * re-applies the filter on the data we actually received so the source's
+     * configured category is authoritative regardless of remote behavior.
+     *
+     * Matching mirrors parse_taxonomy_filter semantics (comma-separated,
+     * '-' prefix excludes) but compares against the event payload's category
+     * slug AND name, case-insensitively, since the UI accepts either form.
+     *
+     * @param array  $event_categories Event category objects (each may have 'slug'/'name'), as returned by get_terms()
+     * @param string $filter           Comma-separated category slugs/names (prefix with '-' to exclude)
+     * @param string $relation         'AND' or 'OR' - how to match multiple includes (default OR)
+     * @return bool True if the event passes the filter (empty filter passes everything)
+     */
+    public static function event_matches_category_filter($event_categories, $filter, $relation = 'OR') {
+        $parsed = self::parse_taxonomy_filter($filter);
+
+        // No constraint -> everything passes. Crucially this means a source with
+        // no configured category does not filter (and never injects a default).
+        if ($parsed['include'] === '' && $parsed['exclude'] === '') {
+            return true;
+        }
+
+        // Build a case-insensitive lookup of the event's category slugs + names.
+        $event_terms = [];
+        if (is_array($event_categories)) {
+            foreach ($event_categories as $cat) {
+                if (!is_array($cat)) {
+                    continue;
+                }
+                if (isset($cat['slug']) && $cat['slug'] !== '') {
+                    $event_terms[strtolower($cat['slug'])] = true;
+                }
+                if (isset($cat['name']) && $cat['name'] !== '') {
+                    $event_terms[strtolower($cat['name'])] = true;
+                }
+            }
+        }
+
+        // Exclusion wins: if the event carries any excluded term, drop it.
+        if ($parsed['exclude'] !== '') {
+            foreach (array_map('trim', explode(',', $parsed['exclude'])) as $token) {
+                if ($token !== '' && isset($event_terms[strtolower($token)])) {
+                    return false;
+                }
+            }
+        }
+
+        // Inclusion: OR = at least one match, AND = all must match.
+        if ($parsed['include'] !== '') {
+            $include_tokens = array_filter(array_map('trim', explode(',', $parsed['include'])), function ($t) {
+                return $t !== '';
+            });
+
+            if (!empty($include_tokens)) {
+                $is_and = strtoupper($relation) === 'AND';
+                $matched_any = false;
+                foreach ($include_tokens as $token) {
+                    $has = isset($event_terms[strtolower($token)]);
+                    if ($is_and && !$has) {
+                        return false;
+                    }
+                    if ($has) {
+                        $matched_any = true;
+                    }
+                }
+                if (!$is_and && !$matched_any) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Get terms for a post
      *
      * @param \WP_Post|int $post Post object or post ID
