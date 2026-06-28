@@ -287,4 +287,82 @@ class TaxonomyQueryTest extends TestCase {
 
         $this->assertEquals('News & Events', $result[0]['name']);
     }
+
+    /**
+     * Helper: a minimal event category payload as produced by get_terms().
+     */
+    private function cat(string $slug, string $name): array {
+        return ['id' => 1, 'name' => $name, 'slug' => $slug, 'link' => 'https://example.com'];
+    }
+
+    /**
+     * An empty filter is no constraint: every event passes (no leak, no default injected).
+     */
+    public function testEventMatchesCategoryFilterEmptyFilterPassesEverything(): void {
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter([], ''));
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter(
+            [$this->cat('conventions', 'Conventions')],
+            ''
+        ));
+    }
+
+    /**
+     * Source with a category keeps only events that carry it; others are dropped.
+     */
+    public function testEventMatchesCategoryFilterNarrowsBySlug(): void {
+        $matching = [$this->cat('conventions', 'Conventions')];
+        $other    = [$this->cat('workshops', 'Workshops')];
+
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($matching, 'conventions'));
+        $this->assertFalse(TaxonomyQuery::event_matches_category_filter($other, 'conventions'));
+    }
+
+    /**
+     * An event with no categories never satisfies a non-empty include filter.
+     */
+    public function testEventMatchesCategoryFilterEventWithNoCategoriesDropped(): void {
+        $this->assertFalse(TaxonomyQuery::event_matches_category_filter([], 'conventions'));
+    }
+
+    /**
+     * Matching is case-insensitive and works against the name as well as the slug,
+     * so a UI value of "Conventions" still matches slug "conventions".
+     */
+    public function testEventMatchesCategoryFilterCaseInsensitiveNameAndSlug(): void {
+        $event = [$this->cat('conventions', 'Conventions')];
+
+        // UI typed the display name with different casing.
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($event, 'Conventions'));
+        // UI typed the slug with different casing.
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($event, 'CONVENTIONS'));
+        // Match against the name field even when the slug differs.
+        $nameOnly = [$this->cat('cat-7', 'Conventions')];
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($nameOnly, 'conventions'));
+    }
+
+    /**
+     * Exclude semantics: a '-' prefixed token drops events carrying that category.
+     */
+    public function testEventMatchesCategoryFilterExcludeDropsMatch(): void {
+        $event = [$this->cat('conventions', 'Conventions')];
+
+        $this->assertFalse(TaxonomyQuery::event_matches_category_filter($event, '-conventions'));
+        // An event without the excluded category passes.
+        $other = [$this->cat('workshops', 'Workshops')];
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($other, '-conventions'));
+    }
+
+    /**
+     * OR (default) = any include matches; AND = all includes must be present.
+     */
+    public function testEventMatchesCategoryFilterRelation(): void {
+        $oneOfTwo = [$this->cat('conventions', 'Conventions')];
+        $bothCats = [$this->cat('conventions', 'Conventions'), $this->cat('workshops', 'Workshops')];
+
+        // OR: having one of the two is enough.
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($oneOfTwo, 'conventions,workshops', 'OR'));
+        // AND: must carry both.
+        $this->assertFalse(TaxonomyQuery::event_matches_category_filter($oneOfTwo, 'conventions,workshops', 'AND'));
+        $this->assertTrue(TaxonomyQuery::event_matches_category_filter($bothCats, 'conventions,workshops', 'AND'));
+    }
 }

@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 7.0
-Stable tag: 1.9.1
+Stable tag: 1.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,9 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.9.2 =
+* Fixed external feed sources ignoring their configured category filter: a category set on an external source now actually narrows which events are imported, even when the remote site runs an older version, isn't a Mayo site, or uses different category slugs. Previously an unmatched category was silently dropped and the source returned all of its events. Sources with no category configured are unaffected. [#292]
 
 = 1.9.1 =
 * Fixed the event list filter bar omitting event types that had no currently scheduled events; the Event Type filter now always offers the full set (Service, Activity, Celebration) regardless of what's on the calendar. [#290]

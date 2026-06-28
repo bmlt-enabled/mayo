@@ -1919,4 +1919,45 @@ class EventsControllerTest extends TestCase {
         $data = $response->get_data();
         $this->assertCount(0, $data['events'], 'Event should be hidden when current time is after event ends');
     }
+
+    /**
+     * Invoke the private static effective_source_filter for testing.
+     */
+    private function effectiveSourceFilter(array $source, string $key): string {
+        $method = new \ReflectionMethod(EventsController::class, 'effective_source_filter');
+        $method->setAccessible(true);
+        return $method->invoke(null, $source, $key);
+    }
+
+    /**
+     * The source default is used for an external feed facet when the visitor
+     * has not set that filter via $_GET. Same value drives both the forwarded
+     * param and the local post-fetch enforcement, so they cannot drift.
+     */
+    public function testEffectiveSourceFilterUsesSourceDefault(): void {
+        $_GET = [];
+        $source = ['categories' => 'conventions'];
+
+        $this->assertSame('conventions', $this->effectiveSourceFilter($source, 'categories'));
+    }
+
+    /**
+     * The visitor's live $_GET selection overrides the source default.
+     */
+    public function testEffectiveSourceFilterVisitorOverridesSource(): void {
+        $_GET = ['categories' => 'workshops'];
+        $source = ['categories' => 'conventions'];
+
+        $this->assertSame('workshops', $this->effectiveSourceFilter($source, 'categories'));
+    }
+
+    /**
+     * No visitor value and no source default resolves to an empty string,
+     * which the enforcement treats as "no constraint" (no leak, no default).
+     */
+    public function testEffectiveSourceFilterEmptyWhenUnset(): void {
+        $_GET = [];
+
+        $this->assertSame('', $this->effectiveSourceFilter([], 'categories'));
+    }
 }

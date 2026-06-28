@@ -1496,6 +1496,24 @@ class EventsController {
                 'service_bodies' => $service_bodies,
             ];
 
+            // Enforce the source's category filter locally. The param is also
+            // forwarded to the remote, but a remote on an older Mayo, a non-Mayo
+            // feed, or one using different category slugs may ignore it and
+            // return everything; re-applying it here makes the configured
+            // category authoritative. Empty filter = no constraint (no leak, no
+            // default category injected).
+            $effective_categories = self::effective_source_filter($source, 'categories');
+            if ($effective_categories !== '') {
+                $cat_relation = self::effective_source_filter($source, 'category_relation') ?: 'OR';
+                $events = array_values(array_filter($events, function ($event) use ($effective_categories, $cat_relation) {
+                    return TaxonomyQuery::event_matches_category_filter(
+                        $event['categories'] ?? [],
+                        $effective_categories,
+                        $cat_relation
+                    );
+                }));
+            }
+
             // Tag events with source info
             foreach ($events as &$event) {
                 $event['source_id'] = $sid;
@@ -1527,6 +1545,27 @@ class EventsController {
     }
 
     /**
+     * Resolve the effective value for an external-feed filter facet.
+     *
+     * The visitor's live $_GET selection wins over the source's admin-configured
+     * default; the source default applies only when the visitor has not set that
+     * filter. Shared by build_external_filter_params (what we ask the remote for)
+     * and the local post-fetch enforcement (what we actually keep) so the two
+     * never drift apart.
+     *
+     * @param array  $source Source configuration entry
+     * @param string $key    Facet key (e.g. 'categories', 'category_relation')
+     * @return string Effective value ('' when neither visitor nor source set it)
+     */
+    private static function effective_source_filter($source, $key) {
+        $user_value = isset($_GET[$key]) ? sanitize_text_field(wp_unslash($_GET[$key])) : '';
+        if ($user_value !== '') {
+            return $user_value;
+        }
+        return (string) ($source[$key] ?? '');
+    }
+
+    /**
      * Build the filter params for an external feed request.
      *
      * The visitor's live $_GET selection wins over the source's admin-configured
@@ -1538,23 +1577,11 @@ class EventsController {
      * @return array Associative array of filter params (only set keys are returned)
      */
     private static function build_external_filter_params($source) {
-        $get_param = function ($key) {
-            return isset($_GET[$key]) ? sanitize_text_field(wp_unslash($_GET[$key])) : '';
-        };
-
-        $defaults = [
-            'event_type'        => $source['event_type'] ?? '',
-            'service_body'      => $source['service_body'] ?? '',
-            'relation'          => $source['relation'] ?? '',
-            'categories'        => $source['categories'] ?? '',
-            'category_relation' => $source['category_relation'] ?? '',
-            'tags'              => $source['tags'] ?? '',
-        ];
+        $keys = ['event_type', 'service_body', 'relation', 'categories', 'category_relation', 'tags'];
 
         $params = [];
-        foreach ($defaults as $key => $source_value) {
-            $user_value = $get_param($key);
-            $value = $user_value !== '' ? $user_value : (string) $source_value;
+        foreach ($keys as $key) {
+            $value = self::effective_source_filter($source, $key);
             if ($value !== '') {
                 $params[$key] = $value;
             }
@@ -1631,6 +1658,19 @@ class EventsController {
                 'name' => $source['name'] ?? parse_url($source['url'], PHP_URL_HOST),
                 'service_bodies' => $service_bodies
             ];
+
+            // Enforce the source's category filter locally (see fetch_all_external_events).
+            $effective_categories = self::effective_source_filter($source, 'categories');
+            if ($effective_categories !== '') {
+                $cat_relation = self::effective_source_filter($source, 'category_relation') ?: 'OR';
+                $events = array_values(array_filter($events, function ($event) use ($effective_categories, $cat_relation) {
+                    return TaxonomyQuery::event_matches_category_filter(
+                        $event['categories'] ?? [],
+                        $effective_categories,
+                        $cat_relation
+                    );
+                }));
+            }
 
             // Attach source info to each event (service bodies are in the sources array)
             foreach ($events as &$event) {
