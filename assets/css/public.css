@@ -501,7 +501,7 @@
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     position: relative;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 .mayo-calendar-day.empty {
