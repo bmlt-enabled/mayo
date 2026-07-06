@@ -70,10 +70,10 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>event_type</td>
-                            <td>Filter by event type</td>
+                            <td>Filter by event type. Comma-separate to include several, or prefix a type with "-" to exclude it.</td>
                             <td>empty (all types)</td>
-                            <td>Service, Activity</td>
-                            <td>Yes (only one event type at a time)</td>
+                            <td>Service, Activity, Celebration (e.g. "Service,Activity" or "-Celebration")</td>
+                            <td>Yes</td>
                         </tr>
                         <tr>
                             <td>time_format</td>
@@ -144,9 +144,9 @@ const ShortcodesDocs = () => {
                 <h3>Example with Parameters</h3>
                 <pre><code>[mayo_event_list time_format="24hour" per_page="5" categories="meetings,workshops" tags="featured" event_type="Service" service_body="1,2,3" source_ids="local,source_123" archive="false" order="ASC" timezone="America/New_York" view="calendar"]</code></pre>
 
-                <h3>Example with Category/Tag Exclusions</h3>
-                <pre><code>[mayo_event_list categories="-announcements,-alerts" tags="-archived"]</code></pre>
-                <p><em>Shows all events except those with the "announcements" or "alerts" categories, and excludes the "archived" tag.</em></p>
+                <h3>Example with Category/Tag/Event Type Exclusions</h3>
+                <pre><code>[mayo_event_list categories="-announcements,-alerts" tags="-archived" event_type="-Celebration"]</code></pre>
+                <p><em>Shows all events except those with the "announcements" or "alerts" categories, excludes the "archived" tag, and hides "Celebration" events (leaving Service and Activity).</em></p>
 
                 <h3>Example with Querystring Overrides</h3>
                 <pre><code>https://example.com/events?status=pending&categories=meetings,workshops&event_type=Service&service_body="1,2,3"&source_ids=local,source_123&archive=true&order=DESC&timezone=America/New_York&infinite_scroll=false&per_page=20&view=calendar</code></pre>

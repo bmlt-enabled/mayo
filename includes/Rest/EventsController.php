@@ -1074,21 +1074,8 @@ class EventsController {
             ]
         ];
 
-        if (!empty($eventType)) {
-            if (str_contains($eventType, ',')) {
-                $event_types = array_map('trim', explode(',', $eventType));
-                $recurring_meta_query[] = [
-                    'key' => 'event_type',
-                    'value' => $event_types,
-                    'compare' => 'IN'
-                ];
-            } else {
-                $recurring_meta_query[] = [
-                    'key' => 'event_type',
-                    'value' => $eventType,
-                    'compare' => '='
-                ];
-            }
+        foreach (self::build_event_type_meta_query($eventType) as $row) {
+            $recurring_meta_query[] = $row;
         }
 
         if (!empty($serviceBody)) {
@@ -1230,6 +1217,53 @@ class EventsController {
     }
 
     /**
+     * Build the meta_query row(s) for an event_type filter string.
+     *
+     * Supports three token forms (comma-separated, in any combination):
+     *  - a bare type ("Service")            → include via '=' / 'IN'
+     *  - a dash-prefixed type ("-Celebration") → exclude via 'NOT IN'
+     * Include and exclude tokens may be mixed ("Service,-Celebration"); the
+     * resulting rows are AND-ed together by the caller's meta_query relation.
+     *
+     * @param string $eventType Raw event_type filter value.
+     * @return array List of meta_query rows (0, 1, or 2 entries).
+     */
+    private static function build_event_type_meta_query($eventType) {
+        $eventType = trim((string) $eventType);
+        if ($eventType === '') {
+            return [];
+        }
+
+        $includes = [];
+        $excludes = [];
+        foreach (array_map('trim', explode(',', $eventType)) as $token) {
+            if ($token === '') {
+                continue;
+            }
+            if (str_starts_with($token, '-')) {
+                $name = trim(substr($token, 1));
+                if ($name !== '') {
+                    $excludes[] = $name;
+                }
+            } else {
+                $includes[] = $token;
+            }
+        }
+
+        $rows = [];
+        if (!empty($includes)) {
+            $rows[] = count($includes) === 1
+                ? ['key' => 'event_type', 'value' => $includes[0], 'compare' => '=']
+                : ['key' => 'event_type', 'value' => $includes, 'compare' => 'IN'];
+        }
+        if (!empty($excludes)) {
+            $rows[] = ['key' => 'event_type', 'value' => $excludes, 'compare' => 'NOT IN'];
+        }
+
+        return $rows;
+    }
+
+    /**
      * Query events with given parameters
      *
      * @param string $status Post status
@@ -1245,21 +1279,8 @@ class EventsController {
     private static function query_events($status, $eventType, $serviceBody, $relation, $categories, $categoryRelation, $tags, $min_date = null) {
         $meta_query = [];
 
-        if (!empty($eventType)) {
-            if (str_contains($eventType, ',')) {
-                $event_types = array_map('trim', explode(',', $eventType));
-                $meta_query[] = [
-                    'key' => 'event_type',
-                    'value' => $event_types,
-                    'compare' => 'IN'
-                ];
-            } else {
-                $meta_query[] = [
-                    'key' => 'event_type',
-                    'value' => $eventType,
-                    'compare' => '='
-                ];
-            }
+        foreach (self::build_event_type_meta_query($eventType) as $row) {
+            $meta_query[] = $row;
         }
 
         if (!empty($serviceBody)) {

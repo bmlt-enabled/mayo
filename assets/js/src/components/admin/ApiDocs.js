@@ -82,7 +82,7 @@ const ApiDocs = () => {
                             <td><code>event_type</code></td>
                             <td>string</td>
                             <td>empty</td>
-                            <td>Filter by event type (e.g., <code>Service</code>, <code>Activity</code>)</td>
+                            <td>Filter by event type. Comma-separate to include several (<code>Service,Activity</code>), or prefix with <code>-</code> to exclude (<code>-Celebration</code>).</td>
                         </tr>
                         <tr>
                             <td><code>service_body</code></td>
