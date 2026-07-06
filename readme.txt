@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.9.2 =
 * Fixed the calendar view showing an unnecessary scrollbar on every day cell. Day cells now only scroll internally when they actually contain more events than fit. [#298]
+* Added event-type exclusion to the event list: prefix a type with "-" to hide it (e.g. `event_type="-Celebration"` shows Service and Activity events), or list the types to keep (`event_type="Service,Activity"`). Exclusion is future-proof — any event types added later stay visible automatically. [#296]
 * Fixed external feed sources ignoring their configured category filter: a category set on an external source now actually narrows which events are imported, even when the remote site runs an older version, isn't a Mayo site, or uses different category slugs. Previously an unmatched category was silently dropped and the source returned all of its events. Sources with no category configured are unaffected. [#292]
 
 = 1.9.1 =

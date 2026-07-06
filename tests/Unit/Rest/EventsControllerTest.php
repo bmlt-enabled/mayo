@@ -1024,6 +1024,84 @@ class EventsControllerTest extends TestCase {
     }
 
     /**
+     * Collect every event_type meta_query row passed to get_posts during a
+     * get_events() call. get_events queries twice (recurring + non-recurring),
+     * so a given row may appear more than once — assertions look for presence,
+     * not counts.
+     *
+     * @return array<int, array> List of event_type meta_query rows.
+     */
+    private function captureEventTypeMetaRows(): array {
+        $rows = [];
+        Functions\when('get_posts')->alias(function ($args) use (&$rows) {
+            if (!empty($args['meta_query']) && is_array($args['meta_query'])) {
+                foreach ($args['meta_query'] as $key => $row) {
+                    if (is_array($row) && isset($row['key']) && $row['key'] === 'event_type') {
+                        $rows[] = $row;
+                    }
+                }
+            }
+            return [];
+        });
+        Functions\when('get_site_url')->justReturn('https://example.com');
+
+        EventsController::get_events();
+
+        return $rows;
+    }
+
+    /**
+     * A dash-prefixed event_type excludes that type via NOT IN (issue #296).
+     */
+    public function testGetEventsExcludesEventTypeWithDashPrefix(): void {
+        $_GET = ['event_type' => '-Celebration'];
+
+        $rows = $this->captureEventTypeMetaRows();
+
+        $this->assertNotEmpty($rows, 'Expected an event_type meta_query row');
+        foreach ($rows as $row) {
+            $this->assertSame('NOT IN', $row['compare']);
+            $this->assertSame(['Celebration'], $row['value']);
+        }
+    }
+
+    /**
+     * Comma-separated event types are matched with IN (positive listing).
+     */
+    public function testGetEventsIncludesCommaSeparatedEventTypes(): void {
+        $_GET = ['event_type' => 'Service,Activity'];
+
+        $rows = $this->captureEventTypeMetaRows();
+
+        $this->assertNotEmpty($rows, 'Expected an event_type meta_query row');
+        foreach ($rows as $row) {
+            $this->assertSame('IN', $row['compare']);
+            $this->assertSame(['Service', 'Activity'], $row['value']);
+        }
+    }
+
+    /**
+     * Mixed include + exclude tokens produce both an include and a NOT IN row.
+     */
+    public function testGetEventsMixedIncludeAndExcludeEventTypes(): void {
+        $_GET = ['event_type' => 'Service,-Celebration'];
+
+        $rows = $this->captureEventTypeMetaRows();
+
+        $includeRows = array_filter($rows, fn($row) => $row['compare'] === '=');
+        $excludeRows = array_filter($rows, fn($row) => $row['compare'] === 'NOT IN');
+
+        $this->assertNotEmpty($includeRows, 'Expected an include (=) row for Service');
+        $this->assertNotEmpty($excludeRows, 'Expected a NOT IN row for Celebration');
+        foreach ($includeRows as $row) {
+            $this->assertSame('Service', $row['value']);
+        }
+        foreach ($excludeRows as $row) {
+            $this->assertSame(['Celebration'], $row['value']);
+        }
+    }
+
+    /**
      * Test get_events with service_body filter
      */
     public function testGetEventsWithServiceBodyFilter(): void {
