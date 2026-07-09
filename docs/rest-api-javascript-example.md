@@ -41,6 +41,40 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
 ## The example
 
 ```html
+<style>
+  #events {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #1a1a1a;
+    max-width: 640px;
+  }
+  .mayo-heading { font-size: 1.25rem; margin: 0 0 1rem; }
+  .mayo-heading span { color: #6b7280; font-weight: 400; }
+  .mayo-events { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .mayo-event {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .mayo-event:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+  .mayo-flyer {
+    flex: 0 0 auto;
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f3f4f6;
+  }
+  .mayo-event__body { min-width: 0; }
+  .mayo-event__title { font-size: 1.05rem; margin: 0 0 0.35rem; }
+  .mayo-event__when { margin: 0 0 0.2rem; color: #2563eb; font-weight: 600; font-size: 0.9rem; }
+  .mayo-event__where { margin: 0; color: #6b7280; font-size: 0.9rem; }
+</style>
+
 <div id="events">Loading events…</div>
 
 <script>
@@ -108,17 +142,40 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
       return;
     }
 
-    // "2026-07-19 11:00 – 16:00" for a same-day event; spans the dates when the
-    // event runs across days ("2026-12-31 12:00 – 2027-01-02 13:00").
+    const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+
+    // "2026-07-19" -> "Saturday, July 19, 2026". Split into parts rather than
+    // new Date('2026-07-19'), which parses as UTC and can shift the weekday.
+    const formatDate = (iso) => {
+      if (!iso) return '';
+      const [y, mo, d] = iso.split('-').map(Number);
+      return `${WEEKDAYS[new Date(y, mo - 1, d).getDay()]}, ${MONTHS[mo - 1]} ${d}, ${y}`;
+    };
+
+    // "16:00" -> "4:00 PM". Times are stored as local wall-clock for the event's
+    // timezone, so just reformat — no timezone conversion.
+    const formatTime = (hhmm) => {
+      if (!hhmm) return '';
+      const [h, min] = hhmm.split(':').map(Number);
+      const hour12 = h % 12 === 0 ? 12 : h % 12;
+      return `${hour12}:${String(min).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+    };
+
+    // Same day: "Saturday, July 19, 2026 · 11:00 AM – 4:00 PM".
+    // Spanning days: "… Dec 31 → … Jan 2".
     const formatWhen = (m) => {
-      const start = [m.event_start_date, m.event_start_time].filter(Boolean).join(' ');
-      let end = '';
-      if (m.event_end_date && m.event_end_date !== m.event_start_date) {
-        end = [m.event_end_date, m.event_end_time].filter(Boolean).join(' ');
-      } else if (m.event_end_time) {
-        end = m.event_end_time; // same day — just the closing time
+      const sameDay = !m.event_end_date || m.event_end_date === m.event_start_date;
+      const startTime = formatTime(m.event_start_time);
+      const endTime = formatTime(m.event_end_time);
+      if (sameDay) {
+        const times = [startTime, endTime].filter(Boolean).join(' – ');
+        return [formatDate(m.event_start_date), times].filter(Boolean).join(' · ');
       }
-      return end ? `${start} – ${end}` : start;
+      const start = [formatDate(m.event_start_date), startTime].filter(Boolean).join(' · ');
+      const end = [formatDate(m.event_end_date), endTime].filter(Boolean).join(' · ');
+      return `${start} → ${end}`;
     };
 
     // Full location: venue name, street address, then any extra details.
@@ -128,18 +185,24 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
         .join(' · ');
 
     container.innerHTML = `
-      <h2>${serviceBody.name} — ${tag.name} events (${pagination.total})</h2>
-      <ul>
+      <h2 class="mayo-heading">${serviceBody.name} — ${tag.name} events <span>(${pagination.total})</span></h2>
+      <ul class="mayo-events">
         ${events.map((event) => {
           const m = event.meta;
-          // title comes back as { rendered: '...' }.
-          return `<li>
-            <strong>${event.title.rendered}</strong><br>
-            <small>
-              When: ${formatWhen(m)}<br>
-              Where: ${formatWhere(m) || 'Location TBD'}
-            </small>
-          </li>`;
+          const where = formatWhere(m);
+          // featured_image is the event flyer; it can be null, so guard it.
+          const flyer = event.featured_image
+            ? `<img class="mayo-flyer" src="${event.featured_image}" alt="${event.title.rendered} flyer" loading="lazy">`
+            : '';
+          return `
+            <li class="mayo-event">
+              ${flyer}
+              <div class="mayo-event__body">
+                <h3 class="mayo-event__title">${event.title.rendered}</h3>
+                <p class="mayo-event__when">${formatWhen(m)}</p>
+                ${where ? `<p class="mayo-event__where">${where}</p>` : ''}
+              </div>
+            </li>`;
         }).join('')}
       </ul>`;
   } catch (err) {
