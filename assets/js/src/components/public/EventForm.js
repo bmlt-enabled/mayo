@@ -39,6 +39,15 @@ const EventForm = () => {
         textarea.innerHTML = text;
         return textarea.value;
     };
+
+    // Today's date as YYYY-MM-DD in the browser's local time (for date input defaults)
+    const getTodayLocalDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
     
     // Define default required fields that cannot be overridden
     const defaultRequiredFields = [
@@ -101,8 +110,8 @@ const EventForm = () => {
     const [formData, setFormData] = useState({
         event_name: '',
         event_type: '',
-        event_start_date: '',
-        event_end_date: '',
+        event_start_date: getTodayLocalDate(),
+        event_end_date: getTodayLocalDate(),
         event_start_time: '',
         event_end_time: '',
         timezone: getUserTimezone(),
@@ -316,8 +325,8 @@ const EventForm = () => {
                 setFormData({
                     event_name: '',
                     event_type: '',
-                    event_start_date: '',
-                    event_end_date: '',
+                    event_start_date: getTodayLocalDate(),
+                    event_end_date: getTodayLocalDate(),
                     event_start_time: '',
                     event_end_time: '',
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -424,6 +433,19 @@ const EventForm = () => {
             };
             reader.readAsDataURL(file);
         } else {
+            if (name === 'event_start_date') {
+                setFormData(prev => {
+                    // Keep end date matching start unless the user has set a different end date
+                    const shouldSyncEnd =
+                        !prev.event_end_date || prev.event_end_date === prev.event_start_date;
+                    return {
+                        ...prev,
+                        event_start_date: value,
+                        event_end_date: shouldSyncEnd ? value : prev.event_end_date
+                    };
+                });
+                return;
+            }
             setFormData(prev => ({
                 ...prev,
                 [name]: value
