@@ -24,6 +24,9 @@ class FrontendTest extends TestCase {
         Functions\when('current_filter')->justReturn('the_content');
         Functions\when('is_active_sidebar')->justReturn(false);
         Functions\when('wp_get_sidebars_widgets')->justReturn([]);
+        // resolve_time_format() reads the WordPress "Time Format" setting when a
+        // form's time_format attribute is left empty.
+        Functions\when('get_option')->justReturn('g:i a');
     }
 
     /**

@@ -50,13 +50,55 @@ class Frontend {
     }
 
 
+    /**
+     * Resolve a submission-form time format to '12hour' or '24hour'.
+     *
+     * Accepts an explicit '12hour'/'24hour' value, or (when empty) falls back
+     * to the site's WordPress "Time Format" setting so the form follows the
+     * WordPress date config. Any other value is treated as a PHP date-format
+     * string and inspected for a 12-hour token (a/A = am/pm, g/h = 12-hour hour),
+     * honoring backslash-escaped literals.
+     *
+     * @param string $value Explicit format, PHP time-format string, or ''.
+     * @return string '12hour' or '24hour'.
+     */
+    private static function resolve_time_format($value) {
+        if ('12hour' === $value || '24hour' === $value) {
+            return $value;
+        }
+
+        $format = '' === (string) $value ? (string) get_option('time_format') : (string) $value;
+
+        if ('' === $format) {
+            return '12hour';
+        }
+
+        $escaped = false;
+        foreach (str_split($format) as $char) {
+            if ($escaped) {
+                $escaped = false;
+                continue;
+            }
+            if ('\\' === $char) {
+                $escaped = true;
+                continue;
+            }
+            if (in_array($char, ['a', 'A', 'g', 'h'], true)) {
+                return '12hour';
+            }
+        }
+
+        return '24hour';
+    }
+
     public static function render_event_form($atts = []) {
         $defaults = [
             'additional_required_fields' => '',
             'categories' => '',
             'tags' => '',
             'default_service_bodies' => '',
-            'show_phone' => 'false'
+            'show_phone' => 'false',
+            'time_format' => '' // '12hour', '24hour', or '' to follow WordPress config
         ];
         $atts = shortcode_atts($defaults, $atts);
 
@@ -68,7 +110,8 @@ class Frontend {
         wp_localize_script('mayo-public', $settings_key, [
             'additionalRequiredFields' => $atts['additional_required_fields'],
             'defaultServiceBodies' => $atts['default_service_bodies'],
-            'showPhone' => $atts['show_phone']
+            'showPhone' => $atts['show_phone'],
+            'timeFormat' => self::resolve_time_format($atts['time_format'])
         ]);
         
         return sprintf(
@@ -205,7 +248,8 @@ class Frontend {
             'tags' => '',
             'default_service_bodies' => '',
             'show_flyer' => 'false',
-            'show_phone' => 'false'
+            'show_phone' => 'false',
+            'time_format' => '' // '12hour', '24hour', or '' to follow WordPress config
         ];
         $atts = shortcode_atts($defaults, $atts);
 
@@ -218,7 +262,8 @@ class Frontend {
             'additionalRequiredFields' => $atts['additional_required_fields'],
             'defaultServiceBodies' => $atts['default_service_bodies'],
             'showFlyer' => $atts['show_flyer'],
-            'showPhone' => $atts['show_phone']
+            'showPhone' => $atts['show_phone'],
+            'timeFormat' => self::resolve_time_format($atts['time_format'])
         ]);
 
         return sprintf(

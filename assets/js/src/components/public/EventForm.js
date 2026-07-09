@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
+import TimeField from './TimeField';
 import { getTimezonesByRegion, getUserTimezone } from '../../timezones';
 
 const EventForm = () => {
@@ -62,6 +63,10 @@ const EventForm = () => {
 
     // Whether the private phone contact field should be shown (via shortcode param)
     const showPhone = settings.showPhone === 'true';
+
+    // Time entry format for the Start/End fields: follows the WordPress "Time
+    // Format" setting by default (resolved server-side), overridable per shortcode.
+    const timeFormat = settings.timeFormat === '24hour' ? '24hour' : '12hour';
 
     // Filter service bodies based on configuration
     const getFilteredServiceBodies = () => {
@@ -609,11 +614,11 @@ const EventForm = () => {
                                 onChange={handleChange}
                                 required
                             />
-                            <input
-                                type="time"
+                            <TimeField
                                 id="event_start_time"
                                 name="event_start_time"
                                 value={formData.event_start_time}
+                                format={timeFormat}
                                 onChange={handleChange}
                                 required
                             />
@@ -630,11 +635,11 @@ const EventForm = () => {
                                 value={formData.event_end_date}
                                 onChange={handleChange}
                             />
-                            <input
-                                type="time"
+                            <TimeField
                                 id="event_end_time"
                                 name="event_end_time"
                                 value={formData.event_end_time}
+                                format={timeFormat}
                                 onChange={handleChange}
                                 required
                             />

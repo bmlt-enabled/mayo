@@ -2,12 +2,17 @@ import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { apiFetch } from '../../util';
+import TimeField from './TimeField';
 
 const AnnouncementForm = () => {
     // Get the settings from the data attribute
     const formElement = document.getElementById('mayo-announcement-form');
     const settingsKey = formElement?.dataset?.settings;
     const settings = window[settingsKey] || {};
+
+    // Time entry format for the Start/End fields: follows the WordPress "Time
+    // Format" setting by default (resolved server-side), overridable per shortcode.
+    const timeFormat = settings.timeFormat === '24hour' ? '24hour' : '12hour';
 
     // Get categories from shortcode parameter
     const categoriesParam = formElement?.dataset?.categories || '';
@@ -542,11 +547,11 @@ const AnnouncementForm = () => {
                                 <label htmlFor="start_time">
                                     {__('Start Time', 'mayo-events-manager')} {isFieldRequired('start_time') && '*'}
                                 </label>
-                                <input
-                                    type="time"
+                                <TimeField
                                     id="start_time"
                                     name="start_time"
                                     value={formData.start_time}
+                                    format={timeFormat}
                                     onChange={handleChange}
                                     required={isFieldRequired('start_time')}
                                 />
@@ -573,11 +578,11 @@ const AnnouncementForm = () => {
                                 <label htmlFor="end_time">
                                     {__('End Time', 'mayo-events-manager')} {isFieldRequired('end_time') && '*'}
                                 </label>
-                                <input
-                                    type="time"
+                                <TimeField
                                     id="end_time"
                                     name="end_time"
                                     value={formData.end_time}
+                                    format={timeFormat}
                                     onChange={handleChange}
                                     required={isFieldRequired('end_time')}
                                 />
