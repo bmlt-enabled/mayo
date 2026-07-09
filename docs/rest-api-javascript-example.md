@@ -108,20 +108,37 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
       return;
     }
 
+    // "2026-07-19 11:00 – 16:00" for a same-day event; spans the dates when the
+    // event runs across days ("2026-12-31 12:00 – 2027-01-02 13:00").
+    const formatWhen = (m) => {
+      const start = [m.event_start_date, m.event_start_time].filter(Boolean).join(' ');
+      let end = '';
+      if (m.event_end_date && m.event_end_date !== m.event_start_date) {
+        end = [m.event_end_date, m.event_end_time].filter(Boolean).join(' ');
+      } else if (m.event_end_time) {
+        end = m.event_end_time; // same day — just the closing time
+      }
+      return end ? `${start} – ${end}` : start;
+    };
+
+    // Full location: venue name, street address, then any extra details.
+    const formatWhere = (m) =>
+      [m.location_name, m.location_address, m.location_details]
+        .filter(Boolean)
+        .join(' · ');
+
     container.innerHTML = `
       <h2>${serviceBody.name} — ${tag.name} events (${pagination.total})</h2>
       <ul>
         ${events.map((event) => {
-          const when = [event.meta.event_start_date, event.meta.event_start_time]
-            .filter(Boolean)
-            .join(' ');
-          const where = event.meta.location_name
-            ? ` — ${event.meta.location_name}`
-            : '';
-          // title comes back as { rendered: '...' }; link is the permalink.
+          const m = event.meta;
+          // title comes back as { rendered: '...' }.
           return `<li>
-            <a href="${event.link}">${event.title.rendered}</a>
-            <br><small>${when}${where}</small>
+            <strong>${event.title.rendered}</strong><br>
+            <small>
+              When: ${formatWhen(m)}<br>
+              Where: ${formatWhere(m) || 'Location TBD'}
+            </small>
           </li>`;
         }).join('')}
       </ul>`;
