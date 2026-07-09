@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.2 =
+* Added date defaults to the event submission form: the Start Date now pre-fills to today's date and the End Date automatically matches the Start Date (until you set a different end date), so single-day events need only one date entry. [#301]
 * Added a JavaScript example (docs/rest-api-javascript-example.md) showing how to pull events from the REST API filtered by service body and tag, resolving the human-readable names to the id/slug the API expects via the facets endpoint. [#302]
 * Fixed the calendar view showing an unnecessary scrollbar on every day cell. Day cells now only scroll internally when they actually contain more events than fit. [#298]
 * Added event-type exclusion to the event list: prefix a type with "-" to hide it (e.g. `event_type="-Celebration"` shows Service and Activity events), or list the types to keep (`event_type="Service,Activity"`). Exclusion is future-proof — any event types added later stay visible automatically. [#296]
