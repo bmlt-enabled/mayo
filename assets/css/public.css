@@ -991,6 +991,27 @@
     flex: 1;
 }
 
+/* Time entry selects (Hour / Minute / AM-PM) rendered by TimeField. */
+.mayo-datetime-inputs .mayo-time-inputs {
+    flex: 1;
+}
+
+.mayo-time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mayo-time-inputs select {
+    flex: 1;
+    min-width: 0;
+}
+
+.mayo-time-inputs .mayo-time-ampm,
+.mayo-time-inputs .mayo-time-sep {
+    flex: 0 0 auto;
+}
+
 @media (max-width: 600px) {
     .mayo-datetime-group {
         flex-direction: column;
