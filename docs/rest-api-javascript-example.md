@@ -45,14 +45,15 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
   #events {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: #1a1a1a;
-    max-width: 640px;
+    max-width: 520px;
   }
   .mayo-heading { font-size: 1.25rem; margin: 0 0 1rem; }
   .mayo-heading span { color: #6b7280; font-weight: 400; }
-  .mayo-events { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+  .mayo-events { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
   .mayo-event {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
     padding: 1rem;
     background: #fff;
     border: 1px solid #e5e7eb;
@@ -61,18 +62,23 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
     transition: box-shadow 0.15s ease;
   }
   .mayo-event:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+  .mayo-flyer-link { display: block; align-self: center; }
   .mayo-flyer {
-    flex: 0 0 auto;
-    width: 88px;
-    height: 88px;
-    object-fit: cover;
+    display: block;
+    width: 100%;
+    max-width: 440px;      /* ~5x the old 88px thumbnail */
+    height: auto;
     border-radius: 8px;
     background: #f3f4f6;
+    transition: opacity 0.15s ease;
   }
-  .mayo-event__body { min-width: 0; }
-  .mayo-event__title { font-size: 1.05rem; margin: 0 0 0.35rem; }
-  .mayo-event__when { margin: 0 0 0.2rem; color: #2563eb; font-weight: 600; font-size: 0.9rem; }
+  .mayo-flyer-link:hover .mayo-flyer { opacity: 0.9; }
+  .mayo-event__body { display: grid; gap: 0.2rem; }
+  .mayo-event__title { font-size: 1.05rem; margin: 0; }
+  .mayo-event__when { margin: 0; color: #2563eb; font-weight: 600; font-size: 0.9rem; }
   .mayo-event__where { margin: 0; color: #6b7280; font-size: 0.9rem; }
+  .mayo-event__map { color: #2563eb; text-decoration: none; }
+  .mayo-event__map:hover { text-decoration: underline; }
 </style>
 
 <div id="events">Loading events…</div>
@@ -178,11 +184,25 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
       return `${start} → ${end}`;
     };
 
-    // Full location: venue name, street address, then any extra details.
-    const formatWhere = (m) =>
-      [m.location_name, m.location_address, m.location_details]
-        .filter(Boolean)
-        .join(' · ');
+    // Google Maps search link for an address string.
+    const mapsUrl = (query) =>
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+    // Location as HTML: venue name, a clickable street address (opens Google
+    // Maps in a new tab), then any extra details.
+    const formatWhere = (m) => {
+      const parts = [];
+      if (m.location_name) parts.push(m.location_name);
+      if (m.location_address) {
+        // Query on name + address for a more reliable map pin.
+        const query = [m.location_name, m.location_address].filter(Boolean).join(', ');
+        parts.push(
+          `<a class="mayo-event__map" href="${mapsUrl(query)}" target="_blank" rel="noopener">${m.location_address}</a>`
+        );
+      }
+      if (m.location_details) parts.push(m.location_details);
+      return parts.join(' · ');
+    };
 
     container.innerHTML = `
       <h2 class="mayo-heading">${serviceBody.name} — ${tag.name} events <span>(${pagination.total})</span></h2>
@@ -191,8 +211,11 @@ Other handy params the endpoint accepts: `per_page`, `page`, `order` (`ASC`/`DES
           const m = event.meta;
           const where = formatWhere(m);
           // featured_image is the event flyer; it can be null, so guard it.
+          // Wrapped in a link so clicking opens the full-size flyer in a new tab.
           const flyer = event.featured_image
-            ? `<img class="mayo-flyer" src="${event.featured_image}" alt="${event.title.rendered} flyer" loading="lazy">`
+            ? `<a class="mayo-flyer-link" href="${event.featured_image}" target="_blank" rel="noopener">
+                 <img class="mayo-flyer" src="${event.featured_image}" alt="${event.title.rendered} flyer" loading="lazy">
+               </a>`
             : '';
           return `
             <li class="mayo-event">
