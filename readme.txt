@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.2 =
+* Fixed the event and announcement submission forms overlapping the End Date/Time field on top of the Start Date/Time field, which happened after Start/End time became Hour/Minute/AM-PM dropdowns. [#310]
 * Added date defaults to the event submission form: the Start Date now pre-fills to today's date and the End Date automatically matches the Start Date (until you set a different end date), so single-day events need only one date entry. [#301]
 * Added a JavaScript example (docs/rest-api-javascript-example.md) showing how to pull events from the REST API filtered by service body and tag, resolving the human-readable names to the id/slug the API expects via the facets endpoint. [#302]
 * Fixed the event and announcement submission forms forcing 24-hour ("military") time entry regardless of site settings. Start/End time now follow the WordPress "Time Format" setting (Settings → General), showing 12-hour Hour/Minute/AM-PM selects by default, and can be overridden per form with a new `time_format="12hour|24hour"` shortcode option. [#300]

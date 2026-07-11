@@ -1005,6 +1005,10 @@
 .mayo-time-inputs select {
     flex: 1;
     min-width: 0;
+    /* Override the global `.mayo-form-field select { width: 100% }` so the
+       AM/PM select (flex: 0 0 auto) doesn't take a 100% flex-basis and
+       overflow the column, overlapping the adjacent Start/End field (#310). */
+    width: auto;
 }
 
 .mayo-time-inputs .mayo-time-ampm,
