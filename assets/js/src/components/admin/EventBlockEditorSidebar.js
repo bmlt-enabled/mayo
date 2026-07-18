@@ -85,7 +85,9 @@ const EventBlockEditorSidebar = () => {
         endDate: '',
         monthlyType: 'date',
         monthlyDate: '',
-        monthlyWeekday: ''
+        monthlyWeekday: '',
+        relativeOffsetWeekday: 1,
+        relativeOffsetDirection: 'before'
     };
 
     const updateRecurringPattern = (updates) => {
@@ -306,12 +308,17 @@ const EventBlockEditorSidebar = () => {
                                 selected={recurringPattern.monthlyType || 'date'}
                                 options={[
                                     { label: __('On a specific date', 'mayo-events-manager'), value: 'date' },
-                                    { label: __('On a specific day', 'mayo-events-manager'), value: 'weekday' }
+                                    { label: __('On a specific day', 'mayo-events-manager'), value: 'weekday' },
+                                    { label: __('Relative to a monthly day', 'mayo-events-manager'), value: 'relative' }
                                 ]}
                                 onChange={value => updateRecurringPattern({
                                     monthlyType: value,
                                     monthlyDate: value === 'date' ? getInitialMonthlyDate() : '',
-                                    monthlyWeekday: value === 'weekday' ? getInitialWeekdayPattern() : ''
+                                    monthlyWeekday: (value === 'weekday' || value === 'relative') ? getInitialWeekdayPattern() : '',
+                                    ...(value === 'relative' ? {
+                                        relativeOffsetDirection: recurringPattern.relativeOffsetDirection || 'before',
+                                        relativeOffsetWeekday: recurringPattern.relativeOffsetWeekday ?? 1
+                                    } : {})
                                 })}
                             />
 
@@ -353,6 +360,64 @@ const EventBlockEditorSidebar = () => {
                                         __nextHasNoMarginBottom={true}
                                         __next40pxDefaultSize={true}
                                     />
+                                </div>
+                            )}
+
+                            {recurringPattern.monthlyType === 'relative' && (
+                                <div className="mayo-monthly-relative">
+                                    <p className="components-base-control__label">
+                                        {__('Anchor day', 'mayo-events-manager')}
+                                    </p>
+                                    <div className="mayo-monthly-weekday">
+                                        <SelectControl
+                                            label={__('Week', 'mayo-events-manager')}
+                                            value={recurringPattern.monthlyWeekday?.split(',')[0] || '1'}
+                                            options={weekNumbers}
+                                            onChange={value => {
+                                                const currentDay = recurringPattern.monthlyWeekday?.split(',')[1] || '0';
+                                                updateRecurringPattern({
+                                                    monthlyWeekday: `${value},${currentDay}`
+                                                });
+                                            }}
+                                            __nextHasNoMarginBottom={true}
+                                            __next40pxDefaultSize={true}
+                                        />
+                                        <SelectControl
+                                            label={__('Day', 'mayo-events-manager')}
+                                            value={recurringPattern.monthlyWeekday?.split(',')[1] || '0'}
+                                            options={weekdays}
+                                            onChange={value => {
+                                                const currentWeek = recurringPattern.monthlyWeekday?.split(',')[0] || '1';
+                                                updateRecurringPattern({
+                                                    monthlyWeekday: `${currentWeek},${value}`
+                                                });
+                                            }}
+                                            __nextHasNoMarginBottom={true}
+                                            __next40pxDefaultSize={true}
+                                        />
+                                    </div>
+                                    <SelectControl
+                                        label={__('Offset', 'mayo-events-manager')}
+                                        value={recurringPattern.relativeOffsetDirection || 'before'}
+                                        options={[
+                                            { label: __('Before', 'mayo-events-manager'), value: 'before' },
+                                            { label: __('After', 'mayo-events-manager'), value: 'after' }
+                                        ]}
+                                        onChange={value => updateRecurringPattern({ relativeOffsetDirection: value })}
+                                        __nextHasNoMarginBottom={true}
+                                        __next40pxDefaultSize={true}
+                                    />
+                                    <SelectControl
+                                        label={__('Target day', 'mayo-events-manager')}
+                                        value={String(recurringPattern.relativeOffsetWeekday ?? 1)}
+                                        options={weekdays.map(day => ({ label: day.label, value: String(day.value) }))}
+                                        onChange={value => updateRecurringPattern({ relativeOffsetWeekday: parseInt(value, 10) })}
+                                        __nextHasNoMarginBottom={true}
+                                        __next40pxDefaultSize={true}
+                                    />
+                                    <p className="components-base-control__help">
+                                        {__('The occurrence lands on the nearest target day strictly before or after the anchor day (e.g. the Monday before the 3rd Tuesday).', 'mayo-events-manager')}
+                                    </p>
                                 </div>
                             )}
                         </div>
