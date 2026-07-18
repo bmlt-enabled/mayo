@@ -1735,6 +1735,178 @@ class EventsControllerTest extends TestCase {
     }
 
     /**
+     * Invoke the private static generate_recurring_events and return the
+     * generated occurrence start dates (Y-m-d) in order.
+     *
+     * @return string[]
+     */
+    private function generatedRecurringDates(\WP_Post $post, array $pattern): array {
+        $method = new \ReflectionMethod(EventsController::class, 'generate_recurring_events');
+        $method->setAccessible(true);
+        $events = $method->invoke(null, $post, $pattern);
+
+        return array_map(function ($event) {
+            return $event['meta']['event_start_date'];
+        }, $events);
+    }
+
+    /**
+     * Set up the common WP function stubs needed to format a recurring event.
+     */
+    private function stubRecurringFormatters(string $title): void {
+        $this->mockGetTheTitle($title);
+        $this->mockHasPostThumbnail(false);
+        Functions\when('wp_get_post_terms')->justReturn([]);
+        Functions\when('get_term_link')->justReturn('https://example.com/category/test');
+    }
+
+    /**
+     * "Monday before the 3rd Tuesday" (anchor "3,2", before, target Monday)
+     * must land on the Monday immediately preceding the 3rd Tuesday each month.
+     */
+    public function testRelativeMonthlyMondayBeforeThirdTuesday(): void {
+        $post = $this->createMockPost([
+            'ID' => 620,
+            'post_title' => 'Fellowship Development',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Fellowship Development');
+
+        $this->setPostMeta(620, [
+            'event_start_date' => '2025-01-01',
+            'event_end_date' => '2025-01-01',
+            'skipped_occurrences' => []
+        ]);
+
+        $dates = $this->generatedRecurringDates($post, [
+            'type' => 'monthly',
+            'interval' => 1,
+            'monthlyType' => 'relative',
+            'monthlyWeekday' => '3,2',
+            'relativeOffsetWeekday' => 1,
+            'relativeOffsetDirection' => 'before',
+            'endDate' => '2025-06-30'
+        ]);
+
+        $this->assertSame(
+            ['2025-02-17', '2025-03-17', '2025-04-14', '2025-05-19', '2025-06-16'],
+            $dates
+        );
+    }
+
+    /**
+     * "Thursday after the 3rd Tuesday" (anchor "3,2", after, target Thursday)
+     * must land on the Thursday immediately following the 3rd Tuesday.
+     */
+    public function testRelativeMonthlyThursdayAfterThirdTuesday(): void {
+        $post = $this->createMockPost([
+            'ID' => 621,
+            'post_title' => 'Public Relations',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Public Relations');
+
+        $this->setPostMeta(621, [
+            'event_start_date' => '2025-01-01',
+            'event_end_date' => '2025-01-01',
+            'skipped_occurrences' => []
+        ]);
+
+        $dates = $this->generatedRecurringDates($post, [
+            'type' => 'monthly',
+            'interval' => 1,
+            'monthlyType' => 'relative',
+            'monthlyWeekday' => '3,2',
+            'relativeOffsetWeekday' => 4,
+            'relativeOffsetDirection' => 'after',
+            'endDate' => '2025-06-30'
+        ]);
+
+        $this->assertSame(
+            ['2025-02-20', '2025-03-20', '2025-04-17', '2025-05-22', '2025-06-19'],
+            $dates
+        );
+    }
+
+    /**
+     * The offset date may legitimately fall in the adjacent month. With anchor
+     * "1,2" (1st Tuesday) and Monday-before, April 2025's 1st Tuesday is Apr 1,
+     * so the occurrence lands on Mar 31 — the prior month. This is expected.
+     */
+    public function testRelativeMonthlyOffsetCrossesMonthBoundary(): void {
+        $post = $this->createMockPost([
+            'ID' => 622,
+            'post_title' => 'Boundary Crosser',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Boundary Crosser');
+
+        $this->setPostMeta(622, [
+            'event_start_date' => '2025-01-01',
+            'event_end_date' => '2025-01-01',
+            'skipped_occurrences' => []
+        ]);
+
+        $dates = $this->generatedRecurringDates($post, [
+            'type' => 'monthly',
+            'interval' => 1,
+            'monthlyType' => 'relative',
+            'monthlyWeekday' => '1,2',
+            'relativeOffsetWeekday' => 1,
+            'relativeOffsetDirection' => 'before',
+            'endDate' => '2025-05-31'
+        ]);
+
+        // Feb 3, Mar 3, Mar 31 (April's 1st Tue is Apr 1 → Monday before is Mar 31), May 5.
+        $this->assertSame(
+            ['2025-02-03', '2025-03-03', '2025-03-31', '2025-05-05'],
+            $dates
+        );
+    }
+
+    /**
+     * skipped_occurrences must be honored against the offset date, not the anchor.
+     */
+    public function testRelativeMonthlySkipsOffsetDate(): void {
+        $post = $this->createMockPost([
+            'ID' => 623,
+            'post_title' => 'Skips Offset',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Skips Offset');
+
+        $this->setPostMeta(623, [
+            'event_start_date' => '2025-01-01',
+            'event_end_date' => '2025-01-01',
+            'skipped_occurrences' => ['2025-03-17']
+        ]);
+
+        $dates = $this->generatedRecurringDates($post, [
+            'type' => 'monthly',
+            'interval' => 1,
+            'monthlyType' => 'relative',
+            'monthlyWeekday' => '3,2',
+            'relativeOffsetWeekday' => 1,
+            'relativeOffsetDirection' => 'before',
+            'endDate' => '2025-06-30'
+        ]);
+
+        $this->assertNotContains('2025-03-17', $dates);
+        $this->assertSame(
+            ['2025-02-17', '2025-04-14', '2025-05-19', '2025-06-16'],
+            $dates
+        );
+    }
+
+    /**
      * Test get_events hides events after their end time passes
      *
      * This test verifies the fix for issue #237 where events remained visible

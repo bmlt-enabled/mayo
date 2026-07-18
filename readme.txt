@@ -187,6 +187,9 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.9.3 =
+* Added a "Relative to a monthly day" monthly recurrence option so committee meetings can be scheduled relative to a monthly anchor (e.g. the Monday before the 3rd Tuesday, or the Thursday after it). Available in the block-editor Event sidebar. [#312]
+
 = 1.9.2 =
 * Fixed the event and announcement submission forms overlapping the End Date/Time field on top of the Start Date/Time field, which happened after Start/End time became Hour/Minute/AM-PM dropdowns. [#310]
 * Added date defaults to the event submission form: the Start Date now pre-fills to today's date and the End Date automatically matches the Start Date (until you set a different end date), so single-day events need only one date entry. [#301]

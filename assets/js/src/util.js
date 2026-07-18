@@ -97,7 +97,7 @@ export const formatDateTimeDisplay = (event, timeFormat) => {
 export const formatRecurringPattern = (pattern) => {
     if (!pattern || pattern.type === 'none') return '';
 
-    const { type, interval, weekdays = [], endDate, monthlyType, monthlyWeekday, monthlyDate } = pattern;
+    const { type, interval, weekdays = [], endDate, monthlyType, monthlyWeekday, monthlyDate, relativeOffsetWeekday, relativeOffsetDirection } = pattern;
     let text = '';
 
     switch (type) {
@@ -154,6 +154,28 @@ export const formatRecurringPattern = (pattern) => {
                 text += ' ' + sprintf(
                     /* translators: 1: ordinal week (e.g. "first"), 2: weekday name */
                     __('on the %1$s %2$s', 'mayo-events-manager'),
+                    weekText,
+                    dayNames[weekday]
+                );
+            } else if (monthlyType === 'relative' && monthlyWeekday) {
+                const [week, weekday] = monthlyWeekday.split(',').map(Number);
+                const weekTexts = [
+                    __('first', 'mayo-events-manager'),
+                    __('second', 'mayo-events-manager'),
+                    __('third', 'mayo-events-manager'),
+                    __('fourth', 'mayo-events-manager'),
+                    __('fifth', 'mayo-events-manager')
+                ];
+                const weekText = week > 0 ? weekTexts[week - 1] : __('last', 'mayo-events-manager');
+                const targetDay = dayNames[parseInt(relativeOffsetWeekday ?? 1)];
+                const direction = relativeOffsetDirection === 'after'
+                    ? __('after', 'mayo-events-manager')
+                    : __('before', 'mayo-events-manager');
+                text += ' ' + sprintf(
+                    /* translators: 1: target weekday (e.g. "Monday"), 2: "before"/"after", 3: ordinal week (e.g. "third"), 4: anchor weekday (e.g. "Tuesday") */
+                    __('on the %1$s %2$s the %3$s %4$s', 'mayo-events-manager'),
+                    targetDay,
+                    direction,
                     weekText,
                     dayNames[weekday]
                 );
