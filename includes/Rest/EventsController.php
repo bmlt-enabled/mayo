@@ -1304,6 +1304,51 @@ class EventsController {
     }
 
     /**
+     * Test whether a single event's type satisfies an event_type filter string.
+     *
+     * Uses the same token grammar as build_event_type_meta_query (comma-separated
+     * includes, "-" prefixed excludes), but evaluates it in PHP against an
+     * already-fetched event rather than building a WP meta_query. Used to
+     * re-enforce the filter on external-feed events, whose remote may not honor
+     * the forwarded param.
+     *
+     * @param string $eventType The event's own type (e.g. 'Service').
+     * @param string $filter     Raw event_type filter value (e.g. 'Service,-Celebration').
+     * @return bool True when the event should be kept.
+     */
+    private static function event_matches_event_type_filter($eventType, $filter) {
+        $filter = trim((string) $filter);
+        if ($filter === '') {
+            return true;
+        }
+
+        $includes = [];
+        $excludes = [];
+        foreach (array_map('trim', explode(',', $filter)) as $token) {
+            if ($token === '') {
+                continue;
+            }
+            if (str_starts_with($token, '-')) {
+                $name = trim(substr($token, 1));
+                if ($name !== '') {
+                    $excludes[] = $name;
+                }
+            } else {
+                $includes[] = $token;
+            }
+        }
+
+        $type = trim((string) $eventType);
+        if (!empty($excludes) && in_array($type, $excludes, true)) {
+            return false;
+        }
+        if (!empty($includes) && !in_array($type, $includes, true)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Query events with given parameters
      *
      * @param string $status Post status
@@ -1575,6 +1620,20 @@ class EventsController {
                 }));
             }
 
+            // Enforce the event_type filter locally for the same reason as the
+            // category filter above: the param is forwarded to the remote, but a
+            // remote on an older Mayo (before event_type filtering existed) or a
+            // non-Mayo feed may ignore it and return every type. Re-applying it
+            // here makes the visitor's Service/Activity selection authoritative.
+            // Empty filter = no constraint.
+            $effective_event_type = self::effective_source_filter($source, 'event_type');
+            if ($effective_event_type !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_event_type) {
+                    $type = isset($event['meta']['event_type']) ? $event['meta']['event_type'] : '';
+                    return self::event_matches_event_type_filter($type, $effective_event_type);
+                }));
+            }
+
             // Tag events with source info
             foreach ($events as &$event) {
                 $event['source_id'] = $sid;
@@ -1730,6 +1789,20 @@ class EventsController {
                         $effective_categories,
                         $cat_relation
                     );
+                }));
+            }
+
+            // Enforce the event_type filter locally for the same reason as the
+            // category filter above: the param is forwarded to the remote, but a
+            // remote on an older Mayo (before event_type filtering existed) or a
+            // non-Mayo feed may ignore it and return every type. Re-applying it
+            // here makes the visitor's Service/Activity selection authoritative.
+            // Empty filter = no constraint.
+            $effective_event_type = self::effective_source_filter($source, 'event_type');
+            if ($effective_event_type !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_event_type) {
+                    $type = isset($event['meta']['event_type']) ? $event['meta']['event_type'] : '';
+                    return self::event_matches_event_type_filter($type, $effective_event_type);
                 }));
             }
 

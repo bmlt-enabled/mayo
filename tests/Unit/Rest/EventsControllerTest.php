@@ -2210,4 +2210,61 @@ class EventsControllerTest extends TestCase {
 
         $this->assertSame('', $this->effectiveSourceFilter([], 'categories'));
     }
+
+    /**
+     * Invoke the private static event_matches_event_type_filter for testing.
+     */
+    private function eventMatchesEventType(string $eventType, string $filter): bool {
+        $method = new \ReflectionMethod(EventsController::class, 'event_matches_event_type_filter');
+        $method->setAccessible(true);
+        return $method->invoke(null, $eventType, $filter);
+    }
+
+    /**
+     * An empty filter constrains nothing — every event type passes. This keeps
+     * external feeds with no event_type selection unaffected.
+     */
+    public function testEventTypeFilterEmptyKeepsEverything(): void {
+        $this->assertTrue($this->eventMatchesEventType('Service', ''));
+        $this->assertTrue($this->eventMatchesEventType('Activity', ''));
+        $this->assertTrue($this->eventMatchesEventType('', ''));
+    }
+
+    /**
+     * The reported bug (#251): filtering on Service must hide Activity events
+     * coming from an external feed. An include filter keeps only its own types.
+     */
+    public function testEventTypeFilterIncludeHidesOtherTypes(): void {
+        $this->assertTrue($this->eventMatchesEventType('Service', 'Service'));
+        $this->assertFalse($this->eventMatchesEventType('Activity', 'Service'));
+        $this->assertFalse($this->eventMatchesEventType('', 'Service'));
+    }
+
+    /**
+     * Multiple include tokens keep any listed type.
+     */
+    public function testEventTypeFilterMultipleIncludes(): void {
+        $this->assertTrue($this->eventMatchesEventType('Service', 'Service,Activity'));
+        $this->assertTrue($this->eventMatchesEventType('Activity', 'Service,Activity'));
+        $this->assertFalse($this->eventMatchesEventType('Celebration', 'Service,Activity'));
+    }
+
+    /**
+     * A "-" prefixed token excludes that type; everything else passes.
+     */
+    public function testEventTypeFilterExcludeHidesOnlyExcluded(): void {
+        $this->assertFalse($this->eventMatchesEventType('Celebration', '-Celebration'));
+        $this->assertTrue($this->eventMatchesEventType('Service', '-Celebration'));
+        $this->assertTrue($this->eventMatchesEventType('Activity', '-Celebration'));
+    }
+
+    /**
+     * Include and exclude tokens can be mixed; exclude wins over an implied
+     * include for the same type.
+     */
+    public function testEventTypeFilterMixedIncludeAndExclude(): void {
+        $this->assertTrue($this->eventMatchesEventType('Service', 'Service,-Celebration'));
+        $this->assertFalse($this->eventMatchesEventType('Activity', 'Service,-Celebration'));
+        $this->assertFalse($this->eventMatchesEventType('Celebration', 'Service,-Celebration'));
+    }
 }

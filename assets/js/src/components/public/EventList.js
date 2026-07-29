@@ -637,6 +637,13 @@ const EventList = ({ widget = false, settings = {} }) => {
 
     const hasActiveFilters = Object.values(activeFilters).some(arr => Array.isArray(arr) && arr.length > 0);
 
+    // In calendar view the calendar renders from its own calendarEvents /
+    // calendarLoading state, so the list-level loading/error/empty early
+    // returns below must not fire — otherwise a filter change (which clears
+    // `events` and flips `loading`) would unmount the calendar and reset the
+    // navigated month back to today.
+    const isCalendarView = viewMode === 'calendar' && !isWidget;
+
     const renderFilters = () => (!isWidget ? (
         <EventFilters
             facets={facets}
@@ -648,7 +655,7 @@ const EventList = ({ widget = false, settings = {} }) => {
         />
     ) : null);
 
-    if (loading && events.length === 0) {
+    if (loading && events.length === 0 && !isCalendarView) {
         return (
             <div className="mayo-event-list" ref={containerRef}>
                 {renderFilters()}
@@ -656,7 +663,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             </div>
         );
     }
-    if (error && events.length === 0) {
+    if (error && events.length === 0 && !isCalendarView) {
         return (
             <div className="mayo-event-list" ref={containerRef}>
                 {renderFilters()}
@@ -664,7 +671,7 @@ const EventList = ({ widget = false, settings = {} }) => {
             </div>
         );
     }
-    if (!events.length) {
+    if (!events.length && !isCalendarView) {
         const emptyMessage = hasActiveFilters
             ? <div className="mayo-no-events">{__('No events match the selected filters.', 'mayo-events-manager')}</div>
             : (settings?.showArchived
@@ -824,6 +831,7 @@ const EventList = ({ widget = false, settings = {} }) => {
                         <CalendarView
                             events={calendarEvents}
                             timeFormat={timeFormat}
+                            currentDate={calendarDate}
                             onMonthChange={handleCalendarMonthChange}
                             loading={calendarLoading}
                         />
