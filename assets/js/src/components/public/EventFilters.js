@@ -164,6 +164,10 @@ const EventFilters = ({ facets, selected, onToggle, onClear, lockedFilters, disa
                                                     onClick={() => {
                                                         if (!disabled) {
                                                             onToggle(def.key, option.value);
+                                                            // Close the panel after a selection so it
+                                                            // stops covering the content below (e.g. the
+                                                            // first days of the calendar).
+                                                            setOpenFacet(null);
                                                         }
                                                     }}
                                                 >
