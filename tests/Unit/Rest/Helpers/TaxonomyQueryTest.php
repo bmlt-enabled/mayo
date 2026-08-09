@@ -180,6 +180,13 @@ class TaxonomyQueryTest extends TestCase {
      * Test build_taxonomy_args with tags
      */
     public function testBuildTaxonomyArgsWithTags(): void {
+        Functions\when('get_term_by')->alias(function($field, $slug, $taxonomy) {
+            if ($taxonomy === 'post_tag' && $slug === 'featured') {
+                return (object)['term_id' => 42, 'slug' => 'featured'];
+            }
+            return null;
+        });
+
         $result = TaxonomyQuery::build_taxonomy_args('', 'OR', 'featured');
 
         $this->assertArrayHasKey('tag', $result);
@@ -213,6 +220,23 @@ class TaxonomyQueryTest extends TestCase {
     }
 
     /**
+     * Test build_taxonomy_args with unresolved include slugs matches nothing
+     */
+    public function testBuildTaxonomyArgsUnresolvedIncludeMatchesNothing(): void {
+        Functions\when('get_term_by')->justReturn(null);
+
+        $categoryResult = TaxonomyQuery::build_taxonomy_args('external-only', 'OR', '');
+        $this->assertArrayHasKey('tax_query', $categoryResult);
+        $this->assertEquals('category', $categoryResult['tax_query'][0]['taxonomy']);
+        $this->assertEquals([0], $categoryResult['tax_query'][0]['terms']);
+
+        $tagResult = TaxonomyQuery::build_taxonomy_args('', 'OR', 'external-only');
+        $this->assertArrayHasKey('tax_query', $tagResult);
+        $this->assertEquals('post_tag', $tagResult['tax_query'][0]['taxonomy']);
+        $this->assertEquals([0], $tagResult['tax_query'][0]['terms']);
+    }
+
+    /**
      * Test build_taxonomy_args handles non-existent terms
      */
     public function testBuildTaxonomyArgsHandlesNonExistentTerms(): void {
@@ -220,8 +244,8 @@ class TaxonomyQueryTest extends TestCase {
 
         $result = TaxonomyQuery::build_taxonomy_args('nonexistent', 'OR', '');
 
-        // Should not add tax_query if term doesn't exist
-        $this->assertArrayNotHasKey('tax_query', $result);
+        $this->assertArrayHasKey('tax_query', $result);
+        $this->assertEquals([0], $result['tax_query'][0]['terms']);
     }
 
     /**
@@ -364,5 +388,17 @@ class TaxonomyQueryTest extends TestCase {
         // AND: must carry both.
         $this->assertFalse(TaxonomyQuery::event_matches_category_filter($oneOfTwo, 'conventions,workshops', 'AND'));
         $this->assertTrue(TaxonomyQuery::event_matches_category_filter($bothCats, 'conventions,workshops', 'AND'));
+    }
+
+    /**
+     * Tag filter enforcement mirrors category semantics on event payloads.
+     */
+    public function testEventMatchesTagFilterNarrowsBySlug(): void {
+        $matching = [$this->cat('nj-region', 'NJ Region')];
+        $other    = [$this->cat('featured', 'Featured')];
+
+        $this->assertTrue(TaxonomyQuery::event_matches_tag_filter($matching, 'nj-region'));
+        $this->assertFalse(TaxonomyQuery::event_matches_tag_filter($other, 'nj-region'));
+        $this->assertFalse(TaxonomyQuery::event_matches_tag_filter([], 'nj-region'));
     }
 }

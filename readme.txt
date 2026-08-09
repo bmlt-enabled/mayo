@@ -195,6 +195,8 @@ This project is licensed under the GPL v2 or later.
 * Fixed external feed sources ignoring the Event Type filter: filtering on Service (or Activity) now actually hides the other types coming from external feeds, even when the remote runs an older version or isn't a Mayo site. [#251]
 
 = 1.9.3 =
+* Fixed display filters not combining correctly across local and external event feeds: selecting a category or tag that exists only on an external source now hides all local events instead of showing every local match for the other facets. [#323]
+* Fixed external feed events not being re-filtered locally for Service Body and Tag selections, which could let non-matching events leak through from older or non-Mayo remote sites. [#323]
 * Added a "Relative to a monthly day" monthly recurrence option so committee meetings can be scheduled relative to a monthly anchor (e.g. the Monday before the 3rd Tuesday, or the Thursday after it). Available in the block-editor Event sidebar. [#312]
 
 = 1.9.2 =
