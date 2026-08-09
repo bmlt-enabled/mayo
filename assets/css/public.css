@@ -3000,6 +3000,11 @@
     margin-bottom: 0;
 }
 
+.mayo-display-window-fieldset .mayo-datetime-group {
+    display: block;
+    margin-bottom: 0;
+}
+
 @media (max-width: 600px) {
     .mayo-datetime-row {
         flex-direction: column;

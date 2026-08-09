@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.4 =
+* Fixed required start/end date and time fields on the announcement submission form not showing an asterisk (*) on their labels when marked required via `additional_required_fields`. The optional "Leave empty to…" hints are now hidden when those fields are required. [#319]
 * Fixed the event filters resetting the calendar back to the current month: selecting a Service Body, Category, Tag, or Event Type filter now keeps the month you had navigated to instead of jumping back to today. [#251]
 * Fixed the filter dropdown staying open after you pick a value; it now closes automatically so it no longer covers the first days of the calendar. [#251]
 * Fixed external feed sources ignoring the Event Type filter: filtering on Service (or Activity) now actually hides the other types coming from external feeds, even when the remote runs an older version or isn't a Mayo site. [#251]
