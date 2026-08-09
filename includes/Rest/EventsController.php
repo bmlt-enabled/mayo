@@ -1349,6 +1349,35 @@ class EventsController {
     }
 
     /**
+     * Test whether a single event's service body satisfies a service_body filter.
+     *
+     * Uses comma-separated IDs (OR within the facet), matching the local
+     * meta_query IN semantics. Used to re-enforce the filter on external-feed
+     * events whose remote may not honor the forwarded param.
+     *
+     * @param string $eventServiceBody The event's service body ID.
+     * @param string $filter           Comma-separated service body IDs.
+     * @return bool True when the event should be kept.
+     */
+    private static function event_matches_service_body_filter($eventServiceBody, $filter) {
+        $filter = trim((string) $filter);
+        if ($filter === '') {
+            return true;
+        }
+
+        $allowed = array_filter(array_map('trim', explode(',', $filter)), function ($id) {
+            return $id !== '';
+        });
+
+        if (empty($allowed)) {
+            return true;
+        }
+
+        $id = trim((string) $eventServiceBody);
+        return in_array($id, $allowed, true);
+    }
+
+    /**
      * Query events with given parameters
      *
      * @param string $status Post status
@@ -1634,6 +1663,27 @@ class EventsController {
                 }));
             }
 
+            // Enforce the service_body filter locally for the same reason as the
+            // category and event_type filters above.
+            $effective_service_body = self::effective_source_filter($source, 'service_body');
+            if ($effective_service_body !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_service_body) {
+                    $sb = isset($event['meta']['service_body']) ? $event['meta']['service_body'] : '';
+                    return self::event_matches_service_body_filter($sb, $effective_service_body);
+                }));
+            }
+
+            // Enforce the tags filter locally for the same reason as categories.
+            $effective_tags = self::effective_source_filter($source, 'tags');
+            if ($effective_tags !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_tags) {
+                    return TaxonomyQuery::event_matches_tag_filter(
+                        $event['tags'] ?? [],
+                        $effective_tags
+                    );
+                }));
+            }
+
             // Tag events with source info
             foreach ($events as &$event) {
                 $event['source_id'] = $sid;
@@ -1803,6 +1853,26 @@ class EventsController {
                 $events = array_values(array_filter($events, function ($event) use ($effective_event_type) {
                     $type = isset($event['meta']['event_type']) ? $event['meta']['event_type'] : '';
                     return self::event_matches_event_type_filter($type, $effective_event_type);
+                }));
+            }
+
+            // Enforce the service_body filter locally (see fetch_all_external_events).
+            $effective_service_body = self::effective_source_filter($source, 'service_body');
+            if ($effective_service_body !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_service_body) {
+                    $sb = isset($event['meta']['service_body']) ? $event['meta']['service_body'] : '';
+                    return self::event_matches_service_body_filter($sb, $effective_service_body);
+                }));
+            }
+
+            // Enforce the tags filter locally (see fetch_all_external_events).
+            $effective_tags = self::effective_source_filter($source, 'tags');
+            if ($effective_tags !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_tags) {
+                    return TaxonomyQuery::event_matches_tag_filter(
+                        $event['tags'] ?? [],
+                        $effective_tags
+                    );
                 }));
             }
 

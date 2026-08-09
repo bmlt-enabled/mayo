@@ -2267,4 +2267,31 @@ class EventsControllerTest extends TestCase {
         $this->assertFalse($this->eventMatchesEventType('Activity', 'Service,-Celebration'));
         $this->assertFalse($this->eventMatchesEventType('Celebration', 'Service,-Celebration'));
     }
+
+    /**
+     * Invoke the private static event_matches_service_body_filter for testing.
+     */
+    private function eventMatchesServiceBody(string $eventServiceBody, string $filter): bool {
+        $method = new \ReflectionMethod(EventsController::class, 'event_matches_service_body_filter');
+        $method->setAccessible(true);
+        return $method->invoke(null, $eventServiceBody, $filter);
+    }
+
+    /**
+     * An empty service_body filter constrains nothing.
+     */
+    public function testServiceBodyFilterEmptyKeepsEverything(): void {
+        $this->assertTrue($this->eventMatchesServiceBody('5', ''));
+        $this->assertTrue($this->eventMatchesServiceBody('', ''));
+    }
+
+    /**
+     * Service body include keeps only matching IDs (OR within the facet).
+     */
+    public function testServiceBodyFilterIncludeHidesNonMatches(): void {
+        $this->assertTrue($this->eventMatchesServiceBody('5', '5'));
+        $this->assertTrue($this->eventMatchesServiceBody('10', '5,10'));
+        $this->assertFalse($this->eventMatchesServiceBody('20', '5,10'));
+        $this->assertFalse($this->eventMatchesServiceBody('', '5'));
+    }
 }

@@ -81,6 +81,10 @@ class TaxonomyQuery {
                     'terms' => $include_cat_ids,
                     'operator' => $operator
                 ];
+            } else {
+                // Include requested but no slug resolved locally (e.g. external-only
+                // category in a merged facet list). Strict AND: match nothing.
+                $tax_query[] = self::impossible_tax_query('category');
             }
         }
 
@@ -106,7 +110,20 @@ class TaxonomyQuery {
 
         // Handle tag inclusion
         if (!empty($tag_filter['include'])) {
-            $args['tag'] = $tag_filter['include'];
+            $include_tag_slugs = array_map('trim', explode(',', $tag_filter['include']));
+            $resolved_tag_slugs = [];
+            foreach ($include_tag_slugs as $slug) {
+                $term = get_term_by('slug', $slug, 'post_tag');
+                if ($term) {
+                    $resolved_tag_slugs[] = $slug;
+                }
+            }
+            if (!empty($resolved_tag_slugs)) {
+                $args['tag'] = implode(',', $resolved_tag_slugs);
+            } else {
+                // Include requested but no slug resolved locally — strict AND.
+                $tax_query[] = self::impossible_tax_query('post_tag');
+            }
         }
 
         // Handle tag exclusion via tax_query
@@ -136,6 +153,26 @@ class TaxonomyQuery {
         }
 
         return $args;
+    }
+
+    /**
+     * Build a tax_query clause that matches no posts.
+     *
+     * Used when an include filter was requested but none of its slugs resolve
+     * in the local taxonomy (e.g. a category/tag that exists only on an
+     * external feed). Strict AND across facets requires the local query to
+     * return nothing rather than silently dropping the constraint.
+     *
+     * @param string $taxonomy Taxonomy name (e.g. 'category', 'post_tag')
+     * @return array WordPress tax_query clause
+     */
+    private static function impossible_tax_query($taxonomy) {
+        return [
+            'taxonomy' => $taxonomy,
+            'field' => 'term_id',
+            'terms' => [0],
+            'operator' => 'IN',
+        ];
     }
 
     /**
@@ -216,6 +253,22 @@ class TaxonomyQuery {
         }
 
         return true;
+    }
+
+    /**
+     * Check whether an event's tag payload satisfies a filter string.
+     *
+     * Mirrors event_matches_category_filter for post_tag terms on external
+     * events. Used as a local backstop when the remote may ignore the
+     * forwarded `tags` param.
+     *
+     * @param array  $event_tags Event tag objects (each may have 'slug'/'name')
+     * @param string $filter     Comma-separated tag slugs/names (prefix with '-' to exclude)
+     * @param string $relation   'AND' or 'OR' - how to match multiple includes (default OR)
+     * @return bool True if the event passes the filter (empty filter passes everything)
+     */
+    public static function event_matches_tag_filter($event_tags, $filter, $relation = 'OR') {
+        return self::event_matches_category_filter($event_tags, $filter, $relation);
     }
 
     /**
