@@ -436,6 +436,12 @@ const AnnouncementForm = () => {
         return allRequiredFields.includes(fieldName);
     };
 
+    // Match hardcoded " *" suffix used on always-required labels (email, contact name).
+    const requiredLabelSuffix = (fieldName) => (isFieldRequired(fieldName) ? ' *' : '');
+
+    const showStartWindowHint = !isFieldRequired('start_date') && !isFieldRequired('start_time');
+    const showEndWindowHint = !isFieldRequired('end_date') && !isFieldRequired('end_time');
+
     if (error) return <div className="mayo-error">{error}</div>;
 
     return (
@@ -531,7 +537,7 @@ const AnnouncementForm = () => {
                         <div className="mayo-datetime-row">
                             <div className="mayo-form-field">
                                 <label htmlFor="start_date">
-                                    {__('Start Date', 'mayo-events-manager')} {isFieldRequired('start_date') && '*'}
+                                    {__('Start Date', 'mayo-events-manager')}{requiredLabelSuffix('start_date')}
                                 </label>
                                 <input
                                     type="date"
@@ -545,7 +551,7 @@ const AnnouncementForm = () => {
 
                             <div className="mayo-form-field">
                                 <label htmlFor="start_time">
-                                    {__('Start Time', 'mayo-events-manager')} {isFieldRequired('start_time') && '*'}
+                                    {__('Start Time', 'mayo-events-manager')}{requiredLabelSuffix('start_time')}
                                 </label>
                                 <TimeField
                                     id="start_time"
@@ -557,12 +563,14 @@ const AnnouncementForm = () => {
                                 />
                             </div>
                         </div>
-                        <p className="mayo-field-hint">{__('Leave empty to start showing immediately', 'mayo-events-manager')}</p>
+                        {showStartWindowHint && (
+                            <p className="mayo-field-hint">{__('Leave empty to start showing immediately', 'mayo-events-manager')}</p>
+                        )}
 
                         <div className="mayo-datetime-row">
                             <div className="mayo-form-field">
                                 <label htmlFor="end_date">
-                                    {__('End Date', 'mayo-events-manager')} {isFieldRequired('end_date') && '*'}
+                                    {__('End Date', 'mayo-events-manager')}{requiredLabelSuffix('end_date')}
                                 </label>
                                 <input
                                     type="date"
@@ -576,7 +584,7 @@ const AnnouncementForm = () => {
 
                             <div className="mayo-form-field">
                                 <label htmlFor="end_time">
-                                    {__('End Time', 'mayo-events-manager')} {isFieldRequired('end_time') && '*'}
+                                    {__('End Time', 'mayo-events-manager')}{requiredLabelSuffix('end_time')}
                                 </label>
                                 <TimeField
                                     id="end_time"
@@ -588,7 +596,9 @@ const AnnouncementForm = () => {
                                 />
                             </div>
                         </div>
-                        <p className="mayo-field-hint">{__('Leave empty to show indefinitely', 'mayo-events-manager')}</p>
+                        {showEndWindowHint && (
+                            <p className="mayo-field-hint">{__('Leave empty to show indefinitely', 'mayo-events-manager')}</p>
+                        )}
                     </div>
                 </fieldset>
 
