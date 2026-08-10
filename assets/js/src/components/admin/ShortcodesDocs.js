@@ -14,6 +14,13 @@ const ShortcodesDocs = () => {
                     <li><a href="#announcement-form">[mayo_announcement_form] - Announcement Submission Form Shortcode</a></li>
                     <li><a href="#subscribe">[mayo_subscribe] - Email Subscription Form Shortcode</a></li>
                 </ul>
+
+                <h3>Category and Tag Slugs</h3>
+                <p>
+                    Shortcode parameters for <code>categories</code> and <code>tags</code> use WordPress slugs, not display names.
+                    When a category or tag name contains spaces, substitute a dash for each space in the shortcode.
+                    Slugs are case-insensitive. For example, a category named &quot;Cell Awareness&quot; is specified as <code>cell-awareness</code>.
+                </p>
             </div>
 
             <div className="card" id="event-list">
@@ -222,15 +229,15 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>categories</td>
-                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it.</td>
+                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it. Use <code>none</code> to hide the Categories section entirely.</td>
                             <td>empty (all categories)</td>
-                            <td>e.g., <pre>meetings,workshops</pre> to show only meetings and workshops, or <pre>-meetings,-workshops</pre> to show all categories except meetings and workshops</td>
+                            <td>e.g., <pre>meetings,workshops</pre> to show only meetings and workshops, <pre>-meetings,-workshops</pre> to show all categories except meetings and workshops, or <pre>none</pre> to hide the section</td>
                         </tr>
                         <tr>
                             <td>tags</td>
-                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it. Tag slugs are always compared in lowercase.</td>
+                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it. Tag slugs are always compared in lowercase. Use <code>none</code> to hide the Tags section entirely.</td>
                             <td>empty (all tags)</td>
-                            <td>e.g., <pre>featured,ticketed</pre> to show only featured and ticketed tags, or <pre>-featured,-ticketed</pre> to show all tags except featured and ticketed</td>
+                            <td>e.g., <pre>featured,ticketed</pre> to show only featured and ticketed tags, <pre>-featured,-ticketed</pre> to show all tags except featured and ticketed, or <pre>none</pre> to hide the section</td>
                         </tr>
                         <tr>
                             <td>default_service_bodies</td>
@@ -500,13 +507,13 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>categories</td>
-                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it.</td>
+                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it. For names with spaces, substitute a dash for each space (e.g., &quot;Cell Awareness&quot; → <code>cell-awareness</code>).</td>
                             <td>empty (uses subscription settings)</td>
-                            <td>e.g., <pre>announcements,alerts</pre> or <pre>-internal</pre></td>
+                            <td>e.g., <pre>announcements,alerts</pre>, <pre>cell-awareness</pre>, or <pre>-internal</pre></td>
                         </tr>
                         <tr>
                             <td>tags</td>
-                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it.</td>
+                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it. For names with spaces, substitute a dash for each space.</td>
                             <td>empty (uses subscription settings)</td>
                             <td>e.g., <pre>urgent,featured</pre> or <pre>-archived</pre></td>
                         </tr>
@@ -551,6 +558,10 @@ const ShortcodesDocs = () => {
 
                 <h4>Filter Categories and Tags</h4>
                 <pre><code>[mayo_announcement_form categories="announcements,alerts" tags="urgent,featured"]</code></pre>
+
+                <h4>Category with Spaces in Name</h4>
+                <pre><code>[mayo_announcement_form categories="cell-awareness"]</code></pre>
+                <p><em>For a category named &quot;Cell Awareness&quot;, substitute a dash for each space in the slug.</em></p>
 
                 <h4>Full Configuration</h4>
                 <pre><code>[mayo_announcement_form show_flyer="true" additional_required_fields="start_date,end_date,flyer" default_service_bodies="1,2" categories="announcements"]</code></pre>

@@ -257,6 +257,9 @@ class Frontend {
         static $instance = 0;
         $instance++;
 
+        wp_enqueue_script('mayo-public');
+        wp_enqueue_style('mayo-public');
+
         $settings_key = "mayoAnnouncementFormSettings_$instance";
         wp_localize_script('mayo-public', $settings_key, [
             'additionalRequiredFields' => $atts['additional_required_fields'],
@@ -276,7 +279,8 @@ class Frontend {
 
     public static function enqueue_scripts() {
         $shortcode_on_widgets = self::is_shortcode_present_in_widgets('mayo_event_list') ||
-                                self::is_shortcode_present_in_widgets('mayo_announcement');
+                                self::is_shortcode_present_in_widgets('mayo_announcement') ||
+                                self::is_shortcode_present_in_widgets('mayo_announcement_form');
 
         $post = get_post();
         $should_enqueue = false;

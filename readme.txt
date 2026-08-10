@@ -5,7 +5,7 @@ Tags: events, bmlt, narcotics anonymous, na
 Requires PHP: 8.2
 Requires at least: 6.7
 Tested up to: 7.0
-Stable tag: 1.9.2
+Stable tag: 1.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -186,6 +186,19 @@ This project is licensed under the GPL v2 or later.
    - Manage submitted events from the WordPress admin dashboard, where you can approve, edit, or delete events.
 
 == Changelog ==
+
+= 1.9.4 =
+* Fixed event submission form showing empty Categories or Tags section headers when `categories="none"` or `tags="none"` is used in `[mayo_event_form]`. [#325]
+* Documented that category and tag names with spaces should use dashes in shortcode parameters (e.g., a category named "Cell Awareness" is specified as `cell-awareness` in `[mayo_announcement_form]`). [#321]
+* Fixed required start/end date and time fields on the announcement submission form not showing an asterisk (*) on their labels when marked required via `additional_required_fields`. The optional "Leave empty to…" hints are now hidden when those fields are required. [#319]
+* Fixed the event filters resetting the calendar back to the current month: selecting a Service Body, Category, Tag, or Event Type filter now keeps the month you had navigated to instead of jumping back to today. [#251]
+* Fixed the filter dropdown staying open after you pick a value; it now closes automatically so it no longer covers the first days of the calendar. [#251]
+* Fixed external feed sources ignoring the Event Type filter: filtering on Service (or Activity) now actually hides the other types coming from external feeds, even when the remote runs an older version or isn't a Mayo site. [#251]
+
+= 1.9.3 =
+* Fixed display filters not combining correctly across local and external event feeds: selecting a category or tag that exists only on an external source now hides all local events instead of showing every local match for the other facets. [#323]
+* Fixed external feed events not being re-filtered locally for Service Body and Tag selections, which could let non-matching events leak through from older or non-Mayo remote sites. [#323]
+* Added a "Relative to a monthly day" monthly recurrence option so committee meetings can be scheduled relative to a monthly anchor (e.g. the Monday before the 3rd Tuesday, or the Thursday after it). Available in the block-editor Event sidebar. [#312]
 
 = 1.9.2 =
 * Fixed the event and announcement submission forms overlapping the End Date/Time field on top of the Start Date/Time field, which happened after Start/End time became Hour/Minute/AM-PM dropdowns. [#310]

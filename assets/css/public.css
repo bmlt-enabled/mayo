@@ -1981,7 +1981,7 @@
     z-index: 50;
     min-width: 200px;
     max-width: 280px;
-    max-height: 320px;
+    max-height: 260px;
     overflow-y: auto;
     background: #fff;
     border: 1px solid #c3c4c7;
@@ -2997,6 +2997,11 @@
 }
 
 .mayo-field-hint:last-child {
+    margin-bottom: 0;
+}
+
+.mayo-display-window-fieldset .mayo-datetime-group {
+    display: block;
     margin-bottom: 0;
 }
 

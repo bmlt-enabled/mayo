@@ -139,8 +139,20 @@ class EventsController {
                 $sanitized_pattern['weekdays'] = array_map('intval', $recurring_pattern['weekdays']);
             } elseif (isset($recurring_pattern['type']) && $recurring_pattern['type'] === 'monthly') {
                 $sanitized_pattern['monthlyType'] = isset($recurring_pattern['monthlyType']) ? sanitize_text_field($recurring_pattern['monthlyType']) : 'date';
-                if (isset($recurring_pattern['monthlyType']) && $recurring_pattern['monthlyType'] === 'date' && isset($recurring_pattern['monthlyDate'])) {
+                if ($sanitized_pattern['monthlyType'] === 'date' && isset($recurring_pattern['monthlyDate'])) {
                     $sanitized_pattern['monthlyDate'] = intval($recurring_pattern['monthlyDate']);
+                } elseif ($sanitized_pattern['monthlyType'] === 'relative') {
+                    // Anchor (e.g. "3,2" = 3rd Tuesday) kept as text; offset lands on a target weekday.
+                    if (isset($recurring_pattern['monthlyWeekday'])) {
+                        $sanitized_pattern['monthlyWeekday'] = sanitize_text_field($recurring_pattern['monthlyWeekday']);
+                    }
+                    $sanitized_pattern['relativeOffsetWeekday'] = isset($recurring_pattern['relativeOffsetWeekday'])
+                        ? max(0, min(6, intval($recurring_pattern['relativeOffsetWeekday'])))
+                        : 1;
+                    $direction = isset($recurring_pattern['relativeOffsetDirection'])
+                        ? sanitize_text_field($recurring_pattern['relativeOffsetDirection'])
+                        : 'before';
+                    $sanitized_pattern['relativeOffsetDirection'] = in_array($direction, ['before', 'after'], true) ? $direction : 'before';
                 } elseif (isset($recurring_pattern['monthlyWeekday'])) {
                     $sanitized_pattern['monthlyWeekday'] = sanitize_text_field($recurring_pattern['monthlyWeekday']);
                 }
@@ -906,6 +918,34 @@ class EventsController {
                         if (isset($recurring_pattern['monthlyType']) && $recurring_pattern['monthlyType'] === 'date' && isset($recurring_pattern['monthlyDate'])) {
                             /* translators: %s: day of the month */
                             $recurring_info .= ' ' . sprintf(__('on day %s', 'mayo-events-manager'), $recurring_pattern['monthlyDate']);
+                        } elseif (isset($recurring_pattern['monthlyType']) && $recurring_pattern['monthlyType'] === 'relative' && isset($recurring_pattern['monthlyWeekday'])) {
+                            $day_names = [
+                                __('Sunday', 'mayo-events-manager'),
+                                __('Monday', 'mayo-events-manager'),
+                                __('Tuesday', 'mayo-events-manager'),
+                                __('Wednesday', 'mayo-events-manager'),
+                                __('Thursday', 'mayo-events-manager'),
+                                __('Friday', 'mayo-events-manager'),
+                                __('Saturday', 'mayo-events-manager'),
+                            ];
+                            $week_ordinals = [
+                                1 => __('first', 'mayo-events-manager'),
+                                2 => __('second', 'mayo-events-manager'),
+                                3 => __('third', 'mayo-events-manager'),
+                                4 => __('fourth', 'mayo-events-manager'),
+                                5 => __('fifth', 'mayo-events-manager'),
+                            ];
+                            list($anchor_week, $anchor_weekday) = array_map('intval', explode(',', $recurring_pattern['monthlyWeekday']));
+                            $week_text = $anchor_week > 0
+                                ? ($week_ordinals[$anchor_week] ?? $anchor_week)
+                                : __('last', 'mayo-events-manager');
+                            $anchor_day_name = $day_names[$anchor_weekday] ?? '';
+                            $target_day_name = $day_names[max(0, min(6, (int)($recurring_pattern['relativeOffsetWeekday'] ?? 1)))] ?? '';
+                            $direction = (isset($recurring_pattern['relativeOffsetDirection']) && $recurring_pattern['relativeOffsetDirection'] === 'after')
+                                ? __('after', 'mayo-events-manager')
+                                : __('before', 'mayo-events-manager');
+                            /* translators: 1: target weekday (e.g. "Monday"), 2: "before"/"after", 3: ordinal week (e.g. "third"), 4: anchor weekday (e.g. "Tuesday") */
+                            $recurring_info .= ' ' . sprintf(__('on the %1$s %2$s the %3$s %4$s', 'mayo-events-manager'), $target_day_name, $direction, $week_text, $anchor_day_name);
                         } elseif (isset($recurring_pattern['monthlyWeekday'])) {
                             /* translators: %s: ordinal weekday description, e.g. "first Monday" */
                             $recurring_info .= ' ' . sprintf(__('on %s', 'mayo-events-manager'), $recurring_pattern['monthlyWeekday']);
@@ -1264,6 +1304,80 @@ class EventsController {
     }
 
     /**
+     * Test whether a single event's type satisfies an event_type filter string.
+     *
+     * Uses the same token grammar as build_event_type_meta_query (comma-separated
+     * includes, "-" prefixed excludes), but evaluates it in PHP against an
+     * already-fetched event rather than building a WP meta_query. Used to
+     * re-enforce the filter on external-feed events, whose remote may not honor
+     * the forwarded param.
+     *
+     * @param string $eventType The event's own type (e.g. 'Service').
+     * @param string $filter     Raw event_type filter value (e.g. 'Service,-Celebration').
+     * @return bool True when the event should be kept.
+     */
+    private static function event_matches_event_type_filter($eventType, $filter) {
+        $filter = trim((string) $filter);
+        if ($filter === '') {
+            return true;
+        }
+
+        $includes = [];
+        $excludes = [];
+        foreach (array_map('trim', explode(',', $filter)) as $token) {
+            if ($token === '') {
+                continue;
+            }
+            if (str_starts_with($token, '-')) {
+                $name = trim(substr($token, 1));
+                if ($name !== '') {
+                    $excludes[] = $name;
+                }
+            } else {
+                $includes[] = $token;
+            }
+        }
+
+        $type = trim((string) $eventType);
+        if (!empty($excludes) && in_array($type, $excludes, true)) {
+            return false;
+        }
+        if (!empty($includes) && !in_array($type, $includes, true)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Test whether a single event's service body satisfies a service_body filter.
+     *
+     * Uses comma-separated IDs (OR within the facet), matching the local
+     * meta_query IN semantics. Used to re-enforce the filter on external-feed
+     * events whose remote may not honor the forwarded param.
+     *
+     * @param string $eventServiceBody The event's service body ID.
+     * @param string $filter           Comma-separated service body IDs.
+     * @return bool True when the event should be kept.
+     */
+    private static function event_matches_service_body_filter($eventServiceBody, $filter) {
+        $filter = trim((string) $filter);
+        if ($filter === '') {
+            return true;
+        }
+
+        $allowed = array_filter(array_map('trim', explode(',', $filter)), function ($id) {
+            return $id !== '';
+        });
+
+        if (empty($allowed)) {
+            return true;
+        }
+
+        $id = trim((string) $eventServiceBody);
+        return in_array($id, $allowed, true);
+    }
+
+    /**
      * Query events with given parameters
      *
      * @param string $status Post status
@@ -1535,6 +1649,41 @@ class EventsController {
                 }));
             }
 
+            // Enforce the event_type filter locally for the same reason as the
+            // category filter above: the param is forwarded to the remote, but a
+            // remote on an older Mayo (before event_type filtering existed) or a
+            // non-Mayo feed may ignore it and return every type. Re-applying it
+            // here makes the visitor's Service/Activity selection authoritative.
+            // Empty filter = no constraint.
+            $effective_event_type = self::effective_source_filter($source, 'event_type');
+            if ($effective_event_type !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_event_type) {
+                    $type = isset($event['meta']['event_type']) ? $event['meta']['event_type'] : '';
+                    return self::event_matches_event_type_filter($type, $effective_event_type);
+                }));
+            }
+
+            // Enforce the service_body filter locally for the same reason as the
+            // category and event_type filters above.
+            $effective_service_body = self::effective_source_filter($source, 'service_body');
+            if ($effective_service_body !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_service_body) {
+                    $sb = isset($event['meta']['service_body']) ? $event['meta']['service_body'] : '';
+                    return self::event_matches_service_body_filter($sb, $effective_service_body);
+                }));
+            }
+
+            // Enforce the tags filter locally for the same reason as categories.
+            $effective_tags = self::effective_source_filter($source, 'tags');
+            if ($effective_tags !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_tags) {
+                    return TaxonomyQuery::event_matches_tag_filter(
+                        $event['tags'] ?? [],
+                        $effective_tags
+                    );
+                }));
+            }
+
             // Tag events with source info
             foreach ($events as &$event) {
                 $event['source_id'] = $sid;
@@ -1689,6 +1838,40 @@ class EventsController {
                         $event['categories'] ?? [],
                         $effective_categories,
                         $cat_relation
+                    );
+                }));
+            }
+
+            // Enforce the event_type filter locally for the same reason as the
+            // category filter above: the param is forwarded to the remote, but a
+            // remote on an older Mayo (before event_type filtering existed) or a
+            // non-Mayo feed may ignore it and return every type. Re-applying it
+            // here makes the visitor's Service/Activity selection authoritative.
+            // Empty filter = no constraint.
+            $effective_event_type = self::effective_source_filter($source, 'event_type');
+            if ($effective_event_type !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_event_type) {
+                    $type = isset($event['meta']['event_type']) ? $event['meta']['event_type'] : '';
+                    return self::event_matches_event_type_filter($type, $effective_event_type);
+                }));
+            }
+
+            // Enforce the service_body filter locally (see fetch_all_external_events).
+            $effective_service_body = self::effective_source_filter($source, 'service_body');
+            if ($effective_service_body !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_service_body) {
+                    $sb = isset($event['meta']['service_body']) ? $event['meta']['service_body'] : '';
+                    return self::event_matches_service_body_filter($sb, $effective_service_body);
+                }));
+            }
+
+            // Enforce the tags filter locally (see fetch_all_external_events).
+            $effective_tags = self::effective_source_filter($source, 'tags');
+            if ($effective_tags !== '') {
+                $events = array_values(array_filter($events, function ($event) use ($effective_tags) {
+                    return TaxonomyQuery::event_matches_tag_filter(
+                        $event['tags'] ?? [],
+                        $effective_tags
                     );
                 }));
             }
@@ -1856,10 +2039,36 @@ class EventsController {
                     }
                 }
 
-                if ($current <= $end || $end === null) {
-                    $current_date = $current->format('Y-m-d');
-                    if (!in_array($current_date, $skipped_occurrences)) {
-                        $events[] = self::format_recurring_event($post, clone $current);
+                // For the "relative to a monthly day" pattern, $current now holds the
+                // anchor date (e.g. the 3rd Tuesday). Step to the nearest target weekday
+                // strictly before/after it. The offset date is what we emit and test.
+                $occurrence = clone $current;
+                if (isset($pattern['monthlyType']) && $pattern['monthlyType'] === 'relative') {
+                    $anchor_dow = (int)$current->format('w');
+                    $target_dow = max(0, min(6, (int)($pattern['relativeOffsetWeekday'] ?? 1)));
+                    $direction = (isset($pattern['relativeOffsetDirection']) && $pattern['relativeOffsetDirection'] === 'after')
+                        ? 'after'
+                        : 'before';
+
+                    if ($direction === 'before') {
+                        $days = ($anchor_dow - $target_dow + 7) % 7;
+                        if ($days === 0) {
+                            $days = 7;
+                        }
+                        $occurrence->modify('-' . $days . ' day');
+                    } else {
+                        $days = ($target_dow - $anchor_dow + 7) % 7;
+                        if ($days === 0) {
+                            $days = 7;
+                        }
+                        $occurrence->modify('+' . $days . ' day');
+                    }
+                }
+
+                if ($occurrence <= $end || $end === null) {
+                    $occurrence_date = $occurrence->format('Y-m-d');
+                    if (!in_array($occurrence_date, $skipped_occurrences)) {
+                        $events[] = self::format_recurring_event($post, clone $occurrence);
                     }
                 }
 

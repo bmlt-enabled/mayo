@@ -515,6 +515,8 @@ class Admin {
                         'monthlyType'  => ['type' => 'string'],
                         'monthlyDate'  => ['type' => 'string'],
                         'monthlyWeekday' => ['type' => 'string'],
+                        'relativeOffsetWeekday' => ['type' => 'integer'],
+                        'relativeOffsetDirection' => ['type' => 'string'],
                         'endDate'      => ['type' => 'string']
                     ]
                 ]
@@ -528,6 +530,8 @@ class Admin {
                 'monthlyType' => 'date',
                 'monthlyDate' => '',
                 'monthlyWeekday' => '',
+                'relativeOffsetWeekday' => 1,
+                'relativeOffsetDirection' => 'before',
                 'endDate' => ''
             ],
             'auth_callback' => function() { 

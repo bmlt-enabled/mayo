@@ -4,8 +4,12 @@ import EventModal from './EventModal';
 import { useEventProvider } from '../providers/EventProvider';
 import { convertToUnicode } from '../../util';
 
-const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
-    const [currentDate, setCurrentDate] = useState(new Date());
+const CalendarView = ({ events, timeFormat, currentDate: currentDateProp, onMonthChange, loading }) => {
+    // The displayed month is controlled by the parent (EventList) so that it
+    // survives re-renders and remounts triggered by filter changes. Fall back
+    // to internal state only when no controlled value is supplied.
+    const [internalDate, setInternalDate] = useState(new Date());
+    const currentDate = currentDateProp instanceof Date ? currentDateProp : internalDate;
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [hoveredEvent, setHoveredEvent] = useState(null);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -208,7 +212,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
 
     const goToPreviousMonth = () => {
         const newDate = new Date(year, month - 1, 1);
-        setCurrentDate(newDate);
+        setInternalDate(newDate);
         if (onMonthChange) {
             onMonthChange(newDate);
         }
@@ -216,7 +220,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
 
     const goToNextMonth = () => {
         const newDate = new Date(year, month + 1, 1);
-        setCurrentDate(newDate);
+        setInternalDate(newDate);
         if (onMonthChange) {
             onMonthChange(newDate);
         }
@@ -224,7 +228,7 @@ const CalendarView = ({ events, timeFormat, onMonthChange, loading }) => {
 
     const goToToday = () => {
         const newDate = new Date();
-        setCurrentDate(newDate);
+        setInternalDate(newDate);
         if (onMonthChange) {
             onMonthChange(newDate);
         }
