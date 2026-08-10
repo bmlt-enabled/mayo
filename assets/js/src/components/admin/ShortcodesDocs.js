@@ -229,15 +229,15 @@ const ShortcodesDocs = () => {
                         </tr>
                         <tr>
                             <td>categories</td>
-                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it.</td>
+                            <td>Comma-separated list of category slugs that should be available in the form. Prefix a category with a minus sign (-) to exclude it. Use <code>none</code> to hide the Categories section entirely.</td>
                             <td>empty (all categories)</td>
-                            <td>e.g., <pre>meetings,workshops</pre> to show only meetings and workshops, or <pre>-meetings,-workshops</pre> to show all categories except meetings and workshops</td>
+                            <td>e.g., <pre>meetings,workshops</pre> to show only meetings and workshops, <pre>-meetings,-workshops</pre> to show all categories except meetings and workshops, or <pre>none</pre> to hide the section</td>
                         </tr>
                         <tr>
                             <td>tags</td>
-                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it. Tag slugs are always compared in lowercase.</td>
+                            <td>Comma-separated list of tag slugs that should be available in the form. Prefix a tag with a minus sign (-) to exclude it. Tag slugs are always compared in lowercase. Use <code>none</code> to hide the Tags section entirely.</td>
                             <td>empty (all tags)</td>
-                            <td>e.g., <pre>featured,ticketed</pre> to show only featured and ticketed tags, or <pre>-featured,-ticketed</pre> to show all tags except featured and ticketed</td>
+                            <td>e.g., <pre>featured,ticketed</pre> to show only featured and ticketed tags, <pre>-featured,-ticketed</pre> to show all tags except featured and ticketed, or <pre>none</pre> to hide the section</td>
                         </tr>
                         <tr>
                             <td>default_service_bodies</td>

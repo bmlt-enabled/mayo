@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.4 =
+* Fixed event submission form showing empty Categories or Tags section headers when `categories="none"` or `tags="none"` is used in `[mayo_event_form]`. [#325]
 * Documented that category and tag names with spaces should use dashes in shortcode parameters (e.g., a category named "Cell Awareness" is specified as `cell-awareness` in `[mayo_announcement_form]`). [#321]
 * Fixed required start/end date and time fields on the announcement submission form not showing an asterisk (*) on their labels when marked required via `additional_required_fields`. The optional "Leave empty to…" hints are now hidden when those fields are required. [#319]
 * Fixed the event filters resetting the calendar back to the current month: selecting a Service Body, Category, Tag, or Event Type filter now keeps the month you had navigated to instead of jumping back to today. [#251]

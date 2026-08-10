@@ -32,6 +32,10 @@ const EventForm = () => {
     // Split tags into included and excluded
     const includedTags = useMemo(() => tagsFilter.filter(slug => !slug.startsWith('-')), [tagsFilter]);
     const excludedTags = useMemo(() => tagsFilter.filter(slug => slug.startsWith('-')).map(slug => slug.substring(1)), [tagsFilter]);
+
+    // "none" hides the entire taxonomy section (header and fields)
+    const showCategories = categoriesParam.trim().toLowerCase() !== 'none';
+    const showTags = tagsParam.trim().toLowerCase() !== 'none';
     
     // Helper function to decode HTML entities
     const decodeHtmlEntities = (text) => {
@@ -187,49 +191,69 @@ const EventForm = () => {
 
     useEffect(() => {
         const fetchTaxonomies = async () => {
+            if (!showCategories && !showTags) {
+                setCategories([]);
+                setTags([]);
+                return;
+            }
+
             try {
                 const [categoriesRes, tagsRes] = await Promise.all([
-                    fetch('/wp-json/wp/v2/categories?hide_empty=false&per_page=100'),
-                    fetch('/wp-json/wp/v2/tags?hide_empty=false&per_page=100')
+                    showCategories
+                        ? fetch('/wp-json/wp/v2/categories?hide_empty=false&per_page=100')
+                        : Promise.resolve(null),
+                    showTags
+                        ? fetch('/wp-json/wp/v2/tags?hide_empty=false&per_page=100')
+                        : Promise.resolve(null)
                 ]);
 
-                if (!categoriesRes.ok || !tagsRes.ok) {
+                if ((showCategories && !categoriesRes.ok) || (showTags && !tagsRes.ok)) {
                     throw new Error('Failed to fetch taxonomies');
                 }
 
-                const categoriesData = await categoriesRes.json();
-                const tagsData = await tagsRes.json();
-                
-                // Filter categories based on included and excluded categories
-                const filteredCategories = categoriesData.filter(cat => {
-                    const catSlug = (cat.slug || '').toLowerCase();
-                    if (includedCategories.length > 0) {
-                        // If there are included categories, only show those
-                        return includedCategories.includes(catSlug);
-                    } else if (excludedCategories.length > 0) {
-                        // If there are excluded categories, show all except those
-                        return !excludedCategories.includes(catSlug);
-                    }
-                    // If no restrictions, show all categories
-                    return true;
-                });
-                
-                // Filter tags based on included and excluded tags
-                const filteredTags = tagsData.filter(tag => {
-                    const tagSlug = (tag.slug || '').toLowerCase();
-                    if (includedTags.length > 0) {
-                        // If there are included tags, only show those
-                        return includedTags.includes(tagSlug);
-                    } else if (excludedTags.length > 0) {
-                        // If there are excluded tags, show all except those
-                        return !excludedTags.includes(tagSlug);
-                    }
-                    // If no restrictions, show all tags
-                    return true;
-                });
-                
-                setCategories(Array.isArray(filteredCategories) ? filteredCategories : []);
-                setTags(Array.isArray(filteredTags) ? filteredTags : []);
+                if (showCategories) {
+                    const categoriesData = await categoriesRes.json();
+
+                    // Filter categories based on included and excluded categories
+                    const filteredCategories = categoriesData.filter(cat => {
+                        const catSlug = (cat.slug || '').toLowerCase();
+                        if (includedCategories.length > 0) {
+                            // If there are included categories, only show those
+                            return includedCategories.includes(catSlug);
+                        } else if (excludedCategories.length > 0) {
+                            // If there are excluded categories, show all except those
+                            return !excludedCategories.includes(catSlug);
+                        }
+                        // If no restrictions, show all categories
+                        return true;
+                    });
+
+                    setCategories(Array.isArray(filteredCategories) ? filteredCategories : []);
+                } else {
+                    setCategories([]);
+                }
+
+                if (showTags) {
+                    const tagsData = await tagsRes.json();
+
+                    // Filter tags based on included and excluded tags
+                    const filteredTags = tagsData.filter(tag => {
+                        const tagSlug = (tag.slug || '').toLowerCase();
+                        if (includedTags.length > 0) {
+                            // If there are included tags, only show those
+                            return includedTags.includes(tagSlug);
+                        } else if (excludedTags.length > 0) {
+                            // If there are excluded tags, show all except those
+                            return !excludedTags.includes(tagSlug);
+                        }
+                        // If no restrictions, show all tags
+                        return true;
+                    });
+
+                    setTags(Array.isArray(filteredTags) ? filteredTags : []);
+                } else {
+                    setTags([]);
+                }
             } catch (error) {
                 console.error('Error fetching taxonomies:', error);
                 // Set empty arrays as fallback
@@ -239,7 +263,7 @@ const EventForm = () => {
         };
         
         fetchTaxonomies();
-    }, [includedCategories, excludedCategories, includedTags, excludedTags]);
+    }, [includedCategories, excludedCategories, includedTags, excludedTags, showCategories, showTags]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -958,47 +982,51 @@ const EventForm = () => {
                     />
                 </div>
 
-                <div className="mayo-form-field">
-                    <label>{__('Categories', 'mayo-events-manager')}</label>
-                    <div className="mayo-taxonomy-list">
-                        {Array.isArray(categories) && categories.map(category => (
-                            <label key={category?.id} className="mayo-taxonomy-item">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.categories.includes(category?.id)}
-                                    onChange={(e) => {
-                                        const newCategories = e.target.checked
-                                            ? [...formData.categories, category?.id]
-                                            : formData.categories.filter(id => id !== category?.id);
-                                        setFormData({...formData, categories: newCategories});
-                                    }}
-                                />
-                                {category?.name ? decodeHtmlEntities(category.name) : __('Unnamed Category', 'mayo-events-manager')}
-                            </label>
-                        ))}
+                {showCategories && categories.length > 0 && (
+                    <div className="mayo-form-field">
+                        <label>{__('Categories', 'mayo-events-manager')}</label>
+                        <div className="mayo-taxonomy-list">
+                            {categories.map(category => (
+                                <label key={category?.id} className="mayo-taxonomy-item">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.categories.includes(category?.id)}
+                                        onChange={(e) => {
+                                            const newCategories = e.target.checked
+                                                ? [...formData.categories, category?.id]
+                                                : formData.categories.filter(id => id !== category?.id);
+                                            setFormData({...formData, categories: newCategories});
+                                        }}
+                                    />
+                                    {category?.name ? decodeHtmlEntities(category.name) : __('Unnamed Category', 'mayo-events-manager')}
+                                </label>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="mayo-form-field">
-                    <label>{__('Tags', 'mayo-events-manager')}</label>
-                    <div className="mayo-taxonomy-list">
-                        {Array.isArray(tags) && tags.map(tag => (
-                            <label key={tag?.id || 'default'} className="mayo-taxonomy-item">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.tags.includes(tag?.name)}
-                                    onChange={(e) => {
-                                        const newTags = e.target.checked
-                                            ? [...formData.tags, tag?.name]
-                                            : formData.tags.filter(name => name !== tag?.name);
-                                        setFormData({...formData, tags: newTags});
-                                    }}
-                                />
-                                {tag?.name ? decodeHtmlEntities(tag.name) : __('Unnamed Tag', 'mayo-events-manager')}
-                            </label>
-                        ))}
+                {showTags && tags.length > 0 && (
+                    <div className="mayo-form-field">
+                        <label>{__('Tags', 'mayo-events-manager')}</label>
+                        <div className="mayo-taxonomy-list">
+                            {tags.map(tag => (
+                                <label key={tag?.id || 'default'} className="mayo-taxonomy-item">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.tags.includes(tag?.name)}
+                                        onChange={(e) => {
+                                            const newTags = e.target.checked
+                                                ? [...formData.tags, tag?.name]
+                                                : formData.tags.filter(name => name !== tag?.name);
+                                            setFormData({...formData, tags: newTags});
+                                        }}
+                                    />
+                                    {tag?.name ? decodeHtmlEntities(tag.name) : __('Unnamed Tag', 'mayo-events-manager')}
+                                </label>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <button
                     type="submit"
