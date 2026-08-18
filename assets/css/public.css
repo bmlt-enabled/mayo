@@ -2,6 +2,9 @@
     max-width: 600px;
     margin: 2em auto;
     padding: 1em;
+    /* Without this the 1em padding is added *outside* max-width, so the form
+       overflows any container narrower than 600px by 2em (#328). */
+    box-sizing: border-box;
 }
 
 .mayo-form-field {
@@ -17,7 +20,9 @@
 .mayo-form-field input,
 .mayo-form-field textarea {
     width: 100%;
+    max-width: 100%;
     padding: 0.5em;
+    box-sizing: border-box;
 }
 
 .mayo-submit-button {
@@ -954,11 +959,18 @@
 
 .mayo-form-field select {
     width: 100%;
-    padding: 0.5em;
+    max-width: 100%;
+    padding: 0.35em 0.5em;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
-    height: 40px; /* Match input height */
+    /* `min-height` rather than a fixed `height` so a theme with a larger base
+       font grows the control instead of clipping the text baseline (#328).
+       40px keeps the default rendering matched to the text inputs. */
+    min-height: 40px;
+    height: auto;
+    line-height: 1.5;
+    box-sizing: border-box;
     cursor: pointer;
 }
 
@@ -972,39 +984,54 @@
     border-color: #999;
 }
 
+/* The date/time rows wrap on the *container's* width rather than waiting for
+   the 600px viewport media query below, so the form stays inside a narrow
+   content column (e.g. a page with a sidebar) on any viewport (#328). */
 .mayo-datetime-group {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 1em;
 }
 
 .mayo-datetime-group .mayo-form-field {
-    flex: 1;
+    /* Stack the Start and End columns once neither can hold a legible row. */
+    flex: 1 1 260px;
+    min-width: 0;
 }
 
 .mayo-datetime-inputs {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
 .mayo-datetime-inputs input {
-    flex: 1;
+    /* Wrap the time selects onto their own line before the date control is
+       squeezed below its intrinsic width and starts overflowing. */
+    flex: 1 1 140px;
+    min-width: 0;
 }
 
 /* Time entry selects (Hour / Minute / AM-PM) rendered by TimeField. */
 .mayo-datetime-inputs .mayo-time-inputs {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .mayo-time-inputs {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
 }
 
 .mayo-time-inputs select {
-    flex: 1;
-    min-width: 0;
+    flex: 1 1 auto;
+    /* Floor the selects at a width that still fits the "Hour"/"Min" labels and
+       the native dropdown arrow; below this they truncate (#328). In `em` so
+       the floor tracks the theme's font size. */
+    min-width: 5em;
     /* Override the global `.mayo-form-field select { width: 100% }` so the
        AM/PM select (flex: 0 0 auto) doesn't take a 100% flex-basis and
        overflow the column, overlapping the adjacent Start/End field (#310). */
@@ -1020,6 +1047,13 @@
     .mayo-datetime-group {
         flex-direction: column;
         gap: 10px;
+    }
+
+    /* In a column flex container `flex-basis` sizes the *height*, so the
+       260px basis used for container-width wrapping must be reset here or
+       each field would be forced 260px tall (#328). */
+    .mayo-datetime-group .mayo-form-field {
+        flex-basis: auto;
     }
 
     .mayo-event-header {
@@ -2981,11 +3015,13 @@
 
 .mayo-datetime-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
 }
 
 .mayo-datetime-row .mayo-form-field {
-    flex: 1;
+    flex: 1 1 220px;
+    min-width: 0;
     margin-bottom: 0.5em;
 }
 
@@ -3009,6 +3045,12 @@
     .mayo-datetime-row {
         flex-direction: column;
         gap: 0;
+    }
+
+    /* Same reason as `.mayo-datetime-group` above: reset the row's wrapping
+       basis so it doesn't become a forced height in column direction. */
+    .mayo-datetime-row .mayo-form-field {
+        flex-basis: auto;
     }
 
     .mayo-display-window-fieldset {
