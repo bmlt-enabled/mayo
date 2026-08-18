@@ -187,6 +187,9 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.9.5 =
+* Fixed the event and announcement submission forms overflowing their container and clipping the Hour/Minute/AM-PM time dropdowns when the form is placed in a narrow column, such as a page with a fixed or sticky sidebar. The date and time controls now wrap to fit the space available and the dropdowns keep a legible minimum width, so the "Hour" and "Min" labels and selected values are no longer cut off. [#328]
+
 = 1.9.4 =
 * Fixed event submission form showing empty Categories or Tags section headers when `categories="none"` or `tags="none"` is used in `[mayo_event_form]`. [#325]
 * Documented that category and tag names with spaces should use dashes in shortcode parameters (e.g., a category named "Cell Awareness" is specified as `cell-awareness` in `[mayo_announcement_form]`). [#321]
