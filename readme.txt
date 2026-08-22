@@ -187,6 +187,9 @@ This project is licensed under the GPL v2 or later.
 
 == Changelog ==
 
+= 1.9.6 =
+* Fixed the Start and End date/time fields on the event and announcement submission forms sitting side by side, where the End field could be pushed off-page or hidden behind a theme's fixed or floating sidebar widget with no way to scroll to it — leaving required fields invisible. The two fields now stack in a single full-width column so both, and their required asterisks, stay visible on every theme. [#331]
+
 = 1.9.5 =
 * Fixed the event and announcement submission forms overflowing their container and clipping the Hour/Minute/AM-PM time dropdowns when the form is placed in a narrow column, such as a page with a fixed or sticky sidebar. The date and time controls now wrap to fit the space available and the dropdowns keep a legible minimum width, so the "Hour" and "Min" labels and selected values are no longer cut off. [#328]
 

@@ -984,20 +984,18 @@
     border-color: #999;
 }
 
-/* The date/time rows wrap on the *container's* width rather than waiting for
-   the 600px viewport media query below, so the form stays inside a narrow
-   content column (e.g. a page with a sidebar) on any viewport (#328). */
+/* Stack the Start and End date/time fields in a single full-width column so
+   both stay visible and reachable on every theme. A side-by-side flex row
+   (even one that wrapped on narrow containers, #328) could still push the End
+   field off-page or behind a theme's fixed/floating sidebar widget on wider
+   layouts, with no way to scroll to it — leaving required fields silently
+   hidden (#331). Stacking makes each field span the full width, so its label
+   and required asterisk are always on the left edge and never occluded. The
+   inner date + time controls still wrap on the field's width
+   (see .mayo-datetime-inputs below). */
 .mayo-datetime-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    display: block;
     margin-bottom: 1em;
-}
-
-.mayo-datetime-group .mayo-form-field {
-    /* Stack the Start and End columns once neither can hold a legible row. */
-    flex: 1 1 260px;
-    min-width: 0;
 }
 
 .mayo-datetime-inputs {
@@ -1044,18 +1042,6 @@
 }
 
 @media (max-width: 600px) {
-    .mayo-datetime-group {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    /* In a column flex container `flex-basis` sizes the *height*, so the
-       260px basis used for container-width wrapping must be reset here or
-       each field would be forced 260px tall (#328). */
-    .mayo-datetime-group .mayo-form-field {
-        flex-basis: auto;
-    }
-
     .mayo-event-header {
         gap: 12px;
     }
