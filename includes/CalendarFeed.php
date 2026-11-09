@@ -195,6 +195,7 @@ class CalendarFeed {
 
         $pattern             = get_post_meta($post->ID, 'recurring_pattern', true);
         $skipped_occurrences = get_post_meta($post->ID, 'skipped_occurrences', true) ?: [];
+        $moved_occurrences   = MovedOccurrences::get_map($post->ID);
 
         $rrule = null;
         $exdates = [];
@@ -202,7 +203,10 @@ class CalendarFeed {
         if (is_array($pattern) && isset($pattern['type']) && $pattern['type'] !== 'none') {
             $rrule = self::build_rrule($pattern, $tz);
             if ($rrule !== null) {
-                foreach ($skipped_occurrences as $skip) {
+                // A moved occurrence is excluded from the series on its original
+                // date and emitted below as its own VEVENT on the new date.
+                $excluded = array_unique(array_merge($skipped_occurrences, array_keys($moved_occurrences)));
+                foreach ($excluded as $skip) {
                     try {
                         $skip_dt = new \DateTime($skip . ' ' . $start_time, $tz);
                         $exdates[] = $skip_dt->format('Ymd\THis');
@@ -246,8 +250,18 @@ class CalendarFeed {
             $occurrences = self::expand_occurrences($pattern, $start_dt, $end_dt, $skipped_occurrences, $tz);
             $out = '';
             foreach ($occurrences as $occ) {
+                // Keep the UID keyed on the original date so a calendar client
+                // updates the occurrence in place when it's moved.
+                $uid_date = $occ['start']->format('Ymd');
+                $original = $occ['start']->format('Y-m-d');
+                if (isset($moved_occurrences[$original])) {
+                    $moved = self::moved_occurrence($moved_occurrences[$original], $start_dt, $end_dt, $tz);
+                    if ($moved !== null) {
+                        $occ = $moved;
+                    }
+                }
                 $out .= self::render_vevent($common + [
-                    'uid'     => 'mayo-' . $post->ID . '-' . $occ['start']->format('Ymd') . '@' . $host,
+                    'uid'     => 'mayo-' . $post->ID . '-' . $uid_date . '@' . $host,
                     'dtstart' => $occ['start']->format('Ymd\THis'),
                     'dtend'   => $occ['end']->format('Ymd\THis'),
                     'rrule'   => null,
@@ -264,6 +278,31 @@ class CalendarFeed {
             'rrule'   => $rrule,
             'exdates' => $exdates,
         ]);
+
+        if ($rrule !== null && !empty($moved_occurrences)) {
+            // Only move dates the series actually lands on, same as the REST list.
+            $series_dates = [];
+            foreach (self::expand_occurrences($pattern, $start_dt, $end_dt, $skipped_occurrences, $tz) as $occ) {
+                $series_dates[$occ['start']->format('Y-m-d')] = true;
+            }
+            foreach ($moved_occurrences as $original => $new_date) {
+                if (!isset($series_dates[$original])) {
+                    continue;
+                }
+                $occ = self::moved_occurrence($new_date, $start_dt, $end_dt, $tz);
+                if ($occ === null) {
+                    continue;
+                }
+                $ics .= self::render_vevent($common + [
+                    'uid'     => 'mayo-' . $post->ID . '-moved-' . str_replace('-', '', $original) . '@' . $host,
+                    'dtstart' => $occ['start']->format('Ymd\THis'),
+                    'dtend'   => $occ['end']->format('Ymd\THis'),
+                    'rrule'   => null,
+                    'exdates' => [],
+                ]);
+            }
+        }
+
         return ['ics' => $ics, 'tzid' => $tzid];
     }
 
@@ -354,6 +393,23 @@ class CalendarFeed {
         }
 
         return implode(';', $parts);
+    }
+
+    /**
+     * Start/end of an occurrence moved to $new_date (Y-m-d), keeping the
+     * series' start time and duration. Null if the date can't be parsed.
+     *
+     * @return array{start:\DateTime,end:\DateTime}|null
+     */
+    private static function moved_occurrence($new_date, $start_dt, $end_dt, $tz) {
+        try {
+            $start = new \DateTime($new_date . ' ' . $start_dt->format('H:i:s'), $tz);
+        } catch (\Exception $e) {
+            return null;
+        }
+        $end = clone $start;
+        $end->add($start_dt->diff($end_dt));
+        return ['start' => $start, 'end' => $end];
     }
 
     /**

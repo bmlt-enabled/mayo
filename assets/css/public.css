@@ -166,6 +166,13 @@
     font-weight: 500;
 }
 
+/* Rescheduled occurrence of a recurring event */
+.mayo-event-moved {
+    color: #b45309;
+    font-weight: 600;
+    font-style: italic;
+}
+
 .mayo-event-summary {
     flex: 1;
 }
@@ -742,6 +749,7 @@
 .mayo-event-modal-location,
 .mayo-event-modal-service-body,
 .mayo-event-modal-source,
+.mayo-event-modal-moved,
 .mayo-event-modal-recurring {
     display: flex;
     align-items: flex-start;
@@ -753,10 +761,16 @@
 .mayo-event-modal-location .dashicons,
 .mayo-event-modal-service-body .dashicons,
 .mayo-event-modal-source .dashicons,
+.mayo-event-modal-moved .dashicons,
 .mayo-event-modal-recurring .dashicons {
     color: #0073aa;
     flex-shrink: 0;
     margin-top: 2px;
+}
+
+.mayo-event-modal-moved {
+    color: #b45309;
+    font-weight: 600;
 }
 
 .mayo-event-modal-description {

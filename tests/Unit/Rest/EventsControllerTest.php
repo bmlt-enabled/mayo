@@ -1907,6 +1907,152 @@ class EventsControllerTest extends TestCase {
     }
 
     /**
+     * A moved occurrence is emitted on its new date, tagged with the original
+     * date, and the rest of the series is untouched [#333].
+     * 1st Sunday monthly: Feb 2 moves to Feb 9 (2nd Sunday) for a holiday.
+     */
+    public function testMovedOccurrenceIsEmittedOnNewDate(): void {
+        $post = $this->createMockPost([
+            'ID' => 630,
+            'post_title' => 'Area Service Committee',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Area Service Committee');
+
+        $this->setPostMeta(630, [
+            'event_start_date' => '2025-01-05',
+            'event_end_date' => '2025-01-05',
+            'skipped_occurrences' => [],
+            'moved_occurrences' => [
+                ['original_date' => '2025-02-02', 'new_date' => '2025-02-09'],
+            ],
+        ]);
+
+        $method = new \ReflectionMethod(EventsController::class, 'generate_recurring_events');
+        $method->setAccessible(true);
+        $events = $method->invoke(null, $post, [
+            'type' => 'monthly',
+            'interval' => 1,
+            'monthlyType' => 'weekday',
+            'monthlyWeekday' => '1,0',
+            'endDate' => '2025-04-30'
+        ]);
+
+        $dates = array_map(fn($e) => $e['meta']['event_start_date'], $events);
+        $this->assertSame(['2025-02-09', '2025-03-02', '2025-04-06'], $dates);
+
+        $this->assertSame('2025-02-02', $events[0]['moved_from']);
+        $this->assertSame('2025-02-09', $events[0]['meta']['event_end_date']);
+        $this->assertArrayNotHasKey('moved_from', $events[1]);
+    }
+
+    /**
+     * A moved multi-day occurrence keeps its original span.
+     */
+    public function testMovedOccurrenceKeepsMultiDaySpan(): void {
+        $post = $this->createMockPost([
+            'ID' => 631,
+            'post_title' => 'Weekend Retreat',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Weekend Retreat');
+
+        $this->setPostMeta(631, [
+            'event_start_date' => '2025-01-04',
+            'event_end_date' => '2025-01-05',
+            'skipped_occurrences' => [],
+            'moved_occurrences' => [
+                ['original_date' => '2025-01-11', 'new_date' => '2025-01-13'],
+            ],
+        ]);
+
+        $method = new \ReflectionMethod(EventsController::class, 'generate_recurring_events');
+        $method->setAccessible(true);
+        $events = $method->invoke(null, $post, [
+            'type' => 'weekly',
+            'interval' => 1,
+            'weekdays' => [],
+            'endDate' => '2025-01-20'
+        ]);
+
+        $this->assertSame('2025-01-13', $events[0]['meta']['event_start_date']);
+        $this->assertSame('2025-01-14', $events[0]['meta']['event_end_date']);
+        $this->assertSame('2025-01-11', $events[0]['moved_from']);
+        $this->assertSame('2025-01-18', $events[1]['meta']['event_start_date']);
+    }
+
+    /**
+     * A skip on the original date wins over a move of the same date, and a
+     * move whose original date isn't an occurrence is ignored.
+     */
+    public function testSkipWinsOverMoveAndNonOccurrenceMoveIsIgnored(): void {
+        $post = $this->createMockPost([
+            'ID' => 632,
+            'post_title' => 'Weekly Meeting',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Weekly Meeting');
+
+        $this->setPostMeta(632, [
+            'event_start_date' => '2025-01-06',
+            'event_end_date' => '2025-01-06',
+            'skipped_occurrences' => ['2025-01-13'],
+            'moved_occurrences' => [
+                ['original_date' => '2025-01-13', 'new_date' => '2025-01-14'],
+                ['original_date' => '2025-01-21', 'new_date' => '2025-01-22'], // a Tuesday, not an occurrence
+            ],
+        ]);
+
+        $dates = $this->generatedRecurringDates($post, [
+            'type' => 'weekly',
+            'interval' => 1,
+            'weekdays' => [1],
+            'endDate' => '2025-01-31'
+        ]);
+
+        $this->assertSame(['2025-01-20', '2025-01-27'], $dates);
+    }
+
+    /**
+     * The first occurrence comes from the stored post rather than the
+     * generator, so a move of the event's own start date is applied there.
+     */
+    public function testFirstOccurrenceMoveIsApplied(): void {
+        $post = $this->createMockPost(['ID' => 633, 'post_type' => 'mayo_event']);
+        $this->setPostMeta(633, [
+            'event_start_date' => '2025-01-05',
+            'event_end_date' => '2025-01-05',
+            'moved_occurrences' => [
+                ['original_date' => '2025-01-05', 'new_date' => '2025-01-12'],
+            ],
+        ]);
+
+        $method = new \ReflectionMethod(EventsController::class, 'apply_first_occurrence_move');
+        $method->setAccessible(true);
+
+        $event = ['id' => 633, 'meta' => [
+            'event_start_date' => '2025-01-05',
+            'event_end_date' => '2025-01-05',
+            'recurring_pattern' => ['type' => 'monthly', 'interval' => 1, 'monthlyType' => 'weekday', 'monthlyWeekday' => '1,0'],
+        ]];
+        $moved = $method->invoke(null, $post, $event);
+
+        $this->assertSame('2025-01-12', $moved['meta']['event_start_date']);
+        $this->assertSame('2025-01-12', $moved['meta']['event_end_date']);
+        $this->assertSame('2025-01-05', $moved['moved_from']);
+
+        // A one-off event is never moved, even with stray meta.
+        $one_off = ['id' => 633, 'meta' => ['event_start_date' => '2025-01-05', 'event_end_date' => '2025-01-05']];
+        $this->assertSame($one_off, $method->invoke(null, $post, $one_off));
+    }
+
+    /**
      * Test get_events hides events after their end time passes
      *
      * This test verifies the fix for issue #237 where events remained visible

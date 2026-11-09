@@ -1,7 +1,7 @@
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../../providers/EventProvider';
-import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames, convertToUnicode } from '../../../util';
+import { formatTime, formatTimezone, formatRecurringPattern, formatMovedFrom, formatDateTimeDisplay, dayNames, monthNames, convertToUnicode } from '../../../util';
 import LocationAddress from '../LocationAddress';
 
 const EventCard = ({ event, timeFormat, forceExpanded }) => {
@@ -107,6 +107,11 @@ const EventCard = ({ event, timeFormat, forceExpanded }) => {
                         {formatDateTimeDisplay(event, timeFormat) && (
                             <span className="mayo-event-time">
                                 {formatDateTimeDisplay(event, timeFormat)}
+                            </span>
+                        )}
+                        {event.moved_from && (
+                            <span className="mayo-event-moved">
+                                {formatMovedFrom(event.moved_from)}
                             </span>
                         )}
                         {event.source && event.source.type === 'external' && (

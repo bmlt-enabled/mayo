@@ -291,6 +291,7 @@ class Admin {
                 $timezone = get_post_meta($post_id, 'timezone', true);
                 $recurring_pattern = get_post_meta($post_id, 'recurring_pattern', true);
                 $skipped_occurrences = get_post_meta($post_id, 'skipped_occurrences', true) ?: [];
+                $moved_occurrences = MovedOccurrences::get_map($post_id);
                 
                 // Create a DateTimeZone object from the stored timezone
                 $tz = !empty($timezone) ? new \DateTimeZone($timezone) : wp_timezone();
@@ -364,6 +365,14 @@ class Admin {
                             /* translators: %d: number of skipped occurrences */
                             _n('%d skipped', '%d skipped', count($skipped_occurrences), 'mayo-events-manager'),
                             count($skipped_occurrences)
+                        ));
+                    }
+
+                    if (!empty($moved_occurrences)) {
+                        echo ' • ' . esc_html(sprintf(
+                            /* translators: %d: number of moved occurrences */
+                            _n('%d moved', '%d moved', count($moved_occurrences), 'mayo-events-manager'),
+                            count($moved_occurrences)
                         ));
                     }
                     echo '</small>';
@@ -551,6 +560,29 @@ class Admin {
             'default' => [],
             'auth_callback' => function() { 
                 return current_user_can('edit_posts'); 
+            }
+        ]);
+
+        register_post_meta('mayo_event', MovedOccurrences::META_KEY, [
+            'show_in_rest' => [
+                'schema' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'original_date' => ['type' => 'string'],
+                            'new_date'      => ['type' => 'string'],
+                        ],
+                        'additionalProperties' => false,
+                    ],
+                ]
+            ],
+            'single' => true,
+            'type' => 'array',
+            'default' => [],
+            'sanitize_callback' => [MovedOccurrences::class, 'sanitize'],
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
             }
         ]);
 

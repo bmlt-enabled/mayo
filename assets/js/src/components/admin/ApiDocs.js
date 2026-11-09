@@ -836,6 +836,11 @@ fetch('${baseUrl}/wp-json/event-manager/v1/settings', {
                             <td>array</td>
                             <td>Array of skipped dates for recurring events</td>
                         </tr>
+                        <tr>
+                            <td><code>moved_occurrences</code></td>
+                            <td>array</td>
+                            <td>Rescheduled occurrences of a recurring event, as <code>{"{"} original_date, new_date {"}"}</code> objects (both <code>YYYY-MM-DD</code>). In <code>/events</code> results, a moved occurrence appears on its new date with a top-level <code>moved_from</code> field holding the original date.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

@@ -1,7 +1,7 @@
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
-import { formatTime, formatTimezone, formatRecurringPattern, formatDateTimeDisplay, dayNames, monthNames } from '../../util';
+import { formatTime, formatTimezone, formatRecurringPattern, formatMovedFrom, formatDateTimeDisplay, dayNames, monthNames } from '../../util';
 import LocationAddress from './LocationAddress';
 
 const EventModal = ({ event, timeFormat, onClose }) => {
@@ -85,6 +85,13 @@ const EventModal = ({ event, timeFormat, onClose }) => {
                                 {event.meta.timezone && ` (${formatTimezone(event.meta.timezone)})`}
                             </span>
                         </div>
+
+                        {event.moved_from && (
+                            <div className="mayo-event-modal-moved">
+                                <span className="dashicons dashicons-calendar-alt"></span>
+                                <span>{formatMovedFrom(event.moved_from)}</span>
+                            </div>
+                        )}
 
                         {(event.meta.location_name || event.meta.location_address) && (
                             <div className="mayo-event-modal-location">

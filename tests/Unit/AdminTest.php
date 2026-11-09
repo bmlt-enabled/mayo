@@ -454,6 +454,7 @@ class AdminTest extends TestCase {
         $this->assertContains('location_details', $registeredMeta['mayo_event']);
         $this->assertContains('recurring_pattern', $registeredMeta['mayo_event']);
         $this->assertContains('skipped_occurrences', $registeredMeta['mayo_event']);
+        $this->assertContains('moved_occurrences', $registeredMeta['mayo_event']);
         $this->assertContains('contact_name', $registeredMeta['mayo_event']);
         $this->assertContains('email', $registeredMeta['mayo_event']);
         $this->assertContains('flyer_id', $registeredMeta['mayo_event']);
@@ -586,6 +587,29 @@ class AdminTest extends TestCase {
 
         $this->assertStringContainsString('Recurring', $output);
         $this->assertStringContainsString('2 skipped', $output);
+    }
+
+    /**
+     * Test render_custom_columns counts moved occurrences [#333]
+     */
+    public function testRenderCustomColumnsOutputsMovedCount(): void {
+        $this->setPostMeta(412, [
+            'event_start_date' => '2025-01-05',
+            'event_start_time' => '10:00:00',
+            'timezone' => 'America/New_York',
+            'recurring_pattern' => ['type' => 'monthly', 'interval' => 1, 'monthlyType' => 'weekday', 'monthlyWeekday' => '1,0'],
+            'skipped_occurrences' => [],
+            'moved_occurrences' => [
+                ['original_date' => '2025-09-07', 'new_date' => '2025-09-14'],
+            ],
+        ]);
+
+        ob_start();
+        Admin::render_custom_columns('event_datetime', 412);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('1 moved', $output);
+        $this->assertStringNotContainsString('skipped', $output);
     }
 
     /**

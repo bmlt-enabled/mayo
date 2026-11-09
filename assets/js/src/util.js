@@ -94,6 +94,22 @@ export const formatDateTimeDisplay = (event, timeFormat) => {
     return display;
 };
 
+/**
+ * "Moved from Sunday, Jan 5" note for a recurring occurrence that was
+ * rescheduled to another date. `dateString` is the original Y-m-d date.
+ */
+export const formatMovedFrom = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (!year || !month || !day) return '';
+    const date = new Date(year, month - 1, day);
+    return sprintf(
+        /* translators: %s: original date of a rescheduled occurrence, e.g. "Sunday, Jan 5" */
+        __('Moved from %s', 'mayo-events-manager'),
+        `${dayNames[date.getDay()]}, ${monthNames[date.getMonth()]} ${date.getDate()}`
+    );
+};
+
 export const formatRecurringPattern = (pattern) => {
     if (!pattern || pattern.type === 'none') return '';
 

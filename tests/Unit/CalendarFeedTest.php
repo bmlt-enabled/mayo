@@ -248,6 +248,66 @@ class CalendarFeedTest extends TestCase {
         $this->assertStringContainsString('EXDATE;TZID=America/New_York:20300210T100000', $result['ics']);
     }
 
+    public function testBuildVeventExcludesMovedDateAndEmitsItOnNewDate(): void {
+        $post = $this->createMockPost(['ID' => 120]);
+        $this->setPostMeta(120, [
+            'event_start_date' => '2030-01-06',
+            'event_end_date'   => '2030-01-06',
+            'event_start_time' => '10:00:00',
+            'event_end_time'   => '11:30:00',
+            'timezone'         => 'America/New_York',
+            'recurring_pattern' => [
+                'type'           => 'monthly',
+                'interval'       => 1,
+                'monthlyType'    => 'weekday',
+                'monthlyWeekday' => '1,0', // 1st Sunday
+            ],
+            'moved_occurrences' => [
+                ['original_date' => '2030-09-01', 'new_date' => '2030-09-08'],
+                ['original_date' => '2030-09-02', 'new_date' => '2030-09-09'], // not an occurrence
+            ],
+        ]);
+
+        $ics = $this->buildVevent($post)['ics'];
+
+        $this->assertStringContainsString('EXDATE;TZID=America/New_York:20300901T100000', $ics);
+        $this->assertStringContainsString('UID:mayo-120-moved-20300901@example.com', $ics);
+        $this->assertStringContainsString('DTSTART;TZID=America/New_York:20300908T100000', $ics);
+        $this->assertStringContainsString('DTEND;TZID=America/New_York:20300908T113000', $ics);
+        $this->assertStringNotContainsString('20300909', $ics);
+        $this->assertSame(2, substr_count($ics, 'BEGIN:VEVENT'));
+    }
+
+    public function testBuildVeventFallbackExpansionUsesMovedDate(): void {
+        $post = $this->createMockPost(['ID' => 121]);
+        $this->setPostMeta(121, [
+            'event_start_date' => '2030-01-13',
+            'event_end_date'   => '2030-01-13',
+            'event_start_time' => '19:00:00',
+            'event_end_time'   => '20:00:00',
+            'timezone'         => 'UTC',
+            'recurring_pattern' => [
+                'type'                    => 'monthly',
+                'interval'                => 1,
+                'monthlyType'             => 'relative', // not expressible as RRULE
+                'monthlyWeekday'          => '3,2',
+                'relativeOffsetWeekday'   => 1,
+                'relativeOffsetDirection' => 'before',
+                'endDate'                 => '2030-03-31',
+            ],
+            'moved_occurrences' => [
+                ['original_date' => '2030-01-13', 'new_date' => '2030-01-20'],
+            ],
+        ]);
+
+        $ics = $this->buildVevent($post)['ics'];
+
+        // The UID stays keyed on the original date; the times move.
+        $this->assertStringContainsString('UID:mayo-121-20300113@example.com', $ics);
+        $this->assertStringContainsString('DTSTART;TZID=UTC:20300120T190000', $ics);
+        $this->assertStringNotContainsString('DTSTART;TZID=UTC:20300113T190000', $ics);
+    }
+
     public function testBuildVeventEmitsUntilWhenEndDateSet(): void {
         $post = $this->createMockPost(['ID' => 107]);
         $this->setPostMeta(107, [

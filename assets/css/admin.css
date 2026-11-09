@@ -480,11 +480,13 @@
 }
 
 /* Skipped Occurrences Management Styles */
-.mayo-skipped-occurrences-list {
+.mayo-skipped-occurrences-list,
+.mayo-moved-occurrences-list {
     margin-bottom: 16px;
 }
 
-.mayo-skipped-occurrence-item {
+.mayo-skipped-occurrence-item,
+.mayo-moved-occurrence-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -496,23 +498,38 @@
     font-size: 13px;
 }
 
-.mayo-skipped-occurrence-item span {
+.mayo-skipped-occurrence-item span,
+.mayo-moved-occurrence-item span {
     flex: 1;
     margin-right: 8px;
 }
 
-.mayo-add-skip-form {
+.mayo-add-skip-form,
+.mayo-add-move-form {
     margin-top: 12px;
 }
 
-.mayo-add-skip-actions {
+.mayo-add-skip-actions,
+.mayo-add-move-actions {
     display: flex;
     gap: 8px;
     margin-top: 8px;
 }
 
-.mayo-add-skip-actions .components-button {
+.mayo-add-skip-actions .components-button,
+.mayo-add-move-actions .components-button {
     flex: 1;
+}
+
+/* Moved Occurrences: date fields stack with a little breathing room */
+.mayo-add-move-form .components-base-control + .components-base-control {
+    margin-top: 12px;
+}
+
+.mayo-move-error {
+    color: #cc1818;
+    font-size: 12px;
+    margin: 8px 0 0;
 }
 
 /* Subscription Preferences */

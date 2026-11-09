@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use DateTime;
 use DateInterval;
 use BmltEnabled\Mayo\Announcement;
+use BmltEnabled\Mayo\MovedOccurrences;
 use BmltEnabled\Mayo\Rest\Helpers\TaxonomyQuery;
 use BmltEnabled\Mayo\Rest\Helpers\FileUpload;
 use BmltEnabled\Mayo\Rest\Helpers\EmailNotification;
@@ -1434,7 +1435,7 @@ class EventsController {
 
         foreach ($posts as $post) {
             try {
-                $events[] = self::format_event($post);
+                $events[] = self::apply_first_occurrence_move($post, self::format_event($post));
             } catch (\Exception $e) {
                 error_log('Mayo Events API: Error formatting event: ' . $e->getMessage());
             }
@@ -1990,6 +1991,22 @@ class EventsController {
         $end = !empty($pattern['endDate']) ? new DateTime($pattern['endDate']) : null;
 
         $skipped_occurrences = get_post_meta($post->ID, 'skipped_occurrences', true) ?: [];
+        $moved_occurrences = MovedOccurrences::get_map($post->ID);
+
+        // Emit one occurrence unless it's skipped; a moved occurrence is emitted
+        // on its new date. Skips are matched against the original date and win
+        // over a move of the same date.
+        $emit = function (DateTime $date) use (&$events, $post, $skipped_occurrences, $moved_occurrences) {
+            $date_str = $date->format('Y-m-d');
+            if (in_array($date_str, $skipped_occurrences)) {
+                return;
+            }
+            if (isset($moved_occurrences[$date_str])) {
+                $events[] = self::format_recurring_event($post, new DateTime($moved_occurrences[$date_str]), $date_str);
+                return;
+            }
+            $events[] = self::format_recurring_event($post, clone $date);
+        };
 
         $max_events = 0;
         if ($pattern['type'] === 'daily') {
@@ -2066,10 +2083,7 @@ class EventsController {
                 }
 
                 if ($occurrence <= $end || $end === null) {
-                    $occurrence_date = $occurrence->format('Y-m-d');
-                    if (!in_array($occurrence_date, $skipped_occurrences)) {
-                        $events[] = self::format_recurring_event($post, clone $occurrence);
-                    }
+                    $emit($occurrence);
                 }
 
                 $current->setDate($current_year, $current_month, 1);
@@ -2093,19 +2107,13 @@ class EventsController {
                         $current_day = $interval_start->format('w');
 
                         if (in_array($current_day, $pattern['weekdays'])) {
-                            $current_date = $interval_start->format('Y-m-d');
-                            if (!in_array($current_date, $skipped_occurrences)) {
-                                $events[] = self::format_recurring_event($post, clone $interval_start);
-                            }
+                            $emit($interval_start);
                         }
 
                         $interval_start->modify('+1 day');
                     }
                 } else {
-                    $current_date = $current->format('Y-m-d');
-                    if (!in_array($current_date, $skipped_occurrences)) {
-                        $events[] = self::format_recurring_event($post, $current);
-                    }
+                    $emit($current);
                 }
 
                 $current->add($interval);
@@ -2116,16 +2124,68 @@ class EventsController {
     }
 
     /**
+     * Reschedule the first occurrence of a recurring event when it was moved.
+     *
+     * generate_recurring_events() only emits the occurrences after the event's
+     * own start date; the first one comes from the stored post, so a move of
+     * that date has to be applied here.
+     *
+     * @param \WP_Post $post Post object
+     * @param array|null $event Formatted event
+     * @return array|null
+     */
+    private static function apply_first_occurrence_move($post, $event) {
+        if (!is_array($event)) {
+            return $event;
+        }
+
+        $pattern = $event['meta']['recurring_pattern'] ?? null;
+        $start_date = $event['meta']['event_start_date'] ?? '';
+        if (!is_array($pattern) || ($pattern['type'] ?? 'none') === 'none' || $start_date === '') {
+            return $event;
+        }
+
+        $moved = MovedOccurrences::get_map($post->ID);
+        if (!isset($moved[$start_date])) {
+            return $event;
+        }
+
+        $new_date = new DateTime($moved[$start_date]);
+        $event['meta']['event_start_date'] = $new_date->format('Y-m-d');
+        $event['meta']['event_end_date'] = self::occurrence_end_date($post, $new_date);
+        $event['moved_from'] = $start_date;
+        return $event;
+    }
+
+    /**
      * Format a recurring event instance
      *
      * @param \WP_Post $post Post object
      * @param DateTime $date Event date
+     * @param string|null $moved_from Original Y-m-d date when this occurrence was moved
      * @return array
      */
-    private static function format_recurring_event($post, $date) {
+    private static function format_recurring_event($post, $date, $moved_from = null) {
         $event = self::format_event($post);
         $event['meta']['event_start_date'] = $date->format('Y-m-d');
+        $event['meta']['event_end_date'] = self::occurrence_end_date($post, $date);
 
+        $event['recurring'] = true;
+        if ($moved_from !== null) {
+            $event['moved_from'] = $moved_from;
+        }
+        return $event;
+    }
+
+    /**
+     * End date (Y-m-d) of an occurrence starting on $date, keeping the event's
+     * original start-to-end span (multi-day events stay multi-day).
+     *
+     * @param \WP_Post $post Post object
+     * @param DateTime $date Occurrence start date
+     * @return string
+     */
+    private static function occurrence_end_date($post, $date) {
         $original_start_date = get_post_meta($post->ID, 'event_start_date', true);
         $original_end_date = get_post_meta($post->ID, 'event_end_date', true);
 
@@ -2136,12 +2196,9 @@ class EventsController {
 
             $new_end_date = clone $date;
             $new_end_date->add($duration);
-            $event['meta']['event_end_date'] = $new_end_date->format('Y-m-d');
-        } else {
-            $event['meta']['event_end_date'] = $date->format('Y-m-d');
+            return $new_end_date->format('Y-m-d');
         }
 
-        $event['recurring'] = true;
-        return $event;
+        return $date->format('Y-m-d');
     }
 }

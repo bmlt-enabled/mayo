@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.6 =
+* Added the ability to move a single occurrence of a recurring event to another date — for example, when a 1st-Sunday committee meeting moves to the 2nd Sunday because of a holiday or a facility conflict. Use the new "Moved Occurrences" panel in the event editor to pick the original date and the new date; the occurrence then appears on the new date (marked "Moved from …") in event lists, the calendar view and the subscribable calendar feed, while the rest of the series stays on schedule. [#333]
 * Fixed the Start and End date/time fields on the event and announcement submission forms sitting side by side, where the End field could be pushed off-page or hidden behind a theme's fixed or floating sidebar widget with no way to scroll to it — leaving required fields invisible. The two fields now stack in a single full-width column so both, and their required asterisks, stay visible on every theme. [#331]
 
 = 1.9.5 =

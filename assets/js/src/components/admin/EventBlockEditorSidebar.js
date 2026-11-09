@@ -20,6 +20,9 @@ const EventBlockEditorSidebar = () => {
     const { serviceBodies } = useEventProvider();
     const [isAddingSkip, setIsAddingSkip] = useState(false);
     const [skipDate, setSkipDate] = useState('');
+    const [isAddingMove, setIsAddingMove] = useState(false);
+    const [moveOriginalDate, setMoveOriginalDate] = useState('');
+    const [moveNewDate, setMoveNewDate] = useState('');
     const [linkedAnnouncements, setLinkedAnnouncements] = useState([]);
     const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(false);
 
@@ -116,6 +119,49 @@ const EventBlockEditorSidebar = () => {
     const removeSkippedOccurrence = (dateToRemove) => {
         const newSkipped = skippedOccurrences.filter(date => date !== dateToRemove);
         updateMetaValue('skipped_occurrences', newSkipped);
+    };
+
+    // Helper functions for moved occurrences
+    const movedOccurrences = Array.isArray(meta.moved_occurrences) ? meta.moved_occurrences : [];
+
+    const getMoveError = () => {
+        if (!moveOriginalDate || !moveNewDate) {
+            return '';
+        }
+        if (moveOriginalDate === moveNewDate) {
+            return __('The new date must be different from the original date.', 'mayo-events-manager');
+        }
+        if (movedOccurrences.some(move => move.original_date === moveOriginalDate)) {
+            return __('That occurrence has already been moved. Remove the existing move first.', 'mayo-events-manager');
+        }
+        if (skippedOccurrences.includes(moveOriginalDate)) {
+            return __('That occurrence is skipped. Remove the skip first to move it instead.', 'mayo-events-manager');
+        }
+        return '';
+    };
+    const moveError = getMoveError();
+
+    const resetMoveForm = () => {
+        setIsAddingMove(false);
+        setMoveOriginalDate('');
+        setMoveNewDate('');
+    };
+
+    const addMovedOccurrence = () => {
+        if (!moveOriginalDate || !moveNewDate || moveError) {
+            return;
+        }
+        const newMoved = [
+            ...movedOccurrences,
+            { original_date: moveOriginalDate, new_date: moveNewDate }
+        ].sort((a, b) => a.original_date.localeCompare(b.original_date));
+        updateMetaValue('moved_occurrences', newMoved);
+        resetMoveForm();
+    };
+
+    const removeMovedOccurrence = (originalDate) => {
+        const newMoved = movedOccurrences.filter(move => move.original_date !== originalDate);
+        updateMetaValue('moved_occurrences', newMoved);
     };
 
     const formatDate = (dateString) => {
@@ -487,6 +533,87 @@ const EventBlockEditorSidebar = () => {
                                 onClick={() => setIsAddingSkip(true)}
                             >
                                 {__('Add Skipped Date', 'mayo-events-manager')}
+                            </Button>
+                        )}
+                    </PanelBody>
+                )}
+
+                {/* Moved Occurrences Management */}
+                {recurringPattern.type !== 'none' && (
+                    <PanelBody title={__('Moved Occurrences', 'mayo-events-manager')} initialOpen={false}>
+                        <p className="components-base-control__help">
+                            {__('Reschedule a single occurrence to another date (for example, when a meeting moves to the 2nd Sunday because of a holiday). The time and duration stay the same.', 'mayo-events-manager')}
+                        </p>
+
+                        {movedOccurrences.length > 0 && (
+                            <div className="mayo-moved-occurrences-list">
+                                <p className="components-base-control__label">{__('Moved Dates:', 'mayo-events-manager')}</p>
+                                {movedOccurrences.map(move => (
+                                    <div key={move.original_date} className="mayo-moved-occurrence-item">
+                                        <span>
+                                            {formatDate(move.original_date)}
+                                            {' → '}
+                                            {formatDate(move.new_date)}
+                                        </span>
+                                        <Button
+                                            isSmall
+                                            isDestructive
+                                            onClick={() => removeMovedOccurrence(move.original_date)}
+                                        >
+                                            {__('Remove', 'mayo-events-manager')}
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {isAddingMove ? (
+                            <div className="mayo-add-move-form">
+                                <TextControl
+                                    type="date"
+                                    label={__('Original date', 'mayo-events-manager')}
+                                    help={__('A date this event normally occurs on.', 'mayo-events-manager')}
+                                    value={moveOriginalDate}
+                                    onChange={setMoveOriginalDate}
+                                    __nextHasNoMarginBottom={true}
+                                    __next40pxDefaultSize={true}
+                                />
+                                <TextControl
+                                    type="date"
+                                    label={__('New date', 'mayo-events-manager')}
+                                    value={moveNewDate}
+                                    onChange={setMoveNewDate}
+                                    __nextHasNoMarginBottom={true}
+                                    __next40pxDefaultSize={true}
+                                />
+                                {moveError && (
+                                    <p className="mayo-move-error">{moveError}</p>
+                                )}
+                                <div className="mayo-add-move-actions">
+                                    <Button
+                                        isPrimary
+                                        isSmall
+                                        onClick={addMovedOccurrence}
+                                        disabled={!moveOriginalDate || !moveNewDate || !!moveError}
+                                    >
+                                        {__('Add Move', 'mayo-events-manager')}
+                                    </Button>
+                                    <Button
+                                        isSecondary
+                                        isSmall
+                                        onClick={resetMoveForm}
+                                    >
+                                        {__('Cancel', 'mayo-events-manager')}
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <Button
+                                isSecondary
+                                isSmall
+                                onClick={() => setIsAddingMove(true)}
+                            >
+                                {__('Move an Occurrence', 'mayo-events-manager')}
                             </Button>
                         )}
                     </PanelBody>
