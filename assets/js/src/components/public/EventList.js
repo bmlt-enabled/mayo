@@ -13,7 +13,8 @@ const EMPTY_FACETS = { event_types: [], service_bodies: [], categories: [], tags
 
 const EventList = ({ widget = false, settings = {} }) => {
     const containerRef = useRef(null);
-    const loaderRef = useRef(null);
+    // Callback ref target for the infinite-scroll loader (see the observer effect).
+    const [loaderNode, setLoaderNode] = useState(null);
     const updateTimeout = useRef(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -117,29 +118,35 @@ const EventList = ({ widget = false, settings = {} }) => {
         }, 300);
     }, [settings?.sourceIds, updateExternalServiceBodies]);
 
-    // Set up intersection observer for infinite scroll
-    useEffect(() => {
-        if (!settings?.infiniteScroll || !loaderRef.current || !hasMore) return;
-        
-        const observer = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore && !loading && currentPage < totalPages) {
-                fetchEvents(currentPage + 1);
-            }
-        }, { threshold: 1.0 });
-        
-        observer.observe(loaderRef.current);
-        
-        return () => {
-            if (loaderRef.current) {
-                observer.unobserve(loaderRef.current);
-            }
-        };
-    }, [hasMore, loading, currentPage, totalPages, settings?.infiniteScroll]);
-
     const getQueryStringValue = (key, defaultValue = null) => {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.has(key) ? urlParams.get(key) : defaultValue;
     };
+
+    // Effective infinite-scroll setting: the querystring overrides the shortcode.
+    const infiniteScrollEnabled = getQueryStringValue('infinite_scroll') !== null
+        ? getQueryStringValue('infinite_scroll') === 'true'
+        : !!settings?.infiniteScroll;
+
+    // Set up intersection observer for infinite scroll. The loader element is
+    // only rendered in list view, so it is tracked through a callback ref
+    // (loaderNode) rather than a plain ref: when the list mounts in calendar
+    // view and the visitor switches to List View, the loader mounting re-runs
+    // this effect and attaches the observer. Unmounting it (switching back to
+    // calendar) runs the cleanup, so no observer is left behind. [#335]
+    useEffect(() => {
+        if (!infiniteScrollEnabled || !loaderNode || !hasMore) return;
+
+        const observer = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore && !loading && currentPage < totalPages) {
+                fetchEvents(currentPage + 1);
+            }
+        }, { threshold: 0, rootMargin: '0px 0px 200px 0px' });
+
+        observer.observe(loaderNode);
+
+        return () => observer.disconnect();
+    }, [loaderNode, hasMore, loading, currentPage, totalPages, infiniteScrollEnabled]);
 
     const getRssUrl = () => {
         // Simple RSS feed URL - parameters come from shortcode configuration, not URL
@@ -847,18 +854,11 @@ const EventList = ({ widget = false, settings = {} }) => {
                             ))}
 
                             {/* Infinite scroll loading indicator */}
-                            {getQueryStringValue('infinite_scroll') !== null ?
-                                getQueryStringValue('infinite_scroll') === 'true' && hasMore && (
-                                    <div ref={loaderRef} className="mayo-infinite-loader">
-                                        {loading && <div className="mayo-loader">{__('Loading more events...', 'mayo-events-manager')}</div>}
-                                    </div>
-                                )
-                                : settings?.infiniteScroll && hasMore && (
-                                    <div ref={loaderRef} className="mayo-infinite-loader">
-                                        {loading && <div className="mayo-loader">{__('Loading more events...', 'mayo-events-manager')}</div>}
-                                    </div>
-                                )
-                            }
+                            {infiniteScrollEnabled && hasMore && (
+                                <div ref={setLoaderNode} className="mayo-infinite-loader">
+                                    {loading && <div className="mayo-loader">{__('Loading more events...', 'mayo-events-manager')}</div>}
+                                </div>
+                            )}
                         </div>
                     )}
                 </>
