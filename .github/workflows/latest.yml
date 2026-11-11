@@ -41,7 +41,14 @@ jobs:
         id: code-checkout
 
       - name: Install gettext (for msgfmt) 🌐
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gettext
+        # Best-effort: if the apt mirror is unreachable, `make mo` falls back to
+        # scripts/compile-mo.php, which produces the same .mo files (#337).
+        run: |
+          if timeout 300 sudo apt-get update && timeout 300 sudo apt-get install -y --no-install-recommends gettext; then
+            echo "gettext installed; .mo files will be compiled with msgfmt"
+          else
+            echo "::warning::Could not install gettext from apt; .mo files will be compiled with scripts/compile-mo.php"
+          fi
 
       - name: Prepare to deploy 🔧
         run: |
