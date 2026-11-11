@@ -62,9 +62,19 @@ pot: ## Regenerate languages/mayo-events-manager.pot from source
 translations: ## Generate JSON translation files for JS bundles from .po files
 	php scripts/generate-json-translations.php
 
+# msgfmt when gettext is installed, otherwise the dependency-free PHP compiler
+# (byte-identical to `msgfmt --no-hash`). Force the fallback with `make mo MSGFMT=`.
+MSGFMT ?= $(shell command -v msgfmt 2>/dev/null)
+
 .PHONY: mo
-mo: ## Compile .po files to .mo
-	@cd languages && for f in *.po; do msgfmt --check "$$f" -o "$${f%.po}.mo"; done
+mo: ## Compile .po files to .mo (msgfmt, or scripts/compile-mo.php without gettext)
+	@set -e; cd languages; \
+	if [ -n "$(MSGFMT)" ]; then echo "Compiling .mo files with $(MSGFMT)"; \
+	else echo "msgfmt not found; compiling .mo files with scripts/compile-mo.php"; fi; \
+	for f in *.po; do \
+		if [ -n "$(MSGFMT)" ]; then "$(MSGFMT)" --check "$$f" -o "$${f%.po}.mo"; \
+		else php ../scripts/compile-mo.php "$$f" "$${f%.po}.mo"; fi; \
+	done
 
 .PHONY: i18n
 i18n: translations mo ## Build all translation artifacts (.json + .mo) from .po files

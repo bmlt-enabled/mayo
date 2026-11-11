@@ -16,7 +16,7 @@ This directory holds:
 
 WordPress automatically loads `.mo` files via `load_plugin_textdomain()`, and JavaScript translations via `wp_set_script_translations()`. Both are wired up in `mayo-events-manager.php` and the relevant component initializers.
 
-The `.mo` and per-handle `.json` files are derived artifacts compiled from the `.po` sources. They are produced by `make i18n` (which runs `make translations` for JSON and `make mo` for `.mo`) and are generated automatically during the release/latest CI builds. Contributors only need to commit `.po` (and, when source strings change, `.pot`) updates.
+The `.mo` and per-handle `.json` files are derived artifacts compiled from the `.po` sources. They are produced by `make i18n` (which runs `make translations` for JSON and `make mo` for `.mo`) and are generated automatically during the release/latest CI builds. `make mo` uses `msgfmt` when gettext is installed and otherwise falls back to `scripts/compile-mo.php`, a dependency-free compiler whose output is byte-identical to `msgfmt --no-hash` (force it with `make mo MSGFMT=`). Contributors only need to commit `.po` (and, when source strings change, `.pot`) updates.
 
 ## Creating or updating the POT file
 
