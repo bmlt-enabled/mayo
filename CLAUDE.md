@@ -16,6 +16,7 @@ This is the Mayo Events Manager WordPress plugin - a comprehensive event managem
 ### Testing
 - `composer test` - Run all PHPUnit tests
 - `composer test:integration` - Run integration tests only
+- `npm test` - Run JavaScript unit tests (Jest via `wp-scripts test-unit-js`; tests live in `__tests__/` folders under `assets/js/src`)
 
 ### Code Quality
 - `composer lint` - Run PHP CodeSniffer for linting PHP files

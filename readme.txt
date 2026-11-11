@@ -188,6 +188,7 @@ This project is licensed under the GPL v2 or later.
 == Changelog ==
 
 = 1.9.6 =
+* Fixed infinite scroll stopping after the first page of events when an event list opens in calendar view and the visitor switches to List View. Scrolling to the bottom now loads more events, including after switching back and forth between views, and the next page starts loading slightly before the end of the list is reached. [#335]
 * Fixed the Start and End date/time fields on the event and announcement submission forms sitting side by side, where the End field could be pushed off-page or hidden behind a theme's fixed or floating sidebar widget with no way to scroll to it — leaving required fields invisible. The two fields now stack in a single full-width column so both, and their required asterisks, stay visible on every theme. [#331]
 
 = 1.9.5 =
