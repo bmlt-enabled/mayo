@@ -339,6 +339,10 @@ class CalendarFeed {
             } else {
                 return null;
             }
+        } elseif ($type === 'yearly') {
+            // Month and day come from DTSTART; RFC 5545 skips Feb 29 in non-leap years.
+            $parts[] = 'FREQ=YEARLY';
+            if ($interval > 1) $parts[] = 'INTERVAL=' . $interval;
         } else {
             return null;
         }

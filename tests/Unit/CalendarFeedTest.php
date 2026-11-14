@@ -227,6 +227,42 @@ class CalendarFeedTest extends TestCase {
         $this->assertStringContainsString('BYDAY=-1SA', $result['ics']);
     }
 
+    public function testBuildVeventEmitsRruleForYearlyPattern(): void {
+        $post = $this->createMockPost(['ID' => 110]);
+        $this->setPostMeta(110, [
+            'event_start_date' => '2030-07-04',
+            'event_end_date'   => '2030-07-04',
+            'event_start_time' => '09:00:00',
+            'event_end_time'   => '17:00:00',
+            'timezone'         => 'UTC',
+            'recurring_pattern' => [
+                'type'     => 'yearly',
+                'interval' => 1,
+            ],
+        ]);
+
+        $result = $this->buildVevent($post);
+        $this->assertStringContainsString("RRULE:FREQ=YEARLY\r\n", $result['ics']);
+    }
+
+    public function testBuildVeventEmitsRruleForYearlyInterval(): void {
+        $post = $this->createMockPost(['ID' => 111]);
+        $this->setPostMeta(111, [
+            'event_start_date' => '2030-07-04',
+            'event_end_date'   => '2030-07-04',
+            'event_start_time' => '09:00:00',
+            'event_end_time'   => '17:00:00',
+            'timezone'         => 'UTC',
+            'recurring_pattern' => [
+                'type'     => 'yearly',
+                'interval' => 2,
+            ],
+        ]);
+
+        $result = $this->buildVevent($post);
+        $this->assertStringContainsString("RRULE:FREQ=YEARLY;INTERVAL=2\r\n", $result['ics']);
+    }
+
     public function testBuildVeventEmitsExdateForSkippedOccurrences(): void {
         $post = $this->createMockPost(['ID' => 106]);
         $this->setPostMeta(106, [

@@ -249,7 +249,8 @@ const EventBlockEditorSidebar = () => {
                             { label: __('No Recurrence', 'mayo-events-manager'), value: 'none' },
                             { label: __('Daily', 'mayo-events-manager'), value: 'daily' },
                             { label: __('Weekly', 'mayo-events-manager'), value: 'weekly' },
-                            { label: __('Monthly', 'mayo-events-manager'), value: 'monthly' }
+                            { label: __('Monthly', 'mayo-events-manager'), value: 'monthly' },
+                            { label: __('Annually', 'mayo-events-manager'), value: 'yearly' }
                         ]}
                         onChange={value => updateRecurringPattern({ type: value })}
                         __nextHasNoMarginBottom={true}
@@ -267,9 +268,16 @@ const EventBlockEditorSidebar = () => {
                                 />
                                 <span>
                                     {recurringPattern.type === 'daily' ? __('days', 'mayo-events-manager') :
-                                     recurringPattern.type === 'weekly' ? __('weeks', 'mayo-events-manager') : __('months', 'mayo-events-manager')}
+                                     recurringPattern.type === 'weekly' ? __('weeks', 'mayo-events-manager') :
+                                     recurringPattern.type === 'yearly' ? __('years', 'mayo-events-manager') : __('months', 'mayo-events-manager')}
                                 </span>
                             </div>
+
+                            {recurringPattern.type === 'yearly' && (
+                                <p className="components-base-control__help">
+                                    {__('Repeats on the same date as the event start date.', 'mayo-events-manager')}
+                                </p>
+                            )}
 
                             {recurringPattern.type === 'weekly' && (
                                 <div className="mayo-weekday-controls">

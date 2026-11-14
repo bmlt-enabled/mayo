@@ -951,6 +951,13 @@ class EventsController {
                             $recurring_info .= ' ' . sprintf(__('on %s', 'mayo-events-manager'), $recurring_pattern['monthlyWeekday']);
                         }
                         break;
+                    case 'yearly':
+                        $recurring_info .= __('Annually', 'mayo-events-manager');
+                        if (isset($recurring_pattern['interval']) && $recurring_pattern['interval'] > 1) {
+                            /* translators: %d: interval years */
+                            $recurring_info .= ' ' . sprintf(__('(every %d years)', 'mayo-events-manager'), $recurring_pattern['interval']);
+                        }
+                        break;
                 }
 
                 if (!empty($recurring_pattern['endDate'])) {
@@ -1998,6 +2005,9 @@ class EventsController {
             $max_events = 52 * 5;
         } elseif ($pattern['type'] === 'monthly') {
             $max_events = 12 * 5;
+        } elseif ($pattern['type'] === 'yearly') {
+            // Annual events are often set up once and left running, so look further ahead.
+            $max_events = 10;
         }
 
         if ($pattern['type'] === 'monthly') {
@@ -2075,6 +2085,12 @@ class EventsController {
                 $current->setDate($current_year, $current_month, 1);
                 $current->modify('+' . $interval . ' month');
             }
+        } elseif ($pattern['type'] === 'yearly') {
+            foreach (self::yearly_occurrence_dates($start, $pattern, $end, $max_events) as $occurrence) {
+                if (!in_array($occurrence->format('Y-m-d'), $skipped_occurrences)) {
+                    $events[] = self::format_recurring_event($post, $occurrence);
+                }
+            }
         } else {
             $interval = new DateInterval('P' . $pattern['interval'] .
                 ($pattern['type'] === 'daily' ? 'D' :
@@ -2113,6 +2129,45 @@ class EventsController {
         }
 
         return $events;
+    }
+
+    /**
+     * Dates of an annual recurrence after the first occurrence.
+     *
+     * Each occurrence falls on the start date's month and day, every `interval`
+     * years. A Feb 29 start only recurs in leap years, matching RFC 5545
+     * FREQ=YEARLY so the calendar feed and the site agree.
+     *
+     * @param DateTime      $start   First occurrence.
+     * @param array         $pattern Recurring pattern (uses `interval`).
+     * @param DateTime|null $end     Last date an occurrence may fall on, or null.
+     * @param int           $limit   Maximum number of dates to return.
+     * @return DateTime[]
+     */
+    private static function yearly_occurrence_dates($start, $pattern, $end, $limit) {
+        $interval = max(1, intval($pattern['interval'] ?? 1));
+        $year = (int)$start->format('Y');
+        $month = (int)$start->format('n');
+        $day = (int)$start->format('j');
+        $dates = [];
+
+        while (count($dates) < $limit) {
+            $year += $interval;
+            if ($year > 9999) {
+                break;
+            }
+            if (!checkdate($month, $day, $year)) {
+                continue;
+            }
+            $occurrence = clone $start;
+            $occurrence->setDate($year, $month, $day);
+            if ($end !== null && $occurrence > $end) {
+                break;
+            }
+            $dates[] = $occurrence;
+        }
+
+        return $dates;
     }
 
     /**
