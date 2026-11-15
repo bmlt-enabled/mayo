@@ -181,6 +181,15 @@ export const formatRecurringPattern = (pattern) => {
                 );
             }
             break;
+        case 'yearly':
+            text = interval > 1
+                ? sprintf(
+                    /* translators: %d: number of years */
+                    _n('This event repeats every %d year', 'This event repeats every %d years', interval, 'mayo-events-manager'),
+                    interval
+                )
+                : __('This event repeats annually', 'mayo-events-manager');
+            break;
         default:
             return '';
     }

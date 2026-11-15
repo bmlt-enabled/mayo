@@ -488,7 +488,7 @@ const ApiDocs = () => {
 
                 <h3>Recurring Pattern Object</h3>
                 <pre><code>{`{
-    "type": "weekly",           // "none", "daily", "weekly", "monthly"
+    "type": "weekly",           // "none", "daily", "weekly", "monthly", "yearly"
     "interval": 1,              // Repeat every N days/weeks/months
     "weekdays": [1, 3, 5],      // For weekly: days of week (0=Sun, 6=Sat)
     "monthlyType": "date",      // For monthly: "date" or "weekday"

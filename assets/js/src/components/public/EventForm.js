@@ -740,6 +740,7 @@ const EventForm = () => {
                             <option value="daily">{__('Daily', 'mayo-events-manager')}</option>
                             <option value="weekly">{__('Weekly', 'mayo-events-manager')}</option>
                             <option value="monthly">{__('Monthly', 'mayo-events-manager')}</option>
+                            <option value="yearly">{__('Annually', 'mayo-events-manager')}</option>
                         </select>
 
                         {showRecurringOptions && (
@@ -754,9 +755,16 @@ const EventForm = () => {
                                     />
                                     <span>
                                         {formData.recurring_pattern.type === 'daily' ? __('days', 'mayo-events-manager') :
-                                         formData.recurring_pattern.type === 'weekly' ? __('weeks', 'mayo-events-manager') : __('months', 'mayo-events-manager')}
+                                         formData.recurring_pattern.type === 'weekly' ? __('weeks', 'mayo-events-manager') :
+                                         formData.recurring_pattern.type === 'yearly' ? __('years', 'mayo-events-manager') : __('months', 'mayo-events-manager')}
                                     </span>
                                 </div>
+
+                                {formData.recurring_pattern.type === 'yearly' && (
+                                    <p className="mayo-recurring-yearly-note">
+                                        {__('Repeats on the same date as the event start date.', 'mayo-events-manager')}
+                                    </p>
+                                )}
 
                                 {formData.recurring_pattern.type === 'weekly' && (
                                     <div className="mayo-weekday-controls">

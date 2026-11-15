@@ -2294,4 +2294,116 @@ class EventsControllerTest extends TestCase {
         $this->assertFalse($this->eventMatchesServiceBody('20', '5,10'));
         $this->assertFalse($this->eventMatchesServiceBody('', '5'));
     }
+
+    /**
+     * Set up a yearly-recurring post and return its generated occurrence dates.
+     *
+     * @return string[]
+     */
+    private function yearlyDates(int $id, string $start, array $pattern, array $skipped = []): array {
+        $post = $this->createMockPost([
+            'ID' => $id,
+            'post_title' => 'Annual Convention',
+            'post_type' => 'mayo_event',
+            'post_status' => 'publish'
+        ]);
+        $this->mockGetPost($post);
+        $this->stubRecurringFormatters('Annual Convention');
+        $this->setPostMeta($id, [
+            'event_start_date' => $start,
+            'event_end_date' => $start,
+            'skipped_occurrences' => $skipped
+        ]);
+
+        return $this->generatedRecurringDates($post, array_merge(['type' => 'yearly', 'interval' => 1], $pattern));
+    }
+
+    /**
+     * Annual recurrence repeats on the start date's month and day each year.
+     */
+    public function testYearlyRepeatsOnStartDateEachYear(): void {
+        $dates = $this->yearlyDates(630, '2025-07-04', ['endDate' => '2028-12-31']);
+
+        $this->assertSame(['2026-07-04', '2027-07-04', '2028-07-04'], $dates);
+    }
+
+    /**
+     * The end date is inclusive: an occurrence on the end date is kept.
+     */
+    public function testYearlyEndDateIsInclusive(): void {
+        $dates = $this->yearlyDates(631, '2025-07-04', ['endDate' => '2027-07-04']);
+
+        $this->assertSame(['2026-07-04', '2027-07-04'], $dates);
+    }
+
+    /**
+     * An interval of 2 repeats every other year.
+     */
+    public function testYearlyHonorsInterval(): void {
+        $dates = $this->yearlyDates(632, '2025-03-10', ['interval' => 2, 'endDate' => '2031-12-31']);
+
+        $this->assertSame(['2027-03-10', '2029-03-10', '2031-03-10'], $dates);
+    }
+
+    /**
+     * A Feb 29 start only recurs in leap years, rather than drifting to Mar 1.
+     */
+    public function testYearlyLeapDayOnlyRecursInLeapYears(): void {
+        $dates = $this->yearlyDates(633, '2024-02-29', ['endDate' => '2033-12-31']);
+
+        $this->assertSame(['2028-02-29', '2032-02-29'], $dates);
+    }
+
+    /**
+     * Skipped occurrences are omitted from annual recurrences.
+     */
+    public function testYearlySkipsSkippedOccurrences(): void {
+        $dates = $this->yearlyDates(634, '2025-10-01', ['endDate' => '2028-12-31'], ['2027-10-01']);
+
+        $this->assertSame(['2026-10-01', '2028-10-01'], $dates);
+    }
+
+    /**
+     * Without an end date, annual recurrence generates ten years ahead.
+     */
+    public function testYearlyWithoutEndDateIsCapped(): void {
+        $dates = $this->yearlyDates(635, '2025-05-20', []);
+
+        $this->assertCount(10, $dates);
+        $this->assertSame('2026-05-20', $dates[0]);
+        $this->assertSame('2035-05-20', $dates[9]);
+    }
+
+    /**
+     * Test build_event_email_content with yearly recurring
+     */
+    public function testBuildEventEmailContentWithYearlyRecurring(): void {
+        $this->mockWpRemoteGet([
+            'GetServiceBodies' => [
+                'code' => 200,
+                'body' => [['id' => '1', 'name' => 'Region']]
+            ]
+        ]);
+
+        $params = [
+            'event_name' => 'Annual Convention',
+            'event_type' => 'Convention',
+            'service_body' => '1',
+            'event_start_date' => '2025-07-04',
+            'event_start_time' => '09:00',
+            'event_end_date' => '2025-07-04',
+            'event_end_time' => '17:00',
+            'timezone' => 'America/New_York',
+            'contact_name' => 'Jane',
+            'email' => 'jane@example.com',
+            'recurring_pattern' => [
+                'type' => 'yearly',
+                'interval' => 2
+            ]
+        ];
+
+        $result = EventsController::build_event_email_content($params, 'Event: %s', 'https://test.com');
+
+        $this->assertStringContainsString('Recurring Pattern: Annually (every 2 years)', $result['message']);
+    }
 }
