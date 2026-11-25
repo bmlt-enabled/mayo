@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
 import { useState, useEffect } from '@wordpress/element';
 import { getTimezoneOptions, getUserTimezone } from '../../timezones';
-import { apiFetch } from '../../util';
+import { apiFetch, getInitialMonthlyDate, getInitialWeekdayPattern, parseLocalDate } from '../../util';
 
 const EventBlockEditorSidebar = () => {
     const { serviceBodies } = useEventProvider();
@@ -119,9 +119,8 @@ const EventBlockEditorSidebar = () => {
     };
 
     const formatDate = (dateString) => {
-        // Parse the date string as local date to avoid timezone issues
-        const [year, month, day] = dateString.split('-').map(Number);
-        const date = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+        const date = parseLocalDate(dateString);
+        if (!date) return dateString;
 
         return date.toLocaleDateString('en-US', {
             weekday: 'long',
@@ -149,25 +148,6 @@ const EventBlockEditorSidebar = () => {
         { value: '5', label: __('Fifth', 'mayo-events-manager') },
         { value: '-1', label: __('Last', 'mayo-events-manager') }
     ];
-
-    // Helper function to get initial date from event start date
-    const getInitialMonthlyDate = () => {
-        if (meta.event_start_date) {
-            const date = new Date(meta.event_start_date);
-            return date.getDate().toString();
-        }
-        return '';
-    };
-
-    // Helper function to get initial weekday from event start date
-    const getInitialWeekdayPattern = () => {
-        if (meta.event_start_date) {
-            const date = new Date(meta.event_start_date);
-            const weekNumber = Math.ceil(date.getDate() / 7);
-            return `${weekNumber},${date.getDay()}`;
-        }
-        return '';
-    };
 
     return (
         <>
@@ -321,8 +301,8 @@ const EventBlockEditorSidebar = () => {
                                 ]}
                                 onChange={value => updateRecurringPattern({
                                     monthlyType: value,
-                                    monthlyDate: value === 'date' ? getInitialMonthlyDate() : '',
-                                    monthlyWeekday: (value === 'weekday' || value === 'relative') ? getInitialWeekdayPattern() : '',
+                                    monthlyDate: value === 'date' ? getInitialMonthlyDate(meta.event_start_date) : '',
+                                    monthlyWeekday: (value === 'weekday' || value === 'relative') ? getInitialWeekdayPattern(meta.event_start_date) : '',
                                     ...(value === 'relative' ? {
                                         relativeOffsetDirection: recurringPattern.relativeOffsetDirection || 'before',
                                         relativeOffsetWeekday: recurringPattern.relativeOffsetWeekday ?? 1
@@ -333,7 +313,7 @@ const EventBlockEditorSidebar = () => {
                             {recurringPattern.monthlyType === 'date' && (
                                 <NumberControl
                                     label={__('Day of month', 'mayo-events-manager')}
-                                    value={recurringPattern.monthlyDate || getInitialMonthlyDate()}
+                                    value={recurringPattern.monthlyDate || getInitialMonthlyDate(meta.event_start_date)}
                                     onChange={value => updateRecurringPattern({ monthlyDate: value })}
                                     min={1}
                                     max={31}

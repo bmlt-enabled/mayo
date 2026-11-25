@@ -34,6 +34,31 @@ export const convertToUnicode = (str) => {
         .join('');
 };
 
+export const parseLocalDate = (dateString) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return null;
+    }
+
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+        return null;
+    }
+
+    return date;
+};
+
+export const getInitialMonthlyDate = (dateString) => {
+    const date = parseLocalDate(dateString);
+    return date ? date.getDate().toString() : '';
+};
+
+export const getInitialWeekdayPattern = (dateString) => {
+    const date = parseLocalDate(dateString);
+    return date ? `${Math.ceil(date.getDate() / 7)},${date.getDay()}` : '';
+};
+
 export const formatTime = (time, format) => {
     if (!time) return '';
     

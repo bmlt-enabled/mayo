@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "wp-scripts test-unit-js assets/js/src",
+    "test": "wp-scripts test-unit-js assets/js/src --globalSetup=./assets/js/test-global-setup.js",
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch"
   },
