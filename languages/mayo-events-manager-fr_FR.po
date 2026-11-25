@@ -236,7 +236,7 @@ msgstr "Catégorie"
 
 #: assets/js/src/components/public/EventForm.js:525
 msgid "Celebration"
-msgstr "Célébration"
+msgstr "Anniversaire"
 
 #: assets/js/src/components/public/AnnouncementForm.js:624
 #: assets/js/src/components/public/EventForm.js:872

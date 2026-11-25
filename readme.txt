@@ -189,7 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.9.7 =
 * Added an "Annually" option to the event Repeat setting, in the block editor and on the public submission form. Annual events repeat on the same date as the event's start date every year (or every N years), appear in event lists and calendar feeds, and can have individual years skipped. Events starting on February 29 repeat only in leap years. [#340]
-* Fixed French event-list filter labels: Activity, Celebration and Category were shown in English, Tag had no French translation, and Service now reads "Réunion de service". Filter values and shortcode attributes remain unchanged.
+* Fixed French event-list filter labels: Activity now reads "Activité", Celebration "Anniversaire", Service "Réunion de service", Category "Catégorie", and Tag "Étiquette". Filter values and shortcode attributes remain unchanged.
 
 = 1.9.6 =
 * Fixed infinite scroll stopping after the first page of events when an event list opens in calendar view and the visitor switches to List View. Scrolling to the bottom now loads more events, including after switching back and forth between views, and the next page starts loading slightly before the end of the list is reached. [#335]
