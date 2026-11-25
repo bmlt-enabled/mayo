@@ -24,9 +24,14 @@ const FACET_DEFS = [
     },
 ];
 
-const normalizeOptions = (key, facets) => {
+export const normalizeOptions = (key, facets) => {
     if (key === 'event_type') {
-        return (facets?.event_types || []).map(type => ({ value: type, label: type }));
+        // The REST API returns the canonical English event types. Keep the
+        // value as-is for filtering, but display the translated label.
+        return (facets?.event_types || []).map(type => ({
+            value: type,
+            label: __(type, 'mayo-events-manager'),
+        }));
     }
     if (key === 'service_body') {
         return (facets?.service_bodies || []).map(body => ({
