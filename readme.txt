@@ -189,6 +189,7 @@ This project is licensed under the GPL v2 or later.
 
 = 1.9.7 =
 * Added an "Annually" option to the event Repeat setting, in the block editor and on the public submission form. Annual events repeat on the same date as the event's start date every year (or every N years), appear in event lists and calendar feeds, and can have individual years skipped. Events starting on February 29 repeat only in leap years. [#340]
+* Fixed monthly recurring event defaults in timezones west of UTC, where a Tuesday start date could preselect the fourth Monday instead of the fourth Tuesday.
 
 = 1.9.6 =
 * Fixed infinite scroll stopping after the first page of events when an event list opens in calendar view and the visitor switches to List View. Scrolling to the bottom now loads more events, including after switching back and forth between views, and the next page starts loading slightly before the end of the list is reached. [#335]

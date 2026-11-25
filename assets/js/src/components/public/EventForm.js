@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEventProvider } from '../providers/EventProvider';
-import { apiFetch } from '../../util';
+import { apiFetch, getInitialMonthlyDate, getInitialWeekdayPattern } from '../../util';
 import TimeField from './TimeField';
 import { getTimezonesByRegion, getUserTimezone } from '../../timezones';
 
@@ -497,25 +497,6 @@ const EventForm = () => {
         return allRequiredFields.includes(fieldName);
     };
 
-    // Helper function to get initial date from event start date
-    const getInitialMonthlyDate = () => {
-        if (formData.event_start_date) {
-            const date = new Date(formData.event_start_date);
-            return date.getDate().toString();
-        }
-        return '';
-    };
-
-    // Helper function to get initial weekday from event start date
-    const getInitialWeekdayPattern = () => {
-        if (formData.event_start_date) {
-            const date = new Date(formData.event_start_date);
-            const weekNumber = Math.ceil(date.getDate() / 7);
-            return `${weekNumber},${date.getDay()}`;
-        }
-        return '';
-    };
-
     // Update recurring pattern
     const updateRecurringPattern = (updates) => {
         setFormData(prev => ({
@@ -730,8 +711,8 @@ const EventForm = () => {
                                     weekdays: [],
                                     endDate: '',
                                     monthlyType: 'date',
-                                    monthlyDate: type === 'monthly' ? getInitialMonthlyDate() : '',
-                                    monthlyWeekday: type === 'monthly' ? getInitialWeekdayPattern() : ''
+                                    monthlyDate: type === 'monthly' ? getInitialMonthlyDate(formData.event_start_date) : '',
+                                    monthlyWeekday: type === 'monthly' ? getInitialWeekdayPattern(formData.event_start_date) : ''
                                 });
                                 setShowRecurringOptions(type !== 'none');
                             }}
@@ -800,7 +781,7 @@ const EventForm = () => {
                                                         checked={formData.recurring_pattern.monthlyType === 'date'}
                                                         onChange={() => updateRecurringPattern({
                                                             monthlyType: 'date',
-                                                            monthlyDate: getInitialMonthlyDate(),
+                                                            monthlyDate: getInitialMonthlyDate(formData.event_start_date),
                                                             monthlyWeekday: ''
                                                         })}
                                                     />
@@ -815,7 +796,7 @@ const EventForm = () => {
                                                         onChange={() => updateRecurringPattern({
                                                             monthlyType: 'weekday',
                                                             monthlyDate: '',
-                                                            monthlyWeekday: getInitialWeekdayPattern()
+                                                            monthlyWeekday: getInitialWeekdayPattern(formData.event_start_date)
                                                         })}
                                                     />
                                                     {__('On a specific day', 'mayo-events-manager')}
@@ -830,7 +811,7 @@ const EventForm = () => {
                                                     type="number"
                                                     min="1"
                                                     max="31"
-                                                    value={formData.recurring_pattern.monthlyDate || getInitialMonthlyDate()}
+                                                    value={formData.recurring_pattern.monthlyDate || getInitialMonthlyDate(formData.event_start_date)}
                                                     onChange={(e) => updateRecurringPattern({ monthlyDate: e.target.value })}
                                                 />
                                             </div>
