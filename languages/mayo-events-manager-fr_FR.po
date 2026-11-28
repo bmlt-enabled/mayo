@@ -230,9 +230,13 @@ msgstr "Catégories :"
 msgid "Categories: %s"
 msgstr "Catégories : %s"
 
+#: assets/js/src/components/public/EventFilters.js:18
+msgid "Category"
+msgstr "Catégorie"
+
 #: assets/js/src/components/public/EventForm.js:525
 msgid "Celebration"
-msgstr "Célébration"
+msgstr "Anniversaire"
 
 #: assets/js/src/components/public/AnnouncementForm.js:624
 #: assets/js/src/components/public/EventForm.js:872
@@ -1038,7 +1042,7 @@ msgstr "Septembre"
 
 #: assets/js/src/components/public/EventForm.js:523
 msgid "Service"
-msgstr "Service"
+msgstr "Réunion de service"
 
 #: assets/js/src/components/public/SubscribeForm.js:200
 #: mayo-events-manager.php:752
@@ -1172,6 +1176,10 @@ msgstr "Dimanche"
 #: assets/js/src/components/public/EventForm.js:847
 msgid "Supported file types: Images (.jpg, .jpeg, .png, .gif)"
 msgstr "Types de fichiers pris en charge : Images (.jpg, .jpeg, .png, .gif)"
+
+#: assets/js/src/components/public/EventFilters.js:23
+msgid "Tag"
+msgstr "Étiquette"
 
 #: assets/js/src/components/public/AnnouncementForm.js:657
 #: assets/js/src/components/public/EventForm.js:934
